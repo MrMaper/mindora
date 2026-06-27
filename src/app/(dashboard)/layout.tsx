@@ -56,15 +56,17 @@ export default async function DashboardLayout({
 
         <div className="app-sidebar__footer">
           <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", padding: "var(--space-1) var(--space-2)" }}>
-            <Avatar name={session.user.name ?? "User"} src={session.user.image ?? undefined} size="sm" />
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: "var(--text-xs)", fontWeight: "var(--weight-medium)", color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {session.user.name}
+            <Link href="/profile" style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", flex: 1, minWidth: 0, textDecoration: "none" }}>
+              <Avatar name={session.user.name ?? "User"} src={session.user.image ?? undefined} size="sm" />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: "var(--text-xs)", fontWeight: "var(--weight-medium)", color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {session.user.name}
+                </div>
+                <div style={{ fontSize: "var(--text-2xs)", color: "var(--text-tertiary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {session.user.email}
+                </div>
               </div>
-              <div style={{ fontSize: "var(--text-2xs)", color: "var(--text-tertiary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {session.user.email}
-              </div>
-            </div>
+            </Link>
             <SignOutButton />
           </div>
         </div>
