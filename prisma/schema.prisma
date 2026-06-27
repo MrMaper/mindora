@@ -1,0 +1,390 @@
+generator client {
+  provider = "prisma-client"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  ADMIN
+  MEMBER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum TaskStatus {
+  BACKLOG
+  TODO
+  IN_PROGRESS
+  REVIEW
+  TESTING
+  DONE
+  BLOCKED
+}
+
+enum TaskPriority {
+  URGENT
+  HIGH
+  MEDIUM
+  LOW
+  NONE
+}
+
+enum TaskType {
+  TASK
+  STORY
+  BUG
+  EPIC
+}
+
+enum SprintStatus {
+  PLANNED
+  ACTIVE
+  COMPLETED
+}
+
+enum ProjectStatus {
+  ACTIVE
+  ARCHIVED
+  ON_HOLD
+}
+
+enum NotificationType {
+  TASK_ASSIGNED
+  TASK_UPDATED
+  TASK_COMMENTED
+  MENTION
+  SPRINT_STARTED
+  SPRINT_ENDED
+  DEADLINE_APPROACHING
+  STATUS_CHANGED
+}
+
+// ─── Core Identity ────────────────────────────────────────────────────────
+
+model User {
+  id        String     @id @default(cuid())
+  name      String
+  email     String     @unique
+  password  String?
+  avatar    String?
+  role      UserRole   @default(MEMBER)
+  status    UserStatus @default(ACTIVE)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  teamMembers         TeamMember[]
+  createdTasks        Task[]               @relation("TaskCreatedBy")
+  assignedTasks       Task[]               @relation("TaskAssignedTo")
+  comments            Comment[]
+  notifications       Notification[]
+  activityLogs        ActivityLog[]
+  accounts            Account[]
+  sessions            Session[]
+  passwordResetTokens PasswordResetToken[]
+
+  @@map("users")
+}
+
+// ─── Auth ─────────────────────────────────────────────────────────────────
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_tokens")
+}
+
+// ─── RBAC (Phase 5) ───────────────────────────────────────────────────────
+
+model Role {
+  id          String           @id @default(cuid())
+  name        String           @unique
+  permissions RolePermission[]
+  teamMembers TeamMember[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id    String           @id @default(cuid())
+  key   String           @unique
+  roles RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+// ─── Organization & Teams (Phase 2+) ─────────────────────────────────────
+
+model Organization {
+  id      String @id @default(cuid())
+  name    String
+  ownerId String
+  teams   Team[]
+
+  @@map("organizations")
+}
+
+model Team {
+  id             String  @id @default(cuid())
+  organizationId String
+  name           String
+  description    String?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  members      TeamMember[]
+  projects     Project[]
+
+  @@map("teams")
+}
+
+model TeamMember {
+  id     String @id @default(cuid())
+  teamId String
+  userId String
+  roleId String
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id])
+
+  @@unique([teamId, userId])
+  @@map("team_members")
+}
+
+// ─── Projects & Sprints (Phase 3+) ───────────────────────────────────────
+
+model Project {
+  id          String        @id @default(cuid())
+  teamId      String
+  name        String
+  description String?
+  status      ProjectStatus @default(ACTIVE)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  team    Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  sprints Sprint[]
+  tasks   Task[]
+
+  @@map("projects")
+}
+
+model Sprint {
+  id        String       @id @default(cuid())
+  projectId String
+  goal      String?
+  startDate DateTime?
+  endDate   DateTime?
+  status    SprintStatus @default(PLANNED)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks   Task[]
+
+  @@map("sprints")
+}
+
+// ─── Tasks ────────────────────────────────────────────────────────────────
+
+model Task {
+  id           String       @id @default(cuid())
+  projectId    String?
+  sprintId     String?
+  parentTaskId String?
+  title        String
+  description  String?
+  status       TaskStatus   @default(BACKLOG)
+  priority     TaskPriority @default(NONE)
+  type         TaskType     @default(TASK)
+  storyPoints  Int?
+  estimate     Int?
+  dueDate      DateTime?
+  position     Int          @default(0)
+  createdById  String
+  assignedToId String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  project    Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  sprint     Sprint?  @relation(fields: [sprintId], references: [id])
+  parent     Task?    @relation("SubTasks", fields: [parentTaskId], references: [id])
+  subTasks   Task[]   @relation("SubTasks")
+  createdBy  User     @relation("TaskCreatedBy", fields: [createdById], references: [id])
+  assignedTo User?    @relation("TaskAssignedTo", fields: [assignedToId], references: [id])
+
+  labels      TaskLabel[]
+  comments    Comment[]
+  attachments Attachment[]
+  checklists  Checklist[]
+
+  @@map("tasks")
+}
+
+model Label {
+  id    String      @id @default(cuid())
+  name  String
+  color String
+  tasks TaskLabel[]
+
+  @@map("labels")
+}
+
+model TaskLabel {
+  taskId  String
+  labelId String
+
+  task  Task  @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  label Label @relation(fields: [labelId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, labelId])
+  @@map("task_labels")
+}
+
+// ─── Comments & Attachments ───────────────────────────────────────────────
+
+model Comment {
+  id        String   @id @default(cuid())
+  taskId    String
+  userId    String
+  body      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("comments")
+}
+
+model Attachment {
+  id        String   @id @default(cuid())
+  taskId    String
+  url       String
+  filename  String
+  createdAt DateTime @default(now())
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@map("attachments")
+}
+
+// ─── Checklists ──────────────────────────────────────────────────────────
+
+model Checklist {
+  id     String          @id @default(cuid())
+  taskId String
+  title  String
+  items  ChecklistItem[]
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@map("checklists")
+}
+
+model ChecklistItem {
+  id          String  @id @default(cuid())
+  checklistId String
+  title       String
+  completed   Boolean @default(false)
+
+  checklist Checklist @relation(fields: [checklistId], references: [id], onDelete: Cascade)
+
+  @@map("checklist_items")
+}
+
+// ─── Notifications & Activity ─────────────────────────────────────────────
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  body      String?
+  read      Boolean          @default(false)
+  data      Json?
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model ActivityLog {
+  id          String   @id @default(cuid())
+  entity      String
+  entityId    String
+  action      String
+  performedBy String
+  oldValue    Json?
+  newValue    Json?
+  timestamp   DateTime @default(now())
+
+  user User @relation(fields: [performedBy], references: [id])
+
+  @@map("activity_logs")
+}
