@@ -1,3 +1,4 @@
+import * as React from "react";
 import type { Metadata } from "next";
 import { ResetPasswordCC } from "./reset-password-cc";
 
@@ -9,5 +10,9 @@ export default async function ResetPasswordPage({
   searchParams: Promise<{ token?: string }>;
 }) {
   const { token } = await searchParams;
-  return <ResetPasswordCC token={token} />;
+  return (
+    <React.Suspense>
+      <ResetPasswordCC token={token} />
+    </React.Suspense>
+  );
 }
