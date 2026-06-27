@@ -67,6 +67,11 @@ enum NotificationType {
   STATUS_CHANGED
 }
 
+enum Language {
+  EN
+  FA
+}
+
 // ─── Core Identity ────────────────────────────────────────────────────────
 
 model User {
@@ -89,6 +94,7 @@ model User {
   accounts            Account[]
   sessions            Session[]
   passwordResetTokens PasswordResetToken[]
+  preferences         UserPreferences?
 
   @@map("users")
 }
@@ -147,7 +153,21 @@ model PasswordResetToken {
   @@map("password_reset_tokens")
 }
 
+model UserPreferences {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  language  Language @default(EN)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_preferences")
+}
+
 // ─── RBAC (Phase 5) ───────────────────────────────────────────────────────
+
+// ─── User Preferences ────────────────────────────────────────────────────
 
 model Role {
   id          String           @id @default(cuid())

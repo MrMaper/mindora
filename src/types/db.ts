@@ -18,4 +18,5 @@ export type {
   TaskPriority,
   TaskType,
   NotificationType,
+  Language,
 } from "../../prisma/generated/enums";

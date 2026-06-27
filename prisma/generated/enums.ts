@@ -89,3 +89,11 @@ export const NotificationType = {
 } as const
 
 export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]
+
+
+export const Language = {
+  EN: 'EN',
+  FA: 'FA'
+} as const
+
+export type Language = (typeof Language)[keyof typeof Language]
