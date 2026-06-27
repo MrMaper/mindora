@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useSettings } from "./use-settings";
+import { getTranslations } from "@/i18n";
 import type { Language } from "@/types/db";
 
 interface SettingsCCProps {
@@ -10,10 +11,11 @@ interface SettingsCCProps {
 
 export function SettingsCC({ currentLanguage }: SettingsCCProps) {
   const settings = useSettings(currentLanguage);
+  const t = getTranslations(currentLanguage);
 
   const languages: Array<{ value: Language; label: string }> = [
-    { value: "EN", label: "English" },
-    { value: "FA", label: "فارسی (Persian)" },
+    { value: "EN", label: t.settings.english },
+    { value: "FA", label: t.settings.persian },
   ];
 
   return (
@@ -26,7 +28,7 @@ export function SettingsCC({ currentLanguage }: SettingsCCProps) {
           marginBottom: "var(--space-6)",
         }}
       >
-        Settings
+        {t.settings.title}
       </h1>
 
       {/* ── Language Settings ─────────────────────────────────────────── */}
@@ -41,7 +43,7 @@ export function SettingsCC({ currentLanguage }: SettingsCCProps) {
             marginBottom: "var(--space-4)",
           }}
         >
-          PREFERENCES
+          {t.settings.preferences}
         </div>
 
         <div
@@ -59,7 +61,7 @@ export function SettingsCC({ currentLanguage }: SettingsCCProps) {
               marginBottom: "var(--space-3)",
             }}
           >
-            Language
+            {t.settings.language}
           </label>
 
           <div style={{ display: "flex", gap: "var(--space-3)" }}>
@@ -118,7 +120,7 @@ export function SettingsCC({ currentLanguage }: SettingsCCProps) {
               }}
               role="status"
             >
-              ✓ Language preference updated
+              ✓ {t.settings.languageUpdated}
             </p>
           )}
         </div>
@@ -136,7 +138,7 @@ export function SettingsCC({ currentLanguage }: SettingsCCProps) {
             marginBottom: "var(--space-4)",
           }}
         >
-          MORE OPTIONS
+          {t.settings.moreOptions}
         </div>
 
         <p
@@ -145,7 +147,7 @@ export function SettingsCC({ currentLanguage }: SettingsCCProps) {
             color: "var(--text-tertiary)",
           }}
         >
-          Additional settings coming soon...
+          {t.settings.comingSoon}
         </p>
       </section>
     </div>

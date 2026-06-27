@@ -7,6 +7,7 @@ import { Icon } from "@/components/ui-kit/foundation/icon";
 import { Input } from "@/components/ui-kit/forms/input";
 import { Button } from "@/components/ui-kit/forms/button";
 import { useResetPassword } from "./use-reset-password";
+import { en } from "@/i18n";
 
 interface ResetPasswordCCProps {
   token: string | undefined;
@@ -14,7 +15,11 @@ interface ResetPasswordCCProps {
 
 export function ResetPasswordCC({ token }: ResetPasswordCCProps) {
   const { form, onSubmit, error, isPending } = useResetPassword(token ?? "");
-  const { control, formState: { errors } } = form;
+  const {
+    control,
+    formState: { errors },
+  } = form;
+  const t = en;
 
   if (!token) {
     return (
@@ -26,11 +31,11 @@ export function ResetPasswordCC({ token }: ResetPasswordCCProps) {
           <span className="auth-card__wordmark">ScrumFlow</span>
         </div>
         <div className="auth-card__alert auth-card__alert--error" role="alert">
-          This reset link is invalid or has expired.
+          {t.auth.invalidResetLink}
         </div>
         <Link href="/forgot-password" className="auth-card__back">
           <Icon name="chevron-left" size={13} />
-          Request a new link
+          {t.auth.sendResetLink}
         </Link>
       </div>
     );
@@ -46,13 +51,16 @@ export function ResetPasswordCC({ token }: ResetPasswordCCProps) {
       </div>
 
       <div className="auth-card__header">
-        <div className="auth-card__title">New password</div>
-        <div className="auth-card__subtitle">Choose a password with at least 8 characters.</div>
+        <div className="auth-card__title">{t.auth.resetPasswordTitle}</div>
+        <div className="auth-card__subtitle">{t.auth.enterNewPassword}</div>
       </div>
 
       <form onSubmit={onSubmit} className="auth-card__form" noValidate>
         {error && (
-          <div className="auth-card__alert auth-card__alert--error" role="alert">
+          <div
+            className="auth-card__alert auth-card__alert--error"
+            role="alert"
+          >
             {error}
           </div>
         )}
@@ -63,7 +71,7 @@ export function ResetPasswordCC({ token }: ResetPasswordCCProps) {
           render={({ field }) => (
             <Input
               {...field}
-              label="New password"
+              label={t.auth.newPassword}
               type="password"
               placeholder="••••••••"
               autoComplete="new-password"
@@ -78,7 +86,7 @@ export function ResetPasswordCC({ token }: ResetPasswordCCProps) {
           render={({ field }) => (
             <Input
               {...field}
-              label="Confirm password"
+              label={t.auth.confirmPassword}
               type="password"
               placeholder="••••••••"
               autoComplete="new-password"
@@ -87,14 +95,19 @@ export function ResetPasswordCC({ token }: ResetPasswordCCProps) {
           )}
         />
 
-        <Button type="submit" variant="primary" loading={isPending} style={{ width: "100%" }}>
-          Set new password
+        <Button
+          type="submit"
+          variant="primary"
+          loading={isPending}
+          style={{ width: "100%" }}
+        >
+          {t.auth.resetPassword}
         </Button>
       </form>
 
       <Link href="/login" className="auth-card__back">
         <Icon name="chevron-left" size={13} />
-        Back to sign in
+        {t.auth.backToLogin}
       </Link>
     </div>
   );

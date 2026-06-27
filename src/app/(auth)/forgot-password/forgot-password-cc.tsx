@@ -7,10 +7,15 @@ import { Icon } from "@/components/ui-kit/foundation/icon";
 import { Input } from "@/components/ui-kit/forms/input";
 import { Button } from "@/components/ui-kit/forms/button";
 import { useForgotPassword } from "./use-forgot-password";
+import { en } from "@/i18n";
 
 export function ForgotPasswordCC() {
   const { form, onSubmit, success, error, isPending } = useForgotPassword();
-  const { control, formState: { errors } } = form;
+  const {
+    control,
+    formState: { errors },
+  } = form;
+  const t = en;
 
   return (
     <div className="auth-card">
@@ -22,20 +27,26 @@ export function ForgotPasswordCC() {
       </div>
 
       <div className="auth-card__header">
-        <div className="auth-card__title">Forgot password</div>
+        <div className="auth-card__title">{t.auth.forgotPasswordTitle}</div>
         <div className="auth-card__subtitle">
-          Enter your email and we&rsquo;ll send a reset link.
+          {t.auth.forgotPasswordDescription}
         </div>
       </div>
 
       {success ? (
-        <div className="auth-card__alert auth-card__alert--success" role="status">
-          Check your inbox — a reset link is on its way.
+        <div
+          className="auth-card__alert auth-card__alert--success"
+          role="status"
+        >
+          {t.auth.passwordResetSent}
         </div>
       ) : (
         <form onSubmit={onSubmit} className="auth-card__form" noValidate>
           {error && (
-            <div className="auth-card__alert auth-card__alert--error" role="alert">
+            <div
+              className="auth-card__alert auth-card__alert--error"
+              role="alert"
+            >
               {error}
             </div>
           )}
@@ -46,9 +57,9 @@ export function ForgotPasswordCC() {
             render={({ field }) => (
               <Input
                 {...field}
-                label="Email"
+                label={t.auth.email}
                 type="email"
-                placeholder="you@company.com"
+                placeholder={t.auth.enterEmail}
                 icon="user"
                 autoComplete="email"
                 error={errors.email?.message}
@@ -56,15 +67,20 @@ export function ForgotPasswordCC() {
             )}
           />
 
-          <Button type="submit" variant="primary" loading={isPending} style={{ width: "100%" }}>
-            Send reset link
+          <Button
+            type="submit"
+            variant="primary"
+            loading={isPending}
+            style={{ width: "100%" }}
+          >
+            {t.auth.sendResetLink}
           </Button>
         </form>
       )}
 
       <Link href="/login" className="auth-card__back">
         <Icon name="chevron-left" size={13} />
-        Back to sign in
+        {t.auth.backToLogin}
       </Link>
     </div>
   );

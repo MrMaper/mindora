@@ -1,0 +1,118 @@
+export const en = {
+  // Common
+  common: {
+    loading: "Loading...",
+    error: "Error",
+    success: "Success",
+    save: "Save",
+    cancel: "Cancel",
+    delete: "Delete",
+    edit: "Edit",
+    add: "Add",
+    close: "Close",
+    search: "Search",
+    logout: "Logout",
+    settings: "Settings",
+    profile: "Profile",
+  },
+
+  // Navigation
+  nav: {
+    dashboard: "Dashboard",
+    myTasks: "My tasks",
+    board: "Board",
+    users: "Users",
+    notifications: "Notifications",
+    settings: "Settings",
+  },
+
+  // Auth Pages
+  auth: {
+    login: "Login",
+    logout: "Logout",
+    email: "Email",
+    password: "Password",
+    confirmPassword: "Confirm Password",
+    forgotPassword: "Forgot Password?",
+    forgotPasswordTitle: "Forgot your password?",
+    forgotPasswordDescription:
+      "Enter your email to receive a password reset link",
+    resetPassword: "Reset Password",
+    resetPasswordTitle: "Reset Password",
+    sendResetLink: "Send Reset Link",
+    backToLogin: "Back to Login",
+    signIn: "Sign In",
+    enterEmail: "Enter your email address",
+    enterNewPassword: "Enter your new password",
+    newPassword: "New Password",
+    passwordResetSent: "Password reset link sent to your email",
+    invalidResetLink: "Invalid or expired reset link",
+  },
+
+  // Dashboard Pages
+  dashboard: {
+    title: "Dashboard",
+    welcome: "Welcome",
+    overview: "Overview",
+  },
+
+  // Profile Page
+  profile: {
+    title: "Profile",
+    personalInfo: "Personal Info",
+    avatar: "Avatar",
+    changeAvatar: "Change avatar",
+    fullName: "Full name",
+    email: "Email",
+    emailCannotBeChanged: "Email cannot be changed",
+    changePassword: "Change Password",
+    currentPassword: "Current Password",
+    newPassword: "New Password",
+    confirmNewPassword: "Confirm New Password",
+    updateProfile: "Update Profile",
+    changePasswordSubmit: "Change Password",
+    avatarHint: "JPG, PNG or WebP. Max 2 MB.",
+    changesSaved: "Changes saved.",
+    passwordChanged: "Password changed successfully.",
+  },
+
+  // Users Page
+  users: {
+    title: "Users",
+    totalUsers: "Total Users",
+    search: "Search users by name or email",
+    noResults: "No users found",
+    name: "Name",
+    email: "Email",
+    role: "Role",
+    status: "Status",
+    createdAt: "Created",
+    admin: "Admin",
+    member: "Member",
+    active: "Active",
+    inactive: "Inactive",
+  },
+
+  // Settings Page
+  settings: {
+    title: "Settings",
+    preferences: "Preferences",
+    language: "Language",
+    languageDescription: "Choose your preferred language",
+    english: "English",
+    persian: "فارسی (Persian)",
+    moreOptions: "More Options",
+    comingSoon: "Additional settings coming soon...",
+    languageUpdated: "Language preference updated",
+    failedToUpdateLanguage: "Failed to update language",
+  },
+
+  // Validation Errors
+  validation: {
+    required: "This field is required",
+    invalidEmail: "Please enter a valid email address",
+    passwordTooShort: "Password must be at least 8 characters",
+    passwordsDoNotMatch: "Passwords do not match",
+    invalidPassword: "Invalid password",
+  },
+};

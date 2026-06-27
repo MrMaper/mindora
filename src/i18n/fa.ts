@@ -1,0 +1,118 @@
+export const fa = {
+  // Common
+  common: {
+    loading: "در حال بارگیری...",
+    error: "خطا",
+    success: "موفق",
+    save: "ذخیره",
+    cancel: "لغو",
+    delete: "حذف",
+    edit: "ویرایش",
+    add: "افزودن",
+    close: "بستن",
+    search: "جستجو",
+    logout: "خروج",
+    settings: "تنظیمات",
+    profile: "پروفایل",
+  },
+
+  // Navigation
+  nav: {
+    dashboard: "داشبورد",
+    myTasks: "وظایف من",
+    board: "تخته",
+    users: "کاربران",
+    notifications: "اعلانات",
+    settings: "تنظیمات",
+  },
+
+  // Auth Pages
+  auth: {
+    login: "ورود",
+    logout: "خروج",
+    email: "ایمیل",
+    password: "رمز عبور",
+    confirmPassword: "تأیید رمز عبور",
+    forgotPassword: "رمز عبور را فراموش کردید؟",
+    forgotPasswordTitle: "رمز عبور را فراموش کردید؟",
+    forgotPasswordDescription:
+      "برای دریافت لینک بازنشانی رمز عبور، ایمیل خود را وارد کنید",
+    resetPassword: "بازنشانی رمز عبور",
+    resetPasswordTitle: "بازنشانی رمز عبور",
+    sendResetLink: "ارسال لینک بازنشانی",
+    backToLogin: "بازگشت به ورود",
+    signIn: "ورود",
+    enterEmail: "آدرس ایمیل خود را وارد کنید",
+    enterNewPassword: "رمز عبور جدید خود را وارد کنید",
+    newPassword: "رمز عبور جدید",
+    passwordResetSent: "لینک بازنشانی رمز عبور به ایمیل شما ارسال شد",
+    invalidResetLink: "لینک بازنشانی نامعتبر یا منقضی شده است",
+  },
+
+  // Dashboard Pages
+  dashboard: {
+    title: "داشبورد",
+    welcome: "خوش آمدید",
+    overview: "نمای کلی",
+  },
+
+  // Profile Page
+  profile: {
+    title: "پروفایل",
+    personalInfo: "اطلاعات شخصی",
+    avatar: "عکس پروفایل",
+    changeAvatar: "تغییر عکس پروفایل",
+    fullName: "نام کامل",
+    email: "ایمیل",
+    emailCannotBeChanged: "ایمیل قابل تغییر نیست",
+    changePassword: "تغییر رمز عبور",
+    currentPassword: "رمز عبور فعلی",
+    newPassword: "رمز عبور جدید",
+    confirmNewPassword: "تأیید رمز عبور جدید",
+    updateProfile: "بروزرسانی پروفایل",
+    changePasswordSubmit: "تغییر رمز عبور",
+    avatarHint: "JPG، PNG یا WebP. حداکثر 2 مگابایت.",
+    changesSaved: "تغییرات ذخیره شد.",
+    passwordChanged: "رمز عبور با موفقیت تغییر یافت.",
+  },
+
+  // Users Page
+  users: {
+    title: "کاربران",
+    totalUsers: "کل کاربران",
+    search: "جستجو کاربران بر اساس نام یا ایمیل",
+    noResults: "هیچ کاربری یافت نشد",
+    name: "نام",
+    email: "ایمیل",
+    role: "نقش",
+    status: "وضعیت",
+    createdAt: "ایجاد شده",
+    admin: "مدیر",
+    member: "عضو",
+    active: "فعال",
+    inactive: "غیرفعال",
+  },
+
+  // Settings Page
+  settings: {
+    title: "تنظیمات",
+    preferences: "ترجیحات",
+    language: "زبان",
+    languageDescription: "زبان مورد نظر خود را انتخاب کنید",
+    english: "English",
+    persian: "فارسی",
+    moreOptions: "گزینه های بیشتر",
+    comingSoon: "تنظیمات بیشتری به زودی اضافه خواهند شد...",
+    languageUpdated: "ترجیح زبان بروزرسانی شد",
+    failedToUpdateLanguage: "خطا در بروزرسانی زبان",
+  },
+
+  // Validation Errors
+  validation: {
+    required: "این فیلد الزامی است",
+    invalidEmail: "لطفاً یک آدرس ایمیل معتبر وارد کنید",
+    passwordTooShort: "رمز عبور باید حداقل 8 کاراکتر باشد",
+    passwordsDoNotMatch: "رمز عبورها مطابقت ندارند",
+    invalidPassword: "رمز عبور نامعتبر",
+  },
+};

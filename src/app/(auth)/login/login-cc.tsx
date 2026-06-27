@@ -7,10 +7,15 @@ import { Icon } from "@/components/ui-kit/foundation/icon";
 import { Input } from "@/components/ui-kit/forms/input";
 import { Button } from "@/components/ui-kit/forms/button";
 import { useLogin } from "./use-login";
+import { en } from "@/i18n";
 
 export function LoginCC() {
   const { form, onSubmit, error, isPending } = useLogin();
-  const { control, formState: { errors } } = form;
+  const {
+    control,
+    formState: { errors },
+  } = form;
+  const t = en;
 
   return (
     <div className="auth-card">
@@ -22,13 +27,16 @@ export function LoginCC() {
       </div>
 
       <div className="auth-card__header">
-        <div className="auth-card__title">Sign in</div>
-        <div className="auth-card__subtitle">Welcome back</div>
+        <div className="auth-card__title">{t.auth.signIn}</div>
+        <div className="auth-card__subtitle">{t.auth.login}</div>
       </div>
 
       <form onSubmit={onSubmit} className="auth-card__form" noValidate>
         {error && (
-          <div className="auth-card__alert auth-card__alert--error" role="alert">
+          <div
+            className="auth-card__alert auth-card__alert--error"
+            role="alert"
+          >
             {error}
           </div>
         )}
@@ -39,9 +47,9 @@ export function LoginCC() {
           render={({ field }) => (
             <Input
               {...field}
-              label="Email"
+              label={t.auth.email}
               type="email"
-              placeholder="you@company.com"
+              placeholder={t.auth.enterEmail}
               icon="user"
               autoComplete="email"
               error={errors.email?.message}
@@ -56,7 +64,7 @@ export function LoginCC() {
             render={({ field }) => (
               <Input
                 {...field}
-                label="Password"
+                label={t.auth.password}
                 type="password"
                 placeholder="••••••••"
                 autoComplete="current-password"
@@ -65,12 +73,17 @@ export function LoginCC() {
             )}
           />
           <div className="auth-card__forgot">
-            <Link href="/forgot-password">Forgot password?</Link>
+            <Link href="/forgot-password">{t.auth.forgotPassword}</Link>
           </div>
         </div>
 
-        <Button type="submit" variant="primary" loading={isPending} style={{ width: "100%" }}>
-          Sign in
+        <Button
+          type="submit"
+          variant="primary"
+          loading={isPending}
+          style={{ width: "100%" }}
+        >
+          {t.auth.signIn}
         </Button>
       </form>
     </div>
