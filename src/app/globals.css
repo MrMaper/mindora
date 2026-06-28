@@ -3,6 +3,78 @@
 @import "shadcn/tailwind.css";
 @import "../styles/ui-kit.css";
 
+/* ─── Peyda — Persian typeface ──────────────────────────────────────────── */
+@font-face {
+  font-family: "Peyda";
+  src: url("/fonts/peyda/PeydaWeb-Thin.woff2") format("woff2");
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Peyda";
+  src: url("/fonts/peyda/PeydaWeb-ExtraLight.woff2") format("woff2");
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Peyda";
+  src: url("/fonts/peyda/PeydaWeb-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Peyda";
+  src: url("/fonts/peyda/PeydaWeb-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Peyda";
+  src: url("/fonts/peyda/PeydaWeb-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Peyda";
+  src: url("/fonts/peyda/PeydaWeb-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Peyda";
+  src: url("/fonts/peyda/PeydaWeb-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Peyda";
+  src: url("/fonts/peyda/PeydaWeb-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Peyda";
+  src: url("/fonts/peyda/PeydaWeb-Black.woff2") format("woff2");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Peyda";
+  src: url("/fonts/peyda/PeydaWeb-ExtraBlack.woff2") format("woff2");
+  font-weight: 950;
+  font-style: normal;
+  font-display: swap;
+}
+
 @custom-variant dark (&:is([data-theme="dark"] *));
 
 /* ─── ScrumFlow Design Tokens ──────────────────────────────────────────── */
@@ -337,6 +409,11 @@
   --status-testing-tint:   #0c2a30;
   --status-done-tint:      #0e2c1c;
   --status-blocked-tint:   #321518;
+}
+
+/* ─── Persian font override ─────────────────────────────────────────────── */
+[dir="rtl"] {
+  --font-sans: "Peyda", ui-sans-serif, system-ui, sans-serif;
 }
 
 /* ─── Tailwind v4 theme mapping ─────────────────────────────────────────── */
