@@ -82,7 +82,7 @@ export function UsersCC({ initialData, search, page, language }: UsersCCProps) {
           style={{ maxWidth: 320 }}
         />
         <Button type="submit" variant="secondary">
-          Search
+          {t.users.searchButton}
         </Button>
       </form>
 
@@ -217,25 +217,25 @@ export function UsersCC({ initialData, search, page, language }: UsersCCProps) {
                 trigger={
                   <IconButton
                     icon="more-horizontal"
-                    aria-label="User actions"
+                    aria-label={t.users.userActionsLabel}
                     size="sm"
                   />
                 }
                 align="end"
                 items={[
                   {
-                    label: "Edit",
+                    label: t.common.edit,
                     icon: "pencil",
                     onClick: () => u.openEdit(user),
                   },
                   {
-                    label: user.status === "ACTIVE" ? "Deactivate" : "Activate",
+                    label: user.status === "ACTIVE" ? t.users.deactivate : t.users.activate,
                     icon: user.status === "ACTIVE" ? "x" : "check",
                     onClick: () => u.onToggleStatus(user),
                   },
                   { divider: true },
                   {
-                    label: "Delete",
+                    label: t.common.delete,
                     icon: "trash",
                     danger: true,
                     onClick: () => u.setDeleteTarget(user),
@@ -263,7 +263,7 @@ export function UsersCC({ initialData, search, page, language }: UsersCCProps) {
               color: "var(--text-tertiary)",
             }}
           >
-            Page {page} of {totalPages}
+            {t.users.page} {page} {t.users.of} {totalPages}
           </span>
           <div style={{ display: "flex", gap: "var(--space-2)" }}>
             <Button
@@ -279,7 +279,7 @@ export function UsersCC({ initialData, search, page, language }: UsersCCProps) {
                 window.location.href = `/users?${p.toString()}`;
               }}
             >
-              Previous
+              {t.users.previous}
             </Button>
             <Button
               variant="secondary"
@@ -294,7 +294,7 @@ export function UsersCC({ initialData, search, page, language }: UsersCCProps) {
                 window.location.href = `/users?${p.toString()}`;
               }}
             >
-              Next
+              {t.users.next}
             </Button>
           </div>
         </div>
@@ -312,7 +312,7 @@ export function UsersCC({ initialData, search, page, language }: UsersCCProps) {
               color: "var(--text-primary)",
             }}
           >
-            Create user
+            {t.users.createUser}
           </span>
         }
         footer={
@@ -328,14 +328,14 @@ export function UsersCC({ initialData, search, page, language }: UsersCCProps) {
               onClick={u.closeDrawer}
               disabled={u.isPending}
             >
-              Cancel
+              {t.common.cancel}
             </Button>
             <Button
               variant="primary"
               loading={u.isPending}
               onClick={u.onCreateSubmit}
             >
-              Create user
+              {t.users.createUser}
             </Button>
           </div>
         }
@@ -354,7 +354,7 @@ export function UsersCC({ initialData, search, page, language }: UsersCCProps) {
                 className="auth-card__alert auth-card__alert--success"
                 style={{ marginBottom: "var(--space-4)" }}
               >
-                User created successfully.
+                {t.users.userCreated}
               </div>
               <div
                 style={{
@@ -371,7 +371,7 @@ export function UsersCC({ initialData, search, page, language }: UsersCCProps) {
                     marginBottom: "var(--space-1)",
                   }}
                 >
-                  Temporary password
+                  {t.users.temporaryPassword}
                 </div>
                 <code
                   style={{
@@ -391,15 +391,14 @@ export function UsersCC({ initialData, search, page, language }: UsersCCProps) {
                   marginTop: "var(--space-2)",
                 }}
               >
-                Share this with the user. They should change it after signing
-                in.
+                {t.users.sharePassword}
               </p>
               <Button
                 variant="secondary"
                 style={{ marginTop: "var(--space-4)" }}
                 onClick={u.closeDrawer}
               >
-                Done
+                {t.users.done}
               </Button>
             </div>
           ) : (
@@ -418,8 +417,8 @@ export function UsersCC({ initialData, search, page, language }: UsersCCProps) {
                 render={({ field, fieldState }) => (
                   <Input
                     {...field}
-                    label="Full name"
-                    placeholder="Jane Smith"
+                    label={t.users.fullName}
+                    placeholder={t.users.fullNamePlaceholder}
                     error={fieldState.error?.message}
                   />
                 )}
@@ -430,7 +429,7 @@ export function UsersCC({ initialData, search, page, language }: UsersCCProps) {
                 render={({ field, fieldState }) => (
                   <Input
                     {...field}
-                    label="Email"
+                    label={t.users.email}
                     type="email"
                     placeholder="jane@company.com"
                     error={fieldState.error?.message}
@@ -443,10 +442,10 @@ export function UsersCC({ initialData, search, page, language }: UsersCCProps) {
                 render={({ field, fieldState }) => (
                   <Select
                     {...field}
-                    label="Role"
+                    label={t.users.role}
                     options={[
-                      { value: "MEMBER", label: "Member" },
-                      { value: "ADMIN", label: "Admin" },
+                      { value: "MEMBER", label: t.users.member },
+                      { value: "ADMIN", label: t.users.admin },
                     ]}
                     error={fieldState.error?.message}
                   />
@@ -469,7 +468,7 @@ export function UsersCC({ initialData, search, page, language }: UsersCCProps) {
               color: "var(--text-primary)",
             }}
           >
-            Edit user
+            {t.users.editUser}
           </span>
         }
         footer={
@@ -485,14 +484,14 @@ export function UsersCC({ initialData, search, page, language }: UsersCCProps) {
               onClick={u.closeDrawer}
               disabled={u.isPending}
             >
-              Cancel
+              {t.common.cancel}
             </Button>
             <Button
               variant="primary"
               loading={u.isPending}
               onClick={u.onEditSubmit}
             >
-              Save changes
+              {t.users.saveChanges}
             </Button>
           </div>
         }
@@ -556,7 +555,7 @@ export function UsersCC({ initialData, search, page, language }: UsersCCProps) {
             render={({ field, fieldState }) => (
               <Input
                 {...field}
-                label="Full name"
+                label={t.users.fullName}
                 error={fieldState.error?.message}
               />
             )}
@@ -567,10 +566,10 @@ export function UsersCC({ initialData, search, page, language }: UsersCCProps) {
             render={({ field, fieldState }) => (
               <Select
                 {...field}
-                label="Role"
+                label={t.users.role}
                 options={[
-                  { value: "MEMBER", label: "Member" },
-                  { value: "ADMIN", label: "Admin" },
+                  { value: "MEMBER", label: t.users.member },
+                  { value: "ADMIN", label: t.users.admin },
                 ]}
                 error={fieldState.error?.message}
               />
@@ -583,8 +582,8 @@ export function UsersCC({ initialData, search, page, language }: UsersCCProps) {
       <Dialog
         open={!!u.deleteTarget}
         onClose={() => u.setDeleteTarget(null)}
-        title="Delete user"
-        description={`Are you sure you want to delete ${u.deleteTarget?.name}? This action cannot be undone.`}
+        title={t.users.deleteUser}
+        description={`${t.users.deleteConfirmPrefix} ${u.deleteTarget?.name} ${t.users.deleteConfirmSuffix}`}
         footer={
           <>
             <Button
@@ -592,14 +591,14 @@ export function UsersCC({ initialData, search, page, language }: UsersCCProps) {
               onClick={() => u.setDeleteTarget(null)}
               disabled={u.isPending}
             >
-              Cancel
+              {t.common.cancel}
             </Button>
             <Button
               variant="danger"
               loading={u.isPending}
               onClick={u.onDeleteConfirm}
             >
-              Delete user
+              {t.users.deleteUser}
             </Button>
           </>
         }
