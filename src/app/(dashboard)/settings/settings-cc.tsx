@@ -11,7 +11,7 @@ interface SettingsCCProps {
 
 export function SettingsCC({ currentLanguage }: SettingsCCProps) {
   const settings = useSettings(currentLanguage);
-  const t = getTranslations(currentLanguage);
+  const t = getTranslations(settings.language);
 
   const languages: Array<{ value: Language; label: string }> = [
     { value: "EN", label: t.settings.english },

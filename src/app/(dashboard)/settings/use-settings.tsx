@@ -1,10 +1,12 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { updateLanguagePreference } from "@/features/settings/actions";
 import type { Language } from "@/types/db";
 
 export function useSettings(initialLanguage: Language) {
+  const router = useRouter();
   const [language, setLanguage] = React.useState<Language>(initialLanguage);
   const [languagePending, startLanguageTransition] = React.useTransition();
   const [languageSuccess, setLanguageSuccess] = React.useState(false);
@@ -21,6 +23,7 @@ export function useSettings(initialLanguage: Language) {
         setLanguage(initialLanguage);
       } else {
         setLanguageSuccess(true);
+        router.refresh();
         setTimeout(() => setLanguageSuccess(false), 2000);
       }
     });

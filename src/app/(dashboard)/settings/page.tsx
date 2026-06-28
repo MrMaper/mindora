@@ -10,7 +10,7 @@ export default async function SettingsPage() {
   const session = await requireAuth();
   const preferences = await getUserPreferences(session.user.id);
 
-  const currentLanguage: Language = preferences?.language ?? "EN";
+  const currentLanguage: Language = preferences?.language ?? "FA";
 
   return <SettingsCC currentLanguage={currentLanguage} />;
 }

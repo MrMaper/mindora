@@ -156,7 +156,7 @@ model PasswordResetToken {
 model UserPreferences {
   id        String   @id @default(cuid())
   userId    String   @unique
-  language  Language @default(EN)
+  language  Language @default(FA)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

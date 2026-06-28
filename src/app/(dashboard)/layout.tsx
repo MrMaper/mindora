@@ -7,6 +7,7 @@ import { Avatar } from "@/components/ui-kit/data-display/avatar";
 import { SignOutButton } from "@/components/sign-out-button";
 import { getTranslations } from "@/i18n";
 import { getUserPreferences } from "@/features/settings/queries";
+import { DirectionSync } from "@/components/DirectionSync";
 
 interface NavItem {
   label: string;
@@ -23,7 +24,7 @@ export default async function DashboardLayout({
   if (!session?.user) redirect("/login");
 
   const preferences = await getUserPreferences(session.user.id);
-  const language = preferences?.language ?? "EN";
+  const language = preferences?.language ?? "FA";
   const t = getTranslations(language);
 
   const NAV: NavItem[] = [
@@ -40,6 +41,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="app-shell">
+      <DirectionSync language={language} />
       <aside className="app-sidebar">
         <div className="app-sidebar__brand">
           <span className="app-sidebar__logo">
