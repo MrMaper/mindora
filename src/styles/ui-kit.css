@@ -133,7 +133,7 @@
   display: flex;
   flex-direction: column;
   background: var(--bg-surface);
-  border-right: 1px solid var(--border-subtle);
+  border-inline-end: 1px solid var(--border-subtle);
   overflow-y: auto;
 }
 
@@ -564,16 +564,15 @@
 
 /* ─── Menu ───────────────────────────────────────────────────────── */
 .sf-menu-wrap { position: relative; display: inline-flex; }
-.sf-menu { position: absolute; z-index: var(--z-dropdown); min-width: 196px;
+.sf-menu { position: fixed; z-index: var(--z-dropdown); min-width: 196px;
   background: var(--bg-raised); border: 1px solid var(--border-default); border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md); padding: 4px; margin-top: 4px;
+  box-shadow: var(--shadow-md); padding: 4px;
   animation: sf-menu-in var(--motion-fast) var(--ease-out); transform-origin: top left; }
-.sf-menu--end { right: 0; transform-origin: top right; }
 .sf-menu--up { bottom: 100%; top: auto; margin: 0 0 4px; transform-origin: bottom left; }
 @keyframes sf-menu-in { from { opacity: 0; transform: scale(.97) translateY(-2px); } }
 .sf-menu__item { display: flex; align-items: center; gap: 9px; width: 100%; height: 30px; padding: 0 8px;
   font-family: var(--font-sans); font-size: var(--text-sm); color: var(--text-primary);
-  background: none; border: none; border-radius: var(--radius-sm); cursor: pointer; text-align: left; }
+  background: none; border: none; border-radius: var(--radius-sm); cursor: pointer; text-align: start; }
 .sf-menu__item:hover { background: var(--bg-hover); }
 .sf-menu__item:focus-visible { outline: none; background: var(--bg-hover); }
 .sf-menu__item--danger { color: var(--status-blocked); }
