@@ -702,6 +702,21 @@
 .sf-kcard__due { display: inline-flex; align-items: center; gap: 3px; font-size: var(--text-2xs); color: var(--text-tertiary); }
 .sf-kcard__due--overdue { color: var(--status-blocked); font-weight: var(--weight-medium); }
 
+/* ─── Board ──────────────────────────────────────────────────────── */
+.sf-board { display: flex; gap: 12px; padding: 16px 0; align-items: flex-start; min-height: 100%; overflow-x: auto; }
+.sf-col { width: 280px; flex: none; display: flex; flex-direction: column; max-height: 100%; }
+.sf-col__head { display: flex; align-items: center; gap: 8px; padding: 4px 4px 10px; flex-wrap: nowrap; }
+.sf-col__dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.sf-col__name { font-size: var(--text-sm); font-weight: var(--weight-semibold); white-space: nowrap; }
+.sf-col__count { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-tertiary);
+  background: var(--bg-active); padding: 1px 6px; border-radius: var(--radius-full); }
+.sf-col__list { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; padding: 2px;
+  min-height: 40px; border-radius: var(--radius-md); transition: background-color var(--motion-fast) var(--ease-standard); }
+.sf-col__list--over { background: var(--bg-selected); }
+.sf-col__empty { display: flex; align-items: center; justify-content: center; height: 60px;
+  border: 1px dashed var(--border-subtle); border-radius: var(--radius-md);
+  color: var(--text-disabled); font-size: var(--text-xs); }
+
 /* ─── TaskCard (list row) ────────────────────────────────────────── */
 .sf-trow { display: flex; align-items: center; gap: 10px; height: var(--row-height);
   padding: 0 10px 0 6px; background: var(--bg-surface); border-bottom: 1px solid var(--border-subtle);

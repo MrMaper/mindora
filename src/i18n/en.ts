@@ -180,6 +180,18 @@ export const en = {
     epic: "Epic",
   },
 
+  // Kanban Board Page
+  board: {
+    title: "Board",
+    search: "Search board",
+    searchButton: "Search",
+    allAssignees: "All assignees",
+    allLabels: "All labels",
+    allPriorities: "All priorities",
+    clearFilters: "Clear filters",
+    noTasks: "No tasks",
+  },
+
   // Settings Page
   settings: {
     title: "Settings",

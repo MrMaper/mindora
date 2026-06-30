@@ -180,6 +180,18 @@ export const fa = {
     epic: "اپیک",
   },
 
+  // Kanban Board Page
+  board: {
+    title: "تخته",
+    search: "جستجو در تخته",
+    searchButton: "جستجو",
+    allAssignees: "همه مسئولین",
+    allLabels: "همه برچسب‌ها",
+    allPriorities: "همه اولویت‌ها",
+    clearFilters: "پاک کردن فیلترها",
+    noTasks: "وظیفه‌ای نیست",
+  },
+
   // Settings Page
   settings: {
     title: "تنظیمات",

@@ -10,13 +10,14 @@ const PAGE_SIZE = 20;
 
 const userRefSelect = { id: true, name: true, avatar: true } as const;
 
-function toTaskRow(task: {
+export function toTaskRow(task: {
   id: string;
   title: string;
   status: string;
   priority: string;
   type: string;
   dueDate: Date | null;
+  position: number;
   createdAt: Date;
   updatedAt: Date;
   createdBy: { id: string; name: string; avatar: string | null };
@@ -30,6 +31,7 @@ function toTaskRow(task: {
     priority: task.priority as TaskRow["priority"],
     type: task.type as TaskRow["type"],
     dueDate: task.dueDate,
+    position: task.position,
     createdAt: task.createdAt,
     updatedAt: task.updatedAt,
     createdBy: task.createdBy,
@@ -79,6 +81,7 @@ export async function getTasks(params: GetTasksParams): Promise<GetTasksResult> 
         priority: true,
         type: true,
         dueDate: true,
+        position: true,
         createdAt: true,
         updatedAt: true,
         createdBy: { select: userRefSelect },
@@ -108,6 +111,7 @@ export async function getTaskById(id: string): Promise<TaskDetail | null> {
       priority: true,
       type: true,
       dueDate: true,
+      position: true,
       createdAt: true,
       updatedAt: true,
       createdBy: { select: userRefSelect },

@@ -21,6 +21,7 @@ export interface TaskRow {
   priority: TaskPriority;
   type: TaskType;
   dueDate: Date | null;
+  position: number;
   createdAt: Date;
   updatedAt: Date;
   createdBy: TaskUserRef;
