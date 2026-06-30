@@ -44,6 +44,23 @@ export async function getUsers(
   };
 }
 
+export async function getAllActiveUsers(): Promise<UserRow[]> {
+  const users = await db.user.findMany({
+    where: { status: "ACTIVE" },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      avatar: true,
+      role: true,
+      status: true,
+      createdAt: true,
+    },
+    orderBy: { name: "asc" },
+  });
+  return users as UserRow[];
+}
+
 export async function getUserById(id: string): Promise<UserRow | null> {
   const user = await db.user.findUnique({
     where: { id },
