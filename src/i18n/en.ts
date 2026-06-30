@@ -149,6 +149,8 @@ export const en = {
     activityStatusChanged: "changed status",
     activityAssigned: "changed assignee",
     activityUpdated: "updated this task",
+    activityCommented: "added a comment",
+    activityAttachment: "added an attachment",
     saveChanges: "Save changes",
     createTaskButton: "Create task",
     allStatuses: "All statuses",
@@ -178,6 +180,24 @@ export const en = {
     story: "Story",
     bug: "Bug",
     epic: "Epic",
+  },
+
+  // Task Comments
+  comments: {
+    title: "Comments",
+    placeholder: "Write a comment… use @ to mention someone",
+    post: "Comment",
+    noComments: "No comments yet",
+    edited: "(edited)",
+    edit: "Edit",
+    delete: "Delete",
+    save: "Save",
+    cancel: "Cancel",
+    editWindowExpired: "Comments can only be edited within 5 minutes of posting.",
+    attachments: "Attachments",
+    addAttachment: "Add attachment",
+    noAttachments: "No attachments",
+    uploading: "Uploading…",
   },
 
   // Kanban Board Page

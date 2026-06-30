@@ -149,6 +149,8 @@ export const fa = {
     activityStatusChanged: "وضعیت را تغییر داد",
     activityAssigned: "مسئول را تغییر داد",
     activityUpdated: "این وظیفه را بروزرسانی کرد",
+    activityCommented: "نظری ثبت کرد",
+    activityAttachment: "پیوستی اضافه کرد",
     saveChanges: "ذخیره تغییرات",
     createTaskButton: "ایجاد وظیفه",
     allStatuses: "همه وضعیت‌ها",
@@ -178,6 +180,24 @@ export const fa = {
     story: "استوری",
     bug: "باگ",
     epic: "اپیک",
+  },
+
+  // Task Comments
+  comments: {
+    title: "نظرات",
+    placeholder: "نظر خود را بنویسید… برای منشن از @ استفاده کنید",
+    post: "ارسال نظر",
+    noComments: "هنوز نظری ثبت نشده",
+    edited: "(ویرایش شده)",
+    edit: "ویرایش",
+    delete: "حذف",
+    save: "ذخیره",
+    cancel: "لغو",
+    editWindowExpired: "نظرات فقط تا ۵ دقیقه پس از ارسال قابل ویرایش هستند.",
+    attachments: "پیوست‌ها",
+    addAttachment: "افزودن پیوست",
+    noAttachments: "پیوستی وجود ندارد",
+    uploading: "در حال آپلود…",
   },
 
   // Kanban Board Page

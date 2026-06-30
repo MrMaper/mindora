@@ -15,6 +15,7 @@ import { PriorityIcon } from "@/components/ui-kit/agile/priority-icon";
 import { Drawer } from "@/components/ui-kit/overlays/drawer";
 import { Dialog } from "@/components/ui-kit/overlays/dialog";
 import { Menu } from "@/components/ui-kit/overlays/menu";
+import { TaskComments } from "@/components/tasks/task-comments";
 import { useTasks } from "./use-tasks";
 import { getTranslations } from "@/i18n";
 import {
@@ -53,13 +54,16 @@ function activityLabel(t: Translations, action: string): string {
       return t.tasks.activityStatusChanged;
     case "assigned":
       return t.tasks.activityAssigned;
+    case "commented":
+      return t.tasks.activityCommented;
+    case "attachment_added":
+      return t.tasks.activityAttachment;
     default:
       return t.tasks.activityUpdated;
   }
 }
 
 export function TasksCC({ initialData, users, labels, filters, page, language, currentUserId }: TasksCCProps) {
-  void currentUserId;
   const u = useTasks(filters);
   const t = getTranslations(language);
   const { tasks, total, totalPages } = initialData;
@@ -511,6 +515,16 @@ export function TasksCC({ initialData, users, labels, filters, page, language, c
                   </div>
                 )}
               </div>
+
+              {/* ── Comments & attachments ──────────────────────────── */}
+              {u.activeTask && (
+                <TaskComments
+                  taskId={u.activeTask.id}
+                  currentUserId={currentUserId}
+                  users={users}
+                  language={language}
+                />
+              )}
             </>
           )}
         </div>

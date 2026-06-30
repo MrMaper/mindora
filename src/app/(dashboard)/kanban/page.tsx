@@ -48,6 +48,7 @@ export default async function KanbanPage({
       labels={labels}
       filters={{ search, assignee, label, priority }}
       language={language}
+      currentUserId={session.user.id}
     />
   );
 }

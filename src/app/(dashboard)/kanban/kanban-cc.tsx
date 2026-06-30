@@ -13,6 +13,7 @@ import { Tag } from "@/components/ui-kit/data-display/tag";
 import { KanbanCard } from "@/components/ui-kit/agile/kanban-card";
 import { STATUSES } from "@/components/ui-kit/agile/status-badge";
 import { Drawer } from "@/components/ui-kit/overlays/drawer";
+import { TaskComments } from "@/components/tasks/task-comments";
 import { useKanban } from "./use-kanban";
 import { getTranslations } from "@/i18n";
 import {
@@ -36,6 +37,7 @@ interface KanbanCCProps {
   labels: LabelRow[];
   filters: { search: string; assignee: string; label: string; priority: string };
   language: Language;
+  currentUserId: string;
 }
 
 function formatDate(date: Date | null): string | undefined {
@@ -55,12 +57,16 @@ function activityLabel(t: Translations, action: string): string {
       return t.tasks.activityStatusChanged;
     case "assigned":
       return t.tasks.activityAssigned;
+    case "commented":
+      return t.tasks.activityCommented;
+    case "attachment_added":
+      return t.tasks.activityAttachment;
     default:
       return t.tasks.activityUpdated;
   }
 }
 
-export function KanbanCC({ initialColumns, users, labels, filters, language }: KanbanCCProps) {
+export function KanbanCC({ initialColumns, users, labels, filters, language, currentUserId }: KanbanCCProps) {
   const k = useKanban(initialColumns, filters);
   const t = getTranslations(language);
 
@@ -297,6 +303,16 @@ export function KanbanCC({ initialColumns, users, labels, filters, language }: K
                   </div>
                 )}
               </div>
+
+              {/* ── Comments & attachments ──────────────────────────── */}
+              {k.activeTask && (
+                <TaskComments
+                  taskId={k.activeTask.id}
+                  currentUserId={currentUserId}
+                  users={users}
+                  language={language}
+                />
+              )}
             </>
           )}
         </div>

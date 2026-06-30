@@ -43,3 +43,27 @@ export async function uploadAvatar(file: File, userId: string): Promise<string |
 
   return `${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET}/${key}`;
 }
+
+export async function uploadAttachment(file: File, taskId: string): Promise<string | null> {
+  const client = getClient();
+  if (!client) {
+    console.log("[storage:dev] S3 not configured — attachment upload skipped.");
+    return null;
+  }
+
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+  const key = `attachments/${taskId}/${Date.now()}-${safeName}`;
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  await client.send(
+    new PutObjectCommand({
+      Bucket: process.env.S3_BUCKET!,
+      Key: key,
+      Body: buffer,
+      ContentType: file.type || "application/octet-stream",
+      ACL: "public-read",
+    })
+  );
+
+  return `${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET}/${key}`;
+}
