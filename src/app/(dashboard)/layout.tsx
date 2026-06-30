@@ -4,15 +4,18 @@ import { auth } from "@/auth";
 import { Icon } from "@/components/ui-kit/foundation/icon";
 import type { IconName } from "@/components/ui-kit/foundation/icon";
 import { Avatar } from "@/components/ui-kit/data-display/avatar";
+import { Badge } from "@/components/ui-kit/data-display/badge";
 import { SignOutButton } from "@/components/sign-out-button";
 import { getTranslations } from "@/i18n";
 import { getUserPreferences } from "@/features/settings/queries";
+import { getUnreadCount } from "@/features/notifications/queries";
 import { DirectionSync } from "@/components/DirectionSync";
 
 interface NavItem {
   label: string;
   href: string;
   icon: IconName;
+  badge?: number;
 }
 
 export default async function DashboardLayout({
@@ -23,7 +26,10 @@ export default async function DashboardLayout({
   const session = await auth();
   if (!session?.user) redirect("/login");
 
-  const preferences = await getUserPreferences(session.user.id);
+  const [preferences, unreadCount] = await Promise.all([
+    getUserPreferences(session.user.id),
+    getUnreadCount(session.user.id),
+  ]);
   const language = preferences?.language ?? "FA";
   const t = getTranslations(language);
 
@@ -36,6 +42,7 @@ export default async function DashboardLayout({
       label: t.nav.notifications,
       href: "/notifications",
       icon: "bell",
+      badge: unreadCount,
     },
   ];
 
@@ -55,6 +62,11 @@ export default async function DashboardLayout({
             <Link key={item.href} href={item.href} className="app-nav-item">
               <Icon name={item.icon} size={15} />
               {item.label}
+              {!!item.badge && (
+                <Badge tone="count" style={{ marginInlineStart: "auto" }}>
+                  {item.badge > 99 ? "99+" : item.badge}
+                </Badge>
+              )}
             </Link>
           ))}
 

@@ -5,6 +5,7 @@ import { auth } from "@/auth";
 import { prisma as db } from "@/lib/db";
 import { createCommentSchema, updateCommentSchema } from "@/schemas/comments";
 import { getComments } from "./queries";
+import { notify } from "@/lib/notify";
 import { EDIT_WINDOW_MS } from "./types";
 import type { CommentRow } from "./types";
 
@@ -45,7 +46,10 @@ export async function createComment(taskId: string, formData: FormData): Promise
     return { success: false, error: parsed.error.issues[0]?.message };
   }
 
-  const task = await db.task.findUnique({ where: { id: taskId }, select: { id: true } });
+  const task = await db.task.findUnique({
+    where: { id: taskId },
+    select: { id: true, title: true, assignedToId: true, createdById: true },
+  });
   if (!task) return { success: false, error: "Task not found." };
 
   await db.comment.create({
@@ -57,6 +61,18 @@ export async function createComment(taskId: string, formData: FormData): Promise
     action: "commented",
     performedBy: session.user.id,
   });
+
+  const recipients = new Set([task.assignedToId, task.createdById].filter(Boolean) as string[]);
+  recipients.delete(session.user.id);
+  for (const userId of recipients) {
+    await notify({
+      userId,
+      type: "TASK_COMMENTED",
+      title: `New comment on "${task.title}"`,
+      body: parsed.data.body.slice(0, 140),
+      data: { taskId },
+    });
+  }
 
   revalidatePath("/tasks");
   revalidatePath("/kanban");

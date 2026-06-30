@@ -200,6 +200,14 @@ export const fa = {
     uploading: "در حال آپلود…",
   },
 
+  // Notifications Page
+  notifications: {
+    title: "اعلانات",
+    markAllRead: "علامت‌گذاری همه به‌عنوان خوانده‌شده",
+    noNotifications: "هنوز اعلانی وجود ندارد",
+    unread: "خوانده‌نشده",
+  },
+
   // Kanban Board Page
   board: {
     title: "تخته",

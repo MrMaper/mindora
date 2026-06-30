@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma as db } from "@/lib/db";
+import { notify } from "@/lib/notify";
 import type { BoardStatus } from "./types";
 
 export interface ActionResult {
@@ -41,7 +42,7 @@ export async function moveTask(params: {
 
   const existing = await db.task.findUnique({
     where: { id: params.taskId },
-    select: { status: true },
+    select: { status: true, title: true, assignedToId: true },
   });
   if (!existing) return { success: false, error: "Task not found." };
 
@@ -65,6 +66,15 @@ export async function moveTask(params: {
       oldValue: { status: existing.status },
       newValue: { status: params.toStatus },
     });
+
+    if (existing.assignedToId && existing.assignedToId !== session.user.id) {
+      await notify({
+        userId: existing.assignedToId,
+        type: "STATUS_CHANGED",
+        title: `Status changed to ${params.toStatus.replace("_", " ")} on "${existing.title}"`,
+        data: { taskId: params.taskId },
+      });
+    }
   }
 
   revalidatePath("/kanban");

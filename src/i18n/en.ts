@@ -200,6 +200,14 @@ export const en = {
     uploading: "Uploading…",
   },
 
+  // Notifications Page
+  notifications: {
+    title: "Notifications",
+    markAllRead: "Mark all as read",
+    noNotifications: "No notifications yet",
+    unread: "unread",
+  },
+
   // Kanban Board Page
   board: {
     title: "Board",

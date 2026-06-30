@@ -5,6 +5,7 @@ import { auth } from "@/auth";
 import { prisma as db } from "@/lib/db";
 import { createTaskSchema, updateTaskSchema } from "@/schemas/tasks";
 import { getTaskById } from "./queries";
+import { notify } from "@/lib/notify";
 import type { TaskDetail } from "./types";
 
 export interface ActionResult {
@@ -76,6 +77,15 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
     newValue: { title: task.title, status: task.status, priority: task.priority },
   });
 
+  if (task.assignedToId && task.assignedToId !== session.user.id) {
+    await notify({
+      userId: task.assignedToId,
+      type: "TASK_ASSIGNED",
+      title: `You were assigned to "${task.title}"`,
+      data: { taskId: task.id },
+    });
+  }
+
   revalidatePath("/tasks");
   return { success: true, data: { id: task.id } };
 }
@@ -127,7 +137,11 @@ export async function updateTask(id: string, formData: FormData): Promise<Action
     },
   });
 
-  if (existing.status !== parsed.data.status) {
+  const assigneeChanged = (existing.assignedToId ?? null) !== nextAssignedToId;
+  const statusChanged = existing.status !== parsed.data.status;
+  const dueDateChanged = (existing.dueDate?.getTime() ?? null) !== (nextDueDate?.getTime() ?? null);
+
+  if (statusChanged) {
     await logActivity({
       entityId: id,
       action: "status_changed",
@@ -137,13 +151,39 @@ export async function updateTask(id: string, formData: FormData): Promise<Action
     });
   }
 
-  if ((existing.assignedToId ?? null) !== nextAssignedToId) {
+  if (assigneeChanged) {
     await logActivity({
       entityId: id,
       action: "assigned",
       performedBy: session.user.id,
       oldValue: { assignedToId: existing.assignedToId },
       newValue: { assignedToId: nextAssignedToId },
+    });
+  }
+
+  // ─── Notifications ──────────────────────────────────────────────
+  if (assigneeChanged && nextAssignedToId && nextAssignedToId !== session.user.id) {
+    await notify({
+      userId: nextAssignedToId,
+      type: "TASK_ASSIGNED",
+      title: `You were assigned to "${parsed.data.title}"`,
+      data: { taskId: id },
+    });
+  } else if (statusChanged && nextAssignedToId && nextAssignedToId !== session.user.id) {
+    await notify({
+      userId: nextAssignedToId,
+      type: "STATUS_CHANGED",
+      title: `Status changed to ${parsed.data.status.replace("_", " ")} on "${parsed.data.title}"`,
+      data: { taskId: id },
+    });
+  }
+
+  if (dueDateChanged && nextAssignedToId && nextAssignedToId !== session.user.id) {
+    await notify({
+      userId: nextAssignedToId,
+      type: "TASK_UPDATED",
+      title: `Due date changed on "${parsed.data.title}"`,
+      data: { taskId: id },
     });
   }
 
@@ -158,7 +198,7 @@ export async function updateTask(id: string, formData: FormData): Promise<Action
     (existing.description ?? "") !== (parsed.data.description ?? "") ||
     existing.priority !== parsed.data.priority ||
     existing.type !== parsed.data.type ||
-    (existing.dueDate?.getTime() ?? null) !== (nextDueDate?.getTime() ?? null) ||
+    dueDateChanged ||
     labelsChanged;
 
   if (fieldsChanged) {
@@ -191,7 +231,10 @@ export async function updateTaskStatus(id: string, status: string): Promise<Acti
   const session = await auth();
   if (!session?.user) return { success: false, error: "Unauthorized." };
 
-  const existing = await db.task.findUnique({ where: { id }, select: { status: true } });
+  const existing = await db.task.findUnique({
+    where: { id },
+    select: { status: true, title: true, assignedToId: true },
+  });
   if (!existing) return { success: false, error: "Task not found." };
 
   await db.task.update({ where: { id }, data: { status: status as never } });
@@ -204,6 +247,15 @@ export async function updateTaskStatus(id: string, status: string): Promise<Acti
       oldValue: { status: existing.status },
       newValue: { status },
     });
+
+    if (existing.assignedToId && existing.assignedToId !== session.user.id) {
+      await notify({
+        userId: existing.assignedToId,
+        type: "STATUS_CHANGED",
+        title: `Status changed to ${status.replace("_", " ")} on "${existing.title}"`,
+        data: { taskId: id },
+      });
+    }
   }
 
   revalidatePath("/tasks");
