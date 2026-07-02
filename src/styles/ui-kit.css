@@ -252,7 +252,7 @@
    ================================================================ */
 
 /* ─── Shared field wrapper (Input, Textarea, Select) ─────────────── */
-.sf-field { display: inline-flex; flex-direction: column; gap: 5px; width: 100%; }
+.sf-field { display: inline-flex; flex-direction: column; gap: 5px; }
 .sf-field__label { font: var(--font-label); color: var(--text-secondary); }
 .sf-field__label .req { color: var(--red-500); margin-left: 2px; }
 .sf-field__hint { font: var(--font-caption); color: var(--text-tertiary); }

@@ -105,7 +105,8 @@ export const fa = {
     deleteConfirmSuffix: "را حذف کنید؟ این عملیات غیرقابل بازگشت است.",
     userCreated: "کاربر با موفقیت ایجاد شد.",
     temporaryPassword: "رمز عبور موقت",
-    sharePassword: "این رمز را با کاربر به اشتراک بگذارید. آن‌ها باید پس از ورود آن را تغییر دهند.",
+    sharePassword:
+      "این رمز را با کاربر به اشتراک بگذارید. آن‌ها باید پس از ورود آن را تغییر دهند.",
     done: "انجام شد",
     fullName: "نام کامل",
     fullNamePlaceholder: "نام و نام خانوادگی",
@@ -116,7 +117,7 @@ export const fa = {
   // Tasks Page
   tasks: {
     title: "وظایف",
-    totalTasks: "کل وظایف",
+    totalTasks: "وظیفه",
     search: "جستجو وظایف بر اساس عنوان",
     searchButton: "جستجو",
     noResults: "هیچ وظیفه‌ای یافت نشد",
@@ -155,7 +156,7 @@ export const fa = {
     createTaskButton: "ایجاد وظیفه",
     allStatuses: "همه وضعیت‌ها",
     allPriorities: "همه اولویت‌ها",
-    allAssignees: "همه مسئولین",
+    allAssignees: "همه افراد",
     clearFilters: "پاک کردن فیلترها",
     taskColumn: "وظیفه",
     statusColumn: "وضعیت",
@@ -213,7 +214,7 @@ export const fa = {
     title: "تخته",
     search: "جستجو در تخته",
     searchButton: "جستجو",
-    allAssignees: "همه مسئولین",
+    allAssignees: "همه افراد",
     allLabels: "همه برچسب‌ها",
     allPriorities: "همه اولویت‌ها",
     clearFilters: "پاک کردن فیلترها",

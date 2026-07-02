@@ -35,7 +35,14 @@ interface TasksCCProps {
   initialData: GetTasksResult;
   users: UserRow[];
   labels: LabelRow[];
-  filters: { search: string; status: string; priority: string; assignee: string; sort: string; order: string };
+  filters: {
+    search: string;
+    status: string;
+    priority: string;
+    assignee: string;
+    sort: string;
+    order: string;
+  };
   page: number;
   language: Language;
   currentUserId: string;
@@ -43,7 +50,10 @@ interface TasksCCProps {
 
 function formatDate(date: Date | null): string {
   if (!date) return "—";
-  return new Date(date).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  return new Date(date).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
 }
 
 function activityLabel(t: Translations, action: string): string {
@@ -63,7 +73,15 @@ function activityLabel(t: Translations, action: string): string {
   }
 }
 
-export function TasksCC({ initialData, users, labels, filters, page, language, currentUserId }: TasksCCProps) {
+export function TasksCC({
+  initialData,
+  users,
+  labels,
+  filters,
+  page,
+  language,
+  currentUserId,
+}: TasksCCProps) {
   const u = useTasks(filters);
   const t = getTranslations(language);
   const { tasks, total, totalPages } = initialData;
@@ -72,11 +90,25 @@ export function TasksCC({ initialData, users, labels, filters, page, language, c
     { value: "", label: t.tasks.unassigned },
     ...users.map(usr => ({ value: usr.id, label: usr.name })),
   ];
-  const statusFieldOptions = STATUS_OPTIONS.map(o => ({ value: o.value, label: t.tasks[o.labelKey as keyof typeof t.tasks] as string }));
-  const priorityFieldOptions = PRIORITY_OPTIONS.map(o => ({ value: o.value, label: t.tasks[o.labelKey as keyof typeof t.tasks] as string }));
-  const typeFieldOptions = TYPE_OPTIONS.map(o => ({ value: o.value, label: t.tasks[o.labelKey as keyof typeof t.tasks] as string }));
+  const statusFieldOptions = STATUS_OPTIONS.map(o => ({
+    value: o.value,
+    label: t.tasks[o.labelKey as keyof typeof t.tasks] as string,
+  }));
+  const priorityFieldOptions = PRIORITY_OPTIONS.map(o => ({
+    value: o.value,
+    label: t.tasks[o.labelKey as keyof typeof t.tasks] as string,
+  }));
+  const typeFieldOptions = TYPE_OPTIONS.map(o => ({
+    value: o.value,
+    label: t.tasks[o.labelKey as keyof typeof t.tasks] as string,
+  }));
 
-  const hasActiveFilters = !!(filters.status || filters.priority || filters.assignee || filters.search);
+  const hasActiveFilters = !!(
+    filters.status ||
+    filters.priority ||
+    filters.assignee ||
+    filters.search
+  );
 
   return (
     <>
@@ -90,10 +122,22 @@ export function TasksCC({ initialData, users, labels, filters, page, language, c
         }}
       >
         <div>
-          <h1 style={{ fontSize: "var(--text-xl)", fontWeight: "var(--weight-semibold)", color: "var(--text-primary)" }}>
+          <h1
+            style={{
+              fontSize: "var(--text-xl)",
+              fontWeight: "var(--weight-semibold)",
+              color: "var(--text-primary)",
+            }}
+          >
             {t.tasks.title}
           </h1>
-          <p style={{ fontSize: "var(--text-sm)", color: "var(--text-tertiary)", marginTop: 2 }}>
+          <p
+            style={{
+              fontSize: "var(--text-sm)",
+              color: "var(--text-tertiary)",
+              marginTop: 2,
+            }}
+          >
             {total} {t.tasks.totalTasks}
           </p>
         </div>
@@ -108,46 +152,75 @@ export function TasksCC({ initialData, users, labels, filters, page, language, c
       </div>
 
       {/* ── Search + filters ────────────────────────────────────────── */}
-      <div style={{ marginBottom: "var(--space-4)", display: "flex", flexWrap: "wrap", gap: "var(--space-2)" }}>
-        <form onSubmit={u.onSearchSubmit} style={{ display: "flex", gap: "var(--space-2)" }}>
-          <Input
-            placeholder={t.tasks.search}
-            icon="search"
-            value={u.search}
-            onChange={e => u.setSearch(e.target.value)}
-            style={{ maxWidth: 280 }}
-          />
-          <Button type="submit" variant="secondary">
-            {t.tasks.searchButton}
-          </Button>
-        </form>
+      <div
+        style={{
+          marginBottom: "var(--space-4)",
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "var(--space-2)",
+          justifyContent: "space-between",
+        }}
+      >
+        <div className="flex gap-2 items-center">
+          <form
+            onSubmit={u.onSearchSubmit}
+            style={{ display: "flex", gap: "var(--space-1)" }}
+          >
+            <Input
+              placeholder={t.tasks.search}
+              icon="search"
+              value={u.search}
+              onChange={e => u.setSearch(e.target.value)}
+              style={{ maxWidth: 280 }}
+            />
+            <Button type="submit" variant="secondary">
+              {t.tasks.searchButton}
+            </Button>
+          </form>
 
-        <Select
-          value={filters.status}
-          onChange={e => u.applyFilters({ status: e.target.value })}
-          style={{ maxWidth: 160 }}
-          options={[{ value: "", label: t.tasks.allStatuses }, ...statusFieldOptions]}
-        />
-        <Select
-          value={filters.priority}
-          onChange={e => u.applyFilters({ priority: e.target.value })}
-          style={{ maxWidth: 160 }}
-          options={[{ value: "", label: t.tasks.allPriorities }, ...priorityFieldOptions]}
-        />
-        <Select
-          value={filters.assignee}
-          onChange={e => u.applyFilters({ assignee: e.target.value })}
-          style={{ maxWidth: 180 }}
-          options={[{ value: "", label: t.tasks.allAssignees }, ...users.map(usr => ({ value: usr.id, label: usr.name }))]}
-        />
+          <Select
+            value={filters.status}
+            onChange={e => u.applyFilters({ status: e.target.value })}
+            style={{ maxWidth: 160 }}
+            options={[
+              { value: "", label: t.tasks.allStatuses },
+              ...statusFieldOptions,
+            ]}
+          />
+          <Select
+            value={filters.priority}
+            onChange={e => u.applyFilters({ priority: e.target.value })}
+            style={{ maxWidth: 160 }}
+            options={[
+              { value: "", label: t.tasks.allPriorities },
+              ...priorityFieldOptions,
+            ]}
+          />
+          <Select
+            value={filters.assignee}
+            onChange={e => u.applyFilters({ assignee: e.target.value })}
+            style={{ maxWidth: 180 }}
+            options={[
+              { value: "", label: t.tasks.allAssignees },
+              ...users.map(usr => ({ value: usr.id, label: usr.name })),
+            ]}
+          />
+        </div>
+
         {hasActiveFilters && (
           <Button
             variant="ghost"
             icon="x"
             onClick={() => {
               u.setSearch("");
-              u.applyFilters({ search: "", status: "", priority: "", assignee: "" });
+              u.applyFilters({
+                search: "",
+                status: "",
+                priority: "",
+                assignee: "",
+              });
             }}
+            className="text-red-500! hover:bg-red-50! dark:bg-red-950!"
           >
             {t.tasks.clearFilters}
           </Button>
@@ -156,13 +229,24 @@ export function TasksCC({ initialData, users, labels, filters, page, language, c
 
       {/* ── Global error ─────────────────────────────────────────────── */}
       {u.actionError && u.drawerMode === "none" && (
-        <div className="auth-card__alert auth-card__alert--error" style={{ marginBottom: "var(--space-4)" }} role="alert">
+        <div
+          className="auth-card__alert auth-card__alert--error"
+          style={{ marginBottom: "var(--space-4)" }}
+          role="alert"
+        >
           {u.actionError}
         </div>
       )}
 
       {/* ── Tasks table ──────────────────────────────────────────────── */}
-      <div style={{ background: "var(--bg-surface)", border: "1px solid var(--border-default)", borderRadius: "var(--radius-card)", overflow: "hidden" }}>
+      <div
+        style={{
+          background: "var(--bg-surface)",
+          border: "1px solid var(--border-default)",
+          borderRadius: "var(--radius-card)",
+          overflow: "hidden",
+        }}
+      >
         <div
           style={{
             display: "grid",
@@ -186,14 +270,19 @@ export function TasksCC({ initialData, users, labels, filters, page, language, c
             <span
               key={col.key || "actions"}
               role={col.sortable === false ? undefined : "button"}
-              onClick={col.sortable === false || !col.key ? undefined : () => u.changeSort(col.key)}
+              onClick={
+                col.sortable === false || !col.key
+                  ? undefined
+                  : () => u.changeSort(col.key)
+              }
               style={{
                 fontSize: "var(--text-2xs)",
                 fontWeight: "var(--weight-semibold)",
                 textTransform: "uppercase",
                 letterSpacing: "var(--tracking-caps)",
                 color: "var(--text-tertiary)",
-                cursor: col.sortable === false || !col.key ? "default" : "pointer",
+                cursor:
+                  col.sortable === false || !col.key ? "default" : "pointer",
                 display: "flex",
                 alignItems: "center",
                 gap: 2,
@@ -201,14 +290,24 @@ export function TasksCC({ initialData, users, labels, filters, page, language, c
             >
               {col.label}
               {filters.sort === col.key && (
-                <Icon name={filters.order === "asc" ? "chevron-up" : "chevron-down"} size={11} />
+                <Icon
+                  name={filters.order === "asc" ? "chevron-up" : "chevron-down"}
+                  size={11}
+                />
               )}
             </span>
           ))}
         </div>
 
         {tasks.length === 0 ? (
-          <div style={{ padding: "var(--space-10)", textAlign: "center", color: "var(--text-tertiary)", fontSize: "var(--text-sm)" }}>
+          <div
+            style={{
+              padding: "var(--space-10)",
+              textAlign: "center",
+              color: "var(--text-tertiary)",
+              fontSize: "var(--text-sm)",
+            }}
+          >
             {t.tasks.noResults}
           </div>
         ) : (
@@ -241,9 +340,18 @@ export function TasksCC({ initialData, users, labels, filters, page, language, c
                   {task.title}
                 </div>
                 {task.labels.length > 0 && (
-                  <div style={{ display: "flex", gap: 4, marginTop: 4, flexWrap: "wrap" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: 4,
+                      marginTop: 4,
+                      flexWrap: "wrap",
+                    }}
+                  >
                     {task.labels.map(l => (
-                      <Tag key={l.id} color={l.color}>{l.name}</Tag>
+                      <Tag key={l.id} color={l.color}>
+                        {l.name}
+                      </Tag>
                     ))}
                   </div>
                 )}
@@ -253,29 +361,77 @@ export function TasksCC({ initialData, users, labels, filters, page, language, c
 
               <PriorityIcon priority={priorityToDisplay(task.priority)} />
 
-              <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", minWidth: 0 }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--space-2)",
+                  minWidth: 0,
+                }}
+              >
                 {task.assignedTo ? (
                   <>
-                    <Avatar name={task.assignedTo.name} src={task.assignedTo.avatar ?? undefined} size="sm" />
-                    <span style={{ fontSize: "var(--text-xs)", color: "var(--text-secondary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <Avatar
+                      name={task.assignedTo.name}
+                      src={task.assignedTo.avatar ?? undefined}
+                      size="sm"
+                    />
+                    <span
+                      style={{
+                        fontSize: "var(--text-xs)",
+                        color: "var(--text-secondary)",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
                       {task.assignedTo.name}
                     </span>
                   </>
                 ) : (
-                  <span style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>{t.tasks.unassigned}</span>
+                  <span
+                    style={{
+                      fontSize: "var(--text-xs)",
+                      color: "var(--text-tertiary)",
+                    }}
+                  >
+                    {t.tasks.unassigned}
+                  </span>
                 )}
               </div>
 
-              <span style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>{formatDate(task.dueDate)}</span>
+              <span
+                style={{
+                  fontSize: "var(--text-xs)",
+                  color: "var(--text-tertiary)",
+                }}
+              >
+                {formatDate(task.dueDate)}
+              </span>
 
               <span onClick={e => e.stopPropagation()}>
                 <Menu
-                  trigger={<IconButton icon="more-horizontal" aria-label={t.tasks.taskActionsLabel} size="sm" />}
+                  trigger={
+                    <IconButton
+                      icon="more-horizontal"
+                      aria-label={t.tasks.taskActionsLabel}
+                      size="sm"
+                    />
+                  }
                   align="end"
                   items={[
-                    { label: t.common.edit, icon: "pencil", onClick: () => u.openEdit(task) },
+                    {
+                      label: t.common.edit,
+                      icon: "pencil",
+                      onClick: () => u.openEdit(task),
+                    },
                     { divider: true },
-                    { label: t.common.delete, icon: "trash", danger: true, onClick: () => u.setDeleteTarget(task) },
+                    {
+                      label: t.common.delete,
+                      icon: "trash",
+                      danger: true,
+                      onClick: () => u.setDeleteTarget(task),
+                    },
                   ]}
                 />
               </span>
@@ -286,8 +442,20 @@ export function TasksCC({ initialData, users, labels, filters, page, language, c
 
       {/* ── Pagination ───────────────────────────────────────────────── */}
       {totalPages > 1 && (
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "var(--space-4)" }}>
-          <span style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginTop: "var(--space-4)",
+          }}
+        >
+          <span
+            style={{
+              fontSize: "var(--text-xs)",
+              color: "var(--text-tertiary)",
+            }}
+          >
             {t.users.page} {page} {t.users.of} {totalPages}
           </span>
           <div style={{ display: "flex", gap: "var(--space-2)" }}>
@@ -297,7 +465,10 @@ export function TasksCC({ initialData, users, labels, filters, page, language, c
               icon="chevron-left"
               disabled={page <= 1}
               onClick={() => {
-                const p = new URLSearchParams({ ...filters, page: String(page - 1) });
+                const p = new URLSearchParams({
+                  ...filters,
+                  page: String(page - 1),
+                });
                 window.location.href = `/tasks?${p.toString()}`;
               }}
             >
@@ -309,7 +480,10 @@ export function TasksCC({ initialData, users, labels, filters, page, language, c
               iconRight="chevron-right"
               disabled={page >= totalPages}
               onClick={() => {
-                const p = new URLSearchParams({ ...filters, page: String(page + 1) });
+                const p = new URLSearchParams({
+                  ...filters,
+                  page: String(page + 1),
+                });
                 window.location.href = `/tasks?${p.toString()}`;
               }}
             >
@@ -325,24 +499,54 @@ export function TasksCC({ initialData, users, labels, filters, page, language, c
         onClose={u.closeDrawer}
         wide
         header={
-          <span style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)", color: "var(--text-primary)" }}>
+          <span
+            style={{
+              fontSize: "var(--text-sm)",
+              fontWeight: "var(--weight-semibold)",
+              color: "var(--text-primary)",
+            }}
+          >
             {t.tasks.createTask}
           </span>
         }
         footer={
-          <div style={{ display: "flex", gap: "var(--space-2)", marginLeft: "auto" }}>
-            <Button variant="ghost" onClick={u.closeDrawer} disabled={u.isPending}>
+          <div
+            style={{
+              display: "flex",
+              gap: "var(--space-2)",
+              marginLeft: "auto",
+            }}
+          >
+            <Button
+              variant="ghost"
+              onClick={u.closeDrawer}
+              disabled={u.isPending}
+            >
               {t.common.cancel}
             </Button>
-            <Button variant="primary" loading={u.isPending} onClick={u.onCreateSubmit}>
+            <Button
+              variant="primary"
+              loading={u.isPending}
+              onClick={u.onCreateSubmit}
+            >
               {t.tasks.createTask}
             </Button>
           </div>
         }
       >
-        <div style={{ padding: "var(--space-4)", display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+        <div
+          style={{
+            padding: "var(--space-4)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "var(--space-4)",
+          }}
+        >
           {u.actionError && (
-            <div className="auth-card__alert auth-card__alert--error" role="alert">
+            <div
+              className="auth-card__alert auth-card__alert--error"
+              role="alert"
+            >
               {u.actionError}
             </div>
           )}
@@ -350,55 +554,102 @@ export function TasksCC({ initialData, users, labels, filters, page, language, c
             name="title"
             control={u.createForm.control}
             render={({ field, fieldState }) => (
-              <Input {...field} label={t.tasks.taskTitle} placeholder={t.tasks.titlePlaceholder} error={fieldState.error?.message} />
+              <Input
+                {...field}
+                label={t.tasks.taskTitle}
+                placeholder={t.tasks.titlePlaceholder}
+                error={fieldState.error?.message}
+              />
             )}
           />
           <Controller
             name="description"
             control={u.createForm.control}
             render={({ field, fieldState }) => (
-              <Textarea {...field} label={t.tasks.description} placeholder={t.tasks.descriptionPlaceholder} error={fieldState.error?.message} />
+              <Textarea
+                {...field}
+                label={t.tasks.description}
+                placeholder={t.tasks.descriptionPlaceholder}
+                error={fieldState.error?.message}
+              />
             )}
           />
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-3)" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "var(--space-3)",
+            }}
+          >
             <Controller
               name="status"
               control={u.createForm.control}
               render={({ field, fieldState }) => (
-                <Select {...field} label={t.tasks.status} options={statusFieldOptions} error={fieldState.error?.message} />
+                <Select
+                  {...field}
+                  label={t.tasks.status}
+                  options={statusFieldOptions}
+                  error={fieldState.error?.message}
+                />
               )}
             />
             <Controller
               name="priority"
               control={u.createForm.control}
               render={({ field, fieldState }) => (
-                <Select {...field} label={t.tasks.priority} options={priorityFieldOptions} error={fieldState.error?.message} />
+                <Select
+                  {...field}
+                  label={t.tasks.priority}
+                  options={priorityFieldOptions}
+                  error={fieldState.error?.message}
+                />
               )}
             />
             <Controller
               name="type"
               control={u.createForm.control}
               render={({ field, fieldState }) => (
-                <Select {...field} label={t.tasks.type} options={typeFieldOptions} error={fieldState.error?.message} />
+                <Select
+                  {...field}
+                  label={t.tasks.type}
+                  options={typeFieldOptions}
+                  error={fieldState.error?.message}
+                />
               )}
             />
             <Controller
               name="assignedToId"
               control={u.createForm.control}
               render={({ field, fieldState }) => (
-                <Select {...field} label={t.tasks.assignee} options={userOptions} error={fieldState.error?.message} />
+                <Select
+                  {...field}
+                  label={t.tasks.assignee}
+                  options={userOptions}
+                  error={fieldState.error?.message}
+                />
               )}
             />
             <Controller
               name="dueDate"
               control={u.createForm.control}
               render={({ field, fieldState }) => (
-                <Input {...field} type="date" label={t.tasks.dueDate} error={fieldState.error?.message} />
+                <Input
+                  {...field}
+                  type="date"
+                  label={t.tasks.dueDate}
+                  error={fieldState.error?.message}
+                />
               )}
             />
           </div>
 
-          <LabelPicker labels={labels} selected={u.selectedLabelIds} onToggle={u.toggleLabel} title={t.tasks.labels} addLabel={t.tasks.addLabel} />
+          <LabelPicker
+            labels={labels}
+            selected={u.selectedLabelIds}
+            onToggle={u.toggleLabel}
+            title={t.tasks.labels}
+            addLabel={t.tasks.addLabel}
+          />
         </div>
       </Drawer>
 
@@ -408,30 +659,68 @@ export function TasksCC({ initialData, users, labels, filters, page, language, c
         onClose={u.closeDrawer}
         wide
         header={
-          <span style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)", color: "var(--text-primary)" }}>
+          <span
+            style={{
+              fontSize: "var(--text-sm)",
+              fontWeight: "var(--weight-semibold)",
+              color: "var(--text-primary)",
+            }}
+          >
             {t.tasks.editTask}
           </span>
         }
         footer={
-          <div style={{ display: "flex", gap: "var(--space-2)", marginLeft: "auto" }}>
-            <Button variant="ghost" onClick={u.closeDrawer} disabled={u.isPending}>
+          <div
+            style={{
+              display: "flex",
+              gap: "var(--space-2)",
+              marginLeft: "auto",
+            }}
+          >
+            <Button
+              variant="ghost"
+              onClick={u.closeDrawer}
+              disabled={u.isPending}
+            >
               {t.common.cancel}
             </Button>
-            <Button variant="primary" loading={u.isPending} onClick={u.onEditSubmit} disabled={u.isLoadingDetail}>
+            <Button
+              variant="primary"
+              loading={u.isPending}
+              onClick={u.onEditSubmit}
+              disabled={u.isLoadingDetail}
+            >
               {t.tasks.saveChanges}
             </Button>
           </div>
         }
       >
-        <div style={{ padding: "var(--space-4)", display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+        <div
+          style={{
+            padding: "var(--space-4)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "var(--space-4)",
+          }}
+        >
           {u.actionError && (
-            <div className="auth-card__alert auth-card__alert--error" role="alert">
+            <div
+              className="auth-card__alert auth-card__alert--error"
+              role="alert"
+            >
               {u.actionError}
             </div>
           )}
 
           {u.isLoadingDetail ? (
-            <div style={{ padding: "var(--space-8)", textAlign: "center", color: "var(--text-tertiary)", fontSize: "var(--text-sm)" }}>
+            <div
+              style={{
+                padding: "var(--space-8)",
+                textAlign: "center",
+                color: "var(--text-tertiary)",
+                fontSize: "var(--text-sm)",
+              }}
+            >
               {t.common.loading}
             </div>
           ) : (
@@ -440,73 +729,162 @@ export function TasksCC({ initialData, users, labels, filters, page, language, c
                 name="title"
                 control={u.editForm.control}
                 render={({ field, fieldState }) => (
-                  <Input {...field} label={t.tasks.taskTitle} error={fieldState.error?.message} />
+                  <Input
+                    {...field}
+                    label={t.tasks.taskTitle}
+                    error={fieldState.error?.message}
+                  />
                 )}
               />
               <Controller
                 name="description"
                 control={u.editForm.control}
                 render={({ field, fieldState }) => (
-                  <Textarea {...field} label={t.tasks.description} error={fieldState.error?.message} />
+                  <Textarea
+                    {...field}
+                    label={t.tasks.description}
+                    error={fieldState.error?.message}
+                  />
                 )}
               />
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-3)" }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "var(--space-3)",
+                }}
+              >
                 <Controller
                   name="status"
                   control={u.editForm.control}
                   render={({ field, fieldState }) => (
-                    <Select {...field} label={t.tasks.status} options={statusFieldOptions} error={fieldState.error?.message} />
+                    <Select
+                      {...field}
+                      label={t.tasks.status}
+                      options={statusFieldOptions}
+                      error={fieldState.error?.message}
+                    />
                   )}
                 />
                 <Controller
                   name="priority"
                   control={u.editForm.control}
                   render={({ field, fieldState }) => (
-                    <Select {...field} label={t.tasks.priority} options={priorityFieldOptions} error={fieldState.error?.message} />
+                    <Select
+                      {...field}
+                      label={t.tasks.priority}
+                      options={priorityFieldOptions}
+                      error={fieldState.error?.message}
+                    />
                   )}
                 />
                 <Controller
                   name="type"
                   control={u.editForm.control}
                   render={({ field, fieldState }) => (
-                    <Select {...field} label={t.tasks.type} options={typeFieldOptions} error={fieldState.error?.message} />
+                    <Select
+                      {...field}
+                      label={t.tasks.type}
+                      options={typeFieldOptions}
+                      error={fieldState.error?.message}
+                    />
                   )}
                 />
                 <Controller
                   name="assignedToId"
                   control={u.editForm.control}
                   render={({ field, fieldState }) => (
-                    <Select {...field} label={t.tasks.assignee} options={userOptions} error={fieldState.error?.message} />
+                    <Select
+                      {...field}
+                      label={t.tasks.assignee}
+                      options={userOptions}
+                      error={fieldState.error?.message}
+                    />
                   )}
                 />
                 <Controller
                   name="dueDate"
                   control={u.editForm.control}
                   render={({ field, fieldState }) => (
-                    <Input {...field} type="date" label={t.tasks.dueDate} error={fieldState.error?.message} />
+                    <Input
+                      {...field}
+                      type="date"
+                      label={t.tasks.dueDate}
+                      error={fieldState.error?.message}
+                    />
                   )}
                 />
               </div>
 
-              <LabelPicker labels={labels} selected={u.selectedLabelIds} onToggle={u.toggleLabel} title={t.tasks.labels} addLabel={t.tasks.addLabel} />
+              <LabelPicker
+                labels={labels}
+                selected={u.selectedLabelIds}
+                onToggle={u.toggleLabel}
+                title={t.tasks.labels}
+                addLabel={t.tasks.addLabel}
+              />
 
               {/* ── Activity history ──────────────────────────────── */}
               <div>
-                <div style={{ fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "var(--tracking-caps)", marginBottom: "var(--space-2)" }}>
+                <div
+                  style={{
+                    fontSize: "var(--text-xs)",
+                    fontWeight: "var(--weight-semibold)",
+                    color: "var(--text-tertiary)",
+                    textTransform: "uppercase",
+                    letterSpacing: "var(--tracking-caps)",
+                    marginBottom: "var(--space-2)",
+                  }}
+                >
                   {t.tasks.activity}
                 </div>
                 {!u.activeTask || u.activeTask.activity.length === 0 ? (
-                  <div style={{ fontSize: "var(--text-sm)", color: "var(--text-tertiary)" }}>{t.tasks.noActivity}</div>
+                  <div
+                    style={{
+                      fontSize: "var(--text-sm)",
+                      color: "var(--text-tertiary)",
+                    }}
+                  >
+                    {t.tasks.noActivity}
+                  </div>
                 ) : (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "var(--space-3)",
+                    }}
+                  >
                     {u.activeTask.activity.map(entry => (
-                      <div key={entry.id} style={{ display: "flex", alignItems: "flex-start", gap: "var(--space-2)" }}>
-                        <Avatar name={entry.performedBy.name} src={entry.performedBy.avatar ?? undefined} size="sm" />
+                      <div
+                        key={entry.id}
+                        style={{
+                          display: "flex",
+                          alignItems: "flex-start",
+                          gap: "var(--space-2)",
+                        }}
+                      >
+                        <Avatar
+                          name={entry.performedBy.name}
+                          src={entry.performedBy.avatar ?? undefined}
+                          size="sm"
+                        />
                         <div>
-                          <div style={{ fontSize: "var(--text-sm)", color: "var(--text-primary)" }}>
-                            <strong>{entry.performedBy.name}</strong> {activityLabel(t, entry.action)}
+                          <div
+                            style={{
+                              fontSize: "var(--text-sm)",
+                              color: "var(--text-primary)",
+                            }}
+                          >
+                            <strong>{entry.performedBy.name}</strong>{" "}
+                            {activityLabel(t, entry.action)}
                           </div>
-                          <div style={{ fontSize: "var(--text-2xs)", color: "var(--text-tertiary)" }}>
+                          <div
+                            style={{
+                              fontSize: "var(--text-2xs)",
+                              color: "var(--text-tertiary)",
+                            }}
+                          >
                             {new Date(entry.timestamp).toLocaleString()}
                           </div>
                         </div>
@@ -531,30 +909,58 @@ export function TasksCC({ initialData, users, labels, filters, page, language, c
       </Drawer>
 
       {/* ── Label management dialog ─────────────────────────────────── */}
-      <Dialog open={u.labelDialogOpen} onClose={() => u.setLabelDialogOpen(false)} title={t.tasks.manageLabels}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+      <Dialog
+        open={u.labelDialogOpen}
+        onClose={() => u.setLabelDialogOpen(false)}
+        title={t.tasks.manageLabels}
+      >
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "var(--space-4)",
+          }}
+        >
           {u.labelError && (
-            <div className="auth-card__alert auth-card__alert--error" role="alert">
+            <div
+              className="auth-card__alert auth-card__alert--error"
+              role="alert"
+            >
               {u.labelError}
             </div>
           )}
 
           <form
             onSubmit={u.onCreateLabelSubmit}
-            style={{ display: "flex", gap: "var(--space-2)", alignItems: "flex-end" }}
+            style={{
+              display: "flex",
+              gap: "var(--space-2)",
+              alignItems: "flex-end",
+            }}
           >
             <Controller
               name="name"
               control={u.labelForm.control}
               render={({ field, fieldState }) => (
-                <Input {...field} label={t.tasks.labelName} error={fieldState.error?.message} style={{ flex: 1 }} />
+                <Input
+                  {...field}
+                  label={t.tasks.labelName}
+                  error={fieldState.error?.message}
+                  style={{ flex: 1 }}
+                />
               )}
             />
             <Controller
               name="color"
               control={u.labelForm.control}
               render={({ field, fieldState }) => (
-                <Input {...field} type="color" label={t.tasks.labelColor} error={fieldState.error?.message} style={{ width: 56, padding: 2 }} />
+                <Input
+                  {...field}
+                  type="color"
+                  label={t.tasks.labelColor}
+                  error={fieldState.error?.message}
+                  style={{ width: 56, padding: 2 }}
+                />
               )}
             />
             <Button type="submit" variant="primary" loading={u.isPending}>
@@ -562,14 +968,42 @@ export function TasksCC({ initialData, users, labels, filters, page, language, c
             </Button>
           </form>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "var(--space-2)",
+            }}
+          >
             {labels.length === 0 ? (
-              <div style={{ fontSize: "var(--text-sm)", color: "var(--text-tertiary)" }}>{t.tasks.noLabels}</div>
+              <div
+                style={{
+                  fontSize: "var(--text-sm)",
+                  color: "var(--text-tertiary)",
+                }}
+              >
+                {t.tasks.noLabels}
+              </div>
             ) : (
               labels.map(l => (
-                <div key={l.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "var(--space-2)", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-control)" }}>
+                <div
+                  key={l.id}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "var(--space-2)",
+                    border: "1px solid var(--border-subtle)",
+                    borderRadius: "var(--radius-control)",
+                  }}
+                >
                   <Tag color={l.color}>{l.name}</Tag>
-                  <IconButton icon="trash" aria-label={t.common.delete} size="sm" onClick={() => u.onDeleteLabel(l.id)} />
+                  <IconButton
+                    icon="trash"
+                    aria-label={t.common.delete}
+                    size="sm"
+                    onClick={() => u.onDeleteLabel(l.id)}
+                  />
                 </div>
               ))
             )}
@@ -585,10 +1019,18 @@ export function TasksCC({ initialData, users, labels, filters, page, language, c
         description={`${t.tasks.deleteConfirmPrefix} ${u.deleteTarget?.title} ${t.tasks.deleteConfirmSuffix}`}
         footer={
           <>
-            <Button variant="ghost" onClick={() => u.setDeleteTarget(null)} disabled={u.isPending}>
+            <Button
+              variant="ghost"
+              onClick={() => u.setDeleteTarget(null)}
+              disabled={u.isPending}
+            >
               {t.common.cancel}
             </Button>
-            <Button variant="danger" loading={u.isPending} onClick={u.onDeleteConfirm}>
+            <Button
+              variant="danger"
+              loading={u.isPending}
+              onClick={u.onDeleteConfirm}
+            >
               {t.tasks.deleteTask}
             </Button>
           </>
@@ -613,13 +1055,28 @@ function LabelPicker({
 }) {
   return (
     <div>
-      <div style={{ fontSize: "var(--text-xs)", fontWeight: "var(--weight-semibold)", color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "var(--tracking-caps)", marginBottom: "var(--space-2)" }}>
+      <div
+        style={{
+          fontSize: "var(--text-xs)",
+          fontWeight: "var(--weight-semibold)",
+          color: "var(--text-tertiary)",
+          textTransform: "uppercase",
+          letterSpacing: "var(--tracking-caps)",
+          marginBottom: "var(--space-2)",
+        }}
+      >
         {title}
       </div>
       {labels.length === 0 ? (
-        <div style={{ fontSize: "var(--text-sm)", color: "var(--text-tertiary)" }}>{addLabel}</div>
+        <div
+          style={{ fontSize: "var(--text-sm)", color: "var(--text-tertiary)" }}
+        >
+          {addLabel}
+        </div>
       ) : (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-2)" }}>
+        <div
+          style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-2)" }}
+        >
           {labels.map(l => {
             const active = selected.includes(l.id);
             return (
