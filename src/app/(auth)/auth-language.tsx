@@ -34,6 +34,7 @@ export function AuthLanguageProvider({
   React.useEffect(() => {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     const storedLanguage = raw ? normalizeLanguage(raw) : defaultLanguage;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLanguageState(storedLanguage);
     syncDocumentDirection(storedLanguage);
   }, []);

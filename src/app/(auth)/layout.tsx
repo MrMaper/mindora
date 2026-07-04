@@ -16,7 +16,7 @@ export default function AuthLayout({
   return (
     <AuthLanguageProvider>
       <div className="auth-page">
-        {/* <AuthLanguageSwitch /> */}
+        <AuthLanguageSwitch />
         {children}
       </div>
     </AuthLanguageProvider>
