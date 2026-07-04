@@ -411,11 +411,6 @@
   --status-blocked-tint:   #321518;
 }
 
-/* ─── Persian font override ─────────────────────────────────────────────── */
-[dir="rtl"] {
-  --font-sans: "Peyda", ui-sans-serif, system-ui, sans-serif;
-}
-
 /* ─── Tailwind v4 theme mapping ─────────────────────────────────────────── */
 @theme inline {
   --color-background:              var(--background);
@@ -467,7 +462,7 @@
   --color-status-blocked:      var(--status-blocked);
 
   /* Typography */
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Peyda", ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 
   /* Radius */
