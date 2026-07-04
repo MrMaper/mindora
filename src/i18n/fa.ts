@@ -79,7 +79,7 @@ export const fa = {
   // Users Page
   users: {
     title: "کاربران",
-    totalUsers: "کل کاربران",
+    totalUsers: "کاربر",
     search: "جستجو کاربران بر اساس نام یا ایمیل",
     searchButton: "جستجو",
     noResults: "هیچ کاربری یافت نشد",
