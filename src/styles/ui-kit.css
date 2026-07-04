@@ -116,6 +116,35 @@
 
 .auth-card__back:hover { color: var(--text-primary); }
 
+.auth-page__language-switch {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+}
+
+.auth-page__language-button {
+  border: 1px solid var(--border-default);
+  background: var(--bg-surface);
+  color: var(--text-tertiary);
+  border-radius: var(--radius-dialog);
+  padding: calc(var(--space-2) - 2px) var(--space-3);
+  font-size: var(--text-xs);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.auth-page__language-button:hover {
+  color: var(--text-primary);
+  border-color: var(--border-muted);
+}
+
+.auth-page__language-button--active {
+  background: var(--bg-default);
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
 /* ================================================================
    ScrumFlow — Dashboard shell styles
    ================================================================ */

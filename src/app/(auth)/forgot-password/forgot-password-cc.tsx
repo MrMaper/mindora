@@ -7,7 +7,7 @@ import { Icon } from "@/components/ui-kit/foundation/icon";
 import { Input } from "@/components/ui-kit/forms/input";
 import { Button } from "@/components/ui-kit/forms/button";
 import { useForgotPassword } from "./use-forgot-password";
-import { en } from "@/i18n";
+import { useAuthLanguage } from "../auth-language";
 
 export function ForgotPasswordCC() {
   const { form, onSubmit, success, error, isPending } = useForgotPassword();
@@ -15,7 +15,7 @@ export function ForgotPasswordCC() {
     control,
     formState: { errors },
   } = form;
-  const t = en;
+  const { t } = useAuthLanguage();
 
   return (
     <div className="auth-card">

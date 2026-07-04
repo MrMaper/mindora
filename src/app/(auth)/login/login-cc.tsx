@@ -57,24 +57,24 @@ export function LoginCC() {
           )}
         />
 
-        <div>
-          <Controller
-            name="password"
-            control={control}
-            render={({ field }) => (
-              <Input
-                {...field}
-                label={t.auth.password}
-                type="password"
-                placeholder="••••••••"
-                autoComplete="current-password"
-                error={errors.password?.message}
-              />
-            )}
-          />
-          <div className="auth-card__forgot">
-            <Link href="/forgot-password">{t.auth.forgotPassword}</Link>
-          </div>
+        <Controller
+          name="password"
+          control={control}
+          render={({ field }) => (
+            <Input
+              {...field}
+              label={t.auth.password}
+              type="password"
+              placeholder="••••••••"
+              icon="lock"
+              autoComplete="current-password"
+              error={errors.password?.message}
+            />
+          )}
+        />
+
+        <div className="auth-card__forgot">
+          <Link href="/forgot-password">{t.auth.forgotPassword}</Link>
         </div>
 
         <Button

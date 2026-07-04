@@ -7,7 +7,7 @@ import { Icon } from "@/components/ui-kit/foundation/icon";
 import { Input } from "@/components/ui-kit/forms/input";
 import { Button } from "@/components/ui-kit/forms/button";
 import { useResetPassword } from "./use-reset-password";
-import { en } from "@/i18n";
+import { useAuthLanguage } from "../auth-language";
 
 interface ResetPasswordCCProps {
   token: string | undefined;
@@ -19,7 +19,7 @@ export function ResetPasswordCC({ token }: ResetPasswordCCProps) {
     control,
     formState: { errors },
   } = form;
-  const t = en;
+  const { t } = useAuthLanguage();
 
   if (!token) {
     return (
