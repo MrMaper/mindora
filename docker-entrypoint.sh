@@ -20,14 +20,14 @@ retry() {
 }
 
 echo "Waiting for database and applying migrations..."
-retry npx prisma migrate deploy
+retry ./node_modules/.bin/prisma migrate deploy
 
 if [ "${DISABLE_DB_SEED:-0}" != "1" ]; then
   echo "Running seed script..."
-  npx prisma db seed
+  ./node_modules/.bin/prisma db seed
 else
   echo "Skipping seed step because DISABLE_DB_SEED=1"
 fi
 
 echo "Starting app..."
-npm run start
+PORT=3030 HOSTNAME=0.0.0.0 npm run start
