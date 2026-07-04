@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AuthLanguageProvider, AuthLanguageSwitch } from "./auth-language";
 
 export const metadata: Metadata = {
   title: {
@@ -13,8 +14,11 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="auth-page" dir="ltr">
-      {children}
-    </div>
+    <AuthLanguageProvider>
+      <div className="auth-page">
+        {/* <AuthLanguageSwitch /> */}
+        {children}
+      </div>
+    </AuthLanguageProvider>
   );
 }
