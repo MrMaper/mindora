@@ -639,10 +639,13 @@
 
 /* ─── Drawer ─────────────────────────────────────────────────────── */
 .sf-drawer-overlay { position: fixed; inset: 0; z-index: var(--z-drawer); background: var(--bg-overlay);
-  display: flex; justify-content: flex-end; animation: sf-fade var(--motion-base) var(--ease-standard); }
+  display: flex; justify-content: flex-start; animation: sf-fade var(--motion-base) var(--ease-standard); }
 .sf-drawer { position: relative; height: 100%; width: var(--drawer-width); max-width: 92vw;
   background: var(--bg-surface); box-shadow: var(--shadow-lg); display: flex; flex-direction: column;
   animation: sf-drawer-in var(--motion-base) var(--ease-out); }
+.sf-drawer--left {
+  animation: sf-drawer-in-left var(--motion-base) var(--ease-out); }
+@keyframes sf-drawer-in-left { from { transform: translateX(-24px); opacity: .4; } }
 .sf-drawer--wide { width: 640px; }
 @keyframes sf-drawer-in { from { transform: translateX(24px); opacity: .4; } }
 .sf-drawer__head { display: flex; align-items: center; gap: 8px; height: var(--context-header-height);
