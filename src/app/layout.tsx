@@ -4,11 +4,19 @@ import { peyda, geistMono } from "@/lib/font";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: {
-    default: "ScrumFlow",
-    template: "%s | ScrumFlow",
+  title: "ScrumFlow",
+  description: "Modern Agile Project Management",
+
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
   },
-  description: "Lightweight Scrum task management platform.",
+
+  manifest: "/site.webmanifest",
 };
 
 export default function RootLayout({
