@@ -389,6 +389,33 @@
   --color-status-done:         var(--status-done);
   --color-status-blocked:      var(--status-blocked);
 
+  /* Semantic surfaces */
+  --color-bg-app:      var(--bg-app);
+  --color-bg-surface:  var(--bg-surface);
+  --color-bg-sunken:   var(--bg-sunken);
+  --color-bg-raised:   var(--bg-raised);
+  --color-bg-hover:    var(--bg-hover);
+  --color-bg-active:   var(--bg-active);
+  --color-bg-selected: var(--bg-selected);
+  --color-bg-overlay:  var(--bg-overlay);
+
+  /* Text and borders */
+  --color-text-primary:   var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary:  var(--text-tertiary);
+  --color-text-disabled:  var(--text-disabled);
+  --color-text-brand:     var(--text-brand);
+  --color-text-on-brand:  var(--text-on-brand);
+  --color-border-subtle:  var(--border-subtle);
+  --color-border-strong:  var(--border-strong);
+  --color-border-focus:   var(--border-focus);
+  --color-border-default: var(--border-default);
+
+  /* Action aliases */
+  --color-action-primary:        var(--action-primary);
+  --color-action-primary-hover:  var(--action-primary-hover);
+  --color-action-primary-active: var(--action-primary-active);
+
   /* Typography */
   --font-sans: var(--font-peyda), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
@@ -398,6 +425,38 @@
   --radius-md: var(--radius-control);
   --radius-lg: var(--radius-card);
   --radius-xl: var(--radius-dialog);
+
+  /* Spacing */
+  --spacing-0: var(--space-0);
+  --spacing-px: var(--space-px);
+  --spacing-0.5: var(--space-0-5);
+  --spacing-1: var(--space-1);
+  --spacing-1.5: var(--space-1-5);
+  --spacing-2: var(--space-2);
+  --spacing-2.5: var(--space-2-5);
+  --spacing-3: var(--space-3);
+  --spacing-4: var(--space-4);
+  --spacing-5: var(--space-5);
+  --spacing-6: var(--space-6);
+  --spacing-7: var(--space-7);
+  --spacing-8: var(--space-8);
+  --spacing-10: var(--space-10);
+  --spacing-12: var(--space-12);
+  --spacing-16: var(--space-16);
+  --spacing-20: var(--space-20);
+  --spacing-24: var(--space-24);
+
+  /* Shadows and motion */
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-drag: var(--shadow-drag);
+  --duration-instant: var(--motion-instant);
+  --duration-fast: var(--motion-fast);
+  --duration-base: var(--motion-base);
+  --duration-slow: var(--motion-slow);
 }
 
 /* ─── Base layer ────────────────────────────────────────────────────────── */
@@ -406,7 +465,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground text-[13px] leading-[1.5];
+    @apply bg-background text-foreground text-[13px] leading-normal;
     font-family: var(--font-sans);
   }
   html {
