@@ -28,6 +28,18 @@ export type UserPreferencesMinAggregateOutputType = {
   id: string | null
   userId: string | null
   language: $Enums.Language | null
+  theme: $Enums.Theme | null
+  emailNotifs: boolean | null
+  notifications: boolean | null
+  soundNotifs: boolean | null
+  notifyTaskAssigned: boolean | null
+  notifyTaskUpdated: boolean | null
+  notifyTaskCommented: boolean | null
+  notifyMention: boolean | null
+  notifySprintStarted: boolean | null
+  notifySprintEnded: boolean | null
+  notifyDeadlineApproaching: boolean | null
+  notifyStatusChanged: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -36,6 +48,18 @@ export type UserPreferencesMaxAggregateOutputType = {
   id: string | null
   userId: string | null
   language: $Enums.Language | null
+  theme: $Enums.Theme | null
+  emailNotifs: boolean | null
+  notifications: boolean | null
+  soundNotifs: boolean | null
+  notifyTaskAssigned: boolean | null
+  notifyTaskUpdated: boolean | null
+  notifyTaskCommented: boolean | null
+  notifyMention: boolean | null
+  notifySprintStarted: boolean | null
+  notifySprintEnded: boolean | null
+  notifyDeadlineApproaching: boolean | null
+  notifyStatusChanged: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -44,6 +68,18 @@ export type UserPreferencesCountAggregateOutputType = {
   id: number
   userId: number
   language: number
+  theme: number
+  emailNotifs: number
+  notifications: number
+  soundNotifs: number
+  notifyTaskAssigned: number
+  notifyTaskUpdated: number
+  notifyTaskCommented: number
+  notifyMention: number
+  notifySprintStarted: number
+  notifySprintEnded: number
+  notifyDeadlineApproaching: number
+  notifyStatusChanged: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -54,6 +90,18 @@ export type UserPreferencesMinAggregateInputType = {
   id?: true
   userId?: true
   language?: true
+  theme?: true
+  emailNotifs?: true
+  notifications?: true
+  soundNotifs?: true
+  notifyTaskAssigned?: true
+  notifyTaskUpdated?: true
+  notifyTaskCommented?: true
+  notifyMention?: true
+  notifySprintStarted?: true
+  notifySprintEnded?: true
+  notifyDeadlineApproaching?: true
+  notifyStatusChanged?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -62,6 +110,18 @@ export type UserPreferencesMaxAggregateInputType = {
   id?: true
   userId?: true
   language?: true
+  theme?: true
+  emailNotifs?: true
+  notifications?: true
+  soundNotifs?: true
+  notifyTaskAssigned?: true
+  notifyTaskUpdated?: true
+  notifyTaskCommented?: true
+  notifyMention?: true
+  notifySprintStarted?: true
+  notifySprintEnded?: true
+  notifyDeadlineApproaching?: true
+  notifyStatusChanged?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -70,6 +130,18 @@ export type UserPreferencesCountAggregateInputType = {
   id?: true
   userId?: true
   language?: true
+  theme?: true
+  emailNotifs?: true
+  notifications?: true
+  soundNotifs?: true
+  notifyTaskAssigned?: true
+  notifyTaskUpdated?: true
+  notifyTaskCommented?: true
+  notifyMention?: true
+  notifySprintStarted?: true
+  notifySprintEnded?: true
+  notifyDeadlineApproaching?: true
+  notifyStatusChanged?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -151,6 +223,18 @@ export type UserPreferencesGroupByOutputType = {
   id: string
   userId: string
   language: $Enums.Language
+  theme: $Enums.Theme
+  emailNotifs: boolean
+  notifications: boolean
+  soundNotifs: boolean
+  notifyTaskAssigned: boolean
+  notifyTaskUpdated: boolean
+  notifyTaskCommented: boolean
+  notifyMention: boolean
+  notifySprintStarted: boolean
+  notifySprintEnded: boolean
+  notifyDeadlineApproaching: boolean
+  notifyStatusChanged: boolean
   createdAt: Date
   updatedAt: Date
   _count: UserPreferencesCountAggregateOutputType | null
@@ -180,6 +264,18 @@ export type UserPreferencesWhereInput = {
   id?: Prisma.StringFilter<"UserPreferences"> | string
   userId?: Prisma.StringFilter<"UserPreferences"> | string
   language?: Prisma.EnumLanguageFilter<"UserPreferences"> | $Enums.Language
+  theme?: Prisma.EnumThemeFilter<"UserPreferences"> | $Enums.Theme
+  emailNotifs?: Prisma.BoolFilter<"UserPreferences"> | boolean
+  notifications?: Prisma.BoolFilter<"UserPreferences"> | boolean
+  soundNotifs?: Prisma.BoolFilter<"UserPreferences"> | boolean
+  notifyTaskAssigned?: Prisma.BoolFilter<"UserPreferences"> | boolean
+  notifyTaskUpdated?: Prisma.BoolFilter<"UserPreferences"> | boolean
+  notifyTaskCommented?: Prisma.BoolFilter<"UserPreferences"> | boolean
+  notifyMention?: Prisma.BoolFilter<"UserPreferences"> | boolean
+  notifySprintStarted?: Prisma.BoolFilter<"UserPreferences"> | boolean
+  notifySprintEnded?: Prisma.BoolFilter<"UserPreferences"> | boolean
+  notifyDeadlineApproaching?: Prisma.BoolFilter<"UserPreferences"> | boolean
+  notifyStatusChanged?: Prisma.BoolFilter<"UserPreferences"> | boolean
   createdAt?: Prisma.DateTimeFilter<"UserPreferences"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"UserPreferences"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -189,6 +285,18 @@ export type UserPreferencesOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   language?: Prisma.SortOrder
+  theme?: Prisma.SortOrder
+  emailNotifs?: Prisma.SortOrder
+  notifications?: Prisma.SortOrder
+  soundNotifs?: Prisma.SortOrder
+  notifyTaskAssigned?: Prisma.SortOrder
+  notifyTaskUpdated?: Prisma.SortOrder
+  notifyTaskCommented?: Prisma.SortOrder
+  notifyMention?: Prisma.SortOrder
+  notifySprintStarted?: Prisma.SortOrder
+  notifySprintEnded?: Prisma.SortOrder
+  notifyDeadlineApproaching?: Prisma.SortOrder
+  notifyStatusChanged?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
@@ -201,6 +309,18 @@ export type UserPreferencesWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.UserPreferencesWhereInput[]
   NOT?: Prisma.UserPreferencesWhereInput | Prisma.UserPreferencesWhereInput[]
   language?: Prisma.EnumLanguageFilter<"UserPreferences"> | $Enums.Language
+  theme?: Prisma.EnumThemeFilter<"UserPreferences"> | $Enums.Theme
+  emailNotifs?: Prisma.BoolFilter<"UserPreferences"> | boolean
+  notifications?: Prisma.BoolFilter<"UserPreferences"> | boolean
+  soundNotifs?: Prisma.BoolFilter<"UserPreferences"> | boolean
+  notifyTaskAssigned?: Prisma.BoolFilter<"UserPreferences"> | boolean
+  notifyTaskUpdated?: Prisma.BoolFilter<"UserPreferences"> | boolean
+  notifyTaskCommented?: Prisma.BoolFilter<"UserPreferences"> | boolean
+  notifyMention?: Prisma.BoolFilter<"UserPreferences"> | boolean
+  notifySprintStarted?: Prisma.BoolFilter<"UserPreferences"> | boolean
+  notifySprintEnded?: Prisma.BoolFilter<"UserPreferences"> | boolean
+  notifyDeadlineApproaching?: Prisma.BoolFilter<"UserPreferences"> | boolean
+  notifyStatusChanged?: Prisma.BoolFilter<"UserPreferences"> | boolean
   createdAt?: Prisma.DateTimeFilter<"UserPreferences"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"UserPreferences"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -210,6 +330,18 @@ export type UserPreferencesOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   language?: Prisma.SortOrder
+  theme?: Prisma.SortOrder
+  emailNotifs?: Prisma.SortOrder
+  notifications?: Prisma.SortOrder
+  soundNotifs?: Prisma.SortOrder
+  notifyTaskAssigned?: Prisma.SortOrder
+  notifyTaskUpdated?: Prisma.SortOrder
+  notifyTaskCommented?: Prisma.SortOrder
+  notifyMention?: Prisma.SortOrder
+  notifySprintStarted?: Prisma.SortOrder
+  notifySprintEnded?: Prisma.SortOrder
+  notifyDeadlineApproaching?: Prisma.SortOrder
+  notifyStatusChanged?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserPreferencesCountOrderByAggregateInput
@@ -224,6 +356,18 @@ export type UserPreferencesScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"UserPreferences"> | string
   userId?: Prisma.StringWithAggregatesFilter<"UserPreferences"> | string
   language?: Prisma.EnumLanguageWithAggregatesFilter<"UserPreferences"> | $Enums.Language
+  theme?: Prisma.EnumThemeWithAggregatesFilter<"UserPreferences"> | $Enums.Theme
+  emailNotifs?: Prisma.BoolWithAggregatesFilter<"UserPreferences"> | boolean
+  notifications?: Prisma.BoolWithAggregatesFilter<"UserPreferences"> | boolean
+  soundNotifs?: Prisma.BoolWithAggregatesFilter<"UserPreferences"> | boolean
+  notifyTaskAssigned?: Prisma.BoolWithAggregatesFilter<"UserPreferences"> | boolean
+  notifyTaskUpdated?: Prisma.BoolWithAggregatesFilter<"UserPreferences"> | boolean
+  notifyTaskCommented?: Prisma.BoolWithAggregatesFilter<"UserPreferences"> | boolean
+  notifyMention?: Prisma.BoolWithAggregatesFilter<"UserPreferences"> | boolean
+  notifySprintStarted?: Prisma.BoolWithAggregatesFilter<"UserPreferences"> | boolean
+  notifySprintEnded?: Prisma.BoolWithAggregatesFilter<"UserPreferences"> | boolean
+  notifyDeadlineApproaching?: Prisma.BoolWithAggregatesFilter<"UserPreferences"> | boolean
+  notifyStatusChanged?: Prisma.BoolWithAggregatesFilter<"UserPreferences"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"UserPreferences"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"UserPreferences"> | Date | string
 }
@@ -231,6 +375,18 @@ export type UserPreferencesScalarWhereWithAggregatesInput = {
 export type UserPreferencesCreateInput = {
   id?: string
   language?: $Enums.Language
+  theme?: $Enums.Theme
+  emailNotifs?: boolean
+  notifications?: boolean
+  soundNotifs?: boolean
+  notifyTaskAssigned?: boolean
+  notifyTaskUpdated?: boolean
+  notifyTaskCommented?: boolean
+  notifyMention?: boolean
+  notifySprintStarted?: boolean
+  notifySprintEnded?: boolean
+  notifyDeadlineApproaching?: boolean
+  notifyStatusChanged?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutPreferencesInput
@@ -240,6 +396,18 @@ export type UserPreferencesUncheckedCreateInput = {
   id?: string
   userId: string
   language?: $Enums.Language
+  theme?: $Enums.Theme
+  emailNotifs?: boolean
+  notifications?: boolean
+  soundNotifs?: boolean
+  notifyTaskAssigned?: boolean
+  notifyTaskUpdated?: boolean
+  notifyTaskCommented?: boolean
+  notifyMention?: boolean
+  notifySprintStarted?: boolean
+  notifySprintEnded?: boolean
+  notifyDeadlineApproaching?: boolean
+  notifyStatusChanged?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -247,6 +415,18 @@ export type UserPreferencesUncheckedCreateInput = {
 export type UserPreferencesUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   language?: Prisma.EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+  theme?: Prisma.EnumThemeFieldUpdateOperationsInput | $Enums.Theme
+  emailNotifs?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifications?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  soundNotifs?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTaskAssigned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTaskUpdated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTaskCommented?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyMention?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySprintStarted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySprintEnded?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyDeadlineApproaching?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyStatusChanged?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutPreferencesNestedInput
@@ -256,6 +436,18 @@ export type UserPreferencesUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   language?: Prisma.EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+  theme?: Prisma.EnumThemeFieldUpdateOperationsInput | $Enums.Theme
+  emailNotifs?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifications?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  soundNotifs?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTaskAssigned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTaskUpdated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTaskCommented?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyMention?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySprintStarted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySprintEnded?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyDeadlineApproaching?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyStatusChanged?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -264,6 +456,18 @@ export type UserPreferencesCreateManyInput = {
   id?: string
   userId: string
   language?: $Enums.Language
+  theme?: $Enums.Theme
+  emailNotifs?: boolean
+  notifications?: boolean
+  soundNotifs?: boolean
+  notifyTaskAssigned?: boolean
+  notifyTaskUpdated?: boolean
+  notifyTaskCommented?: boolean
+  notifyMention?: boolean
+  notifySprintStarted?: boolean
+  notifySprintEnded?: boolean
+  notifyDeadlineApproaching?: boolean
+  notifyStatusChanged?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -271,6 +475,18 @@ export type UserPreferencesCreateManyInput = {
 export type UserPreferencesUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   language?: Prisma.EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+  theme?: Prisma.EnumThemeFieldUpdateOperationsInput | $Enums.Theme
+  emailNotifs?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifications?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  soundNotifs?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTaskAssigned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTaskUpdated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTaskCommented?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyMention?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySprintStarted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySprintEnded?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyDeadlineApproaching?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyStatusChanged?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -279,6 +495,18 @@ export type UserPreferencesUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   language?: Prisma.EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+  theme?: Prisma.EnumThemeFieldUpdateOperationsInput | $Enums.Theme
+  emailNotifs?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifications?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  soundNotifs?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTaskAssigned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTaskUpdated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTaskCommented?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyMention?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySprintStarted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySprintEnded?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyDeadlineApproaching?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyStatusChanged?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -292,6 +520,18 @@ export type UserPreferencesCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   language?: Prisma.SortOrder
+  theme?: Prisma.SortOrder
+  emailNotifs?: Prisma.SortOrder
+  notifications?: Prisma.SortOrder
+  soundNotifs?: Prisma.SortOrder
+  notifyTaskAssigned?: Prisma.SortOrder
+  notifyTaskUpdated?: Prisma.SortOrder
+  notifyTaskCommented?: Prisma.SortOrder
+  notifyMention?: Prisma.SortOrder
+  notifySprintStarted?: Prisma.SortOrder
+  notifySprintEnded?: Prisma.SortOrder
+  notifyDeadlineApproaching?: Prisma.SortOrder
+  notifyStatusChanged?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -300,6 +540,18 @@ export type UserPreferencesMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   language?: Prisma.SortOrder
+  theme?: Prisma.SortOrder
+  emailNotifs?: Prisma.SortOrder
+  notifications?: Prisma.SortOrder
+  soundNotifs?: Prisma.SortOrder
+  notifyTaskAssigned?: Prisma.SortOrder
+  notifyTaskUpdated?: Prisma.SortOrder
+  notifyTaskCommented?: Prisma.SortOrder
+  notifyMention?: Prisma.SortOrder
+  notifySprintStarted?: Prisma.SortOrder
+  notifySprintEnded?: Prisma.SortOrder
+  notifyDeadlineApproaching?: Prisma.SortOrder
+  notifyStatusChanged?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -308,6 +560,18 @@ export type UserPreferencesMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   language?: Prisma.SortOrder
+  theme?: Prisma.SortOrder
+  emailNotifs?: Prisma.SortOrder
+  notifications?: Prisma.SortOrder
+  soundNotifs?: Prisma.SortOrder
+  notifyTaskAssigned?: Prisma.SortOrder
+  notifyTaskUpdated?: Prisma.SortOrder
+  notifyTaskCommented?: Prisma.SortOrder
+  notifyMention?: Prisma.SortOrder
+  notifySprintStarted?: Prisma.SortOrder
+  notifySprintEnded?: Prisma.SortOrder
+  notifyDeadlineApproaching?: Prisma.SortOrder
+  notifyStatusChanged?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -348,9 +612,29 @@ export type EnumLanguageFieldUpdateOperationsInput = {
   set?: $Enums.Language
 }
 
+export type EnumThemeFieldUpdateOperationsInput = {
+  set?: $Enums.Theme
+}
+
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
+}
+
 export type UserPreferencesCreateWithoutUserInput = {
   id?: string
   language?: $Enums.Language
+  theme?: $Enums.Theme
+  emailNotifs?: boolean
+  notifications?: boolean
+  soundNotifs?: boolean
+  notifyTaskAssigned?: boolean
+  notifyTaskUpdated?: boolean
+  notifyTaskCommented?: boolean
+  notifyMention?: boolean
+  notifySprintStarted?: boolean
+  notifySprintEnded?: boolean
+  notifyDeadlineApproaching?: boolean
+  notifyStatusChanged?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -358,6 +642,18 @@ export type UserPreferencesCreateWithoutUserInput = {
 export type UserPreferencesUncheckedCreateWithoutUserInput = {
   id?: string
   language?: $Enums.Language
+  theme?: $Enums.Theme
+  emailNotifs?: boolean
+  notifications?: boolean
+  soundNotifs?: boolean
+  notifyTaskAssigned?: boolean
+  notifyTaskUpdated?: boolean
+  notifyTaskCommented?: boolean
+  notifyMention?: boolean
+  notifySprintStarted?: boolean
+  notifySprintEnded?: boolean
+  notifyDeadlineApproaching?: boolean
+  notifyStatusChanged?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -381,6 +677,18 @@ export type UserPreferencesUpdateToOneWithWhereWithoutUserInput = {
 export type UserPreferencesUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   language?: Prisma.EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+  theme?: Prisma.EnumThemeFieldUpdateOperationsInput | $Enums.Theme
+  emailNotifs?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifications?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  soundNotifs?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTaskAssigned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTaskUpdated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTaskCommented?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyMention?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySprintStarted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySprintEnded?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyDeadlineApproaching?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyStatusChanged?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -388,6 +696,18 @@ export type UserPreferencesUpdateWithoutUserInput = {
 export type UserPreferencesUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   language?: Prisma.EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+  theme?: Prisma.EnumThemeFieldUpdateOperationsInput | $Enums.Theme
+  emailNotifs?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifications?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  soundNotifs?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTaskAssigned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTaskUpdated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTaskCommented?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyMention?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySprintStarted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySprintEnded?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyDeadlineApproaching?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyStatusChanged?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -398,6 +718,18 @@ export type UserPreferencesSelect<ExtArgs extends runtime.Types.Extensions.Inter
   id?: boolean
   userId?: boolean
   language?: boolean
+  theme?: boolean
+  emailNotifs?: boolean
+  notifications?: boolean
+  soundNotifs?: boolean
+  notifyTaskAssigned?: boolean
+  notifyTaskUpdated?: boolean
+  notifyTaskCommented?: boolean
+  notifyMention?: boolean
+  notifySprintStarted?: boolean
+  notifySprintEnded?: boolean
+  notifyDeadlineApproaching?: boolean
+  notifyStatusChanged?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -407,6 +739,18 @@ export type UserPreferencesSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   id?: boolean
   userId?: boolean
   language?: boolean
+  theme?: boolean
+  emailNotifs?: boolean
+  notifications?: boolean
+  soundNotifs?: boolean
+  notifyTaskAssigned?: boolean
+  notifyTaskUpdated?: boolean
+  notifyTaskCommented?: boolean
+  notifyMention?: boolean
+  notifySprintStarted?: boolean
+  notifySprintEnded?: boolean
+  notifyDeadlineApproaching?: boolean
+  notifyStatusChanged?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -416,6 +760,18 @@ export type UserPreferencesSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   id?: boolean
   userId?: boolean
   language?: boolean
+  theme?: boolean
+  emailNotifs?: boolean
+  notifications?: boolean
+  soundNotifs?: boolean
+  notifyTaskAssigned?: boolean
+  notifyTaskUpdated?: boolean
+  notifyTaskCommented?: boolean
+  notifyMention?: boolean
+  notifySprintStarted?: boolean
+  notifySprintEnded?: boolean
+  notifyDeadlineApproaching?: boolean
+  notifyStatusChanged?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -425,11 +781,23 @@ export type UserPreferencesSelectScalar = {
   id?: boolean
   userId?: boolean
   language?: boolean
+  theme?: boolean
+  emailNotifs?: boolean
+  notifications?: boolean
+  soundNotifs?: boolean
+  notifyTaskAssigned?: boolean
+  notifyTaskUpdated?: boolean
+  notifyTaskCommented?: boolean
+  notifyMention?: boolean
+  notifySprintStarted?: boolean
+  notifySprintEnded?: boolean
+  notifyDeadlineApproaching?: boolean
+  notifyStatusChanged?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserPreferencesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "language" | "createdAt" | "updatedAt", ExtArgs["result"]["userPreferences"]>
+export type UserPreferencesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "language" | "theme" | "emailNotifs" | "notifications" | "soundNotifs" | "notifyTaskAssigned" | "notifyTaskUpdated" | "notifyTaskCommented" | "notifyMention" | "notifySprintStarted" | "notifySprintEnded" | "notifyDeadlineApproaching" | "notifyStatusChanged" | "createdAt" | "updatedAt", ExtArgs["result"]["userPreferences"]>
 export type UserPreferencesInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -449,6 +817,18 @@ export type $UserPreferencesPayload<ExtArgs extends runtime.Types.Extensions.Int
     id: string
     userId: string
     language: $Enums.Language
+    theme: $Enums.Theme
+    emailNotifs: boolean
+    notifications: boolean
+    soundNotifs: boolean
+    notifyTaskAssigned: boolean
+    notifyTaskUpdated: boolean
+    notifyTaskCommented: boolean
+    notifyMention: boolean
+    notifySprintStarted: boolean
+    notifySprintEnded: boolean
+    notifyDeadlineApproaching: boolean
+    notifyStatusChanged: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["userPreferences"]>
@@ -878,6 +1258,18 @@ export interface UserPreferencesFieldRefs {
   readonly id: Prisma.FieldRef<"UserPreferences", 'String'>
   readonly userId: Prisma.FieldRef<"UserPreferences", 'String'>
   readonly language: Prisma.FieldRef<"UserPreferences", 'Language'>
+  readonly theme: Prisma.FieldRef<"UserPreferences", 'Theme'>
+  readonly emailNotifs: Prisma.FieldRef<"UserPreferences", 'Boolean'>
+  readonly notifications: Prisma.FieldRef<"UserPreferences", 'Boolean'>
+  readonly soundNotifs: Prisma.FieldRef<"UserPreferences", 'Boolean'>
+  readonly notifyTaskAssigned: Prisma.FieldRef<"UserPreferences", 'Boolean'>
+  readonly notifyTaskUpdated: Prisma.FieldRef<"UserPreferences", 'Boolean'>
+  readonly notifyTaskCommented: Prisma.FieldRef<"UserPreferences", 'Boolean'>
+  readonly notifyMention: Prisma.FieldRef<"UserPreferences", 'Boolean'>
+  readonly notifySprintStarted: Prisma.FieldRef<"UserPreferences", 'Boolean'>
+  readonly notifySprintEnded: Prisma.FieldRef<"UserPreferences", 'Boolean'>
+  readonly notifyDeadlineApproaching: Prisma.FieldRef<"UserPreferences", 'Boolean'>
+  readonly notifyStatusChanged: Prisma.FieldRef<"UserPreferences", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"UserPreferences", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"UserPreferences", 'DateTime'>
 }

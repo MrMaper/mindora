@@ -3,7 +3,16 @@ import { auth } from "@/auth";
 import { getUserPreferences } from "@/features/settings/queries";
 import { getTranslations } from "@/i18n";
 
-export const metadata: Metadata = { title: "Dashboard" };
+export async function generateMetadata(): Promise<Metadata> {
+  const session = await auth();
+  const prefs = await getUserPreferences(session?.user?.id ?? "");
+  const lang = prefs?.language ?? "EN";
+  const isFa = lang === "FA";
+
+  return {
+    title: isFa ? "داشبورد" : "Dashboard",
+  };
+}
 
 export default async function DashboardPage() {
   const session = await auth();

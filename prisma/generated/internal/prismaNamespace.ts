@@ -2234,6 +2234,18 @@ export const UserPreferencesScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   language: 'language',
+  theme: 'theme',
+  emailNotifs: 'emailNotifs',
+  notifications: 'notifications',
+  soundNotifs: 'soundNotifs',
+  notifyTaskAssigned: 'notifyTaskAssigned',
+  notifyTaskUpdated: 'notifyTaskUpdated',
+  notifyTaskCommented: 'notifyTaskCommented',
+  notifyMention: 'notifyMention',
+  notifySprintStarted: 'notifySprintStarted',
+  notifySprintEnded: 'notifySprintEnded',
+  notifyDeadlineApproaching: 'notifyDeadlineApproaching',
+  notifyStatusChanged: 'notifyStatusChanged',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2563,6 +2575,27 @@ export type ListEnumLanguageFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
 
 
 /**
+ * Reference to a field of type 'Theme'
+ */
+export type EnumThemeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Theme'>
+    
+
+
+/**
+ * Reference to a field of type 'Theme[]'
+ */
+export type ListEnumThemeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Theme[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+/**
  * Reference to a field of type 'ProjectStatus'
  */
 export type EnumProjectStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProjectStatus'>
@@ -2629,13 +2662,6 @@ export type EnumTaskTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
  * Reference to a field of type 'TaskType[]'
  */
 export type ListEnumTaskTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TaskType[]'>
-    
-
-
-/**
- * Reference to a field of type 'Boolean'
- */
-export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 

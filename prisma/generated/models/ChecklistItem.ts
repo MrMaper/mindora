@@ -337,10 +337,6 @@ export type ChecklistItemUncheckedUpdateManyWithoutChecklistNestedInput = {
   deleteMany?: Prisma.ChecklistItemScalarWhereInput | Prisma.ChecklistItemScalarWhereInput[]
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type ChecklistItemCreateWithoutChecklistInput = {
   id?: string
   title: string

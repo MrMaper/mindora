@@ -1,0 +1,12 @@
+# ScrumFlow robots.txt
+User-agent: *
+Allow: /
+
+# Disallow auth and API routes
+Disallow: /login
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://scrumflow.app/sitemap.xml

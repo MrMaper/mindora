@@ -158,15 +158,15 @@ export type TaskLabelWhereInput = {
   NOT?: Prisma.TaskLabelWhereInput | Prisma.TaskLabelWhereInput[]
   taskId?: Prisma.StringFilter<"TaskLabel"> | string
   labelId?: Prisma.StringFilter<"TaskLabel"> | string
-  task?: Prisma.XOR<Prisma.TaskScalarRelationFilter, Prisma.TaskWhereInput>
   label?: Prisma.XOR<Prisma.LabelScalarRelationFilter, Prisma.LabelWhereInput>
+  task?: Prisma.XOR<Prisma.TaskScalarRelationFilter, Prisma.TaskWhereInput>
 }
 
 export type TaskLabelOrderByWithRelationInput = {
   taskId?: Prisma.SortOrder
   labelId?: Prisma.SortOrder
-  task?: Prisma.TaskOrderByWithRelationInput
   label?: Prisma.LabelOrderByWithRelationInput
+  task?: Prisma.TaskOrderByWithRelationInput
 }
 
 export type TaskLabelWhereUniqueInput = Prisma.AtLeast<{
@@ -176,8 +176,8 @@ export type TaskLabelWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.TaskLabelWhereInput | Prisma.TaskLabelWhereInput[]
   taskId?: Prisma.StringFilter<"TaskLabel"> | string
   labelId?: Prisma.StringFilter<"TaskLabel"> | string
-  task?: Prisma.XOR<Prisma.TaskScalarRelationFilter, Prisma.TaskWhereInput>
   label?: Prisma.XOR<Prisma.LabelScalarRelationFilter, Prisma.LabelWhereInput>
+  task?: Prisma.XOR<Prisma.TaskScalarRelationFilter, Prisma.TaskWhereInput>
 }, "taskId_labelId">
 
 export type TaskLabelOrderByWithAggregationInput = {
@@ -197,8 +197,8 @@ export type TaskLabelScalarWhereWithAggregatesInput = {
 }
 
 export type TaskLabelCreateInput = {
-  task: Prisma.TaskCreateNestedOneWithoutLabelsInput
   label: Prisma.LabelCreateNestedOneWithoutTasksInput
+  task: Prisma.TaskCreateNestedOneWithoutLabelsInput
 }
 
 export type TaskLabelUncheckedCreateInput = {
@@ -207,8 +207,8 @@ export type TaskLabelUncheckedCreateInput = {
 }
 
 export type TaskLabelUpdateInput = {
-  task?: Prisma.TaskUpdateOneRequiredWithoutLabelsNestedInput
   label?: Prisma.LabelUpdateOneRequiredWithoutTasksNestedInput
+  task?: Prisma.TaskUpdateOneRequiredWithoutLabelsNestedInput
 }
 
 export type TaskLabelUncheckedUpdateInput = {
@@ -457,22 +457,22 @@ export type TaskLabelUncheckedUpdateManyWithoutLabelInput = {
 export type TaskLabelSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   taskId?: boolean
   labelId?: boolean
-  task?: boolean | Prisma.TaskDefaultArgs<ExtArgs>
   label?: boolean | Prisma.LabelDefaultArgs<ExtArgs>
+  task?: boolean | Prisma.TaskDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["taskLabel"]>
 
 export type TaskLabelSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   taskId?: boolean
   labelId?: boolean
-  task?: boolean | Prisma.TaskDefaultArgs<ExtArgs>
   label?: boolean | Prisma.LabelDefaultArgs<ExtArgs>
+  task?: boolean | Prisma.TaskDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["taskLabel"]>
 
 export type TaskLabelSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   taskId?: boolean
   labelId?: boolean
-  task?: boolean | Prisma.TaskDefaultArgs<ExtArgs>
   label?: boolean | Prisma.LabelDefaultArgs<ExtArgs>
+  task?: boolean | Prisma.TaskDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["taskLabel"]>
 
 export type TaskLabelSelectScalar = {
@@ -482,23 +482,23 @@ export type TaskLabelSelectScalar = {
 
 export type TaskLabelOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"taskId" | "labelId", ExtArgs["result"]["taskLabel"]>
 export type TaskLabelInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  task?: boolean | Prisma.TaskDefaultArgs<ExtArgs>
   label?: boolean | Prisma.LabelDefaultArgs<ExtArgs>
+  task?: boolean | Prisma.TaskDefaultArgs<ExtArgs>
 }
 export type TaskLabelIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  task?: boolean | Prisma.TaskDefaultArgs<ExtArgs>
   label?: boolean | Prisma.LabelDefaultArgs<ExtArgs>
+  task?: boolean | Prisma.TaskDefaultArgs<ExtArgs>
 }
 export type TaskLabelIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  task?: boolean | Prisma.TaskDefaultArgs<ExtArgs>
   label?: boolean | Prisma.LabelDefaultArgs<ExtArgs>
+  task?: boolean | Prisma.TaskDefaultArgs<ExtArgs>
 }
 
 export type $TaskLabelPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "TaskLabel"
   objects: {
-    task: Prisma.$TaskPayload<ExtArgs>
     label: Prisma.$LabelPayload<ExtArgs>
+    task: Prisma.$TaskPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     taskId: string
@@ -897,8 +897,8 @@ readonly fields: TaskLabelFieldRefs;
  */
 export interface Prisma__TaskLabelClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  task<T extends Prisma.TaskDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TaskDefaultArgs<ExtArgs>>): Prisma.Prisma__TaskClient<runtime.Types.Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   label<T extends Prisma.LabelDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LabelDefaultArgs<ExtArgs>>): Prisma.Prisma__LabelClient<runtime.Types.Result.GetResult<Prisma.$LabelPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  task<T extends Prisma.TaskDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TaskDefaultArgs<ExtArgs>>): Prisma.Prisma__TaskClient<runtime.Types.Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

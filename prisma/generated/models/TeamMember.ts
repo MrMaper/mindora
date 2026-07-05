@@ -174,9 +174,9 @@ export type TeamMemberWhereInput = {
   teamId?: Prisma.StringFilter<"TeamMember"> | string
   userId?: Prisma.StringFilter<"TeamMember"> | string
   roleId?: Prisma.StringFilter<"TeamMember"> | string
+  role?: Prisma.XOR<Prisma.RoleScalarRelationFilter, Prisma.RoleWhereInput>
   team?: Prisma.XOR<Prisma.TeamScalarRelationFilter, Prisma.TeamWhereInput>
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-  role?: Prisma.XOR<Prisma.RoleScalarRelationFilter, Prisma.RoleWhereInput>
 }
 
 export type TeamMemberOrderByWithRelationInput = {
@@ -184,9 +184,9 @@ export type TeamMemberOrderByWithRelationInput = {
   teamId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   roleId?: Prisma.SortOrder
+  role?: Prisma.RoleOrderByWithRelationInput
   team?: Prisma.TeamOrderByWithRelationInput
   user?: Prisma.UserOrderByWithRelationInput
-  role?: Prisma.RoleOrderByWithRelationInput
 }
 
 export type TeamMemberWhereUniqueInput = Prisma.AtLeast<{
@@ -198,9 +198,9 @@ export type TeamMemberWhereUniqueInput = Prisma.AtLeast<{
   teamId?: Prisma.StringFilter<"TeamMember"> | string
   userId?: Prisma.StringFilter<"TeamMember"> | string
   roleId?: Prisma.StringFilter<"TeamMember"> | string
+  role?: Prisma.XOR<Prisma.RoleScalarRelationFilter, Prisma.RoleWhereInput>
   team?: Prisma.XOR<Prisma.TeamScalarRelationFilter, Prisma.TeamWhereInput>
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-  role?: Prisma.XOR<Prisma.RoleScalarRelationFilter, Prisma.RoleWhereInput>
 }, "id" | "teamId_userId">
 
 export type TeamMemberOrderByWithAggregationInput = {
@@ -225,9 +225,9 @@ export type TeamMemberScalarWhereWithAggregatesInput = {
 
 export type TeamMemberCreateInput = {
   id?: string
+  role: Prisma.RoleCreateNestedOneWithoutTeamMembersInput
   team: Prisma.TeamCreateNestedOneWithoutMembersInput
   user: Prisma.UserCreateNestedOneWithoutTeamMembersInput
-  role: Prisma.RoleCreateNestedOneWithoutTeamMembersInput
 }
 
 export type TeamMemberUncheckedCreateInput = {
@@ -239,9 +239,9 @@ export type TeamMemberUncheckedCreateInput = {
 
 export type TeamMemberUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.RoleUpdateOneRequiredWithoutTeamMembersNestedInput
   team?: Prisma.TeamUpdateOneRequiredWithoutMembersNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutTeamMembersNestedInput
-  role?: Prisma.RoleUpdateOneRequiredWithoutTeamMembersNestedInput
 }
 
 export type TeamMemberUncheckedUpdateInput = {
@@ -433,8 +433,8 @@ export type TeamMemberUncheckedUpdateManyWithoutTeamNestedInput = {
 
 export type TeamMemberCreateWithoutUserInput = {
   id?: string
-  team: Prisma.TeamCreateNestedOneWithoutMembersInput
   role: Prisma.RoleCreateNestedOneWithoutTeamMembersInput
+  team: Prisma.TeamCreateNestedOneWithoutMembersInput
 }
 
 export type TeamMemberUncheckedCreateWithoutUserInput = {
@@ -519,8 +519,8 @@ export type TeamMemberUpdateManyWithWhereWithoutRoleInput = {
 
 export type TeamMemberCreateWithoutTeamInput = {
   id?: string
-  user: Prisma.UserCreateNestedOneWithoutTeamMembersInput
   role: Prisma.RoleCreateNestedOneWithoutTeamMembersInput
+  user: Prisma.UserCreateNestedOneWithoutTeamMembersInput
 }
 
 export type TeamMemberUncheckedCreateWithoutTeamInput = {
@@ -563,8 +563,8 @@ export type TeamMemberCreateManyUserInput = {
 
 export type TeamMemberUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  team?: Prisma.TeamUpdateOneRequiredWithoutMembersNestedInput
   role?: Prisma.RoleUpdateOneRequiredWithoutTeamMembersNestedInput
+  team?: Prisma.TeamUpdateOneRequiredWithoutMembersNestedInput
 }
 
 export type TeamMemberUncheckedUpdateWithoutUserInput = {
@@ -611,8 +611,8 @@ export type TeamMemberCreateManyTeamInput = {
 
 export type TeamMemberUpdateWithoutTeamInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  user?: Prisma.UserUpdateOneRequiredWithoutTeamMembersNestedInput
   role?: Prisma.RoleUpdateOneRequiredWithoutTeamMembersNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutTeamMembersNestedInput
 }
 
 export type TeamMemberUncheckedUpdateWithoutTeamInput = {
@@ -634,9 +634,9 @@ export type TeamMemberSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   teamId?: boolean
   userId?: boolean
   roleId?: boolean
+  role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
   team?: boolean | Prisma.TeamDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["teamMember"]>
 
 export type TeamMemberSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -644,9 +644,9 @@ export type TeamMemberSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   teamId?: boolean
   userId?: boolean
   roleId?: boolean
+  role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
   team?: boolean | Prisma.TeamDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["teamMember"]>
 
 export type TeamMemberSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -654,9 +654,9 @@ export type TeamMemberSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   teamId?: boolean
   userId?: boolean
   roleId?: boolean
+  role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
   team?: boolean | Prisma.TeamDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["teamMember"]>
 
 export type TeamMemberSelectScalar = {
@@ -668,27 +668,27 @@ export type TeamMemberSelectScalar = {
 
 export type TeamMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "teamId" | "userId" | "roleId", ExtArgs["result"]["teamMember"]>
 export type TeamMemberInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
   team?: boolean | Prisma.TeamDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
 }
 export type TeamMemberIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
   team?: boolean | Prisma.TeamDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
 }
 export type TeamMemberIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
   team?: boolean | Prisma.TeamDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
 }
 
 export type $TeamMemberPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "TeamMember"
   objects: {
+    role: Prisma.$RolePayload<ExtArgs>
     team: Prisma.$TeamPayload<ExtArgs>
     user: Prisma.$UserPayload<ExtArgs>
-    role: Prisma.$RolePayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1089,9 +1089,9 @@ readonly fields: TeamMemberFieldRefs;
  */
 export interface Prisma__TeamMemberClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  role<T extends Prisma.RoleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RoleDefaultArgs<ExtArgs>>): Prisma.Prisma__RoleClient<runtime.Types.Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   team<T extends Prisma.TeamDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TeamDefaultArgs<ExtArgs>>): Prisma.Prisma__TeamClient<runtime.Types.Result.GetResult<Prisma.$TeamPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  role<T extends Prisma.RoleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RoleDefaultArgs<ExtArgs>>): Prisma.Prisma__RoleClient<runtime.Types.Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

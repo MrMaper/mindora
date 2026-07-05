@@ -159,6 +159,18 @@ export const UserPreferencesScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   language: 'language',
+  theme: 'theme',
+  emailNotifs: 'emailNotifs',
+  notifications: 'notifications',
+  soundNotifs: 'soundNotifs',
+  notifyTaskAssigned: 'notifyTaskAssigned',
+  notifyTaskUpdated: 'notifyTaskUpdated',
+  notifyTaskCommented: 'notifyTaskCommented',
+  notifyMention: 'notifyMention',
+  notifySprintStarted: 'notifySprintStarted',
+  notifySprintEnded: 'notifySprintEnded',
+  notifyDeadlineApproaching: 'notifyDeadlineApproaching',
+  notifyStatusChanged: 'notifyStatusChanged',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

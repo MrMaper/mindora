@@ -10,6 +10,7 @@ import { getTranslations } from "@/i18n";
 import { getUserPreferences } from "@/features/settings/queries";
 import { getUnreadCount } from "@/features/notifications/queries";
 import { DirectionSync } from "@/components/DirectionSync";
+import { CommandPaletteWrapper } from "@/components/CommandPaletteWrapper";
 
 interface NavItem {
   label: string;
@@ -140,6 +141,8 @@ export default async function DashboardLayout({
       <div className="app-main">
         <main className="app-content">{children}</main>
       </div>
+
+      <CommandPaletteWrapper />
     </div>
   );
 }

@@ -9,6 +9,7 @@ export type {
   Notification,
   ActivityLog,
   PasswordResetToken,
+  UserPreferences,
 } from "../../prisma/generated/client";
 
 export type {
@@ -19,4 +20,5 @@ export type {
   TaskType,
   NotificationType,
   Language,
+  Theme,
 } from "../../prisma/generated/enums";
