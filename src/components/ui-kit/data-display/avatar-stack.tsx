@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Avatar } from "./avatar";
+import { Avatar, AvatarGroup } from "./avatar";
 
 const SIZES: Record<string, number> = { xs: 18, sm: 24, md: 30, lg: 40 };
 
@@ -10,7 +10,7 @@ export interface StackUser {
 
 export interface AvatarStackProps extends React.HTMLAttributes<HTMLSpanElement> {
   users: (string | StackUser)[];
-  size?: "xs" | "sm" | "md" | "lg" | number;
+  size?: "xs" | "sm" | "md" | "lg" | "xl" | number;
   max?: number;
 }
 
@@ -21,18 +21,16 @@ export function AvatarStack({
   className = "",
   ...rest
 }: AvatarStackProps): React.JSX.Element {
-  const px = typeof size === "number" ? size : (SIZES[size] ?? 24);
-  const overlap = -Math.round(px * 0.32);
-  const shown = users.slice(0, max);
-  const extra = users.length - shown.length;
-
+  const avatarSize = typeof size === "number" ? size : (SIZES[size] ?? 24);
+  
   return (
-    <span
-      className={`sf-avstack${className ? ` ${className}` : ""}`}
-      style={{ "--_ov": `${overlap}px` } as React.CSSProperties}
+    <AvatarGroup
+      max={max}
+      size={typeof size === "number" ? "md" : size}
+      className={className}
       {...rest}
     >
-      {shown.map((u, i) => (
+      {users.map((u, i) => (
         <Avatar
           key={i}
           name={typeof u === "string" ? u : u.name}
@@ -40,14 +38,6 @@ export function AvatarStack({
           size={size}
         />
       ))}
-      {extra > 0 && (
-        <span
-          className="sf-avstack__more"
-          style={{ width: px, height: px, fontSize: Math.round(px * 0.36), marginLeft: overlap }}
-        >
-          +{extra}
-        </span>
-      )}
-    </span>
+    </AvatarGroup>
   );
 }

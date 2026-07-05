@@ -4,6 +4,7 @@ import { getUserPreferences } from "@/features/settings/queries";
 import { Providers } from "@/providers/Providers";
 import { peyda, geistMono } from "@/lib/font";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
 export const metadataBase = new URL("https://scrumflow.app");
@@ -113,9 +114,11 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
+        <TooltipProvider>
         <Providers>
           <ErrorBoundary>{children}</ErrorBoundary>
         </Providers>
+      </TooltipProvider>
       </body>
     </html>
   );

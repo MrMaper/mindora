@@ -1,27 +1,58 @@
-import * as React from "react";
+"use client";
 
-export interface TooltipProps extends React.HTMLAttributes<HTMLSpanElement> {
-  label: string;
-  kbd?: string;
-  side?: "top" | "bottom" | "left" | "right";
-  children: React.ReactNode;
+import * as React from "react";
+import {
+  Tooltip as ShadcnTooltip,
+  TooltipTrigger as ShadcnTooltipTrigger,
+  TooltipContent as ShadcnTooltipContent,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
+
+export interface TooltipProps {
+  content: React.ReactNode;
+  children: React.ReactElement;
+  side?: "top" | "right" | "bottom" | "left";
+  align?: "start" | "center" | "end";
+  delayDuration?: number;
+  disabled?: boolean;
+  className?: string;
 }
 
 export function Tooltip({
-  label,
-  kbd,
-  side = "top",
-  className = "",
+  content,
   children,
-  ...rest
+  side = "top",
+  align = "center",
+  delayDuration = 200,
+  disabled = false,
+  className = "",
 }: TooltipProps): React.JSX.Element {
+  if (!React.isValidElement(children)) {
+    return <React.Fragment>{children}</React.Fragment>;
+  }
+
   return (
-    <span className={`sf-tip-wrap${className ? ` ${className}` : ""}`} {...rest}>
-      {children}
-      <span className={`sf-tip sf-tip--${side}`} role="tooltip">
-        {label}
-        {kbd && <span className="sf-tip__kbd">{kbd}</span>}
-      </span>
-    </span>
+    <TooltipProvider delay={delayDuration}>
+      <ShadcnTooltip disabled={disabled}>
+        <ShadcnTooltipTrigger>
+          {React.cloneElement(children as React.ReactElement<any>, {
+            "aria-describedby": undefined,
+          })}
+        </ShadcnTooltipTrigger>
+        <ShadcnTooltipContent
+          side={side}
+          align={align}
+          className={cn(
+            "z-[1200] px-2.5 py-1.5 text-xs text-background bg-foreground rounded-md shadow-lg animate-in fade-in-0 zoom-in-95",
+            className,
+          )}
+        >
+          {content}
+        </ShadcnTooltipContent>
+      </ShadcnTooltip>
+    </TooltipProvider>
   );
 }
+
+export { TooltipProvider };

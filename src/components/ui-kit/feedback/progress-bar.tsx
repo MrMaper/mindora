@@ -1,70 +1,62 @@
 import * as React from "react";
-
-const TONES: Record<string, string> = {
-  brand:   "var(--action-primary)",
-  success: "var(--green-500)",
-  warning: "var(--amber-500)",
-  danger:  "var(--red-500)",
-  info:    "var(--blue-500)",
-  neutral: "var(--gray-500)",
-};
-
-export interface ProgressSegment {
-  value: number;
-  color: string;
-}
+import { Progress as ShadcnProgress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
 
 export interface ProgressBarProps extends React.HTMLAttributes<HTMLDivElement> {
-  value?: number;
+  value: number;
   max?: number;
-  tone?: "brand" | "success" | "warning" | "danger" | "info" | "neutral";
+  variant?: "default" | "success" | "warning" | "danger" | "info";
   size?: "sm" | "md" | "lg";
+  showLabel?: boolean;
   label?: string;
-  showValue?: boolean;
-  segments?: ProgressSegment[];
 }
 
 export function ProgressBar({
-  value = 0,
+  value,
   max = 100,
-  tone = "brand",
+  variant = "default",
   size = "md",
+  showLabel = false,
   label,
-  showValue = false,
-  segments,
   className = "",
   ...rest
 }: ProgressBarProps): React.JSX.Element {
-  const pct = Math.max(0, Math.min(100, (value / max) * 100));
+  const percentage = Math.max(0, Math.min(100, (value / max) * 100));
+
+  const variantClass = {
+    default: "bg-primary",
+    success: "bg-green-500",
+    warning: "bg-amber-500",
+    danger: "bg-red-500",
+    info: "bg-blue-500",
+  }[variant];
+
+  const sizeClass = {
+    sm: "h-1.5",
+    md: "h-2",
+    lg: "h-3",
+  }[size];
 
   return (
-    <div className={`sf-prog${className ? ` ${className}` : ""}`} {...rest}>
-      {(label || showValue) && (
-        <div className="sf-prog__head">
-          {label && <span className="sf-prog__label">{label}</span>}
-          {showValue && (
-            <span className="sf-prog__val">
-              {segments ? `${value}/${max}` : `${Math.round(pct)}%`}
-            </span>
+    <div className={cn("w-full", className)} {...rest}>
+      <ShadcnProgress
+        value={percentage}
+        className={cn(sizeClass, "relative overflow-hidden rounded-full bg-muted")}
+      >
+        <div
+          className={cn(
+            "h-full w-full flex-1 rounded-full transition-all duration-300 ease-out",
+            variantClass,
           )}
+          style={{ transform: `translateX(-${100 - percentage}%)` }}
+        />
+      </ShadcnProgress>
+      {(showLabel || label) && (
+        <div className="mt-1.5 text-xs text-text-tertiary flex justify-between">
+          <span>{label ?? ""}</span>
+          <span>{Math.round(percentage)}%</span>
         </div>
       )}
-      <div
-        className={`sf-prog__track${size !== "md" ? ` sf-prog__track--${size}` : ""}`}
-        role="progressbar"
-        aria-valuenow={value}
-        aria-valuemax={max}
-      >
-        {segments ? (
-          <div className="sf-prog__seg">
-            {segments.map((s, i) => (
-              <span key={i} style={{ width: `${(s.value / max) * 100}%`, background: s.color }} />
-            ))}
-          </div>
-        ) : (
-          <div className="sf-prog__fill" style={{ width: `${pct}%`, background: TONES[tone] ?? tone }} />
-        )}
-      </div>
     </div>
   );
 }
