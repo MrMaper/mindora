@@ -21,6 +21,7 @@ export const fa = {
   // Navigation
   nav: {
     dashboard: "داشبورد",
+    tasks: "تسک‌ها",
     myTasks: "تسک‌های من",
     board: "کانبان",
     users: "کاربرها",

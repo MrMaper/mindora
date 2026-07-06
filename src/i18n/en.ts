@@ -21,6 +21,7 @@ export const en = {
   // Navigation
   nav: {
     dashboard: "Dashboard",
+    tasks: "Tasks",
     myTasks: "My tasks",
     board: "Board",
     users: "Users",
@@ -107,7 +108,8 @@ export const en = {
     deleteConfirmSuffix: "? This action cannot be undone.",
     userCreated: "User created successfully.",
     temporaryPassword: "Temporary password",
-    sharePassword: "Share this with the user. They should change it after signing in.",
+    sharePassword:
+      "Share this with the user. They should change it after signing in.",
     done: "Done",
     fullName: "Full name",
     fullNamePlaceholder: "Jane Smith",
@@ -195,7 +197,8 @@ export const en = {
     delete: "Delete",
     save: "Save",
     cancel: "Cancel",
-    editWindowExpired: "Comments can only be edited within 5 minutes of posting.",
+    editWindowExpired:
+      "Comments can only be edited within 5 minutes of posting.",
     attachments: "Attachments",
     addAttachment: "Add attachment",
     noAttachments: "No attachments",

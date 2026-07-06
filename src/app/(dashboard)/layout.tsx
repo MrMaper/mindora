@@ -37,7 +37,7 @@ export default async function DashboardLayout({
 
   const NAV: NavItem[] = [
     { label: t.nav.dashboard, href: "/dashboard", icon: "layout-dashboard" },
-    { label: t.nav.myTasks, href: "/tasks", icon: "list" },
+    { label: t.nav.tasks, href: "/tasks", icon: "list" },
     { label: t.nav.board, href: "/kanban", icon: "columns" },
     { label: t.nav.users, href: "/users", icon: "users" },
     {
@@ -49,25 +49,33 @@ export default async function DashboardLayout({
   ];
 
   return (
-    <div className="min-h-screen bg-background flex" dir={language === "FA" ? "rtl" : "ltr"}>
+    <div
+      className="min-h-screen bg-background flex"
+      dir={language === "FA" ? "rtl" : "ltr"}
+    >
       <DirectionSync language={language} />
       <aside className="w-64 flex flex-col border-r bg-card">
         <div className="flex items-center justify-center gap-2 h-14 border-b px-4">
           <span className="flex items-center justify-center size-5 bg-primary rounded-lg text-primary-foreground flex-shrink-0">
             <Icon name="zap" size={12} strokeWidth={2.5} />
           </span>
-          <span className="text-base font-semibold text-foreground tracking-tight">ScrumFlow</span>
+          <span className="text-base font-semibold text-foreground tracking-tight">
+            ScrumFlow
+          </span>
         </div>
 
-        <nav className="flex-1 p-3 space-y-1 overflow-y-auto" aria-label="منوی اصلی">
-          {NAV.map((item) => (
+        <nav
+          className="flex-1 p-3 space-y-1 overflow-y-auto"
+          aria-label="منوی اصلی"
+        >
+          {NAV.map(item => (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
                 "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                 "text-muted-foreground hover:text-foreground hover:bg-accent",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               )}
             >
               <Icon name={item.icon} size={15} className="flex-shrink-0" />
@@ -87,7 +95,7 @@ export default async function DashboardLayout({
             className={cn(
               "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
               "text-muted-foreground hover:text-foreground hover:bg-accent",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
             )}
           >
             <Icon name="settings" size={15} className="flex-shrink-0" />
@@ -106,8 +114,12 @@ export default async function DashboardLayout({
               size="sm"
             />
             <div className="flex-1 min-w-0">
-              <div className="font-medium text-foreground truncate">{session.user.name}</div>
-              <div className="text-[10px] text-muted-foreground truncate">{session.user.email}</div>
+              <div className="font-medium text-foreground truncate">
+                {session.user.name}
+              </div>
+              <div className="text-[10px] text-muted-foreground truncate">
+                {session.user.email}
+              </div>
             </div>
             <SignOutButton />
           </Link>
