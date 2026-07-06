@@ -65,7 +65,7 @@ export function Input({
           </div>
         )}
         {button && (
-          <div className="absolute inset-y-0 rtl:inset-y right-0 left-auto rtl:left-0 rtl:right-auto flex items-center justify-center pointer-events-none">
+          <div className="absolute inset-y-0 rtl:inset-y right-0.5 left-auto rtl:left-0.5 rtl:right-auto flex items-center justify-center pointer-events-none">
             <span className="pointer-events-auto">{button}</span>
           </div>
         )}
