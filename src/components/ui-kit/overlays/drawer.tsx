@@ -1,7 +1,15 @@
 "use client";
 
 import * as React from "react";
-import { Icon } from "../foundation/icon";
+import {
+  Sheet as ShadcnSheet,
+  SheetTrigger as ShadcnSheetTrigger,
+  SheetContent as ShadcnSheetContent,
+  SheetHeader as ShadcnSheetHeader,
+  SheetTitle as ShadcnSheetTitle,
+  SheetFooter as ShadcnSheetFooter,
+} from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
 
 export interface DrawerProps extends React.HTMLAttributes<HTMLElement> {
   open: boolean;
@@ -9,6 +17,8 @@ export interface DrawerProps extends React.HTMLAttributes<HTMLElement> {
   header?: React.ReactNode;
   footer?: React.ReactNode;
   wide?: boolean;
+  /** @default "end" — inline-end (right in LTR, left in RTL) */
+  side?: "top" | "right" | "bottom" | "left" | "start" | "end";
 }
 
 export function Drawer({
@@ -17,43 +27,31 @@ export function Drawer({
   header,
   footer,
   wide = false,
+  side = "end",
   className = "",
   children,
   ...rest
-}: DrawerProps): React.JSX.Element | null {
-  React.useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose?.();
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
-
-  if (!open) return null;
-
+}: DrawerProps): React.JSX.Element {
   return (
-    <div
-      className="sf-drawer-overlay"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose?.();
-      }}
-    >
-      <aside
-        className={`sf-drawer${wide ? " sf-drawer--wide" : ""}${className ? ` ${className}` : ""}`}
-        role="dialog"
-        aria-modal="true"
+    <ShadcnSheet open={open} onOpenChange={(newOpen) => { if (!newOpen) onClose?.(); }}>
+      <ShadcnSheetContent
+        side={side}
+        className={cn(
+          "flex flex-col",
+          wide ? "w-[680px] max-w-[95vw]" : "sm:max-w-sm",
+          className,
+        )}
+        showCloseButton={false}
         {...rest}
       >
-        <div className="sf-drawer__head">
-          <button className="sf-drawer__close" aria-label="Close" onClick={onClose}>
-            <Icon name="x" size={17} />
-          </button>
-          <div className="sf-drawer__head-main">{header}</div>
-        </div>
-        <div className="sf-drawer__body">{children}</div>
-        {footer && <div className="sf-drawer__foot">{footer}</div>}
-      </aside>
-    </div>
+        {header && (
+          <ShadcnSheetHeader>
+            <ShadcnSheetTitle>{header}</ShadcnSheetTitle>
+          </ShadcnSheetHeader>
+        )}
+        <div className="flex-1 overflow-y-auto px-4">{children}</div>
+        {footer && <ShadcnSheetFooter>{footer}</ShadcnSheetFooter>}
+      </ShadcnSheetContent>
+    </ShadcnSheet>
   );
 }

@@ -28,9 +28,9 @@ export function IconButton({
   };
 
   const sizeMap = {
-    sm: "sm" as const,
-    md: "default" as const,
-    lg: "lg" as const,
+    sm: "icon-sm" as const,
+    md: "icon" as const,
+    lg: "icon-lg" as const,
   };
 
   const iconSize = size === "sm" ? 14 : size === "lg" ? 18 : 16;
@@ -39,7 +39,7 @@ export function IconButton({
     <ShadcnButton
       variant={variantMap[variant]}
       size={sizeMap[size]}
-      className={cn("gap-0 p-0", className)}
+      className={cn(className)}
       aria-label={ariaLabel}
       aria-pressed={active}
       {...rest}

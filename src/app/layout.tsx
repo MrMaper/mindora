@@ -27,7 +27,9 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: {
-      default: isFa ? "اسکرام‌فلو - مدیریت پروژه چابک" : "ScrumFlow - Modern Agile Project Management",
+      default: isFa
+        ? "اسکرام‌فلو - مدیریت پروژه چابک"
+        : "ScrumFlow - Modern Agile Project Management",
       template: isFa ? "%s | اسکرام‌فلو" : "%s | ScrumFlow",
     },
     description: isFa
@@ -35,7 +37,15 @@ export async function generateMetadata(): Promise<Metadata> {
       : "Modern Agile Project Management Platform for Software Teams - Sprints, Backlog, Kanban & Real-time Collaboration",
     keywords: isFa
       ? ["مدیریت پروژه", "اسپرینت", "کانبان", "بک‌لاگ", "چابک", "تیم توسعه"]
-      : ["project management", "agile", "sprint", "kanban", "backlog", "scrum", "team collaboration"],
+      : [
+          "project management",
+          "agile",
+          "sprint",
+          "kanban",
+          "backlog",
+          "scrum",
+          "team collaboration",
+        ],
     authors: [{ name: "ScrumFlow Team" }],
     creator: "ScrumFlow",
     publisher: "ScrumFlow",
@@ -45,7 +55,9 @@ export async function generateMetadata(): Promise<Metadata> {
       locale: isFa ? "fa_IR" : "en_US",
       url: "https://scrumflow.app",
       siteName: "ScrumFlow",
-      title: isFa ? "اسکرام‌فلو - مدیریت پروژه چابک" : "ScrumFlow - Modern Agile Project Management",
+      title: isFa
+        ? "اسکرام‌فلو - مدیریت پروژه چابک"
+        : "ScrumFlow - Modern Agile Project Management",
       description: isFa
         ? "پلتفرم مدیریت پروژه چابک برای تیم‌های توسعه نرم‌افزار"
         : "Modern Agile Project Management Platform for Software Teams",
@@ -54,14 +66,18 @@ export async function generateMetadata(): Promise<Metadata> {
           url: "/og-image.svg",
           width: 1200,
           height: 630,
-          alt: isFa ? "ScrumFlow - مدیریت پروژه چابک" : "ScrumFlow - Modern Agile Project Management",
+          alt: isFa
+            ? "ScrumFlow - مدیریت پروژه چابک"
+            : "ScrumFlow - Modern Agile Project Management",
         },
       ],
     },
 
     twitter: {
       card: "summary_large_image",
-      title: isFa ? "اسکرام‌فلو - مدیریت پروژه چابک" : "ScrumFlow - Modern Agile Project Management",
+      title: isFa
+        ? "اسکرام‌فلو - مدیریت پروژه چابک"
+        : "ScrumFlow - Modern Agile Project Management",
       description: isFa
         ? "پلتفرم مدیریت پروژه چابک برای تیم‌های توسعه نرم‌افزار"
         : "Modern Agile Project Management Platform for Software Teams",
@@ -111,14 +127,18 @@ export default async function RootLayout({
     >
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <TooltipProvider>
-        <Providers>
-          <ErrorBoundary>{children}</ErrorBoundary>
-        </Providers>
-      </TooltipProvider>
+          <Providers>
+            <ErrorBoundary>{children}</ErrorBoundary>
+          </Providers>
+        </TooltipProvider>
       </body>
     </html>
   );

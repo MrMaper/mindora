@@ -35,16 +35,17 @@ export function Tooltip({
   return (
     <TooltipProvider delay={delayDuration}>
       <ShadcnTooltip disabled={disabled}>
-        <ShadcnTooltipTrigger>
-          {React.cloneElement(children as React.ReactElement<any>, {
+        <ShadcnTooltipTrigger
+          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+          render={React.cloneElement(children as React.ReactElement<any>, {
             "aria-describedby": undefined,
           })}
-        </ShadcnTooltipTrigger>
+        />
         <ShadcnTooltipContent
           side={side}
           align={align}
           className={cn(
-            "z-[1200] px-2.5 py-1.5 text-xs text-background bg-foreground rounded-md shadow-lg animate-in fade-in-0 zoom-in-95",
+            "z-1200 px-2.5 py-1.5 text-xs text-background bg-foreground rounded-md shadow-lg animate-in fade-in-0 zoom-in-95",
             className,
           )}
         >

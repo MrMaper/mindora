@@ -1,7 +1,18 @@
 "use client";
 
 import * as React from "react";
-import { Icon } from "../foundation/icon";
+import {
+  Dialog as ShadcnDialog,
+  DialogTrigger as ShadcnDialogTrigger,
+  DialogContent as ShadcnDialogContent,
+  DialogTitle as ShadcnDialogTitle,
+  DialogDescription as ShadcnDialogDescription,
+  DialogHeader as ShadcnDialogHeader,
+  DialogFooter as ShadcnDialogFooter,
+  DialogClose as ShadcnDialogClose,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export interface DialogProps extends React.HTMLAttributes<HTMLDivElement> {
   open: boolean;
@@ -22,46 +33,28 @@ export function Dialog({
   className = "",
   children,
   ...rest
-}: DialogProps): React.JSX.Element | null {
-  React.useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose?.();
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
-
-  if (!open) return null;
-
+}: DialogProps): React.JSX.Element {
   return (
-    <div
-      className="sf-overlay"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose?.();
-      }}
-    >
-      <div
-        className={`sf-dialog${className ? ` ${className}` : ""}`}
-        role="dialog"
-        aria-modal="true"
+    <ShadcnDialog open={open} onOpenChange={(newOpen) => { if (!newOpen) onClose?.(); }}>
+      <ShadcnDialogContent
+        className={cn("sm:max-w-sm", className)}
         style={{ maxWidth: width }}
+        showCloseButton={false}
         {...rest}
       >
         {(title || description) && (
-          <div className="sf-dialog__head">
-            <div className="sf-dialog__titles">
-              {title && <div className="sf-dialog__title">{title}</div>}
-              {description && <div className="sf-dialog__desc">{description}</div>}
-            </div>
-            <button className="sf-dialog__close" aria-label="Close" onClick={onClose}>
-              <Icon name="x" size={16} />
-            </button>
-          </div>
+          <ShadcnDialogHeader>
+            {title && <ShadcnDialogTitle>{title}</ShadcnDialogTitle>}
+            {description && <ShadcnDialogDescription>{description}</ShadcnDialogDescription>}
+          </ShadcnDialogHeader>
         )}
-        <div className="sf-dialog__body sf-dialog__body--pad">{children}</div>
-        {footer && <div className="sf-dialog__foot">{footer}</div>}
-      </div>
-    </div>
+        <div className="p-0">{children}</div>
+        {footer && (
+          <ShadcnDialogFooter showCloseButton={false}>
+            {footer}
+          </ShadcnDialogFooter>
+        )}
+      </ShadcnDialogContent>
+    </ShadcnDialog>
   );
 }

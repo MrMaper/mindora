@@ -39,10 +39,7 @@ export function RadioGroup({
   const groupId = id ?? generatedId;
   const hintId = `${groupId}-hint`;
   const errorId = `${groupId}-error`;
-
-  const handleValueChange = (newValue: string) => {
-    onValueChange?.(newValue);
-  };
+  const isControlled = value !== undefined && onValueChange !== undefined;
 
   return (
     <div className="w-full">
@@ -53,8 +50,7 @@ export function RadioGroup({
         </ShadcnLabel>
       )}
       <ShadcnRadioGroup
-        value={value}
-        onValueChange={handleValueChange}
+        {...(isControlled ? { value, onValueChange } : {})}
         disabled={disabled}
         className={cn(
           "gap-2",

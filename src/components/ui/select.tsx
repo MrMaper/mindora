@@ -41,7 +41,8 @@ function SelectTrigger({
       data-slot="select-trigger"
       data-size={size}
       className={cn(
-        "flex h-(--control-height) w-full items-center justify-between gap-1.5 rounded-sm border border-border-strong bg-bg-surface py-2 pr-2 pl-3 text-sm whitespace-nowrap text-text-primary transition-colors outline-none select-none placeholder:text-text-tertiary hover:not-focus:border-(--gray-400) focus-visible:border-border-focus focus-visible:shadow-(--ring) disabled:cursor-not-allowed disabled:bg-bg-sunken disabled:text-text-disabled disabled:opacity-50 aria-invalid:border-red-500 aria-invalid:shadow-[0_0_0_3px_var(--red-tint)] data-placeholder:text-text-tertiary data-[size=default]:h-(--control-height) data-[size=sm]:h-(--control-height-sm) data-[size=sm]:rounded-sm *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "flex h-(--control-height) w-full items-center justify-between gap-1.5 rounded-md border border-border-strong bg-bg-surface py-2 pr-2 pl-3 text-sm whitespace-nowrap text-text-primary transition-colors outline-none select-none placeholder:text-text-tertiary hover:not-focus:border-(--gray-400) focus-visible:border-border-focus disabled:cursor-not-allowed disabled:bg-bg-sunken disabled:text-text-disabled disabled:opacity-50 aria-invalid:border-red-500 aria-invalid:shadow-[0_0_0_3px_var(--red-tint)] data-placeholder:text-text-tertiary data-[size=default]:h-(--control-height) data-[size=sm]:h-(--control-height-sm) *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        // focus-visible:shadow-(--ring)  // focus shadow (kept for reference)
         className,
       )}
       {...props}
@@ -84,7 +85,7 @@ function SelectContent({
           data-slot="select-content"
           data-align-trigger={alignItemWithTrigger}
           className={cn(
-            "relative isolate z-50 max-h-(--available-height) w-(--anchor-width) min-w-36 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-sm border border-border-subtle bg-bg-surface text-text-primary shadow-md duration-100 data-[align-trigger=true]:animate-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+            "relative isolate z-50 max-h-(--available-height) w-(--anchor-width) min-w-36 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-md border border-border-subtle bg-bg-surface text-text-primary shadow-md duration-100 data-[align-trigger=true]:animate-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
             className,
           )}
           {...props}
@@ -120,7 +121,7 @@ function SelectItem({
     <SelectPrimitive.Item
       data-slot="select-item"
       className={cn(
-        "relative flex w-full cursor-default items-center gap-1.5 rounded-sm py-1 pr-8 pl-1.5 text-sm text-text-primary outline-hidden select-none transition-colors hover:bg-bg-hover focus:bg-bg-hover focus:text-text-primary data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
+        "relative flex w-full cursor-default items-center gap-1.5 rounded-md py-1 pr-8 pl-1.5 text-sm text-text-primary outline-hidden select-none transition-colors hover:bg-bg-hover focus:bg-bg-hover focus:text-text-primary data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
         className,
       )}
       {...props}

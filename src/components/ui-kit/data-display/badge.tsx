@@ -3,7 +3,15 @@ import { Badge as ShadcnBadge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
-  tone?: "neutral" | "brand" | "success" | "warning" | "danger" | "info" | "count" | "solid";
+  tone?:
+    | "neutral"
+    | "brand"
+    | "success"
+    | "warning"
+    | "danger"
+    | "info"
+    | "count"
+    | "solid";
   dot?: boolean;
 }
 
@@ -40,7 +48,7 @@ export function Badge({
         tone === "warning" && "bg-amber-tint text-amber-500",
         tone === "danger" && "bg-red-tint text-red-500",
         tone === "info" && "bg-blue-tint text-blue-500",
-        className
+        className,
       )}
       {...rest}
     >

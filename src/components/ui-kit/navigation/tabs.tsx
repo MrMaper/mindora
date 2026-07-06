@@ -1,8 +1,14 @@
 "use client";
 
 import * as React from "react";
+import {
+  Tabs as ShadcnTabs,
+  TabsList as ShadcnTabsList,
+  TabsTrigger as ShadcnTabsTrigger,
+} from "@/components/ui/tabs";
 import { Icon } from "../foundation/icon";
 import type { IconName } from "../foundation/icon";
+import { cn } from "@/lib/utils";
 
 export interface TabItem {
   value: string;
@@ -26,29 +32,26 @@ export function Tabs({
   className = "",
   ...rest
 }: TabsProps): React.JSX.Element {
-  const [internal, setInternal] = React.useState(defaultValue ?? tabs[0]?.value);
-  const active = value !== undefined ? value : internal;
-
-  const select = (v: string) => {
-    if (value === undefined) setInternal(v);
-    onChange?.(v);
-  };
-
   return (
-    <div className={`sf-tabs${className ? ` ${className}` : ""}`} role="tablist" {...rest}>
-      {tabs.map((t) => (
-        <button
-          key={t.value}
-          role="tab"
-          aria-selected={active === t.value}
-          className={`sf-tab${active === t.value ? " sf-tab--active" : ""}`}
-          onClick={() => select(t.value)}
-        >
-          {t.icon && <Icon name={t.icon} size={15} />}
-          {t.label}
-          {t.count != null && <span className="sf-tab__count">{t.count}</span>}
-        </button>
-      ))}
-    </div>
+    <ShadcnTabs
+      value={value ?? defaultValue ?? tabs[0]?.value}
+      onValueChange={onChange}
+      className={cn("w-full", className)}
+      {...rest}
+    >
+      <ShadcnTabsList>
+        {tabs.map((t) => (
+          <ShadcnTabsTrigger key={t.value} value={t.value} className="gap-1.5">
+            {t.icon && <Icon name={t.icon} size={15} />}
+            {t.label}
+            {t.count != null && (
+              <span className="ml-0.5 rounded-full bg-muted-foreground/20 px-1.5 text-2xs">
+                {t.count}
+              </span>
+            )}
+          </ShadcnTabsTrigger>
+        ))}
+      </ShadcnTabsList>
+    </ShadcnTabs>
   );
 }

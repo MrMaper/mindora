@@ -389,6 +389,12 @@
   --color-status-done:         var(--status-done);
   --color-status-blocked:      var(--status-blocked);
 
+  /* Semantic feedback tints */
+  --color-green-tint:  var(--green-tint);
+  --color-amber-tint:  var(--amber-tint);
+  --color-red-tint:    var(--red-tint);
+  --color-blue-tint:   var(--blue-tint);
+
   /* Semantic surfaces */
   --color-bg-app:      var(--bg-app);
   --color-bg-surface:  var(--bg-surface);

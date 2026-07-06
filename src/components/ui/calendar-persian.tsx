@@ -1,12 +1,12 @@
 "use client";
 
 import * as React from "react";
+import { DayPicker } from "@daypicker/persian";
 import {
-  DayPicker,
   getDefaultClassNames,
   type DayButton,
   type Locale,
-} from "react-day-picker";
+} from "@daypicker/react";
 
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -16,7 +16,7 @@ import {
   ChevronDownIcon,
 } from "lucide-react";
 
-function Calendar({
+function CalendarPersian({
   className,
   classNames,
   showOutsideDays = true,
@@ -169,7 +169,7 @@ function Calendar({
           );
         },
         DayButton: ({ ...props }) => (
-          <CalendarDayButton locale={locale} {...props} />
+          <CalendarPersianDayButton locale={locale} {...props} />
         ),
         WeekNumber: ({ children, ...props }) => {
           return (
@@ -187,7 +187,7 @@ function Calendar({
   );
 }
 
-function CalendarDayButton({
+function CalendarPersianDayButton({
   className,
   day,
   modifiers,
@@ -225,4 +225,4 @@ function CalendarDayButton({
   );
 }
 
-export { Calendar, CalendarDayButton };
+export { CalendarPersian, CalendarPersianDayButton };

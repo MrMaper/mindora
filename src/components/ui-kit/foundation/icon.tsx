@@ -25,6 +25,7 @@ import {
   ArrowUp,
   ArrowDown,
   ArrowRight,
+  ArrowLeft,
   MoreHorizontal,
   MoreVertical,
   Filter,
@@ -50,11 +51,14 @@ import {
   Lock,
   Languages,
   Zap,
+  Mail,
+  Archive,
 } from "lucide-react";
 
 export type IconName =
   | "home"
   | "search"
+  | "archive"
   | "bell"
   | "settings"
   | "layout-dashboard"
@@ -78,6 +82,7 @@ export type IconName =
   | "arrow-up"
   | "arrow-down"
   | "arrow-right"
+  | "arrow-left"
   | "more-horizontal"
   | "more-vertical"
   | "filter"
@@ -102,11 +107,13 @@ export type IconName =
   | "target"
   | "lock"
   | "language"
-  | "zap";
+  | "zap"
+  | "mail";
 
 const iconMap: Record<IconName, React.ComponentType<React.SVGAttributes<SVGSVGElement>>> = {
   home: Home,
   search: Search,
+  archive: Archive,
   bell: Bell,
   settings: Settings,
   "layout-dashboard": LayoutDashboard,
@@ -130,6 +137,7 @@ const iconMap: Record<IconName, React.ComponentType<React.SVGAttributes<SVGSVGEl
   "arrow-up": ArrowUp,
   "arrow-down": ArrowDown,
   "arrow-right": ArrowRight,
+  "arrow-left": ArrowLeft,
   "more-horizontal": MoreHorizontal,
   "more-vertical": MoreVertical,
   filter: Filter,
@@ -155,6 +163,7 @@ const iconMap: Record<IconName, React.ComponentType<React.SVGAttributes<SVGSVGEl
   lock: Lock,
   language: Languages,
   zap: Zap,
+  mail: Mail,
 };
 
 export interface IconProps extends Omit<React.SVGAttributes<SVGSVGElement>, "width" | "height"> {

@@ -7,11 +7,18 @@ import { Icon } from "../foundation/icon";
 import type { IconName } from "../foundation/icon";
 import { cn } from "@/lib/utils";
 
-export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> {
+export interface InputProps extends Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  "size"
+> {
   label?: string;
   hint?: string;
   error?: string;
   icon?: IconName;
+  rightIcon?: IconName;
+  button?: React.ReactNode;
+  rightElement?: React.ReactNode;
+  mode?: "search" | "password";
   required?: boolean;
   size?: "md" | "lg";
 }
@@ -21,6 +28,8 @@ export function Input({
   hint,
   error,
   icon,
+  rightIcon,
+  button,
   required = false,
   size = "md",
   id,
@@ -37,7 +46,11 @@ export function Input({
       {label && (
         <ShadcnLabel htmlFor={fieldId} className="mb-1.5">
           {label}
-          {required && <span className="text-red-500 ml-1" aria-hidden="true">*</span>}
+          {required && (
+            <span className="text-red-500 ml-1" aria-hidden="true">
+              *
+            </span>
+          )}
         </ShadcnLabel>
       )}
       <div className="relative">
@@ -46,12 +59,25 @@ export function Input({
             <Icon name={icon} size={size === "lg" ? 18 : 15} />
           </div>
         )}
+        {rightIcon && (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none">
+            <Icon name={rightIcon} size={size === "lg" ? 18 : 15} />
+          </div>
+        )}
+        {button && (
+          <div className="absolute inset-y-0 rtl:inset-y right-0 left-auto rtl:left-0 rtl:right-auto flex items-center justify-center pointer-events-none">
+            <span className="pointer-events-auto">{button}</span>
+          </div>
+        )}
         <ShadcnInput
           id={fieldId}
           className={cn(
+            "px-3",
             icon && "pl-9",
+            rightIcon && "pr-9",
             size === "lg" && "h-10 text-base px-4",
-            error && "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/30",
+            error &&
+              "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/30",
             className,
           )}
           aria-invalid={!!error}
