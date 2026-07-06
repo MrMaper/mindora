@@ -40,8 +40,7 @@ export function Switch({
     >
       <ShadcnSwitch
         id={switchId}
-        checked={checked}
-        {...(isControlled ? { checked, onCheckedChange: onChange } : {})}
+        {...(isControlled ? { checked, onCheckedChange: onChange } : { checked })}
         disabled={disabled}
         role="switch"
       />

@@ -3,7 +3,7 @@ import { AuthLanguageProvider, AuthLanguageSwitch } from "./auth-language";
 
 export const metadata: Metadata = {
   title: {
-    default: "Sign in",
+    default: "ورود",
     template: "%s | ScrumFlow",
   },
 };
@@ -15,7 +15,7 @@ export default function AuthLayout({
 }) {
   return (
     <AuthLanguageProvider>
-      <div className="auth-page">
+      <div className="min-h-screen flex items-center justify-center bg-muted/50 p-6" dir="rtl">
         <AuthLanguageSwitch />
         {children}
       </div>

@@ -166,7 +166,7 @@ export function KanbanCC({
 
           <Select
             value={filters.assignee}
-            onChange={e => k.applyFilters({ assignee: e.target.value })}
+            onChange={value => k.applyFilters({ assignee: value })}
             style={{ maxWidth: 180 }}
             options={[
               { value: "", label: t.board.allAssignees },
@@ -175,7 +175,7 @@ export function KanbanCC({
           />
           <Select
             value={filters.label}
-            onChange={e => k.applyFilters({ label: e.target.value })}
+            onChange={value => k.applyFilters({ label: value })}
             style={{ maxWidth: 160 }}
             options={[
               { value: "", label: t.board.allLabels },
@@ -184,7 +184,7 @@ export function KanbanCC({
           />
           <Select
             value={filters.priority}
-            onChange={e => k.applyFilters({ priority: e.target.value })}
+            onChange={value => k.applyFilters({ priority: value })}
             style={{ maxWidth: 160 }}
             options={[
               { value: "", label: t.board.allPriorities },
@@ -230,7 +230,7 @@ export function KanbanCC({
         onDragOver={k.onDragOver}
         onDragEnd={k.onDragEnd}
       >
-        <div className="sf-board">
+        <div className="flex gap-3 py-4 items-start min-h-full overflow-x-auto">
           {BOARD_STATUSES.map(status => (
             <BoardColumn
               key={status}
@@ -560,21 +560,24 @@ function BoardColumn({
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: status });
   const display = statusToDisplay(status);
-  const meta = STATUSES[display];
   const labelKey =
     STATUS_OPTIONS.find(o => o.value === status)?.labelKey ?? "backlog";
   const label = t.tasks[labelKey as keyof typeof t.tasks] as string;
 
   return (
-    <div className="sf-col">
-      <div className="sf-col__head">
-        <span className="sf-col__dot" style={{ background: meta.color }} />
-        <span className="sf-col__name">{label}</span>
-        <span className="sf-col__count">{tasks.length}</span>
+    <div className="w-[280px] flex-none flex flex-col max-h-full">
+      <div className="flex items-center gap-2 px-1 py-2.5 flex-nowrap">
+        <span className="size-2.5 rounded-full flex-none" style={{ background: `var(--status-${display})` }} />
+        <span className="text-sm font-semibold whitespace-nowrap">{label}</span>
+        <span className="font-mono text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">
+          {tasks.length}
+        </span>
       </div>
       <div
         ref={setNodeRef}
-        className={`sf-col__list${isOver ? " sf-col__list--over" : ""}`}
+        className={`flex flex-col gap-2 overflow-y-auto py-0.5 min-h-[40px] rounded-md transition-colors ${
+          isOver ? "bg-accent" : ""
+        }`}
       >
         <SortableContext
           items={tasks.map(task => task.id)}
@@ -590,7 +593,9 @@ function BoardColumn({
           ))}
         </SortableContext>
         {tasks.length === 0 && (
-          <div className="sf-col__empty">{t.board.noTasks}</div>
+          <div className="flex items-center justify-center h-[60px] border-dashed border-border-muted text-muted-foreground text-[10px] rounded-md">
+            {t.board.noTasks}
+          </div>
         )}
       </div>
     </div>

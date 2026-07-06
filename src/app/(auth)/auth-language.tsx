@@ -28,8 +28,7 @@ function syncDocumentDirection(language: Language) {
 export function AuthLanguageProvider({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const [language, setLanguageState] =
-    React.useState<Language>(defaultLanguage);
+  const [language, setLanguageState] = React.useState<Language>(defaultLanguage);
 
   React.useEffect(() => {
     const raw = window.localStorage.getItem(STORAGE_KEY);
@@ -61,9 +60,7 @@ export function AuthLanguageProvider({
 export function useAuthLanguage() {
   const context = React.useContext(AuthLanguageContext);
   if (!context) {
-    throw new Error(
-      "useAuthLanguage must be used inside AuthLanguageProvider.",
-    );
+    throw new Error("useAuthLanguage must be used inside AuthLanguageProvider.");
   }
   return context;
 }
@@ -94,45 +91,23 @@ export function AuthLanguageSwitch() {
   }, []);
 
   return (
-    <div
-      ref={ref}
-      style={{ position: "fixed", bottom: 16, right: 16, zIndex: 60 }}
-    >
+    <div ref={ref} className="fixed bottom-4 right-4 z-60">
       <button
         type="button"
         aria-haspopup="true"
         aria-expanded={open}
-        onClick={() => setOpen(v => !v)}
-        className="auth-page__language-toggle"
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 8,
-          padding: "8px 10px",
-          borderRadius: 8,
-          border: "1px solid rgba(0,0,0,0.08)",
-          background: "var(--sf-bg, #fff)",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-        }}
+        onClick={() => setOpen((v) => !v)}
+        className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-background shadow-sm hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <Icon name="language" size={16} />
-        <span style={{ fontSize: 13, fontWeight: 600 }}>{language}</span>
+        <span className="text-sm font-semibold">{language}</span>
       </button>
 
       {open && (
         <div
           role="menu"
-          aria-label="Language menu"
-          style={{
-            position: "absolute",
-            bottom: "calc(100% + 8px)",
-            right: 0,
-            minWidth: 120,
-            borderRadius: 8,
-            overflow: "hidden",
-            background: "var(--sf-bg, #fff)",
-            boxShadow: "0 6px 24px rgba(0,0,0,0.12)",
-          }}
+          aria-label="منوی زبان"
+          className="absolute bottom-full right-0 mb-2 min-w-[120px] rounded-lg bg-background border border-border shadow-lg overflow-hidden"
         >
           <button
             type="button"
@@ -141,14 +116,7 @@ export function AuthLanguageSwitch() {
               setLanguage("EN");
               setOpen(false);
             }}
-            style={{
-              display: "block",
-              width: "100%",
-              textAlign: "left",
-              padding: "8px 12px",
-              border: "none",
-              background: "transparent",
-            }}
+            className="w-full px-4 py-2 text-left text-sm hover:bg-accent transition-colors focus-visible:outline-none"
           >
             EN
           </button>
@@ -159,14 +127,7 @@ export function AuthLanguageSwitch() {
               setLanguage("FA");
               setOpen(false);
             }}
-            style={{
-              display: "block",
-              width: "100%",
-              textAlign: "left",
-              padding: "8px 12px",
-              border: "none",
-              background: "transparent",
-            }}
+            className="w-full px-4 py-2 text-left text-sm hover:bg-accent transition-colors focus-visible:outline-none"
           >
             FA
           </button>

@@ -19,25 +19,22 @@ export function LoginCC() {
   const { t } = useAuthLanguage();
 
   return (
-    <div className="auth-card">
-      <div className="auth-card__brand">
-        <span className="auth-card__logo">
+    <div className="w-full max-w-[360px] bg-card border border-border rounded-xl shadow-md p-8">
+      <div className="flex items-center justify-center gap-2 mb-6">
+        <span className="flex items-center justify-center size-7 bg-primary rounded-lg text-primary-foreground flex-shrink-0">
           <Icon name="zap" size={14} strokeWidth={2.5} />
         </span>
-        <span className="auth-card__wordmark">ScrumFlow</span>
+        <span className="text-base font-semibold text-foreground tracking-tight">ScrumFlow</span>
       </div>
 
-      <div className="auth-card__header">
-        <div className="auth-card__title">{t.auth.signIn}</div>
-        <div className="auth-card__subtitle">{t.auth.login}</div>
+      <div className="mb-5">
+        <div className="text-lg font-semibold text-foreground mb-1">{t.auth.signIn}</div>
+        <div className="text-sm text-muted-foreground">{t.auth.login}</div>
       </div>
 
-      <form onSubmit={onSubmit} className="auth-card__form" noValidate>
+      <form onSubmit={onSubmit} className="space-y-4" noValidate>
         {error && (
-          <div
-            className="auth-card__alert auth-card__alert--error"
-            role="alert"
-          >
+          <div className="flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg" role="alert">
             {error}
           </div>
         )}
@@ -74,15 +71,17 @@ export function LoginCC() {
           )}
         />
 
-        <div className="auth-card__forgot">
-          <Link href="/forgot-password">{t.auth.forgotPassword}</Link>
+        <div className="text-right">
+          <Link href="/forgot-password" className="text-sm text-primary hover:underline">
+            {t.auth.forgotPassword}
+          </Link>
         </div>
 
         <Button
           type="submit"
           variant="primary"
           loading={isPending}
-          style={{ width: "100%" }}
+          className="w-full"
         >
           {t.auth.signIn}
         </Button>

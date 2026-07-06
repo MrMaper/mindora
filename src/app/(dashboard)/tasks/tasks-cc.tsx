@@ -180,7 +180,7 @@ export function TasksCC({
 
           <Select
             value={filters.status}
-            onChange={e => u.applyFilters({ status: e.target.value })}
+            onChange={value => u.applyFilters({ status: value })}
             style={{ maxWidth: 160 }}
             options={[
               { value: "", label: t.tasks.allStatuses },
@@ -189,7 +189,7 @@ export function TasksCC({
           />
           <Select
             value={filters.priority}
-            onChange={e => u.applyFilters({ priority: e.target.value })}
+            onChange={value => u.applyFilters({ priority: value })}
             style={{ maxWidth: 160 }}
             options={[
               { value: "", label: t.tasks.allPriorities },
@@ -198,7 +198,7 @@ export function TasksCC({
           />
           <Select
             value={filters.assignee}
-            onChange={e => u.applyFilters({ assignee: e.target.value })}
+            onChange={value => u.applyFilters({ assignee: value })}
             style={{ maxWidth: 180 }}
             options={[
               { value: "", label: t.tasks.allAssignees },
