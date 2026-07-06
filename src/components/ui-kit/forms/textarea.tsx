@@ -1,6 +1,9 @@
 "use client";
 
 import * as React from "react";
+import { Textarea as ShadcnTextarea } from "@/components/ui/textarea";
+import { Label as ShadcnLabel } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
@@ -21,21 +24,39 @@ export function Textarea({
 }: TextareaProps): React.JSX.Element {
   const generatedId = React.useId();
   const fieldId = id ?? generatedId;
-  const cls = ["sf-textarea", error ? "sf-textarea--error" : "", className].filter(Boolean).join(" ");
+  const hintId = `${fieldId}-hint`;
+  const errorId = `${fieldId}-error`;
 
   return (
-    <div className="sf-field">
+    <div className="w-full">
       {label && (
-        <label className="sf-field__label" htmlFor={fieldId}>
+        <ShadcnLabel htmlFor={fieldId} className="mb-1.5">
           {label}
-          {required && <span className="req">*</span>}
-        </label>
+          {required && <span className="text-red-500 ml-1" aria-hidden="true">*</span>}
+        </ShadcnLabel>
       )}
-      <textarea id={fieldId} className={cls} rows={rows} aria-invalid={!!error} {...rest} />
+      <ShadcnTextarea
+        id={fieldId}
+        rows={rows}
+        className={cn(
+          error && "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/30",
+          className,
+        )}
+        aria-invalid={!!error}
+        aria-describedby={error ? errorId : hint ? hintId : undefined}
+        {...rest}
+      />
       {(hint || error) && (
-        <span className={`sf-field__hint${error ? " sf-field__hint--error" : ""}`}>
+        <p
+          id={error ? errorId : hintId}
+          className={cn(
+            "mt-1.5 text-sm",
+            error ? "text-red-500" : "text-text-tertiary",
+          )}
+          role={error ? "alert" : undefined}
+        >
           {error ?? hint}
-        </span>
+        </p>
       )}
     </div>
   );

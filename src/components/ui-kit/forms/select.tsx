@@ -1,20 +1,34 @@
 "use client";
 
 import * as React from "react";
-import { Icon } from "../foundation/icon";
+import {
+  Select as ShadcnSelect,
+  SelectTrigger as ShadcnSelectTrigger,
+  SelectContent as ShadcnSelectContent,
+  SelectItem as ShadcnSelectItem,
+  SelectValue as ShadcnSelectValue,
+} from "@/components/ui/select";
+import { Label as ShadcnLabel } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 export interface SelectOption {
   value: string;
   label: string;
 }
 
-export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+export interface SelectProps {
   label?: string;
   hint?: string;
   error?: string;
   required?: boolean;
   placeholder?: string;
   options?: (string | SelectOption)[];
+  onChange?: (value: string) => void;
+  value?: string;
+  disabled?: boolean;
+  id?: string;
+  className?: string;
+  style?: React.CSSProperties;
 }
 
 export function Select({
@@ -26,38 +40,73 @@ export function Select({
   placeholder,
   id,
   className = "",
-  children,
-  ...rest
+  onChange,
+  value,
+  disabled = false,
+  style,
 }: SelectProps): React.JSX.Element {
   const generatedId = React.useId();
   const fieldId = id ?? generatedId;
+  const hintId = `${fieldId}-hint`;
+  const errorId = `${fieldId}-error`;
+
+  const handleChange = (val: string | string[] | null) => {
+    const newValue = Array.isArray(val) ? val[0] : val;
+    onChange?.(newValue ?? "");
+  };
 
   return (
-    <div className="sf-field">
+    <div className="w-full" style={style}>
       {label && (
-        <label className="sf-field__label" htmlFor={fieldId}>
+        <ShadcnLabel htmlFor={fieldId} className="mb-1.5">
           {label}
-          {required && <span className="req">*</span>}
-        </label>
+          {required && <span className="text-red-500 ml-1" aria-hidden="true">*</span>}
+        </ShadcnLabel>
       )}
-      <div className="sf-select-wrap">
-        <select id={fieldId} className={`sf-select${className ? ` ${className}` : ""}`} aria-invalid={!!error} {...rest}>
-          {placeholder && <option value="" disabled>{placeholder}</option>}
+      <ShadcnSelect
+        value={value ?? ""}
+        onValueChange={handleChange}
+        disabled={disabled}
+      >
+        <ShadcnSelectTrigger
+          id={fieldId}
+          className={cn(
+            error && "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/30",
+            className,
+          )}
+          aria-invalid={!!error}
+          aria-describedby={error ? errorId : hint ? hintId : undefined}
+        >
+          <ShadcnSelectValue placeholder={placeholder} />
+        </ShadcnSelectTrigger>
+        <ShadcnSelectContent>
+          {placeholder && (
+            <ShadcnSelectItem value="" disabled>
+              {placeholder}
+            </ShadcnSelectItem>
+          )}
           {options.map((o) => {
-            const value = typeof o === "string" ? o : o.value;
+            const val = typeof o === "string" ? o : o.value;
             const lbl = typeof o === "string" ? o : o.label;
-            return <option key={value} value={value}>{lbl}</option>;
+            return (
+              <ShadcnSelectItem key={val} value={val}>
+                {lbl}
+              </ShadcnSelectItem>
+            );
           })}
-          {children}
-        </select>
-        <span className="sf-select__chev">
-          <Icon name="chevron-down" size={15} />
-        </span>
-      </div>
+        </ShadcnSelectContent>
+      </ShadcnSelect>
       {(hint || error) && (
-        <span className={`sf-field__hint${error ? " sf-field__hint--error" : ""}`}>
+        <p
+          id={error ? errorId : hintId}
+          className={cn(
+            "mt-1.5 text-sm",
+            error ? "text-red-500" : "text-text-tertiary",
+          )}
+          role={error ? "alert" : undefined}
+        >
           {error ?? hint}
-        </span>
+        </p>
       )}
     </div>
   );

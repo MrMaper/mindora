@@ -1,8 +1,11 @@
 "use client";
 
 import * as React from "react";
+import { Input as ShadcnInput } from "@/components/ui/input";
+import { Label as ShadcnLabel } from "@/components/ui/label";
 import { Icon } from "../foundation/icon";
 import type { IconName } from "../foundation/icon";
+import { cn } from "@/lib/utils";
 
 export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> {
   label?: string;
@@ -26,35 +29,47 @@ export function Input({
 }: InputProps): React.JSX.Element {
   const generatedId = React.useId();
   const fieldId = id ?? generatedId;
-
-  const inputCls = [
-    "sf-input",
-    icon ? "sf-input--has-icon" : "",
-    size === "lg" ? "sf-input--lg" : "",
-    error ? "sf-input--error" : "",
-    className,
-  ].filter(Boolean).join(" ");
+  const hintId = `${fieldId}-hint`;
+  const errorId = `${fieldId}-error`;
 
   return (
-    <div className="sf-field">
+    <div className="w-full">
       {label && (
-        <label className="sf-field__label" htmlFor={fieldId}>
+        <ShadcnLabel htmlFor={fieldId} className="mb-1.5">
           {label}
-          {required && <span className="req">*</span>}
-        </label>
+          {required && <span className="text-red-500 ml-1" aria-hidden="true">*</span>}
+        </ShadcnLabel>
       )}
-      <div className="sf-input-wrap">
+      <div className="relative">
         {icon && (
-          <span className="sf-input__icon">
-            <Icon name={icon} size={15} />
-          </span>
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none">
+            <Icon name={icon} size={size === "lg" ? 18 : 15} />
+          </div>
         )}
-        <input id={fieldId} className={inputCls} aria-invalid={!!error} {...rest} />
+        <ShadcnInput
+          id={fieldId}
+          className={cn(
+            icon && "pl-9",
+            size === "lg" && "h-10 text-base px-4",
+            error && "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/30",
+            className,
+          )}
+          aria-invalid={!!error}
+          aria-describedby={error ? errorId : hint ? hintId : undefined}
+          {...rest}
+        />
       </div>
       {(hint || error) && (
-        <span className={`sf-field__hint${error ? " sf-field__hint--error" : ""}`}>
+        <p
+          id={error ? errorId : hintId}
+          className={cn(
+            "mt-1.5 text-sm",
+            error ? "text-red-500" : "text-text-tertiary",
+          )}
+          role={error ? "alert" : undefined}
+        >
           {error ?? hint}
-        </span>
+        </p>
       )}
     </div>
   );

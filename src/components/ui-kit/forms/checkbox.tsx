@@ -1,37 +1,49 @@
 "use client";
 
 import * as React from "react";
-import { Icon } from "../foundation/icon";
+import { Checkbox as ShadcnCheckbox } from "@/components/ui/checkbox";
+import { Label as ShadcnLabel } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
-export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "type"> {
+export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "type" | "value" | "onChange" | "checked" | "disabled" | "aria-indeterminate"> {
   label?: string;
   indeterminate?: boolean;
+  onChange?: (checked: boolean) => void;
+  checked?: boolean;
+  disabled?: boolean;
+  id?: string;
+  className?: string;
 }
 
 export function Checkbox({
   label,
-  checked,
+  checked = false,
   indeterminate = false,
   disabled = false,
   className = "",
-  ...rest
+  id,
+  onChange,
 }: CheckboxProps): React.JSX.Element {
-  const ref = React.useRef<HTMLInputElement>(null);
+  const generatedId = React.useId();
+  const checkboxId = id ?? generatedId;
 
-  React.useEffect(() => {
-    if (ref.current) ref.current.indeterminate = indeterminate;
-  }, [indeterminate]);
+  const handleChange = (newChecked: boolean) => {
+    onChange?.(newChecked);
+  };
 
   return (
-    <label className={`sf-check${disabled ? " sf-check--disabled" : ""}${className ? ` ${className}` : ""}`}>
-      <input ref={ref} type="checkbox" checked={checked} disabled={disabled} {...rest} />
-      <span className="sf-check__box">
-        <span className="sf-check__mark">
-          <Icon name="check" size={12} strokeWidth={3} />
-        </span>
-        <span className="sf-check__dash" />
-      </span>
-      {label && <span>{label}</span>}
-    </label>
+    <ShadcnLabel className={cn("flex items-center gap-2 cursor-pointer", disabled && "opacity-50 pointer-events-none", className)}>
+      <ShadcnCheckbox
+        id={checkboxId}
+        checked={checked}
+        disabled={disabled}
+        onCheckedChange={handleChange}
+        aria-indeterminate={indeterminate}
+        className={cn(
+          indeterminate && "data-[indeterminate]:bg-action-primary data-[indeterminate]:border-action-primary",
+        )}
+      />
+      {label && <span className="text-sm text-text-primary">{label}</span>}
+    </ShadcnLabel>
   );
 }
