@@ -56,7 +56,7 @@ export default async function DashboardLayout({
       <DirectionSync language={language} />
       <aside className="w-64 flex flex-col border-r bg-card">
         <div className="flex items-center justify-center gap-2 h-14 border-b px-4">
-          <span className="flex items-center justify-center size-5 bg-primary rounded-lg text-primary-foreground flex-shrink-0">
+          <span className="flex items-center justify-center size-5 bg-primary rounded-lg text-primary-foreground shrink-0">
             <Icon name="zap" size={12} strokeWidth={2.5} />
           </span>
           <span className="text-base font-semibold text-foreground tracking-tight">
@@ -78,7 +78,7 @@ export default async function DashboardLayout({
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               )}
             >
-              <Icon name={item.icon} size={15} className="flex-shrink-0" />
+              <Icon name={item.icon} size={15} className="shrink-0" />
               {item.label}
               {item.badge != null && item.badge > 0 && (
                 <Badge tone="count" className="ml-auto">
@@ -98,7 +98,7 @@ export default async function DashboardLayout({
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
             )}
           >
-            <Icon name="settings" size={15} className="flex-shrink-0" />
+            <Icon name="settings" size={15} className="shrink-0" />
             {t.nav.settings}
           </Link>
         </nav>
