@@ -30,6 +30,7 @@ import type { UserRow } from "@/features/users/types";
 import type { LabelRow } from "@/features/labels/types";
 import type { Language } from "@/types/db";
 import type { Translations } from "@/i18n";
+import { cn } from "@/lib/utils";
 
 interface TasksCCProps {
   initialData: GetTasksResult;
@@ -134,21 +135,24 @@ export function TasksCC({
 
       {/* ── Search + filters ────────────────────────────────────────── */}
       <div className="mb-4 flex flex-wrap gap-2 justify-between">
-        <div className="flex gap-2 items-center">
-          <form onSubmit={u.onSearchSubmit} className="flex gap-1">
+        <div className="flex gap-2 items-center w-full">
+          <form
+            onSubmit={u.onSearchSubmit}
+            className="flex gap-1 w-full items-end"
+          >
             <Input
+              label={t.tasks.searchButton}
               placeholder={t.tasks.search}
               icon="search"
               value={u.search}
               onChange={e => u.setSearch(e.target.value)}
-              className="max-w-[280px]"
+              className="w-full"
+              button={<Button variant="primary" size="sm" iconRight="search" />}
             />
-            <Button type="submit" variant="secondary">
-              {t.tasks.searchButton}
-            </Button>
           </form>
 
           <Select
+            label={t.tasks.status}
             value={filters.status}
             onChange={value => u.applyFilters({ status: value })}
             className="max-w-[160px]"
@@ -199,7 +203,10 @@ export function TasksCC({
 
       {/* ── Global error ─────────────────────────────────────────────── */}
       {u.actionError && u.drawerMode === "none" && (
-        <div className="mb-4 rounded-md border border-red-500/30 bg-red-500/10 p-3 text-red-500 text-sm" role="alert">
+        <div
+          className="mb-4 rounded-md border border-red-500/30 bg-red-500/10 p-3 text-red-500 text-sm"
+          role="alert"
+        >
           {u.actionError}
         </div>
       )}
@@ -223,10 +230,10 @@ export function TasksCC({
                   ? undefined
                   : () => u.changeSort(col.key)
               }
-              className="text-2xs font-semibold uppercase tracking-caps text-text-tertiary flex items-center gap-1 cursor-pointer hover:text-text-secondary"
-              style={{
-                cursor: col.sortable === false || !col.key ? "default" : "pointer",
-              }}
+              className={cn(
+                "text-2xs font-semibold uppercase tracking-caps text-text-tertiary flex items-center gap-1 cursor-pointer hover:text-text-secondary",
+                (col.sortable === false || !col.key) && "cursor-default",
+              )}
             >
               {col.label}
               {filters.sort === col.key && (
@@ -249,9 +256,7 @@ export function TasksCC({
               key={task.id}
               onClick={() => u.openEdit(task)}
               className="grid gap-3 px-4 min-h-[52px] items-center border-b border-border-subtle hover:bg-bg-sunken/50 cursor-pointer"
-              style={{
-                gridTemplateColumns: "1fr 130px 90px 160px 110px 40px",
-              }}
+              style={{ gridTemplateColumns: "1fr 130px 90px 160px 110px 40px" }}
             >
               <div className="min-w-0">
                 <div className="text-sm font-medium text-text-primary truncate">
@@ -379,7 +384,11 @@ export function TasksCC({
         }
         footer={
           <div className="flex gap-2 ml-auto">
-            <Button variant="ghost" onClick={u.closeDrawer} disabled={u.isPending}>
+            <Button
+              variant="ghost"
+              onClick={u.closeDrawer}
+              disabled={u.isPending}
+            >
               {t.common.cancel}
             </Button>
             <Button
@@ -394,7 +403,10 @@ export function TasksCC({
       >
         <div className="p-4 flex flex-col gap-4">
           {u.actionError && (
-            <div className="rounded-md border border-red-500/30 bg-red-500/10 p-3 text-red-500 text-sm" role="alert">
+            <div
+              className="rounded-md border border-red-500/30 bg-red-500/10 p-3 text-red-500 text-sm"
+              role="alert"
+            >
               {u.actionError}
             </div>
           )}
@@ -527,7 +539,10 @@ export function TasksCC({
       >
         <div className="p-4 flex flex-col gap-4">
           {u.actionError && (
-            <div className="rounded-md border border-red-500/30 bg-red-500/10 p-3 text-red-500 text-sm" role="alert">
+            <div
+              className="rounded-md border border-red-500/30 bg-red-500/10 p-3 text-red-500 text-sm"
+              role="alert"
+            >
               {u.actionError}
             </div>
           )}
@@ -643,10 +658,7 @@ export function TasksCC({
                 ) : (
                   <div className="flex flex-col gap-3">
                     {u.activeTask.activity.map(entry => (
-                      <div
-                        key={entry.id}
-                        className="flex items-start gap-2"
-                      >
+                      <div key={entry.id} className="flex items-start gap-2">
                         <Avatar
                           name={entry.performedBy.name}
                           src={entry.performedBy.avatar ?? undefined}
@@ -689,7 +701,10 @@ export function TasksCC({
       >
         <div className="flex flex-col gap-4">
           {u.labelError && (
-            <div className="rounded-md border border-red-500/30 bg-red-500/10 p-3 text-red-500 text-sm" role="alert">
+            <div
+              className="rounded-md border border-red-500/30 bg-red-500/10 p-3 text-red-500 text-sm"
+              role="alert"
+            >
               {u.labelError}
             </div>
           )}
@@ -801,9 +816,7 @@ function LabelPicker({
         {title}
       </div>
       {labels.length === 0 ? (
-        <div className="text-sm text-text-tertiary">
-          {addLabel}
-        </div>
+        <div className="text-sm text-text-tertiary">{addLabel}</div>
       ) : (
         <div className="flex flex-wrap gap-2">
           {labels.map(l => {
@@ -813,8 +826,10 @@ function LabelPicker({
                 key={l.id}
                 type="button"
                 onClick={() => onToggle(l.id)}
-                className="opacity-45 hover:opacity-100 transition-opacity"
-                style={{ opacity: active ? 1 : 0.45 }}
+                className={cn(
+                  "opacity-45 hover:opacity-100 transition-opacity",
+                  active && "opacity-100",
+                )}
               >
                 <Tag color={l.color}>{l.name}</Tag>
               </button>
