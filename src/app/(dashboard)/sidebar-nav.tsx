@@ -45,8 +45,9 @@ export function SidebarNav({
       className="flex-1 p-3 space-y-1 overflow-y-auto"
       aria-label={language === "FA" ? "منوی اصلی" : "Main navigation"}
     >
-      {navItems.map((item) => {
-        const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+      {navItems.map(item => {
+        const isActive =
+          pathname === item.href || pathname.startsWith(item.href + "/");
         return (
           <Link
             key={item.href}
@@ -82,13 +83,17 @@ export function SidebarNav({
             : "text-muted-foreground hover:text-foreground hover:bg-accent",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         )}
-        aria-current={pathname === settingsHref || pathname.startsWith(settingsHref + "/") ? "page" : undefined}
+        aria-current={
+          pathname === settingsHref || pathname.startsWith(settingsHref + "/")
+            ? "page"
+            : undefined
+        }
       >
         <Icon name="settings" size={15} className="shrink-0" />
         {settingsLabel}
       </Link>
 
-      <div className="border-t p-3 mt-2">
+      <div className="border-t py-2 mt-2">
         <Link
           href={profileHref}
           className={cn(
@@ -100,15 +105,9 @@ export function SidebarNav({
           )}
           aria-current={pathname === profileHref ? "page" : undefined}
         >
-          <Avatar
-            name={userName}
-            src={userImage}
-            size="sm"
-          />
+          <Avatar name={userName} src={userImage} size="sm" />
           <div className="flex-1 min-w-0">
-            <div className="font-medium truncate">
-              {userName}
-            </div>
+            <div className="font-medium truncate">{userName}</div>
             <div className="text-[10px] text-muted-foreground truncate">
               {userEmail}
             </div>

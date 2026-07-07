@@ -18,7 +18,26 @@ const PALETTE = [
   "#626d7b",
 ];
 
-const SIZES: Record<string, number> = { xs: 18, sm: 24, md: 30, lg: 40, xl: 56 };
+function getContrastTextColor(background: string): "#000000" | "#FFFFFF" {
+  const hex = background.replace("#", "");
+
+  const r = parseInt(hex.slice(0, 2), 16);
+  const g = parseInt(hex.slice(2, 4), 16);
+  const b = parseInt(hex.slice(4, 6), 16);
+
+  // Perceived luminance
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+  return luminance > 0.5 ? "#000000" : "#FFFFFF";
+}
+
+const SIZES: Record<string, number> = {
+  xs: 18,
+  sm: 24,
+  md: 30,
+  lg: 40,
+  xl: 56,
+};
 
 function hashIndex(str: string, mod: number): number {
   let h = 0;
@@ -53,19 +72,22 @@ export function Avatar({
   size = "md",
   status,
   className = "",
-  style,
   ...rest
 }: AvatarProps): React.JSX.Element {
-  const px = typeof size === "number" ? size : SIZES[size] ?? 30;
+  const px = typeof size === "number" ? size : (SIZES[size] ?? 30);
   const bg = PALETTE[hashIndex(name, PALETTE.length)];
+  const text = getContrastTextColor(bg);
   const fontSize = Math.round(px * 0.4);
   const dot = Math.max(7, Math.round(px * 0.28));
 
   const statusColor =
-    status === "online" ? "var(--status-done)"
-    : status === "busy" ? "var(--status-blocked)"
-    : status === "away" ? "var(--priority-high)"
-    : "var(--gray-400)";
+    status === "online"
+      ? "var(--status-done)"
+      : status === "busy"
+        ? "var(--status-blocked)"
+        : status === "away"
+          ? "var(--priority-high)"
+          : "var(--gray-400)";
 
   const shadcnSize = sizeMap[size as keyof typeof sizeMap] ?? "default";
 
@@ -87,7 +109,13 @@ export function Avatar({
             size === "lg" && "text-base",
             size === "xl" && "text-lg",
           )}
-          style={{ background: bg, width: px, height: px, fontSize }}
+          style={{
+            background: bg,
+            width: px,
+            height: px,
+            fontSize,
+            color: text,
+          }}
         >
           {initials(name)}
         </ShadcnAvatarFallback>
@@ -122,22 +150,21 @@ export function AvatarGroup({
   ...rest
 }: AvatarGroupProps): React.JSX.Element {
   const childArray = React.Children.toArray(children);
-  const visibleChildren = max && childArray.length > max
-    ? [...childArray.slice(0, max - 1), childArray[max - 1]]
-    : childArray;
+  const visibleChildren =
+    max && childArray.length > max
+      ? [...childArray.slice(0, max - 1), childArray[max - 1]]
+      : childArray;
 
   return (
-    <ShadcnAvatarGroup
-      className={cn("-space-x-2", className)}
-      {...rest}
-    >
+    <ShadcnAvatarGroup className={cn("-space-x-2", className)} {...rest}>
       {visibleChildren.map((child, index) =>
         React.isValidElement(child)
-          ? React.cloneElement(child as React.ReactElement<any>, {
+          ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            React.cloneElement(child as React.ReactElement<any>, {
               key: child.key ?? index,
               size,
             })
-          : child
+          : child,
       )}
       {max && childArray.length > max && (
         <div

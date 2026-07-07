@@ -10,6 +10,7 @@ export function SignOutButton() {
       icon="log-out"
       aria-label="Sign out"
       size="sm"
+      className="hover:text-red-500 hover:cursor-pointer"
       onClick={() => signOut({ callbackUrl: "/login" })}
     />
   );
