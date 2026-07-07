@@ -54,6 +54,13 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
     return { success: false, error: parsed.error.issues[0]?.message };
   }
 
+  // Get user's first team (default team)
+  const membership = await db.teamMember.findFirst({
+    where: { userId: session.user.id },
+    select: { teamId: true },
+  });
+  if (!membership) return { success: false, error: "User is not a member of any team." };
+
   const labelIds = parseLabelIds(parsed.data.labelIds);
 
   const task = await db.task.create({
@@ -66,6 +73,7 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
       assignedToId: parsed.data.assignedToId || null,
       dueDate: parsed.data.dueDate ? new Date(parsed.data.dueDate) : null,
       createdById: session.user.id,
+      teamId: membership.teamId,
       labels: { create: labelIds.map(labelId => ({ labelId })) },
     },
   });

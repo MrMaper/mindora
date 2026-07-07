@@ -51,6 +51,149 @@ async function seed() {
     `  ✓ Superadmin user — ${superadminEmail} / ${superadminPassword}`,
   );
 
+  // Create default organization
+  const defaultOrg = await db.organization.upsert({
+    where: { id: "default-org" },
+    create: {
+      id: "default-org",
+      name: "Default Organization",
+      ownerId: adminEmail,
+    },
+    update: {},
+  });
+
+  // Create default team
+  const defaultTeam = await db.team.upsert({
+    where: { id: "default-team" },
+    create: {
+      id: "default-team",
+      organizationId: defaultOrg.id,
+      name: "Default Team",
+      description: "Default team for all users",
+    },
+    update: {},
+  });
+
+  console.log(`  ✓ Default organization: ${defaultOrg.name}`);
+  console.log(`  ✓ Default team: ${defaultTeam.name}`);
+
+  // Create default permissions
+  const permissionKeys = [
+    "team:manage",
+    "team:delete",
+    "team:archive",
+    "member:invite",
+    "member:remove",
+    "member:role",
+    "task:create",
+    "task:manage_all",
+    "task:view",
+    "report:view",
+  ];
+
+  const permissions = [];
+  for (const key of permissionKeys) {
+    const perm = await db.permission.upsert({
+      where: { key },
+      create: { key },
+      update: {},
+    });
+    permissions.push(perm);
+  }
+
+  // Create default roles
+  const adminRole = await db.role.upsert({
+    where: { name: "ADMINISTRATOR" },
+    create: { name: "ADMINISTRATOR" },
+    update: {},
+  });
+
+  const leadRole = await db.role.upsert({
+    where: { name: "TEAM_LEAD" },
+    create: { name: "TEAM_LEAD" },
+    update: {},
+  });
+
+  const memberRole = await db.role.upsert({
+    where: { name: "MEMBER" },
+    create: { name: "MEMBER" },
+    update: {},
+  });
+
+  // Connect permissions to roles
+  const allPermIds = permissions.map((p) => p.id);
+  const leadPermIds = permissions
+    .filter((p) => p.key !== "team:delete" && p.key !== "member:role")
+    .map((p) => p.id);
+  const memberPermIds = permissions
+    .filter(
+      (p) =>
+        p.key === "task:create" || p.key === "task:view" || p.key === "report:view",
+    )
+    .map((p) => p.id);
+
+  await Promise.all(
+    allPermIds.map((permissionId) =>
+      db.rolePermission.upsert({
+        where: { roleId_permissionId: { roleId: adminRole.id, permissionId } },
+        create: { roleId: adminRole.id, permissionId },
+        update: {},
+      }),
+    ),
+  );
+
+  await Promise.all(
+    leadPermIds.map((permissionId) =>
+      db.rolePermission.upsert({
+        where: { roleId_permissionId: { roleId: leadRole.id, permissionId } },
+        create: { roleId: leadRole.id, permissionId },
+        update: {},
+      }),
+    ),
+  );
+
+  await Promise.all(
+    memberPermIds.map((permissionId) =>
+      db.rolePermission.upsert({
+        where: { roleId_permissionId: { roleId: memberRole.id, permissionId } },
+        create: { roleId: memberRole.id, permissionId },
+        update: {},
+      }),
+    ),
+  );
+
+  console.log(
+    `  ✓ Roles created: ${adminRole.name}, ${leadRole.name}, ${memberRole.name}`,
+  );
+
+  // Get all users and assign to default team
+  const allUsers = await db.user.findMany({
+    where: { status: "ACTIVE" },
+    select: { id: true, role: true },
+  });
+
+  for (const user of allUsers) {
+    const isAdmin = user.role === "ADMIN";
+    const teamRole = isAdmin ? adminRole.id : memberRole.id;
+
+    await db.teamMember.upsert({
+      where: {
+        teamId_userId: {
+          teamId: defaultTeam.id,
+          userId: user.id,
+        },
+      },
+      create: {
+        teamId: defaultTeam.id,
+        userId: user.id,
+        roleId: teamRole,
+      },
+      update: {},
+    });
+  }
+
+  console.log(`  ✓ Assigned ${allUsers.length} users to default team`);
+
   const labelCount = await db.label.count();
   if (labelCount === 0) {
     await db.label.createMany({
@@ -69,7 +212,7 @@ async function seed() {
 }
 
 seed()
-  .catch(e => {
+  .catch((e) => {
     console.error(e);
     process.exit(1);
   })

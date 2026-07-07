@@ -1,0 +1,147 @@
+import { prisma as db } from "@/lib/db";
+import type { GetTeamsResult, TeamRow, TeamDetail, TeamMemberRow } from "./types";
+
+const PAGE_SIZE = 20;
+
+export async function getTeams(
+  search = "",
+  page = 1
+): Promise<GetTeamsResult> {
+  const skip = (page - 1) * PAGE_SIZE;
+  const where = search
+    ? {
+        name: { contains: search, mode: "insensitive" as const },
+      }
+    : {};
+
+  const [teams, total] = await Promise.all([
+    db.team.findMany({
+      where,
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        _count: { select: { members: true } },
+        createdAt: true,
+      },
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: PAGE_SIZE,
+    }),
+    db.team.count({ where }),
+  ]);
+
+  return {
+    teams: teams.map((t) => ({
+      id: t.id,
+      name: t.name,
+      description: t.description,
+      memberCount: t._count.members,
+      status: "ACTIVE" as const,
+      createdAt: t.createdAt,
+    })),
+    total,
+    page,
+    totalPages: Math.max(1, Math.ceil(total / PAGE_SIZE)),
+  };
+}
+
+export async function getUserTeams(userId: string): Promise<TeamRow[]> {
+  const memberships = await db.teamMember.findMany({
+    where: { userId },
+    select: {
+      team: {
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          _count: { select: { members: true } },
+          createdAt: true,
+        },
+      },
+    },
+  });
+
+  return memberships.map((m) => ({
+    id: m.team.id,
+    name: m.team.name,
+    description: m.team.description,
+    memberCount: m.team._count.members,
+    status: "ACTIVE" as const,
+    createdAt: m.team.createdAt,
+  }));
+}
+
+export async function getTeamById(id: string): Promise<TeamDetail | null> {
+  const team = await db.team.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      organizationId: true,
+      _count: { select: { members: true } },
+      createdAt: true,
+      members: {
+        select: {
+          id: true,
+          userId: true,
+          roleId: true,
+          role: { select: { name: true } },
+          user: { select: { name: true, email: true, avatar: true } },
+          createdAt: true,
+        },
+      },
+    },
+  });
+
+  if (!team) return null;
+
+  return {
+    id: team.id,
+    name: team.name,
+    description: team.description,
+    organizationId: team.organizationId,
+    memberCount: team._count.members,
+    status: "ACTIVE" as const,
+    createdAt: team.createdAt,
+    members: team.members.map((m) => ({
+      id: m.id,
+      userId: m.userId,
+      userName: m.user.name,
+      userEmail: m.user.email,
+      userAvatar: m.user.avatar,
+      roleId: m.roleId,
+      roleName: m.role.name,
+      joinedAt: m.createdAt,
+    })),
+  };
+}
+
+export async function getTeamMembers(
+  teamId: string
+): Promise<TeamMemberRow[]> {
+  const members = await db.teamMember.findMany({
+    where: { teamId },
+    select: {
+      id: true,
+      userId: true,
+      roleId: true,
+      role: { select: { name: true } },
+      user: { select: { name: true, email: true, avatar: true } },
+      createdAt: true,
+    },
+    orderBy: { createdAt: "asc" },
+  });
+
+  return members.map((m) => ({
+    id: m.id,
+    userId: m.userId,
+    userName: m.user.name,
+    userEmail: m.user.email,
+    userAvatar: m.user.avatar,
+    roleId: m.roleId,
+    roleName: m.role.name,
+    joinedAt: m.createdAt,
+  }));
+}

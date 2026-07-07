@@ -215,7 +215,9 @@ export const TeamScalarFieldEnum = {
   id: 'id',
   organizationId: 'organizationId',
   name: 'name',
-  description: 'description'
+  description: 'description',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type TeamScalarFieldEnum = (typeof TeamScalarFieldEnum)[keyof typeof TeamScalarFieldEnum]
@@ -225,7 +227,8 @@ export const TeamMemberScalarFieldEnum = {
   id: 'id',
   teamId: 'teamId',
   userId: 'userId',
-  roleId: 'roleId'
+  roleId: 'roleId',
+  createdAt: 'createdAt'
 } as const
 
 export type TeamMemberScalarFieldEnum = (typeof TeamMemberScalarFieldEnum)[keyof typeof TeamMemberScalarFieldEnum]
@@ -263,6 +266,7 @@ export const TaskScalarFieldEnum = {
   projectId: 'projectId',
   sprintId: 'sprintId',
   parentTaskId: 'parentTaskId',
+  teamId: 'teamId',
   title: 'title',
   description: 'description',
   status: 'status',

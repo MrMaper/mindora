@@ -12,6 +12,7 @@ import { getUnreadCount } from "@/features/notifications/queries";
 import { DirectionSync } from "@/components/DirectionSync";
 import { CommandPaletteWrapper } from "@/components/CommandPaletteWrapper";
 import { cn } from "@/lib/utils";
+import { SidebarNav } from "./sidebar-nav";
 
 interface NavItem {
   label: string;
@@ -40,6 +41,7 @@ export default async function DashboardLayout({
     { label: t.nav.tasks, href: "/tasks", icon: "list" },
     { label: t.nav.board, href: "/kanban", icon: "columns" },
     { label: t.nav.users, href: "/users", icon: "users" },
+    { label: t.nav.teams, href: "/teams", icon: "users-round" },
     {
       label: t.nav.notifications,
       href: "/notifications",
@@ -64,66 +66,17 @@ export default async function DashboardLayout({
           </span>
         </div>
 
-        <nav
-          className="flex-1 p-3 space-y-1 overflow-y-auto"
-          aria-label="منوی اصلی"
-        >
-          {NAV.map(item => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                "text-muted-foreground hover:text-foreground hover:bg-accent",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-              )}
-            >
-              <Icon name={item.icon} size={15} className="shrink-0" />
-              {item.label}
-              {item.badge != null && item.badge > 0 && (
-                <Badge tone="count" className="ml-auto">
-                  {item.badge > 99 ? "۹۹+" : item.badge}
-                </Badge>
-              )}
-            </Link>
-          ))}
+        <SidebarNav
+          navItems={NAV}
+          language={language}
+          settingsHref="/settings"
+          settingsLabel={t.nav.settings}
+          profileHref="/profile"
+          userName={session.user.name ?? "User"}
+          userEmail={session.user.email ?? ""}
+          userImage={session.user.image ?? undefined}
+        />
 
-          <div className="px-3 py-1 text-[10px] font-medium text-muted-foreground uppercase tracking-wider mt-4" />
-
-          <Link
-            href="/settings"
-            className={cn(
-              "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-              "text-muted-foreground hover:text-foreground hover:bg-accent",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-            )}
-          >
-            <Icon name="settings" size={15} className="shrink-0" />
-            {t.nav.settings}
-          </Link>
-        </nav>
-
-        <div className="border-t p-3">
-          <Link
-            href="/profile"
-            className="flex items-center gap-3 px-2 py-1.5 rounded-lg text-sm transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            <Avatar
-              name={session.user.name ?? "User"}
-              src={session.user.image ?? undefined}
-              size="sm"
-            />
-            <div className="flex-1 min-w-0">
-              <div className="font-medium text-foreground truncate">
-                {session.user.name}
-              </div>
-              <div className="text-[10px] text-muted-foreground truncate">
-                {session.user.email}
-              </div>
-            </div>
-            <SignOutButton />
-          </Link>
-        </div>
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">

@@ -11,6 +11,7 @@ import {
   Inbox,
   FolderOpen,
   Users,
+  UsersRound,
   User,
   BarChart3,
   Shield,
@@ -53,6 +54,7 @@ import {
   Zap,
   Mail,
   Archive,
+  RotateCcw,
 } from "lucide-react";
 
 export type IconName =
@@ -68,6 +70,7 @@ export type IconName =
   | "inbox"
   | "folder"
   | "users"
+  | "users-round"
   | "user"
   | "bar-chart"
   | "shield"
@@ -108,7 +111,8 @@ export type IconName =
   | "lock"
   | "language"
   | "zap"
-  | "mail";
+  | "mail"
+  | "rotate-ccw";
 
 const iconMap: Record<IconName, React.ComponentType<React.SVGAttributes<SVGSVGElement>>> = {
   home: Home,
@@ -123,6 +127,7 @@ const iconMap: Record<IconName, React.ComponentType<React.SVGAttributes<SVGSVGEl
   inbox: Inbox,
   folder: FolderOpen,
   users: Users,
+  "users-round": UsersRound,
   user: User,
   "bar-chart": BarChart3,
   shield: Shield,
@@ -164,6 +169,7 @@ const iconMap: Record<IconName, React.ComponentType<React.SVGAttributes<SVGSVGEl
   language: Languages,
   zap: Zap,
   mail: Mail,
+  "rotate-ccw": RotateCcw,
 };
 
 export interface IconProps extends Omit<React.SVGAttributes<SVGSVGElement>, "width" | "height"> {

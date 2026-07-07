@@ -147,19 +147,23 @@ model Team {
   description    String?
   projects       Project[]
   members        TeamMember[]
+  tasks          Task[]
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 
   @@map("teams")
 }
 
 model TeamMember {
-  id     String @id @default(cuid())
-  teamId String
-  userId String
-  roleId String
-  role   Role   @relation(fields: [roleId], references: [id])
-  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  teamId    String
+  userId    String
+  roleId    String
+  role      Role     @relation(fields: [roleId], references: [id])
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 
   @@unique([teamId, userId])
   @@map("team_members")
@@ -200,6 +204,7 @@ model Task {
   projectId    String?
   sprintId     String?
   parentTaskId String?
+  teamId       String
   title        String
   description  String?
   status       TaskStatus   @default(BACKLOG)
@@ -223,6 +228,7 @@ model Task {
   subTasks     Task[]       @relation("SubTasks")
   project      Project?     @relation(fields: [projectId], references: [id])
   sprint       Sprint?      @relation(fields: [sprintId], references: [id])
+  team         Team         @relation(fields: [teamId], references: [id])
 
   @@map("tasks")
 }
