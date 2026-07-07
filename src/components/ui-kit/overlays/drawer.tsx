@@ -33,12 +33,17 @@ export function Drawer({
   ...rest
 }: DrawerProps): React.JSX.Element {
   return (
-    <ShadcnSheet open={open} onOpenChange={(newOpen) => { if (!newOpen) onClose?.(); }}>
+    <ShadcnSheet
+      open={open}
+      onOpenChange={newOpen => {
+        if (!newOpen) onClose?.();
+      }}
+    >
       <ShadcnSheetContent
         side={side}
         className={cn(
           "flex flex-col",
-          wide ? "w-[680px] max-w-[95vw]" : "sm:max-w-sm",
+          wide ? "w-170 max-w-[95vw]" : "sm:max-w-sm",
           className,
         )}
         showCloseButton={false}
@@ -50,7 +55,11 @@ export function Drawer({
           </ShadcnSheetHeader>
         )}
         <div className="flex-1 overflow-y-auto px-4">{children}</div>
-        {footer && <ShadcnSheetFooter>{footer}</ShadcnSheetFooter>}
+        {footer && (
+          <ShadcnSheetFooter className="flex self-end">
+            {footer}
+          </ShadcnSheetFooter>
+        )}
       </ShadcnSheetContent>
     </ShadcnSheet>
   );
