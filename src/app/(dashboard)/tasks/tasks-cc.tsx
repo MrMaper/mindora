@@ -113,35 +113,16 @@ export function TasksCC({
   return (
     <>
       {/* ── Page header ─────────────────────────────────────────────── */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: "var(--space-5)",
-        }}
-      >
+      <div className="flex items-center justify-between mb-5">
         <div>
-          <h1
-            style={{
-              fontSize: "var(--text-xl)",
-              fontWeight: "var(--weight-semibold)",
-              color: "var(--text-primary)",
-            }}
-          >
+          <h1 className="text-xl font-semibold text-text-primary">
             {t.tasks.title}
           </h1>
-          <p
-            style={{
-              fontSize: "var(--text-sm)",
-              color: "var(--text-tertiary)",
-              marginTop: 2,
-            }}
-          >
+          <p className="text-sm text-text-tertiary mt-0.5">
             {total} {t.tasks.totalTasks}
           </p>
         </div>
-        <div style={{ display: "flex", gap: "var(--space-2)" }}>
+        <div className="flex gap-2">
           <Button variant="secondary" icon="flag" onClick={u.onLabelDialogOpen}>
             {t.tasks.manageLabels}
           </Button>
@@ -152,26 +133,15 @@ export function TasksCC({
       </div>
 
       {/* ── Search + filters ────────────────────────────────────────── */}
-      <div
-        style={{
-          marginBottom: "var(--space-4)",
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "var(--space-2)",
-          justifyContent: "space-between",
-        }}
-      >
+      <div className="mb-4 flex flex-wrap gap-2 justify-between">
         <div className="flex gap-2 items-center">
-          <form
-            onSubmit={u.onSearchSubmit}
-            style={{ display: "flex", gap: "var(--space-1)" }}
-          >
+          <form onSubmit={u.onSearchSubmit} className="flex gap-1">
             <Input
               placeholder={t.tasks.search}
               icon="search"
               value={u.search}
               onChange={e => u.setSearch(e.target.value)}
-              style={{ maxWidth: 280 }}
+              className="max-w-[280px]"
             />
             <Button type="submit" variant="secondary">
               {t.tasks.searchButton}
@@ -181,7 +151,7 @@ export function TasksCC({
           <Select
             value={filters.status}
             onChange={value => u.applyFilters({ status: value })}
-            style={{ maxWidth: 160 }}
+            className="max-w-[160px]"
             options={[
               { value: "", label: t.tasks.allStatuses },
               ...statusFieldOptions,
@@ -190,7 +160,7 @@ export function TasksCC({
           <Select
             value={filters.priority}
             onChange={value => u.applyFilters({ priority: value })}
-            style={{ maxWidth: 160 }}
+            className="max-w-[160px]"
             options={[
               { value: "", label: t.tasks.allPriorities },
               ...priorityFieldOptions,
@@ -199,7 +169,7 @@ export function TasksCC({
           <Select
             value={filters.assignee}
             onChange={value => u.applyFilters({ assignee: value })}
-            style={{ maxWidth: 180 }}
+            className="max-w-[180px]"
             options={[
               { value: "", label: t.tasks.allAssignees },
               ...users.map(usr => ({ value: usr.id, label: usr.name })),
@@ -220,7 +190,7 @@ export function TasksCC({
                 assignee: "",
               });
             }}
-            className="text-red-500! hover:bg-red-50! dark:bg-red-950!"
+            className="text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20"
           >
             {t.tasks.clearFilters}
           </Button>
@@ -229,42 +199,20 @@ export function TasksCC({
 
       {/* ── Global error ─────────────────────────────────────────────── */}
       {u.actionError && u.drawerMode === "none" && (
-        <div
-          className="auth-card__alert auth-card__alert--error"
-          style={{ marginBottom: "var(--space-4)" }}
-          role="alert"
-        >
+        <div className="mb-4 rounded-md border border-red-500/30 bg-red-500/10 p-3 text-red-500 text-sm" role="alert">
           {u.actionError}
         </div>
       )}
 
       {/* ── Tasks table ──────────────────────────────────────────────── */}
-      <div
-        style={{
-          background: "var(--bg-surface)",
-          border: "1px solid var(--border-default)",
-          borderRadius: "var(--radius-card)",
-          overflow: "hidden",
-        }}
-      >
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 130px 90px 160px 110px 40px",
-            gap: "var(--space-3)",
-            padding: "0 var(--space-4)",
-            height: 36,
-            alignItems: "center",
-            borderBottom: "1px solid var(--border-subtle)",
-            background: "var(--bg-sunken)",
-          }}
-        >
+      <div className="rounded-lg border border-border-default bg-bg-surface overflow-hidden">
+        <div className="grid gap-3 border-b border-border-subtle bg-bg-sunken px-4 h-9 items-center">
           {[
-            { key: "title", label: t.tasks.taskColumn },
-            { key: "status", label: t.tasks.statusColumn },
-            { key: "priority", label: t.tasks.priorityColumn },
+            { key: "title", label: t.tasks.taskColumn, sortable: true },
+            { key: "status", label: t.tasks.statusColumn, sortable: true },
+            { key: "priority", label: t.tasks.priorityColumn, sortable: true },
             { key: "assignee", label: t.tasks.assigneeColumn, sortable: false },
-            { key: "dueDate", label: t.tasks.dueDateColumn },
+            { key: "dueDate", label: t.tasks.dueDateColumn, sortable: true },
             { key: "", label: "", sortable: false },
           ].map(col => (
             <span
@@ -275,17 +223,9 @@ export function TasksCC({
                   ? undefined
                   : () => u.changeSort(col.key)
               }
+              className="text-2xs font-semibold uppercase tracking-caps text-text-tertiary flex items-center gap-1 cursor-pointer hover:text-text-secondary"
               style={{
-                fontSize: "var(--text-2xs)",
-                fontWeight: "var(--weight-semibold)",
-                textTransform: "uppercase",
-                letterSpacing: "var(--tracking-caps)",
-                color: "var(--text-tertiary)",
-                cursor:
-                  col.sortable === false || !col.key ? "default" : "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: 2,
+                cursor: col.sortable === false || !col.key ? "default" : "pointer",
               }}
             >
               {col.label}
@@ -300,14 +240,7 @@ export function TasksCC({
         </div>
 
         {tasks.length === 0 ? (
-          <div
-            style={{
-              padding: "var(--space-10)",
-              textAlign: "center",
-              color: "var(--text-tertiary)",
-              fontSize: "var(--text-sm)",
-            }}
-          >
+          <div className="p-10 text-center text-text-tertiary text-sm">
             {t.tasks.noResults}
           </div>
         ) : (
@@ -315,39 +248,17 @@ export function TasksCC({
             <div
               key={task.id}
               onClick={() => u.openEdit(task)}
+              className="grid gap-3 px-4 min-h-[52px] items-center border-b border-border-subtle hover:bg-bg-sunken/50 cursor-pointer"
               style={{
-                display: "grid",
                 gridTemplateColumns: "1fr 130px 90px 160px 110px 40px",
-                gap: "var(--space-3)",
-                padding: "0 var(--space-4)",
-                minHeight: "var(--row-height)",
-                alignItems: "center",
-                borderBottom: "1px solid var(--border-subtle)",
-                cursor: "pointer",
               }}
             >
-              <div style={{ minWidth: 0 }}>
-                <div
-                  style={{
-                    fontSize: "var(--text-sm)",
-                    fontWeight: "var(--weight-medium)",
-                    color: "var(--text-primary)",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                  }}
-                >
+              <div className="min-w-0">
+                <div className="text-sm font-medium text-text-primary truncate">
                   {task.title}
                 </div>
                 {task.labels.length > 0 && (
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: 4,
-                      marginTop: 4,
-                      flexWrap: "wrap",
-                    }}
-                  >
+                  <div className="flex gap-1 mt-1 flex-wrap">
                     {task.labels.map(l => (
                       <Tag key={l.id} color={l.color}>
                         {l.name}
@@ -361,14 +272,7 @@ export function TasksCC({
 
               <PriorityIcon priority={priorityToDisplay(task.priority)} />
 
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "var(--space-2)",
-                  minWidth: 0,
-                }}
-              >
+              <div className="flex items-center gap-2 min-w-0">
                 {task.assignedTo ? (
                   <>
                     <Avatar
@@ -376,36 +280,18 @@ export function TasksCC({
                       src={task.assignedTo.avatar ?? undefined}
                       size="sm"
                     />
-                    <span
-                      style={{
-                        fontSize: "var(--text-xs)",
-                        color: "var(--text-secondary)",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
+                    <span className="text-xs text-text-secondary truncate">
                       {task.assignedTo.name}
                     </span>
                   </>
                 ) : (
-                  <span
-                    style={{
-                      fontSize: "var(--text-xs)",
-                      color: "var(--text-tertiary)",
-                    }}
-                  >
+                  <span className="text-xs text-text-tertiary">
                     {t.tasks.unassigned}
                   </span>
                 )}
               </div>
 
-              <span
-                style={{
-                  fontSize: "var(--text-xs)",
-                  color: "var(--text-tertiary)",
-                }}
-              >
+              <span className="text-xs text-text-tertiary">
                 {formatDate(task.dueDate)}
               </span>
 
@@ -442,23 +328,11 @@ export function TasksCC({
 
       {/* ── Pagination ───────────────────────────────────────────────── */}
       {totalPages > 1 && (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginTop: "var(--space-4)",
-          }}
-        >
-          <span
-            style={{
-              fontSize: "var(--text-xs)",
-              color: "var(--text-tertiary)",
-            }}
-          >
+        <div className="flex items-center justify-between mt-4">
+          <span className="text-xs text-text-tertiary">
             {t.users.page} {page} {t.users.of} {totalPages}
           </span>
-          <div style={{ display: "flex", gap: "var(--space-2)" }}>
+          <div className="flex gap-2">
             <Button
               variant="secondary"
               size="sm"
@@ -499,29 +373,13 @@ export function TasksCC({
         onClose={u.closeDrawer}
         wide
         header={
-          <span
-            style={{
-              fontSize: "var(--text-sm)",
-              fontWeight: "var(--weight-semibold)",
-              color: "var(--text-primary)",
-            }}
-          >
+          <span className="text-sm font-semibold text-text-primary">
             {t.tasks.createTask}
           </span>
         }
         footer={
-          <div
-            style={{
-              display: "flex",
-              gap: "var(--space-2)",
-              marginLeft: "auto",
-            }}
-          >
-            <Button
-              variant="ghost"
-              onClick={u.closeDrawer}
-              disabled={u.isPending}
-            >
+          <div className="flex gap-2 ml-auto">
+            <Button variant="ghost" onClick={u.closeDrawer} disabled={u.isPending}>
               {t.common.cancel}
             </Button>
             <Button
@@ -534,19 +392,9 @@ export function TasksCC({
           </div>
         }
       >
-        <div
-          style={{
-            padding: "var(--space-4)",
-            display: "flex",
-            flexDirection: "column",
-            gap: "var(--space-4)",
-          }}
-        >
+        <div className="p-4 flex flex-col gap-4">
           {u.actionError && (
-            <div
-              className="auth-card__alert auth-card__alert--error"
-              role="alert"
-            >
+            <div className="rounded-md border border-red-500/30 bg-red-500/10 p-3 text-red-500 text-sm" role="alert">
               {u.actionError}
             </div>
           )}
@@ -574,13 +422,7 @@ export function TasksCC({
               />
             )}
           />
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: "var(--space-3)",
-            }}
-          >
+          <div className="grid grid-cols-2 gap-3">
             <Controller
               name="status"
               control={u.createForm.control}
@@ -659,24 +501,12 @@ export function TasksCC({
         onClose={u.closeDrawer}
         wide
         header={
-          <span
-            style={{
-              fontSize: "var(--text-sm)",
-              fontWeight: "var(--weight-semibold)",
-              color: "var(--text-primary)",
-            }}
-          >
+          <span className="text-sm font-semibold text-text-primary">
             {t.tasks.editTask}
           </span>
         }
         footer={
-          <div
-            style={{
-              display: "flex",
-              gap: "var(--space-2)",
-              marginLeft: "auto",
-            }}
-          >
+          <div className="flex gap-2 ml-auto">
             <Button
               variant="ghost"
               onClick={u.closeDrawer}
@@ -695,32 +525,15 @@ export function TasksCC({
           </div>
         }
       >
-        <div
-          style={{
-            padding: "var(--space-4)",
-            display: "flex",
-            flexDirection: "column",
-            gap: "var(--space-4)",
-          }}
-        >
+        <div className="p-4 flex flex-col gap-4">
           {u.actionError && (
-            <div
-              className="auth-card__alert auth-card__alert--error"
-              role="alert"
-            >
+            <div className="rounded-md border border-red-500/30 bg-red-500/10 p-3 text-red-500 text-sm" role="alert">
               {u.actionError}
             </div>
           )}
 
           {u.isLoadingDetail ? (
-            <div
-              style={{
-                padding: "var(--space-8)",
-                textAlign: "center",
-                color: "var(--text-tertiary)",
-                fontSize: "var(--text-sm)",
-              }}
-            >
+            <div className="p-8 text-center text-text-tertiary text-sm">
               {t.common.loading}
             </div>
           ) : (
@@ -747,13 +560,7 @@ export function TasksCC({
                   />
                 )}
               />
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: "var(--space-3)",
-                }}
-              >
+              <div className="grid grid-cols-2 gap-3">
                 <Controller
                   name="status"
                   control={u.editForm.control}
@@ -826,43 +633,19 @@ export function TasksCC({
 
               {/* ── Activity history ──────────────────────────────── */}
               <div>
-                <div
-                  style={{
-                    fontSize: "var(--text-xs)",
-                    fontWeight: "var(--weight-semibold)",
-                    color: "var(--text-tertiary)",
-                    textTransform: "uppercase",
-                    letterSpacing: "var(--tracking-caps)",
-                    marginBottom: "var(--space-2)",
-                  }}
-                >
+                <div className="text-2xs font-semibold uppercase tracking-caps text-text-tertiary mb-2">
                   {t.tasks.activity}
                 </div>
                 {!u.activeTask || u.activeTask.activity.length === 0 ? (
-                  <div
-                    style={{
-                      fontSize: "var(--text-sm)",
-                      color: "var(--text-tertiary)",
-                    }}
-                  >
+                  <div className="text-sm text-text-tertiary">
                     {t.tasks.noActivity}
                   </div>
                 ) : (
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "var(--space-3)",
-                    }}
-                  >
+                  <div className="flex flex-col gap-3">
                     {u.activeTask.activity.map(entry => (
                       <div
                         key={entry.id}
-                        style={{
-                          display: "flex",
-                          alignItems: "flex-start",
-                          gap: "var(--space-2)",
-                        }}
+                        className="flex items-start gap-2"
                       >
                         <Avatar
                           name={entry.performedBy.name}
@@ -870,21 +653,11 @@ export function TasksCC({
                           size="sm"
                         />
                         <div>
-                          <div
-                            style={{
-                              fontSize: "var(--text-sm)",
-                              color: "var(--text-primary)",
-                            }}
-                          >
+                          <div className="text-sm text-text-primary">
                             <strong>{entry.performedBy.name}</strong>{" "}
                             {activityLabel(t, entry.action)}
                           </div>
-                          <div
-                            style={{
-                              fontSize: "var(--text-2xs)",
-                              color: "var(--text-tertiary)",
-                            }}
-                          >
+                          <div className="text-2xs text-text-tertiary">
                             {new Date(entry.timestamp).toLocaleString()}
                           </div>
                         </div>
@@ -914,29 +687,16 @@ export function TasksCC({
         onClose={() => u.setLabelDialogOpen(false)}
         title={t.tasks.manageLabels}
       >
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "var(--space-4)",
-          }}
-        >
+        <div className="flex flex-col gap-4">
           {u.labelError && (
-            <div
-              className="auth-card__alert auth-card__alert--error"
-              role="alert"
-            >
+            <div className="rounded-md border border-red-500/30 bg-red-500/10 p-3 text-red-500 text-sm" role="alert">
               {u.labelError}
             </div>
           )}
 
           <form
             onSubmit={u.onCreateLabelSubmit}
-            style={{
-              display: "flex",
-              gap: "var(--space-2)",
-              alignItems: "flex-end",
-            }}
+            className="flex gap-2 items-end"
           >
             <Controller
               name="name"
@@ -946,7 +706,7 @@ export function TasksCC({
                   {...field}
                   label={t.tasks.labelName}
                   error={fieldState.error?.message}
-                  style={{ flex: 1 }}
+                  className="flex-1"
                 />
               )}
             />
@@ -959,7 +719,7 @@ export function TasksCC({
                   type="color"
                   label={t.tasks.labelColor}
                   error={fieldState.error?.message}
-                  style={{ width: 56, padding: 2 }}
+                  className="w-[56px] p-[2px]"
                 />
               )}
             />
@@ -968,34 +728,16 @@ export function TasksCC({
             </Button>
           </form>
 
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "var(--space-2)",
-            }}
-          >
+          <div className="flex flex-col gap-2">
             {labels.length === 0 ? (
-              <div
-                style={{
-                  fontSize: "var(--text-sm)",
-                  color: "var(--text-tertiary)",
-                }}
-              >
+              <div className="text-sm text-text-tertiary">
                 {t.tasks.noLabels}
               </div>
             ) : (
               labels.map(l => (
                 <div
                   key={l.id}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "var(--space-2)",
-                    border: "1px solid var(--border-subtle)",
-                    borderRadius: "var(--radius-control)",
-                  }}
+                  className="flex items-center justify-between p-2 border border-border-subtle rounded-[var(--radius-control)]"
                 >
                   <Tag color={l.color}>{l.name}</Tag>
                   <IconButton
@@ -1055,28 +797,15 @@ function LabelPicker({
 }) {
   return (
     <div>
-      <div
-        style={{
-          fontSize: "var(--text-xs)",
-          fontWeight: "var(--weight-semibold)",
-          color: "var(--text-tertiary)",
-          textTransform: "uppercase",
-          letterSpacing: "var(--tracking-caps)",
-          marginBottom: "var(--space-2)",
-        }}
-      >
+      <div className="text-2xs font-semibold uppercase tracking-caps text-text-tertiary mb-2">
         {title}
       </div>
       {labels.length === 0 ? (
-        <div
-          style={{ fontSize: "var(--text-sm)", color: "var(--text-tertiary)" }}
-        >
+        <div className="text-sm text-text-tertiary">
           {addLabel}
         </div>
       ) : (
-        <div
-          style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-2)" }}
-        >
+        <div className="flex flex-wrap gap-2">
           {labels.map(l => {
             const active = selected.includes(l.id);
             return (
@@ -1084,13 +813,8 @@ function LabelPicker({
                 key={l.id}
                 type="button"
                 onClick={() => onToggle(l.id)}
-                style={{
-                  background: "none",
-                  border: "none",
-                  padding: 0,
-                  cursor: "pointer",
-                  opacity: active ? 1 : 0.45,
-                }}
+                className="opacity-45 hover:opacity-100 transition-opacity"
+                style={{ opacity: active ? 1 : 0.45 }}
               >
                 <Tag color={l.color}>{l.name}</Tag>
               </button>
