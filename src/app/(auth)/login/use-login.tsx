@@ -13,6 +13,7 @@ export function useLogin() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
 
+  const [showPassword, setShowPassword] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [isPending, startTransition] = React.useTransition();
 
@@ -21,7 +22,7 @@ export function useLogin() {
     defaultValues: { email: "", password: "" },
   });
 
-  const onSubmit = form.handleSubmit((data) => {
+  const onSubmit = form.handleSubmit(data => {
     setError(null);
     startTransition(async () => {
       const result = await signIn("credentials", {
@@ -40,5 +41,10 @@ export function useLogin() {
     });
   });
 
-  return { form, onSubmit, error, isPending };
+  const passwordVisible = showPassword;
+  const alterVisibility = () => {
+    setShowPassword(prev => !prev);
+  };
+
+  return { form, onSubmit, error, isPending, passwordVisible, alterVisibility };
 }
