@@ -5,7 +5,7 @@ import { getTasks } from "@/features/tasks/queries";
 import { getAllActiveUsers } from "@/features/users/queries";
 import { getLabels } from "@/features/labels/queries";
 import { getUserPreferences } from "@/features/settings/queries";
-import { TasksCC } from "./tasks-cc";
+import { TasksCC } from "./components/client";
 import { SelectProvider } from "@/components/ui-kit/forms/common";
 import type { TaskStatus, TaskPriority } from "@/types/db";
 

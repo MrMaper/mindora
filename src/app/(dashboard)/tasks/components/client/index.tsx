@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useTasks } from "./use-tasks";
+import { useTasks } from "../hooks/use-tasks";
 import { getTranslations } from "@/i18n";
 import {
   getAllOptionsWithLabels,
@@ -12,15 +12,15 @@ import type { LabelRow } from "@/features/labels/types";
 import type { Language } from "@/types/db";
 
 // UI components
-import { PageHeader } from "./components/ui/page-header";
-import { SearchFilters } from "./components/ui/search-filters";
-import { GlobalError } from "./components/ui/global-error";
-import { TasksTable } from "./components/ui/tasks-table";
-import { Pagination } from "./components/ui/pagination";
-import { CreateTaskDrawer } from "./components/ui/create-task-drawer";
-import { EditTaskDrawer } from "./components/ui/edit-task-drawer";
-import { LabelManagementDialog } from "./components/ui/label-management-dialog";
-import { DeleteConfirmationDialog } from "./components/ui/delete-confirmation-dialog";
+import { PageHeader } from "../ui/page-header";
+import { SearchFilters } from "../ui/search-filters";
+import { GlobalError } from "../ui/global-error";
+import { TasksTable } from "../ui/tasks-table";
+import { Pagination } from "../ui/pagination";
+import { CreateTaskDrawer } from "../ui/create-task-drawer";
+import { EditTaskDrawer } from "../ui/edit-task-drawer";
+import { LabelManagementDialog } from "../ui/label-management-dialog";
+import { DeleteConfirmationDialog } from "../ui/delete-confirmation-dialog";
 import { GetTasksResult } from "@/features/tasks/types";
 
 interface TasksCCProps {
@@ -110,7 +110,9 @@ export function TasksCC({
         onSearchChange={u.setSearch}
         onSearchSubmit={u.onSearchSubmit}
         onFiltersChange={filter =>
-          u.applyFilters(filter as Partial<import("./use-tasks").TaskFilters>)
+          u.applyFilters(
+            filter as Partial<import("../hooks/use-tasks").TaskFilters>,
+          )
         }
         onClearFilters={() =>
           u.applyFilters({ search: "", status: "", priority: "", assignee: "" })
