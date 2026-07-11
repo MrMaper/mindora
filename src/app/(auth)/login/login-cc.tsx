@@ -1,14 +1,13 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { Controller } from "react-hook-form";
-import { Icon } from "@/components/ui-kit/foundation/icon";
 import { Input } from "@/components/ui-kit/forms/input";
 import { Button } from "@/components/ui-kit/forms/button";
 import { useLogin } from "./use-login";
 import { useAuthLanguage } from "../auth-language";
-import Image from "next/image";
 
 export function LoginCC() {
   const { form, onSubmit, error, isPending, passwordVisible, alterVisibility } =
