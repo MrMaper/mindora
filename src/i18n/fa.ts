@@ -125,7 +125,7 @@ export const fa = {
     totalTasks: "تسک",
     search: "جستجو تسک‌ها بر اساس عنوان",
     searchButton: "جستجو",
-    noResults: "هیچ تسک‌ای یافت نشد",
+    noResults: "هیچ تسکی یافت نشد",
     createTask: "ایجاد تسک",
     editTask: "ویرایش تسک",
     deleteTask: "حذف تسک",
@@ -224,7 +224,7 @@ export const fa = {
     allLabels: "همه برچسب‌ها",
     allPriorities: "همه اولویت‌ها",
     clearFilters: "پاک کردن فیلترها",
-    noTasks: "تسک‌ای نیست",
+    noTasks: "تسکی وجود ندارد",
   },
 
   // Settings Page
