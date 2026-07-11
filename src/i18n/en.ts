@@ -186,6 +186,7 @@ export const en = {
     story: "Story",
     bug: "Bug",
     epic: "Epic",
+    selectDate: "Select Date",
   },
 
   // Task Comments

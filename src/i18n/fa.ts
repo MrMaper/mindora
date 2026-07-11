@@ -92,7 +92,7 @@ export const fa = {
     email: "ایمیل",
     role: "نقش",
     status: "وضعیت",
-    createdAt: "ایجاد شده",
+    createdAt: "تاریخ ایجاد",
     admin: "مدیر",
     member: "عضو",
     active: "فعال",
@@ -186,6 +186,7 @@ export const fa = {
     story: "استوری",
     bug: "باگ",
     epic: "اپیک",
+    selectDate: "انتخاب تاریخ",
   },
 
   // Task Comments
