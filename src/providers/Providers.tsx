@@ -4,6 +4,8 @@ import * as React from "react";
 import { SessionProvider } from "next-auth/react";
 import { QueryProvider } from "./QueryProvider";
 import { Toaster } from "sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { peyda } from "@/lib/font";
 
 interface ProvidersProps {
@@ -37,8 +39,12 @@ export function Providers({ children }: ProvidersProps) {
 
   return (
     <SessionProvider>
-      <QueryProvider>{children}</QueryProvider>
-      <Toaster position={toastPosition} richColors style={peyda.style} />
+      <TooltipProvider>
+        <QueryProvider>
+          <ErrorBoundary>{children}</ErrorBoundary>
+        </QueryProvider>
+        <Toaster position={toastPosition} richColors style={peyda.style} />
+      </TooltipProvider>
     </SessionProvider>
   );
 }
