@@ -3,8 +3,6 @@ import { auth } from "@/auth";
 import { getUserPreferences } from "@/features/settings/queries";
 import { Providers } from "@/providers/Providers";
 import { peyda, geistMono } from "@/lib/font";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
 export const metadataBase = new URL("https://scrumflow.app");
@@ -98,11 +96,19 @@ export async function generateMetadata(): Promise<Metadata> {
 
     icons: {
       icon: [
-        { url: "/favicon.ico" },
-        { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-        { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+        { url: "/assets/favicon/favicon.ico" },
+        {
+          url: "/assets/favicon/favicon-32x32.png",
+          sizes: "32x32",
+          type: "image/png",
+        },
+        {
+          url: "/assets/favicon/favicon-16x16.png",
+          sizes: "16x16",
+          type: "image/png",
+        },
       ],
-      apple: "/apple-touch-icon.png",
+      apple: "/assets/favicon/apple-touch-icon.png",
     },
 
     manifest: "/site.webmanifest",
@@ -134,11 +140,7 @@ export default async function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        <TooltipProvider>
-          <Providers>
-            <ErrorBoundary>{children}</ErrorBoundary>
-          </Providers>
-        </TooltipProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
