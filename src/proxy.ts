@@ -1,12 +1,17 @@
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 
-const PUBLIC_PATHS = ["/login", "/forgot-password", "/reset-password"];
+const PUBLIC_PATHS = [
+  "/login",
+  "/forgot-password",
+  "/reset-password",
+  "/assets",
+];
 
-export default auth((req) => {
+export default auth(req => {
   const { pathname } = req.nextUrl;
   const isLoggedIn = !!req.auth;
-  const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
+  const isPublic = PUBLIC_PATHS.some(p => pathname.startsWith(p));
 
   if (!isLoggedIn && !isPublic) {
     const loginUrl = new URL("/login", req.nextUrl);

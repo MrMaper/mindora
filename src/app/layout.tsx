@@ -140,7 +140,7 @@ export default async function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        <Providers>{children}</Providers>
+        <Providers language={language}>{children}</Providers>
       </body>
     </html>
   );

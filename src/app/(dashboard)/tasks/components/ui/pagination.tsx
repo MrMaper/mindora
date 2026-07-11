@@ -2,10 +2,9 @@
 
 import * as React from "react";
 import { Button } from "@/components/ui-kit/forms/button";
-import type { Translations } from "@/i18n";
 
 export interface PaginationProps {
-  t: Translations["tasks"] & Translations["users"];
+  t: Record<string, any>;
   page: number;
   totalPages: number;
   filters: {
@@ -24,7 +23,7 @@ export function Pagination({ t, page, totalPages, filters }: PaginationProps) {
   return (
     <div className="flex items-center justify-between mt-4">
       <span className="text-xs text-text-tertiary">
-        {t.page} {page} {t.of} {totalPages}
+        {t.users.page} {page} {t.users.of} {totalPages}
       </span>
       <div className="flex gap-2">
         <Button
@@ -40,7 +39,7 @@ export function Pagination({ t, page, totalPages, filters }: PaginationProps) {
             window.location.href = `/tasks?${p.toString()}`;
           }}
         >
-          {t.previous}
+          {t.users.previous}
         </Button>
         <Button
           variant="secondary"
@@ -55,7 +54,7 @@ export function Pagination({ t, page, totalPages, filters }: PaginationProps) {
             window.location.href = `/tasks?${p.toString()}`;
           }}
         >
-          {t.next}
+          {t.users.next}
         </Button>
       </div>
     </div>

@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Icon } from "@/components/ui-kit/foundation/icon";
@@ -10,12 +8,12 @@ import { PriorityIcon } from "@/components/ui-kit/agile/priority-icon";
 import { Menu } from "@/components/ui-kit/overlays/menu";
 import { IconButton } from "@/components/ui-kit/forms/icon-button";
 import type { TaskRow } from "@/features/tasks/types";
-import type { Translations } from "@/i18n";
 import { statusToDisplay, priorityToDisplay } from "@/features/tasks/types";
 
 interface TasksTableProps {
   tasks: TaskRow[];
-  t: Translations["tasks"];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  t: Record<string, any>;
   filters: {
     sort: string;
     order: string;
@@ -38,11 +36,31 @@ export function TasksTable({
   formatDate,
 }: TasksTableProps) {
   const columns = [
-    { key: "title", label: t.taskColumn, sortable: true, width: "1fr" },
-    { key: "status", label: t.statusColumn, sortable: true, width: "130px" },
-    { key: "priority", label: t.priorityColumn, sortable: true, width: "90px" },
-    { key: "assignee", label: t.assigneeColumn, sortable: false, width: "160px" },
-    { key: "dueDate", label: t.dueDateColumn, sortable: true, width: "110px" },
+    { key: "title", label: t.tasks.taskColumn, sortable: true, width: "1fr" },
+    {
+      key: "status",
+      label: t.tasks.statusColumn,
+      sortable: true,
+      width: "130px",
+    },
+    {
+      key: "priority",
+      label: t.tasks.priorityColumn,
+      sortable: true,
+      width: "90px",
+    },
+    {
+      key: "assignee",
+      label: t.tasks.assigneeColumn,
+      sortable: false,
+      width: "160px",
+    },
+    {
+      key: "dueDate",
+      label: t.tasks.dueDateColumn,
+      sortable: true,
+      width: "110px",
+    },
     { key: "", label: "", sortable: false, width: "40px" },
   ];
 
@@ -52,7 +70,7 @@ export function TasksTable({
         className="grid gap-3 border-b border-border-subtle bg-bg-sunken px-4 h-9 items-center"
         style={{ gridTemplateColumns: "1fr 130px 90px 160px 110px 40px" }}
       >
-        {columns.map((col) => (
+        {columns.map(col => (
           <span
             key={col.key || "actions"}
             role={col.sortable === false ? undefined : "button"}
@@ -63,7 +81,7 @@ export function TasksTable({
             }
             className={cn(
               "text-2xs font-semibold uppercase tracking-caps text-text-tertiary flex items-center gap-1 cursor-pointer hover:text-text-secondary",
-              (col.sortable === false || !col.key) && "cursor-default"
+              (col.sortable === false || !col.key) && "cursor-default",
             )}
           >
             {col.label}
@@ -79,10 +97,10 @@ export function TasksTable({
 
       {tasks.length === 0 ? (
         <div className="p-10 text-center text-text-tertiary text-sm">
-          {t.noResults}
+          {t.tasks.noResults}
         </div>
       ) : (
-        tasks.map((task) => (
+        tasks.map(task => (
           <div
             key={task.id}
             onClick={() => onRowClick(task)}
@@ -95,7 +113,7 @@ export function TasksTable({
               </div>
               {task.labels.length > 0 && (
                 <div className="flex gap-1 mt-1 flex-wrap">
-                  {task.labels.map((l) => (
+                  {task.labels.map(l => (
                     <Tag key={l.id} color={l.color}>
                       {l.name}
                     </Tag>
@@ -121,7 +139,9 @@ export function TasksTable({
                   </span>
                 </>
               ) : (
-                <span className="text-xs text-text-tertiary">Unassigned</span>
+                <span className="text-xs text-text-tertiary">
+                  {t.tasks.unassigned}
+                </span>
               )}
             </div>
 
@@ -129,26 +149,25 @@ export function TasksTable({
               {formatDate(task.dueDate)}
             </span>
 
-            <span onClick={(e) => e.stopPropagation()}>
+            <span onClick={e => e.stopPropagation()}>
               <Menu
                 trigger={
-                  <button
-                    className="btn btn-ghost btn-sm"
-                    aria-label="Task actions"
-                  >
-                    <Icon name="more-horizontal" size={14} />
-                  </button>
+                  <IconButton
+                    icon="more-horizontal"
+                    aria-label={t.tasks.taskActionsLabel}
+                    size="sm"
+                  />
                 }
                 align="end"
                 items={[
                   {
-                    label: "Edit",
+                    label: t.common.edit,
                     icon: "pencil",
                     onClick: () => onEdit(task),
                   },
                   { divider: true },
                   {
-                    label: "Delete",
+                    label: t.common.delete,
                     icon: "trash",
                     danger: true,
                     onClick: () => onDelete(task),

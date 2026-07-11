@@ -1,107 +1,96 @@
 "use client";
 
 import * as React from "react";
-import { Controller } from "react-hook-form";
+import { Button } from "@/components/ui-kit/forms/button";
+import { Input } from "@/components/ui-kit/forms/input";
 import { Select } from "@/components/ui-kit/forms/select";
-import { getTranslations } from "@/i18n";
-import type { SelectOption } from "@/components/ui-kit/forms/select";
-import type { UserRow } from "@/features/users/types";
-import type { Translations } from "@/i18n";
 
-interface SearchFiltersProps {
-  filters: {
-    search: string;
-    status: string;
-    priority: string;
-    assignee: string;
-    sort: string;
-    order: string;
-  };
-  u: ReturnType<typeof import("./use-tasks").useTasks>;
-  t: Translations["tasks"];
-  users: import("@/features/users/types").UserRow[];
-  statusOptions: SelectOption[];
-  priorityOptions: SelectOption[];
-  typeOptions: SelectOption[];
-  onFiltersChange: (filters: Partial<SearchFiltersProps["filters"]>) => void;
-  onClearFilters: (filters: Partial<SearchFiltersProps["filters"]>) => void;
+interface TaskFilters {
+  search: string;
+  status: string;
+  priority: string;
+  assignee: string;
+  sort: string;
+  order: string;
+}
+
+export interface SearchFiltersProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  t: Record<string, any>;
+  filters: TaskFilters;
+  search: string;
+  statusOptions: { value: string; label: string }[];
+  priorityOptions: { value: string; label: string }[];
+  userOptions: { value: string; label: string }[];
+  onSearchChange: (value: string) => void;
+  onSearchSubmit: (e: React.FormEvent) => void;
+  onFiltersChange: (filter: Partial<TaskFilters>) => void;
+  onClearFilters: (filter?: Partial<TaskFilters>) => void;
+  hasActiveFilters: boolean;
 }
 
 export function SearchFilters({
-  filters,
-  u,
   t,
-  users,
+  filters,
+  search,
   statusOptions,
   priorityOptions,
-  typeOptions,
+  userOptions,
+  onSearchChange,
+  onSearchSubmit,
   onFiltersChange,
   onClearFilters,
+  hasActiveFilters,
 }: SearchFiltersProps) {
-  const userOptions = React.useMemo(
-    () => [
-      { value: "", label: t.unassigned },
-      ...users.map((usr) => ({ value: usr.id, label: usr.name })),
-    ],
-    [users, t.unassigned]
-  );
-
-  const hasActiveFilters = !!(
-    filters.status ||
-    filters.priority ||
-    filters.assignee ||
-    filters.search
-  );
-
   return (
     <div className="mb-4 flex flex-wrap gap-2 justify-between items-end">
       <div className="flex gap-2 items-center w-fit">
         <form
-          onSubmit={u.onSearchSubmit}
+          onSubmit={onSearchSubmit}
           className="flex gap-1 w-full max-w-60 items-end"
         >
-          <input
-            type="text"
+          <Input
+            label={t.searchButton}
             placeholder={t.search}
-            value={u.search}
-            onChange={(e) => u.setSearch(e.target.value)}
+            icon="search"
+            value={search}
+            onChange={e => onSearchChange(e.target.value)}
             className="w-full"
+            button={<Button variant="primary" size="sm" iconRight="search" />}
           />
-          <button type="submit" className="btn btn-primary btn-sm">
-            <Icon name="search" size={14} />
-          </button>
         </form>
 
-        <div className="max-w-40">
+        <div className="w-40">
           <Select
             label={t.status}
             value={filters.status}
-            onChange={(value) => onFiltersChange({ status: value })}
+            onChange={value => onFiltersChange({ ...filters, status: value })}
             options={statusOptions}
           />
         </div>
-        <Select
-          label={t.priority}
-          value={filters.priority}
-          onChange={(value) => onFiltersChange({ priority: value })}
-          options={priorityOptions}
-          className="w-40"
-        />
-        <Select
-          label={t.assignee}
-          value={filters.assignee}
-          onChange={(value) => onFiltersChange({ assignee: value })}
-          options={userOptions}
-          className="w-40"
-        />
+        <div className="w-40">
+          <Select
+            label={t.priority}
+            value={filters.priority}
+            onChange={value => onFiltersChange({ ...filters, priority: value })}
+            options={priorityOptions}
+          />
+        </div>
+        <div className="w-40">
+          <Select
+            label={t.assignee}
+            value={filters.assignee}
+            onChange={value => onFiltersChange({ ...filters, assignee: value })}
+            options={userOptions}
+          />
+        </div>
       </div>
 
       {hasActiveFilters && (
-        <button
-          type="button"
-          className="btn btn-ghost text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20"
+        <Button
+          variant="ghost"
+          icon="x"
           onClick={() => {
-            u.setSearch("");
             onClearFilters({
               search: "",
               status: "",
@@ -109,10 +98,10 @@ export function SearchFilters({
               assignee: "",
             });
           }}
+          className="text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20"
         >
-          <Icon name="x" size={14} />
           {t.clearFilters}
-        </button>
+        </Button>
       )}
     </div>
   );

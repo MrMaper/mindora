@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import { Controller } from "react-hook-form";
 import { Drawer } from "@/components/ui-kit/overlays/drawer";
@@ -7,29 +5,41 @@ import { Button } from "@/components/ui-kit/forms/button";
 import { Input } from "@/components/ui-kit/forms/input";
 import { Textarea } from "@/components/ui-kit/forms/textarea";
 import { Select } from "@/components/ui-kit/forms/select";
+import { DatePicker } from "@/components/ui-kit/forms/date-picker";
+import { LabelPicker } from "./label-picker";
 import type { SelectOption } from "@/components/ui-kit/forms/select";
 import type { UserRow } from "@/features/users/types";
-import type { Translations } from "@/i18n";
-import { LabelPicker } from "./label-picker";
 
 interface CreateTaskDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   form: {
     control: ReturnType<typeof import("react-hook-form").useForm>["control"];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     formState: { errors: Record<string, any> };
-    handleSubmit: (fn: (data: any) => void) => (e: React.BaseSyntheticEvent) => void;
-    isPending: boolean;
+    handleSubmit: (
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      fn: (data: any) => void,
+    ) => (e: React.BaseSyntheticEvent) => void;
+    isPending?: boolean;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    watch: (name: string) => any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    setValue: (name: string, value: any) => void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [key: string]: any;
   };
-  t: Translations["tasks"];
-  users: import("@/features/users/types").UserRow[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  t: Record<string, any>;
+  users: UserRow[];
   labels: import("@/features/labels/types").LabelRow[];
-  statusOptions: { value: string; label: string }[];
-  priorityOptions: { value: string; label: string }[];
-  typeOptions: { value: string; label: string }[];
+  statusOptions: SelectOption[];
+  priorityOptions: SelectOption[];
+  typeOptions: SelectOption[];
   userOptions: { value: string; label: string }[];
   selectedLabelIds: string[];
   onLabelToggle: (id: string) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSubmit: (data: any) => void;
   actionError: string | null;
   isPending: boolean;
@@ -40,7 +50,6 @@ export function CreateTaskDrawer({
   onClose,
   form,
   t,
-  users,
   labels,
   statusOptions,
   priorityOptions,
@@ -65,7 +74,7 @@ export function CreateTaskDrawer({
       footer={
         <div className="flex gap-2 ml-auto">
           <Button variant="ghost" onClick={onClose} disabled={isPending}>
-            {t.common.cancel}
+            {t.cancel}
           </Button>
           <Button
             variant="primary"
@@ -78,9 +87,16 @@ export function CreateTaskDrawer({
         </div>
       }
     >
-      <form id="create-task-form" onSubmit={form.handleSubmit(onSubmit)} className="p-4 flex flex-col gap-4">
+      <form
+        id="create-task-form"
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="py-4 flex flex-col gap-4"
+      >
         {actionError && (
-          <div className="rounded-md border border-red-500/30 bg-red-500/10 p-3 text-red-500 text-sm" role="alert">
+          <div
+            className="rounded-md border border-red-500/30 bg-red-500/10 p-3 text-red-500 text-sm"
+            role="alert"
+          >
             {actionError}
           </div>
         )}
@@ -109,45 +125,72 @@ export function CreateTaskDrawer({
           )}
         />
         <div className="grid grid-cols-2 gap-3">
-          <Select
-            label={t.status}
-            options={statusOptions}
-            value={form.watch("status")}
-            onChange={(value) => form.setValue("status", value)}
-            error={form.formState.errors.status?.message}
+          <Controller
+            name="status"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Select
+                {...field}
+                label={t.status}
+                options={statusOptions}
+                error={fieldState.error?.message}
+              />
+            )}
           />
-          <Select
-            label={t.priority}
-            options={priorityOptions}
-            value={form.watch("priority")}
-            onChange={(value) => form.setValue("priority", value)}
-            error={form.formState.errors.priority?.message}
+          <Controller
+            name="priority"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Select
+                {...field}
+                label={t.priority}
+                options={priorityOptions}
+                error={fieldState.error?.message}
+              />
+            )}
           />
-          <Select
-            label={t.type}
-            options={typeOptions}
-            value={form.watch.watch("type")}
-            onChange={(value) => form.setValue("type", value)}
-            error={form.formState.errors.type?.message}
+          <Controller
+            name="type"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Select
+                {...field}
+                label={t.type}
+                options={typeOptions}
+                error={fieldState.error?.message}
+              />
+            )}
           />
-          <Select
-            label={t.assignee}
-            options={userOptions}
-            value={form.watch("assignedToId")}
-            onChange={(value) => form.setValue("assignedToId", value)}
-            error={form.formState.errors.assignedToId?.message}
+          <Controller
+            name="assignedToId"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Select
+                {...field}
+                label={t.assignee}
+                options={userOptions}
+                error={fieldState.error?.message}
+              />
+            )}
           />
           <Controller
             name="dueDate"
             control={form.control}
-            render={({ field, fieldState }) => (
-              <Input
-                {...field}
-                type="date"
-                label={t.dueDate}
-                error={fieldState.error?.message}
-              />
-            )}
+            render={({ field, fieldState }) => {
+              const value = field.value ? new Date(field.value) : null;
+
+              return (
+                <DatePicker
+                  value={value}
+                  onChange={date => {
+                    field.onChange(date ? date.toISOString() : "");
+                  }}
+                  mode="single"
+                  label={t.dueDate}
+                  error={fieldState.error?.message}
+                />
+              );
+            }}
           />
         </div>
 

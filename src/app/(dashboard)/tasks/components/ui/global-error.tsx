@@ -1,11 +1,10 @@
 "use client";
 
 import * as React from "react";
-import type { UseTasksReturn } from "./use-tasks";
 
 export interface GlobalErrorProps {
   error: string | null;
-  drawerMode: UseTasksReturn["drawerMode"];
+  drawerMode: "none" | "create" | "edit";
 }
 
 export function GlobalError({ error, drawerMode }: GlobalErrorProps) {

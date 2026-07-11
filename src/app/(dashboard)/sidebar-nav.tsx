@@ -42,62 +42,62 @@ export function SidebarNav({
 
   return (
     <nav
-      className="flex-1 p-3 space-y-1 overflow-y-auto"
+      className="flex h-full flex-col p-3 overflow-hidden"
       aria-label={language === "FA" ? "منوی اصلی" : "Main navigation"}
     >
-      {navItems.map(item => {
-        const isActive =
-          pathname === item.href || pathname.startsWith(item.href + "/");
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={cn(
-              "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-              isActive
-                ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                : "text-muted-foreground hover:text-foreground hover:bg-accent",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-            )}
-            aria-current={isActive ? "page" : undefined}
-          >
-            <Icon name={item.icon} size={15} className="shrink-0" />
-            {item.label}
-            {item.badge != null && item.badge > 0 && (
-              <Badge tone={isActive ? "count" : "count"} className="ml-auto">
-                {item.badge > 99 ? "۹۹+" : item.badge}
-              </Badge>
-            )}
-          </Link>
-        );
-      })}
+      <div className="flex-1 overflow-y-auto space-y-1">
+        {navItems.map(item => {
+          const isActive =
+            pathname === item.href || pathname.startsWith(item.href + "/");
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                isActive
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              )}
+              aria-current={isActive ? "page" : undefined}
+            >
+              <Icon name={item.icon} size={15} className="shrink-0" />
+              {item.label}
+              {item.badge != null && item.badge > 0 && (
+                <Badge tone={isActive ? "count" : "count"} className="ml-auto">
+                  {item.badge > 99 ? "۹۹+" : item.badge}
+                </Badge>
+              )}
+            </Link>
+          );
+        })}
+      </div>
 
-      <div className="px-3 py-1 text-[10px] font-medium text-muted-foreground uppercase tracking-wider mt-4" />
+      <div className="pt-4 mt-auto">
+        <Link
+          href={settingsHref}
+          className={cn(
+            "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+            pathname === settingsHref || pathname.startsWith(settingsHref + "/")
+              ? "bg-primary text-primary-foreground hover:bg-primary/90"
+              : "text-muted-foreground hover:text-foreground hover:bg-accent",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          )}
+          aria-current={
+            pathname === settingsHref || pathname.startsWith(settingsHref + "/")
+              ? "page"
+              : undefined
+          }
+        >
+          <Icon name="settings" size={15} className="shrink-0" />
+          {settingsLabel}
+        </Link>
 
-      <Link
-        href={settingsHref}
-        className={cn(
-          "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-          pathname === settingsHref || pathname.startsWith(settingsHref + "/")
-            ? "bg-primary text-primary-foreground hover:bg-primary/90"
-            : "text-muted-foreground hover:text-foreground hover:bg-accent",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        )}
-        aria-current={
-          pathname === settingsHref || pathname.startsWith(settingsHref + "/")
-            ? "page"
-            : undefined
-        }
-      >
-        <Icon name="settings" size={15} className="shrink-0" />
-        {settingsLabel}
-      </Link>
-
-      <div className="border-t py-2 mt-2">
         <Link
           href={profileHref}
           className={cn(
-            "flex items-center gap-3 px-2 py-1.5 rounded-lg text-sm transition-colors",
+            "flex items-center gap-3 px-2 py-1.5 rounded-lg text-sm transition-colors mt-2",
             pathname === profileHref
               ? "bg-primary text-primary-foreground"
               : "hover:bg-accent",

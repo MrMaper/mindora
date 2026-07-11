@@ -7,9 +7,12 @@ import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { peyda } from "@/lib/font";
+import { I18nProvider } from "@/i18n/provider";
+import type { Language } from "@/types/db";
 
 interface ProvidersProps {
   children: React.ReactNode;
+  language: Language;
 }
 
 function useToastPosition() {
@@ -34,17 +37,19 @@ function useToastPosition() {
   return position;
 }
 
-export function Providers({ children }: ProvidersProps) {
+export function Providers({ children, language }: ProvidersProps) {
   const toastPosition = useToastPosition();
 
   return (
-    <SessionProvider>
-      <TooltipProvider>
-        <QueryProvider>
-          <ErrorBoundary>{children}</ErrorBoundary>
-        </QueryProvider>
-        <Toaster position={toastPosition} richColors style={peyda.style} />
-      </TooltipProvider>
-    </SessionProvider>
+    <I18nProvider language={language}>
+      <SessionProvider>
+        <TooltipProvider>
+          <QueryProvider>
+            <ErrorBoundary>{children}</ErrorBoundary>
+          </QueryProvider>
+          <Toaster position={toastPosition} richColors style={peyda.style} />
+        </TooltipProvider>
+      </SessionProvider>
+    </I18nProvider>
   );
 }

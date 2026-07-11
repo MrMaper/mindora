@@ -6,6 +6,7 @@ import { getAllActiveUsers } from "@/features/users/queries";
 import { getLabels } from "@/features/labels/queries";
 import { getUserPreferences } from "@/features/settings/queries";
 import { TasksCC } from "./tasks-cc";
+import { SelectProvider } from "@/components/ui-kit/forms/common";
 import type { TaskStatus, TaskPriority } from "@/types/db";
 
 export const metadata: Metadata = { title: "Tasks" };
@@ -56,14 +57,16 @@ export default async function TasksPage({
   const language = preferences?.language ?? "FA";
 
   return (
-    <TasksCC
-      initialData={data}
-      users={users}
-      labels={labels}
-      filters={{ search, status, priority, assignee, sort, order }}
-      page={Math.max(1, Number(page))}
-      language={language}
-      currentUserId={session.user.id}
-    />
+    <SelectProvider language={language}>
+      <TasksCC
+        initialData={data}
+        users={users}
+        labels={labels}
+        filters={{ search, status, priority, assignee, sort, order }}
+        page={Math.max(1, Number(page))}
+        language={language}
+        currentUserId={session.user.id}
+      />
+    </SelectProvider>
   );
 }

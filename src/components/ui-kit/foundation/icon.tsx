@@ -55,6 +55,8 @@ import {
   Mail,
   Archive,
   RotateCcw,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 
 export type IconName =
@@ -62,6 +64,8 @@ export type IconName =
   | "search"
   | "archive"
   | "bell"
+  | "eye"
+  | "eyeOff"
   | "settings"
   | "layout-dashboard"
   | "columns"
@@ -114,11 +118,16 @@ export type IconName =
   | "mail"
   | "rotate-ccw";
 
-const iconMap: Record<IconName, React.ComponentType<React.SVGAttributes<SVGSVGElement>>> = {
+const iconMap: Record<
+  IconName,
+  React.ComponentType<React.SVGAttributes<SVGSVGElement>>
+> = {
   home: Home,
   search: Search,
   archive: Archive,
   bell: Bell,
+  eye: Eye,
+  eyeOff: EyeOff,
   settings: Settings,
   "layout-dashboard": LayoutDashboard,
   columns: Columns,
@@ -172,7 +181,10 @@ const iconMap: Record<IconName, React.ComponentType<React.SVGAttributes<SVGSVGEl
   "rotate-ccw": RotateCcw,
 };
 
-export interface IconProps extends Omit<React.SVGAttributes<SVGSVGElement>, "width" | "height"> {
+export interface IconProps extends Omit<
+  React.SVGAttributes<SVGSVGElement>,
+  "width" | "height"
+> {
   name: IconName;
   size?: number;
   strokeWidth?: number;

@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import { Controller } from "react-hook-form";
 import { Dialog } from "@/components/ui-kit/overlays/dialog";
@@ -8,7 +6,6 @@ import { Input } from "@/components/ui-kit/forms/input";
 import { Tag } from "@/components/ui-kit/data-display/tag";
 import { IconButton } from "@/components/ui-kit/forms/icon-button";
 import type { LabelRow } from "@/features/labels/types";
-import type { Translations } from "@/i18n";
 
 interface LabelManagementDialogProps {
   isOpen: boolean;
@@ -16,10 +13,11 @@ interface LabelManagementDialogProps {
   form: {
     control: ReturnType<typeof import("react-hook-form").useForm>["control"];
     handleSubmit: (fn: (data: any) => void) => (e: React.BaseSyntheticEvent) => void;
-    isPending: boolean;
+    isPending?: boolean;
+    [key: string]: any;
   };
   labels: LabelRow[];
-  t: Translations["tasks"];
+  t: Record<string, any>;
   onCreateSubmit: (data: any) => void;
   onDeleteLabel: (id: string) => void;
   labelError: string | null;
@@ -90,15 +88,15 @@ export function LabelManagementDialog({
               {t.noLabels}
             </div>
           ) : (
-            labels.map((l) => (
+            labels.map(l => (
               <div
                 key={l.id}
                 className="flex items-center justify-between p-2 border border-border-subtle rounded-(--radius-control)"
               >
                 <Tag color={l.color}>{l.name}</Tag>
-                <IconButton
+<IconButton
                   icon="trash"
-                  aria-label={t.common.delete}
+                  aria-label={t.delete}
                   size="sm"
                   onClick={() => onDeleteLabel(l.id)}
                 />

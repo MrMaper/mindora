@@ -1,15 +1,12 @@
-"use client";
-
 import * as React from "react";
 import { Button } from "@/components/ui-kit/forms/button";
-import type { Translations } from "@/i18n";
-import type { UseTasksReturn } from "./use-tasks";
 
 export interface PageHeaderProps {
-  t: Translations["tasks"];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  t: Record<string, any>;
   total: number;
-  onLabelDialogOpen: UseTasksReturn["onLabelDialogOpen"];
-  onCreate: UseTasksReturn["openCreate"];
+  onLabelDialogOpen: () => void;
+  onCreate: () => void;
 }
 
 export function PageHeader({
@@ -21,9 +18,7 @@ export function PageHeader({
   return (
     <div className="flex items-center justify-between mb-5">
       <div>
-        <h1 className="text-xl font-semibold text-text-primary">
-          {t.title}
-        </h1>
+        <h1 className="text-xl font-semibold text-text-primary">{t.title}</h1>
         <p className="text-sm text-text-tertiary mt-0.5">
           {total} {t.totalTasks}
         </p>

@@ -23,7 +23,7 @@ export function LoginCC() {
     <div className="w-full max-w-90 bg-card border border-border rounded-xl shadow-md p-8">
       <div className="flex items-center justify-center gap-2 mb-6">
         <Image
-          src="/assets/images/logo-32.png"
+          src="/assets/images/logo-new.png"
           alt="sf-logo"
           width={32}
           height={32}

@@ -1,16 +1,13 @@
-"use client";
-
 import * as React from "react";
 import { Dialog } from "@/components/ui-kit/overlays/dialog";
 import { Button } from "@/components/ui-kit/forms/button";
-import type { Translations } from "@/i18n";
 import type { TaskRow } from "@/features/tasks/types";
 
 interface DeleteConfirmationDialogProps {
   isOpen: boolean;
   onClose: () => void;
   task: TaskRow | null;
-  t: Translations["tasks"];
+  t: Record<string, any>;
   onConfirm: () => void;
   isPending: boolean;
 }
@@ -36,7 +33,7 @@ export function DeleteConfirmationDialog({
             onClick={onClose}
             disabled={isPending}
           >
-            {t.common.cancel}
+            {t.cancel}
           </Button>
           <Button
             variant="danger"

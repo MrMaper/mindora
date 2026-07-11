@@ -30,7 +30,7 @@ export function LabelPicker({
         <div className="text-sm text-text-tertiary">{addLabel}</div>
       ) : (
         <div className="flex flex-wrap gap-2">
-          {labels.map((l) => {
+          {labels.map(l => {
             const active = selected.includes(l.id);
             return (
               <button

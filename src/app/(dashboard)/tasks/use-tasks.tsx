@@ -4,7 +4,11 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createTaskSchema, updateTaskSchema, createLabelSchema } from "@/schemas/tasks";
+import {
+  createTaskSchema,
+  updateTaskSchema,
+  createLabelSchema,
+} from "@/schemas/tasks";
 import {
   createTask,
   updateTask,
@@ -12,7 +16,11 @@ import {
   getTaskDetailAction,
 } from "@/features/tasks/actions";
 import { createLabel, deleteLabel } from "@/features/labels/actions";
-import type { CreateTaskInput, UpdateTaskInput, CreateLabelInput } from "@/schemas/tasks";
+import type {
+  CreateTaskInput,
+  UpdateTaskInput,
+  CreateLabelInput,
+} from "@/schemas/tasks";
 import type { TaskRow, TaskDetail } from "@/features/tasks/types";
 
 type DrawerMode = "none" | "create" | "edit";
@@ -22,7 +30,7 @@ function toDateInputValue(date: Date | null): string {
   return new Date(date).toISOString().slice(0, 10);
 }
 
-interface TaskFilters {
+export interface TaskFilters {
   search: string;
   status: string;
   priority: string;
@@ -131,11 +139,14 @@ export function useTasks(initialFilters: TaskFilters) {
 
   function toggleLabel(labelId: string) {
     setSelectedLabelIds(prev =>
-      prev.includes(labelId) ? prev.filter(id => id !== labelId) : [...prev, labelId]
+      prev.includes(labelId)
+        ? prev.filter(id => id !== labelId)
+        : [...prev, labelId],
     );
   }
 
   const onCreateSubmit = createForm.handleSubmit(data => {
+    console.log(data);
     setActionError(null);
     startTransition(async () => {
       const fd = new FormData();
@@ -185,7 +196,8 @@ export function useTasks(initialFilters: TaskFilters) {
     startTransition(async () => {
       const result = await deleteTask(deleteTarget.id);
       setDeleteTarget(null);
-      if (!result.success) setActionError(result.error ?? "Failed to delete task.");
+      if (!result.success)
+        setActionError(result.error ?? "Failed to delete task.");
       else {
         closeDrawer();
         router.refresh();
@@ -213,7 +225,9 @@ export function useTasks(initialFilters: TaskFilters) {
 
   function changeSort(field: string) {
     const nextOrder =
-      initialFilters.sort === field && initialFilters.order === "asc" ? "desc" : "asc";
+      initialFilters.sort === field && initialFilters.order === "asc"
+        ? "desc"
+        : "asc";
     applyFilters({ sort: field, order: nextOrder });
   }
 

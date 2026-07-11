@@ -102,3 +102,21 @@ export const TYPE_OPTIONS: { value: TaskType; labelKey: string }[] = [
   { value: "BUG", labelKey: "bug" },
   { value: "EPIC", labelKey: "epic" },
 ];
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function activityLabel(t: any, action: string): string {
+  switch (action) {
+    case "created":
+      return t.tasks.activityCreated;
+    case "status_changed":
+      return t.tasks.activityStatusChanged;
+    case "assigned":
+      return t.tasks.activityAssigned;
+    case "commented":
+      return t.tasks.activityCommented;
+    case "attachment_added":
+      return t.tasks.activityAttachment;
+    default:
+      return t.tasks.activityUpdated;
+  }
+}

@@ -1,17 +1,12 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { auth } from "@/auth";
 import { Icon } from "@/components/ui-kit/foundation/icon";
 import type { IconName } from "@/components/ui-kit/foundation/icon";
-import { Avatar } from "@/components/ui-kit/data-display/avatar";
-import { Badge } from "@/components/ui-kit/data-display/badge";
-import { SignOutButton } from "@/components/sign-out-button";
 import { getTranslations } from "@/i18n";
 import { getUserPreferences } from "@/features/settings/queries";
 import { getUnreadCount } from "@/features/notifications/queries";
 import { DirectionSync } from "@/components/DirectionSync";
 import { CommandPaletteWrapper } from "@/components/CommandPaletteWrapper";
-import { cn } from "@/lib/utils";
 import { SidebarNav } from "./sidebar-nav";
 
 interface NavItem {
@@ -76,7 +71,6 @@ export default async function DashboardLayout({
           userEmail={session.user.email ?? ""}
           userImage={session.user.image ?? undefined}
         />
-
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">

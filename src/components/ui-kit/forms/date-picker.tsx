@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useTranslation } from "@/i18n/provider";
 
 const PERSIAN_MONTHS = [
   "فروردین",
@@ -119,7 +120,7 @@ export function DatePicker({
   label,
   language = "FA",
   mode = "single",
-  placeholder = "Select date",
+  placeholder,
   required = false,
   value,
   onChange,
@@ -134,6 +135,9 @@ export function DatePicker({
 
   const isPersian = language === "FA";
   const dateLocale = isPersian ? faIR : enUS;
+
+  const t = useTranslation();
+
   const CalendarComponent = isPersian ? CalendarPersian : GregorianCalendar;
 
   const [localDate, setLocalDate] = React.useState<Date | null>(() => {
@@ -263,7 +267,7 @@ export function DatePicker({
             id={fieldId}
             type="text"
             readOnly
-            placeholder={placeholder}
+            placeholder={placeholder ?? t.tasks.selectDate}
             value={displayValue}
             className={cn(
               "cursor-pointer",
