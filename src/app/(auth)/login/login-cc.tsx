@@ -25,8 +25,8 @@ export function LoginCC() {
         <Image
           src="/assets/images/logo-new.png"
           alt="sf-logo"
-          width={32}
-          height={32}
+          width={24}
+          height={24}
         />
 
         {/* <span className="flex items-center justify-center size-7 bg-primary rounded-lg text-primary-foreground shrink-0">
