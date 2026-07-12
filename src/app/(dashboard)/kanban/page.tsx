@@ -4,7 +4,7 @@ import { auth } from "@/auth";
 import { getBoardColumns } from "@/features/kanban/queries";
 import { getAllActiveUsers } from "@/features/users/queries";
 import { getLabels } from "@/features/labels/queries";
-import { KanbanCC } from "./kanban-cc";
+import { KanbanCC } from "./components/client";
 import type { TaskPriority } from "@/types/db";
 
 export const metadata: Metadata = { title: "Board" };
@@ -24,7 +24,12 @@ export default async function KanbanPage({
   const session = await auth();
   if (!session?.user) redirect("/login");
 
-  const { search = "", assignee = "", label = "", priority = "" } = await searchParams;
+  const {
+    search = "",
+    assignee = "",
+    label = "",
+    priority = "",
+  } = await searchParams;
 
   const [columns, users, labels] = await Promise.all([
     getBoardColumns({

@@ -6,7 +6,7 @@ import { getTranslations } from "@/i18n";
 export async function generateMetadata(): Promise<Metadata> {
   const session = await auth();
   const prefs = await getUserPreferences(session?.user?.id ?? "");
-  const lang = prefs?.language ?? "EN";
+  const lang = prefs?.language ?? "FA";
   const isFa = lang === "FA";
 
   return {
@@ -18,7 +18,7 @@ export default async function DashboardPage() {
   const session = await auth();
 
   const preferences = await getUserPreferences(session?.user?.id ?? "");
-  const language = preferences?.language ?? "EN";
+  const language = preferences?.language ?? "FA";
   const t = getTranslations(language);
 
   return (
