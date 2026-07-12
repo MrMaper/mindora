@@ -49,7 +49,6 @@ interface EditTaskDrawerProps {
   actionError: string | null;
   isPending: boolean;
   currentUserId: string;
-  language: import("@/types/db").Language;
 }
 
 export function EditTaskDrawer({
@@ -71,7 +70,6 @@ export function EditTaskDrawer({
   actionError,
   isPending,
   currentUserId,
-  language,
 }: EditTaskDrawerProps) {
   return (
     <Drawer
@@ -259,7 +257,6 @@ export function EditTaskDrawer({
                 taskId={activeTask.id}
                 currentUserId={currentUserId}
                 users={users}
-                language={language}
               />
             )}
           </>

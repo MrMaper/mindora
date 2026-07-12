@@ -15,11 +15,10 @@ import { Select } from "@/components/ui-kit/forms/select";
 import { Textarea } from "@/components/ui-kit/forms/textarea";
 import { Tag } from "@/components/ui-kit/data-display/tag";
 import { KanbanCard } from "@/components/ui-kit/agile/kanban-card";
-import { STATUSES } from "@/components/ui-kit/agile/status-badge";
 import { Drawer } from "@/components/ui-kit/overlays/drawer";
 import { TaskComments } from "@/components/tasks/task-comments";
 import { useKanban } from "./use-kanban";
-import { getTranslations } from "@/i18n";
+import { useTranslation } from "@/i18n/provider";
 import {
   statusToDisplay,
   priorityToDisplay,
@@ -32,8 +31,6 @@ import type { BoardColumns, BoardStatus } from "@/features/kanban/types";
 import type { TaskRow } from "@/features/tasks/types";
 import type { UserRow } from "@/features/users/types";
 import type { LabelRow } from "@/features/labels/types";
-import type { Language } from "@/types/db";
-import type { Translations } from "@/i18n";
 
 interface KanbanCCProps {
   initialColumns: BoardColumns;
@@ -45,7 +42,6 @@ interface KanbanCCProps {
     label: string;
     priority: string;
   };
-  language: Language;
   currentUserId: string;
 }
 
@@ -65,7 +61,7 @@ function isOverdue(task: TaskRow): boolean {
   );
 }
 
-function activityLabel(t: Translations, action: string): string {
+function activityLabel(t: ReturnType<typeof useTranslation>, action: string): string {
   switch (action) {
     case "created":
       return t.tasks.activityCreated;
@@ -87,11 +83,10 @@ export function KanbanCC({
   users,
   labels,
   filters,
-  language,
   currentUserId,
 }: KanbanCCProps) {
   const k = useKanban(initialColumns, filters);
-  const t = getTranslations(language);
+  const t = useTranslation();
 
   const userOptions = [
     { value: "", label: t.tasks.unassigned },
@@ -236,7 +231,6 @@ export function KanbanCC({
               key={status}
               status={status}
               tasks={k.columns[status]}
-              t={t}
               selectedId={k.editingTaskId}
               onCardClick={k.openTask}
             />
@@ -534,7 +528,6 @@ export function KanbanCC({
                   taskId={k.activeTask.id}
                   currentUserId={currentUserId}
                   users={users}
-                  language={language}
                 />
               )}
             </>
@@ -548,17 +541,16 @@ export function KanbanCC({
 function BoardColumn({
   status,
   tasks,
-  t,
   selectedId,
   onCardClick,
 }: {
   status: BoardStatus;
   tasks: TaskRow[];
-  t: Translations;
   selectedId: string | null;
   onCardClick: (task: TaskRow) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: status });
+  const t = useTranslation();
   const display = statusToDisplay(status);
   const labelKey =
     STATUS_OPTIONS.find(o => o.value === status)?.labelKey ?? "backlog";

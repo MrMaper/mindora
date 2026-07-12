@@ -4,7 +4,6 @@ import { auth } from "@/auth";
 import { getBoardColumns } from "@/features/kanban/queries";
 import { getAllActiveUsers } from "@/features/users/queries";
 import { getLabels } from "@/features/labels/queries";
-import { getUserPreferences } from "@/features/settings/queries";
 import { KanbanCC } from "./kanban-cc";
 import type { TaskPriority } from "@/types/db";
 
@@ -27,7 +26,7 @@ export default async function KanbanPage({
 
   const { search = "", assignee = "", label = "", priority = "" } = await searchParams;
 
-  const [columns, users, labels, preferences] = await Promise.all([
+  const [columns, users, labels] = await Promise.all([
     getBoardColumns({
       search: search || undefined,
       assigneeId: assignee || undefined,
@@ -36,10 +35,7 @@ export default async function KanbanPage({
     }),
     getAllActiveUsers(),
     getLabels(),
-    getUserPreferences(session.user.id),
   ]);
-
-  const language = preferences?.language ?? "FA";
 
   return (
     <KanbanCC
@@ -47,7 +43,6 @@ export default async function KanbanPage({
       users={users}
       labels={labels}
       filters={{ search, assignee, label, priority }}
-      language={language}
       currentUserId={session.user.id}
     />
   );

@@ -9,26 +9,23 @@ import { Input } from "@/components/ui-kit/forms/input";
 import { getCommentsAction, createComment, updateComment, deleteComment } from "@/features/comments/actions";
 import { getAttachmentsAction, uploadAttachment, deleteAttachment } from "@/features/attachments/actions";
 import { EDIT_WINDOW_MS } from "@/features/comments/types";
-import { getTranslations } from "@/i18n";
+import { useTranslation } from "@/i18n/provider";
 import type { CommentRow } from "@/features/comments/types";
 import type { AttachmentRow } from "@/features/attachments/types";
 import type { UserRow } from "@/features/users/types";
-import type { Language } from "@/types/db";
 
 interface TaskCommentsProps {
   taskId: string;
   currentUserId: string;
   users: UserRow[];
-  language: Language;
 }
 
 export function TaskComments({
   taskId,
   currentUserId,
   users,
-  language,
 }: TaskCommentsProps) {
-  const t = getTranslations(language);
+  const t = useTranslation();
   const [comments, setComments] = React.useState<CommentRow[]>([]);
   const [attachments, setAttachments] = React.useState<AttachmentRow[]>([]);
   const [draft, setDraft] = React.useState("");
