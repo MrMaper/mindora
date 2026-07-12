@@ -56,7 +56,14 @@ export function SearchFilters({
             value={search}
             onChange={e => onSearchChange(e.target.value)}
             className="w-full"
-            button={<Button variant="primary" size="sm" iconRight="search" />}
+            button={
+              <Button
+                variant="primary"
+                size="sm"
+                iconRight="search"
+                onClick={onSearchSubmit}
+              />
+            }
           />
         </form>
 
