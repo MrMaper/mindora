@@ -9,8 +9,6 @@ import { getUserTeams } from "@/features/teams/queries";
 import { DirectionSync } from "@/components/DirectionSync";
 import { CommandPaletteWrapper } from "@/components/CommandPaletteWrapper";
 import { SidebarNav } from "./sidebar-nav";
-import type { TeamRow } from "@/features/teams/types";
-import { headers } from "next/headers";
 
 interface NavItem {
   label: string;
@@ -27,18 +25,13 @@ export default async function DashboardLayout({
   const session = await auth();
   if (!session?.user) redirect("/login");
 
-  const [preferences, unreadCount, userTeams] = await Promise.all([
+  const [preferences, unreadCount] = await Promise.all([
     getUserPreferences(session.user.id),
     getUnreadCount(session.user.id),
     getUserTeams(session.user.id),
   ]);
   const language = preferences?.language ?? "FA";
   const t = getTranslations(language);
-
-  const headerList = await headers();
-  const pathSegments = headerList.get("x-nextjs-pathname") ?? "";
-  const currentTeamId =
-    pathSegments.match(/\/teams\/([^\/]+)/)?.[1] ?? null;
 
   const NAV: NavItem[] = [
     { label: t.nav.dashboard, href: "/dashboard", icon: "layout-dashboard" },
@@ -79,9 +72,6 @@ export default async function DashboardLayout({
           userName={session.user.name ?? "User"}
           userEmail={session.user.email ?? ""}
           userImage={session.user.image ?? undefined}
-          teams={userTeams}
-          currentTeamId={currentTeamId}
-          onTeamChange={() => {}}
         />
       </aside>
 
