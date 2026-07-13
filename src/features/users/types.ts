@@ -8,6 +8,8 @@ export interface UserRow {
   role: UserRole;
   status: UserStatus;
   createdAt: Date;
+  teamId: string | null;
+  teamName: string | null;
 }
 
 export interface GetUsersResult {

@@ -62,20 +62,7 @@ async function seed() {
     update: {},
   });
 
-  // Create default team
-  const defaultTeam = await db.team.upsert({
-    where: { id: "default-team" },
-    create: {
-      id: "default-team",
-      organizationId: defaultOrg.id,
-      name: "Default Team",
-      description: "Default team for all users",
-    },
-    update: {},
-  });
-
   console.log(`  ✓ Default organization: ${defaultOrg.name}`);
-  console.log(`  ✓ Default team: ${defaultTeam.name}`);
 
   // Create default permissions
   const permissionKeys = [
@@ -165,34 +152,6 @@ async function seed() {
   console.log(
     `  ✓ Roles created: ${adminRole.name}, ${leadRole.name}, ${memberRole.name}`,
   );
-
-  // Get all users and assign to default team
-  const allUsers = await db.user.findMany({
-    where: { status: "ACTIVE" },
-    select: { id: true, role: true },
-  });
-
-  for (const user of allUsers) {
-    const isAdmin = user.role === "ADMIN";
-    const teamRole = isAdmin ? adminRole.id : memberRole.id;
-
-    await db.teamMember.upsert({
-      where: {
-        teamId_userId: {
-          teamId: defaultTeam.id,
-          userId: user.id,
-        },
-      },
-      create: {
-        teamId: defaultTeam.id,
-        userId: user.id,
-        roleId: teamRole,
-      },
-      update: {},
-    });
-  }
-
-  console.log(`  ✓ Assigned ${allUsers.length} users to default team`);
 
   const labelCount = await db.label.count();
   if (labelCount === 0) {

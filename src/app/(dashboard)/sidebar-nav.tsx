@@ -2,13 +2,15 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Icon } from "@/components/ui-kit/foundation/icon";
 import type { IconName } from "@/components/ui-kit/foundation/icon";
 import { Avatar } from "@/components/ui-kit/data-display/avatar";
 import { Badge } from "@/components/ui-kit/data-display/badge";
 import { SignOutButton } from "@/components/sign-out-button";
 import { cn } from "@/lib/utils";
+import { TeamSwitcher } from "@/components/teams/team-switcher";
+import type { TeamRow } from "@/features/teams/types";
 
 interface NavItem {
   label: string;
@@ -26,6 +28,9 @@ interface SidebarNavProps {
   userName: string;
   userEmail: string;
   userImage?: string;
+  teams: TeamRow[];
+  currentTeamId: string | null;
+  onTeamChange: (teamId: string) => void;
 }
 
 export function SidebarNav({
@@ -37,8 +42,19 @@ export function SidebarNav({
   userName,
   userEmail,
   userImage,
+  teams,
+  currentTeamId,
+  onTeamChange,
 }: SidebarNavProps) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleTeamChange = (teamId: string) => {
+    onTeamChange(teamId);
+    if (pathname.startsWith("/teams/") && pathname !== `/teams/${teamId}`) {
+      router.push(`/teams/${teamId}`);
+    }
+  };
 
   return (
     <nav

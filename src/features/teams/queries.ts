@@ -1,5 +1,5 @@
 import { prisma as db } from "@/lib/db";
-import type { GetTeamsResult, TeamRow, TeamDetail, TeamMemberRow } from "./types";
+import type { GetTeamsResult, TeamRow, TeamDetail, TeamMemberRow, RoleRow, AvailableUserRow } from "./types";
 
 const PAGE_SIZE = 20;
 
@@ -144,4 +144,45 @@ export async function getTeamMembers(
     roleName: m.role.name,
     joinedAt: m.createdAt,
   }));
+}
+
+export async function getAvailableRoles(): Promise<RoleRow[]> {
+  const roles = await db.role.findMany({
+    select: {
+      id: true,
+      name: true,
+      permissions: {
+        select: {
+          permission: { select: { key: true } },
+        },
+      },
+    },
+    orderBy: { name: "asc" },
+  });
+
+  return roles.map((r) => ({
+    id: r.id,
+    name: r.name,
+    permissions: r.permissions.map((p) => p.permission.key),
+  }));
+}
+
+export async function getAllUsersForInvite(teamId: string): Promise<AvailableUserRow[]> {
+  const existingMemberIds = await db.teamMember.findMany({
+    where: { teamId },
+    select: { userId: true },
+  });
+
+  const userIds = existingMemberIds.map((m) => m.userId);
+
+  const users = await db.user.findMany({
+    where: {
+      status: "ACTIVE",
+      id: { notIn: userIds },
+    },
+    select: { id: true, name: true, email: true, avatar: true },
+    orderBy: { name: "asc" },
+  });
+
+  return users;
 }

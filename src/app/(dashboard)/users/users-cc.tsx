@@ -22,9 +22,10 @@ interface UsersCCProps {
   search: string;
   page: number;
   language: Language;
+  teams: { id: string; name: string }[];
 }
 
-export function UsersCC({ initialData, search, page, language }: UsersCCProps) {
+export function UsersCC({ initialData, search, page, language, teams }: UsersCCProps) {
   const u = useUsers(search);
   const t = getTranslations(language);
   const { users, total, totalPages } = initialData;
@@ -110,7 +111,7 @@ export function UsersCC({ initialData, search, page, language }: UsersCCProps) {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "1fr 120px 100px 40px",
+            gridTemplateColumns: "1fr 120px 100px 120px 40px",
             gap: "var(--space-3)",
             padding: "0 var(--space-4)",
             height: 36,
@@ -119,7 +120,7 @@ export function UsersCC({ initialData, search, page, language }: UsersCCProps) {
             background: "var(--bg-sunken)",
           }}
         >
-          {[t.users.name, t.users.role, t.users.status, ""].map(h => (
+          {[t.users.name, t.users.role, t.users.status, t.users.team, ""].map(h => (
             <span
               key={h}
               style={{
@@ -153,7 +154,7 @@ export function UsersCC({ initialData, search, page, language }: UsersCCProps) {
               key={user.id}
               style={{
                 display: "grid",
-                gridTemplateColumns: "1fr 120px 100px 40px",
+                gridTemplateColumns: "1fr 120px 100px 120px 40px",
                 gap: "var(--space-3)",
                 padding: "0 var(--space-4)",
                 height: "var(--row-height)",
@@ -211,6 +212,16 @@ export function UsersCC({ initialData, search, page, language }: UsersCCProps) {
               <Badge tone={user.status === "ACTIVE" ? "success" : "neutral"}>
                 {user.status === "ACTIVE" ? t.users.active : t.users.inactive}
               </Badge>
+
+              {/* Team */}
+              <div
+                style={{
+                  fontSize: "var(--text-sm)",
+                  color: user.teamName ? "var(--text-secondary)" : "var(--text-tertiary)",
+                }}
+              >
+                {user.teamName ?? t.users.noTeam}
+              </div>
 
               {/* Actions */}
               <Menu
@@ -451,6 +462,21 @@ export function UsersCC({ initialData, search, page, language }: UsersCCProps) {
                   />
                 )}
               />
+              <Controller
+                name="teamId"
+                control={u.createForm.control}
+                render={({ field, fieldState }) => (
+                  <Select
+                    {...field}
+                    label={t.users.team}
+                    options={[
+                      { value: "", label: t.users.noTeam },
+                      ...teams.map(tm => ({ value: tm.id, label: tm.name })),
+                    ]}
+                    error={fieldState.error?.message}
+                  />
+                )}
+              />
             </>
           )}
         </div>
@@ -570,6 +596,21 @@ export function UsersCC({ initialData, search, page, language }: UsersCCProps) {
                 options={[
                   { value: "MEMBER", label: t.users.member },
                   { value: "ADMIN", label: t.users.admin },
+                ]}
+                error={fieldState.error?.message}
+              />
+            )}
+          />
+          <Controller
+            name="teamId"
+            control={u.editForm.control}
+            render={({ field, fieldState }) => (
+              <Select
+                {...field}
+                label={t.users.team}
+                options={[
+                  { value: "", label: t.users.noTeam },
+                  ...teams.map(tm => ({ value: tm.id, label: tm.name })),
                 ]}
                 error={fieldState.error?.message}
               />

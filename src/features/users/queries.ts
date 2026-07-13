@@ -28,6 +28,11 @@ export async function getUsers(
         role: true,
         status: true,
         createdAt: true,
+        teamMembers: {
+          select: {
+            team: { select: { id: true, name: true } },
+          },
+        },
       },
       orderBy: { createdAt: "desc" },
       skip,
@@ -37,7 +42,17 @@ export async function getUsers(
   ]);
 
   return {
-    users: users as UserRow[],
+    users: users.map((u) => ({
+      id: u.id,
+      name: u.name,
+      email: u.email,
+      avatar: u.avatar,
+      role: u.role,
+      status: u.status,
+      createdAt: u.createdAt,
+      teamId: u.teamMembers[0]?.team.id ?? null,
+      teamName: u.teamMembers[0]?.team.name ?? null,
+    })) as UserRow[],
     total,
     page,
     totalPages: Math.max(1, Math.ceil(total / PAGE_SIZE)),
@@ -55,10 +70,25 @@ export async function getAllActiveUsers(): Promise<UserRow[]> {
       role: true,
       status: true,
       createdAt: true,
+      teamMembers: {
+        select: {
+          team: { select: { id: true, name: true } },
+        },
+      },
     },
     orderBy: { name: "asc" },
   });
-  return users as UserRow[];
+  return users.map((u) => ({
+    id: u.id,
+    name: u.name,
+    email: u.email,
+    avatar: u.avatar,
+    role: u.role,
+    status: u.status,
+    createdAt: u.createdAt,
+    teamId: u.teamMembers[0]?.team.id ?? null,
+    teamName: u.teamMembers[0]?.team.name ?? null,
+  })) as UserRow[];
 }
 
 export async function getUserById(id: string): Promise<UserRow | null> {
@@ -72,7 +102,23 @@ export async function getUserById(id: string): Promise<UserRow | null> {
       role: true,
       status: true,
       createdAt: true,
+      teamMembers: {
+        select: {
+          team: { select: { id: true, name: true } },
+        },
+      },
     },
   });
-  return user as UserRow | null;
+  if (!user) return null;
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    avatar: user.avatar,
+    role: user.role,
+    status: user.status,
+    createdAt: user.createdAt,
+    teamId: user.teamMembers[0]?.team.id ?? null,
+    teamName: user.teamMembers[0]?.team.name ?? null,
+  } as UserRow;
 }

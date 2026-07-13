@@ -54,6 +54,14 @@ export async function createUser(formData: FormData): Promise<ActionResult> {
       role: parsed.data.role,
       password: hashed,
       status: "ACTIVE",
+      ...(parsed.data.teamId && {
+        teamMembers: {
+          create: {
+            teamId: parsed.data.teamId,
+            roleId: (await db.role.findUnique({ where: { name: "MEMBER" } }))!.id,
+          },
+        },
+      }),
     },
   });
 
@@ -95,7 +103,38 @@ export async function updateUser(
     }
   }
 
-  await db.user.update({ where: { id }, data: { name: parsed.data.name, role: parsed.data.role } });
+  // Handle team assignment
+  const existingMembership = await db.teamMember.findUnique({
+    where: { teamId_userId: { teamId: parsed.data.teamId ?? "", userId: id } },
+  });
+
+  if (parsed.data.teamId) {
+    const memberRole = await db.role.findUnique({ where: { name: "MEMBER" } });
+    if (existingMembership) {
+      // Update existing membership
+      await db.teamMember.update({
+        where: { id: existingMembership.id },
+        data: { teamId: parsed.data.teamId },
+      });
+    } else {
+      // Create new membership
+      await db.teamMember.create({
+        data: {
+          userId: id,
+          teamId: parsed.data.teamId,
+          roleId: memberRole!.id,
+        },
+      });
+    }
+  } else if (existingMembership) {
+    // Remove team membership if teamId is cleared
+    await db.teamMember.delete({ where: { id: existingMembership.id } });
+  }
+
+  await db.user.update({
+    where: { id },
+    data: { name: parsed.data.name, role: parsed.data.role },
+  });
   revalidatePath("/users");
   return { success: true };
 }

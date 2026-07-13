@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma as db } from "@/lib/db";
 import { createTeamSchema, updateTeamSchema, archiveTeamSchema, deleteTeamSchema } from "@/schemas/teams";
+import { inviteMemberSchema, updateMemberRoleSchema, removeMemberSchema } from "@/schemas/team-members";
 
 export interface ActionResult {
   success: boolean;
@@ -173,5 +174,156 @@ export async function deleteTeam(id: string): Promise<ActionResult> {
   await db.team.delete({ where: { id } });
 
   revalidatePath("/teams");
+  return { success: true };
+}
+
+// ─── Member: invite ──────────────────────────────────────────────────────────
+
+export async function inviteMember(
+  teamId: string,
+  formData: FormData
+): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user) return { success: false, error: "Unauthorized." };
+
+  const parsed = inviteMemberSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message };
+  }
+
+  // Check caller is admin or team lead
+  const caller = await db.teamMember.findUnique({
+    where: { teamId_userId: { teamId, userId: session.user.id } },
+    select: { role: { select: { name: true } } },
+  });
+  if (!caller || (caller.role.name !== "ADMINISTRATOR" && caller.role.name !== "TEAM_LEAD")) {
+    return { success: false, error: "You do not have permission to invite members." };
+  }
+
+  // Check user is not already a member
+  const existing = await db.teamMember.findUnique({
+    where: { teamId_userId: { teamId, userId: parsed.data.userId } },
+  });
+  if (existing) {
+    return { success: false, error: "User is already a member of this team." };
+  }
+
+  await db.teamMember.create({
+    data: {
+      teamId,
+      userId: parsed.data.userId,
+      roleId: parsed.data.roleId,
+    },
+  });
+
+  revalidatePath(`/teams/${teamId}`);
+  return { success: true };
+}
+
+// ─── Member: update role ─────────────────────────────────────────────────────
+
+export async function updateMemberRole(
+  memberId: string,
+  formData: FormData
+): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user) return { success: false, error: "Unauthorized." };
+
+  const parsed = updateMemberRoleSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message };
+  }
+
+  const member = await db.teamMember.findUnique({
+    where: { id: memberId },
+    select: {
+      teamId: true,
+      userId: true,
+      role: { select: { name: true } },
+    },
+  });
+  if (!member) return { success: false, error: "Member not found." };
+
+  // Caller must be ADMINISTRATOR to change roles
+  const caller = await db.teamMember.findUnique({
+    where: { teamId_userId: { teamId: member.teamId, userId: session.user.id } },
+    select: { role: { select: { name: true } } },
+  });
+  if (!caller || caller.role.name !== "ADMINISTRATOR") {
+    return { success: false, error: "Only administrators can change member roles." };
+  }
+
+  // Guard: prevent changing the last ADMINISTRATOR's role
+  if (member.role.name === "ADMINISTRATOR") {
+    const adminCount = await db.teamMember.count({
+      where: { teamId: member.teamId, role: { name: "ADMINISTRATOR" } },
+    });
+    if (adminCount <= 1) {
+      return { success: false, error: "Cannot change the role of the last administrator." };
+    }
+  }
+
+  await db.teamMember.update({
+    where: { id: memberId },
+    data: { roleId: parsed.data.roleId },
+  });
+
+  revalidatePath(`/teams/${member.teamId}`);
+  return { success: true };
+}
+
+// ─── Member: remove ──────────────────────────────────────────────────────────
+
+export async function removeMember(memberId: string): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user) return { success: false, error: "Unauthorized." };
+
+  const member = await db.teamMember.findUnique({
+    where: { id: memberId },
+    select: {
+      teamId: true,
+      userId: true,
+      role: { select: { name: true } },
+    },
+  });
+  if (!member) return { success: false, error: "Member not found." };
+
+  // Caller must be ADMINISTRATOR or TEAM_LEAD
+  const caller = await db.teamMember.findUnique({
+    where: { teamId_userId: { teamId: member.teamId, userId: session.user.id } },
+    select: { role: { select: { name: true } } },
+  });
+  if (!caller || (caller.role.name !== "ADMINISTRATOR" && caller.role.name !== "TEAM_LEAD")) {
+    return { success: false, error: "You do not have permission to remove members." };
+  }
+
+  // Guard: prevent removing the last ADMINISTRATOR
+  if (member.role.name === "ADMINISTRATOR") {
+    const adminCount = await db.teamMember.count({
+      where: { teamId: member.teamId, role: { name: "ADMINISTRATOR" } },
+    });
+    if (adminCount <= 1) {
+      return { success: false, error: "Cannot remove the last administrator." };
+    }
+  }
+
+  // Guard: prevent removing the last TEAM_LEAD
+  if (member.role.name === "TEAM_LEAD") {
+    const leadCount = await db.teamMember.count({
+      where: { teamId: member.teamId, role: { name: "TEAM_LEAD" } },
+    });
+    if (leadCount <= 1) {
+      return { success: false, error: "Cannot remove the last team lead." };
+    }
+  }
+
+  // Cannot remove yourself
+  if (member.userId === session.user.id) {
+    return { success: false, error: "You cannot remove yourself from the team." };
+  }
+
+  await db.teamMember.delete({ where: { id: memberId } });
+
+  revalidatePath(`/teams/${member.teamId}`);
   return { success: true };
 }

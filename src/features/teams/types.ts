@@ -45,3 +45,16 @@ export interface UpdateTeamInput {
   name: string;
   description?: string;
 }
+
+export interface RoleRow {
+  id: string;
+  name: string;
+  permissions: string[];
+}
+
+export interface AvailableUserRow {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string | null;
+}
