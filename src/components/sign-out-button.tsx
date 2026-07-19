@@ -9,8 +9,8 @@ export function SignOutButton() {
     <IconButton
       icon="log-out"
       aria-label="Sign out"
-      size="sm"
-      className="hover:text-red-500 hover:cursor-pointer"
+      size="md"
+      className="hover:text-red-500 hover:cursor-pointer font-semibold"
       onClick={() => signOut({ callbackUrl: "/login" })}
     />
   );

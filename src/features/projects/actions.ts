@@ -1,0 +1,264 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { auth } from "@/auth";
+import { prisma as db } from "@/lib/db";
+import { createProjectSchema, updateProjectSchema, archiveProjectSchema, deleteProjectSchema } from "@/schemas/projects";
+
+export interface ActionResult {
+  success: boolean;
+  error?: string;
+  data?: Record<string, unknown>;
+}
+
+async function requireAuth() {
+  const session = await auth();
+  if (!session?.user) return null;
+  return session;
+}
+
+async function requireProjectAdmin(projectId: string, userId: string) {
+  const membership = await db.projectMember.findUnique({
+    where: { projectId_userId: { projectId, userId } },
+    select: { role: true },
+  });
+  if (!membership || (membership.role !== "OWNER" && membership.role !== "ADMIN")) {
+    return false;
+  }
+  return true;
+}
+
+async function requireProjectOwner(projectId: string, userId: string) {
+  const membership = await db.projectMember.findUnique({
+    where: { projectId_userId: { projectId, userId } },
+    select: { role: true },
+  });
+  if (!membership || membership.role !== "OWNER") {
+    return false;
+  }
+  return true;
+}
+
+// ─── Create project ────────────────────────────────────────────────────────
+
+export async function createProject(formData: FormData): Promise<ActionResult> {
+  const session = await requireAuth();
+  if (!session) return { success: false, error: "Unauthorized." };
+
+  const parsed = createProjectSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message };
+  }
+
+  // Get default organization
+  const org = await db.organization.findFirst();
+  if (!org) return { success: false, error: "No organization found." };
+
+  const project = await db.project.create({
+    data: {
+      name: parsed.data.name,
+      description: parsed.data.description,
+      status: "ACTIVE",
+      members: {
+        create: {
+          userId: session.user.id,
+          role: "OWNER",
+        },
+      },
+      ...(parsed.data.teamId && { teamId: parsed.data.teamId }),
+    },
+  });
+
+  revalidatePath("/projects");
+  return { success: true, data: { projectId: project.id } };
+}
+
+// ─── Update project ────────────────────────────────────────────────────────
+
+export async function updateProject(
+  id: string,
+  formData: FormData
+): Promise<ActionResult> {
+  const session = await requireAuth();
+  if (!session) return { success: false, error: "Unauthorized." };
+
+  const isAdmin = await requireProjectAdmin(id, session.user.id);
+  if (!isAdmin) return { success: false, error: "Only project admins can update this project." };
+
+  const parsed = updateProjectSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message };
+  }
+
+  await db.project.update({
+    where: { id },
+    data: {
+      name: parsed.data.name,
+      description: parsed.data.description,
+      ...(parsed.data.status && { status: parsed.data.status }),
+    },
+  });
+
+  revalidatePath("/projects");
+  revalidatePath(`/projects/${id}`);
+  return { success: true };
+}
+
+// ─── Archive project ────────────────────────────────────────────────────────
+
+export async function archiveProject(id: string): Promise<ActionResult> {
+  const session = await requireAuth();
+  if (!session) return { success: false, error: "Unauthorized." };
+
+  const isAdmin = await requireProjectAdmin(id, session.user.id);
+  if (!isAdmin) return { success: false, error: "Only project admins can archive this project." };
+
+  const parsed = archiveProjectSchema.safeParse({ id });
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message };
+  }
+
+  await db.project.update({
+    where: { id },
+    data: { status: "ARCHIVED" },
+  });
+
+  revalidatePath("/projects");
+  revalidatePath(`/projects/${id}`);
+  return { success: true };
+}
+
+// ─── Delete project ────────────────────────────────────────────────────────
+
+export async function deleteProject(id: string): Promise<ActionResult> {
+  const session = await requireAuth();
+  if (!session) return { success: false, error: "Unauthorized." };
+
+  const isOwner = await requireProjectOwner(id, session.user.id);
+  if (!isOwner) return { success: false, error: "Only the project owner can delete this project." };
+
+  const parsed = deleteProjectSchema.safeParse({ id });
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message };
+  }
+
+  // Guard: check for active tasks
+  const activeTasks = await db.task.count({
+    where: { projectId: id, status: { not: "DONE" } },
+  });
+  if (activeTasks > 0) {
+    return { success: false, error: `Cannot delete project with ${activeTasks} active tasks.` };
+  }
+
+  await db.project.delete({ where: { id } });
+
+  revalidatePath("/projects");
+  return { success: true };
+}
+
+// ─── Member: invite ────────────────────────────────────────────────────────
+
+export async function inviteMember(
+  projectId: string,
+  formData: FormData
+): Promise<ActionResult> {
+  const session = await requireAuth();
+  if (!session) return { success: false, error: "Unauthorized." };
+
+  const isAdmin = await requireProjectAdmin(projectId, session.user.id);
+  if (!isAdmin) return { success: false, error: "You do not have permission to invite members." };
+
+  const { userId, role } = Object.fromEntries(formData) as { userId: string; role: string };
+
+  // Check user is not already a member
+  const existing = await db.projectMember.findUnique({
+    where: { projectId_userId: { projectId, userId } },
+  });
+  if (existing) {
+    return { success: false, error: "User is already a member of this project." };
+  }
+
+  await db.projectMember.create({
+    data: { projectId, userId, role: role as "OWNER" | "ADMIN" | "MEMBER" | "VIEWER" },
+  });
+
+  revalidatePath(`/projects/${projectId}`);
+  return { success: true };
+}
+
+// ─── Member: update role ───────────────────────────────────────────────────
+
+export async function updateMemberRole(
+  memberId: string,
+  formData: FormData
+): Promise<ActionResult> {
+  const session = await requireAuth();
+  if (!session) return { success: false, error: "Unauthorized." };
+
+  const { role } = Object.fromEntries(formData) as { role: string };
+
+  const member = await db.projectMember.findUnique({
+    where: { id: memberId },
+    select: { projectId: true, userId: true, role: true },
+  });
+  if (!member) return { success: false, error: "Member not found." };
+
+  // Only OWNER can change roles
+  const isOwner = await requireProjectOwner(member.projectId, session.user.id);
+  if (!isOwner) return { success: false, error: "Only the project owner can change member roles." };
+
+  // Guard: prevent changing the last OWNER's role
+  if (member.role === "OWNER") {
+    const ownerCount = await db.projectMember.count({
+      where: { projectId: member.projectId, role: "OWNER" },
+    });
+    if (ownerCount <= 1) {
+      return { success: false, error: "Cannot change the role of the last owner." };
+    }
+  }
+
+  await db.projectMember.update({
+    where: { id: memberId },
+    data: { role: role as "OWNER" | "ADMIN" | "MEMBER" | "VIEWER" },
+  });
+
+  revalidatePath(`/projects/${member.projectId}`);
+  return { success: true };
+}
+
+// ─── Member: remove ────────────────────────────────────────────────────────
+
+export async function removeMember(memberId: string): Promise<ActionResult> {
+  const session = await requireAuth();
+  if (!session) return { success: false, error: "Unauthorized." };
+
+  const member = await db.projectMember.findUnique({
+    where: { id: memberId },
+    select: { projectId: true, userId: true, role: true },
+  });
+  if (!member) return { success: false, error: "Member not found." };
+
+  // Caller must be ADMIN or OWNER
+  const isAdmin = await requireProjectAdmin(member.projectId, session.user.id);
+  if (!isAdmin) return { success: false, error: "You do not have permission to remove members." };
+
+  // Guard: prevent removing the last OWNER
+  if (member.role === "OWNER") {
+    const ownerCount = await db.projectMember.count({
+      where: { projectId: member.projectId, role: "OWNER" },
+    });
+    if (ownerCount <= 1) {
+      return { success: false, error: "Cannot remove the last owner." };
+    }
+  }
+
+  // Cannot remove yourself
+  if (member.userId === session.user.id) {
+    return { success: false, error: "You cannot remove yourself from the project." };
+  }
+
+  await db.projectMember.delete({ where: { id: memberId } });
+
+  revalidatePath(`/projects/${member.projectId}`);
+  return { success: true };
+}

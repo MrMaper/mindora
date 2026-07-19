@@ -22,7 +22,7 @@ async function seed() {
   const adminHashedPassword = await bcrypt.hash(adminPassword, 12);
   const superadminHashedPassword = await bcrypt.hash(superadminPassword, 12);
 
-  await db.user.upsert({
+  const adminUser = await db.user.upsert({
     where: { email: adminEmail },
     create: {
       name: "Admin",
@@ -76,6 +76,9 @@ async function seed() {
     "task:manage_all",
     "task:view",
     "report:view",
+    "project:manage",
+    "project:delete",
+    "project:member",
   ];
 
   const permissions = [];
@@ -88,7 +91,7 @@ async function seed() {
     permissions.push(perm);
   }
 
-  // Create default roles
+  // Create default team roles
   const adminRole = await db.role.upsert({
     where: { name: "ADMINISTRATOR" },
     create: { name: "ADMINISTRATOR" },
@@ -107,7 +110,7 @@ async function seed() {
     update: {},
   });
 
-  // Connect permissions to roles
+  // Connect permissions to team roles
   const allPermIds = permissions.map((p) => p.id);
   const leadPermIds = permissions
     .filter((p) => p.key !== "team:delete" && p.key !== "member:role")
@@ -153,6 +156,27 @@ async function seed() {
     `  ✓ Roles created: ${adminRole.name}, ${leadRole.name}, ${memberRole.name}`,
   );
 
+  // Create default project
+  const defaultProject = await db.project.upsert({
+    where: { id: "default-project" },
+    create: {
+      id: "default-project",
+      name: "Default Project",
+      description: "Default project for all users",
+      status: "ACTIVE",
+      members: {
+        create: {
+          userId: adminUser.id,
+          role: "OWNER",
+        },
+      },
+    },
+    update: {},
+  });
+
+  console.log(`  ✓ Default project: ${defaultProject.name}`);
+
+  // Create default labels
   const labelCount = await db.label.count();
   if (labelCount === 0) {
     await db.label.createMany({

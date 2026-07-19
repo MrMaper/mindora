@@ -83,6 +83,11 @@ export type TeamMember = Prisma.TeamMemberModel
  */
 export type Project = Prisma.ProjectModel
 /**
+ * Model ProjectMember
+ * 
+ */
+export type ProjectMember = Prisma.ProjectMemberModel
+/**
  * Model Sprint
  * 
  */

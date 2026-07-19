@@ -270,7 +270,7 @@ export type TaskGroupByOutputType = {
   projectId: string | null
   sprintId: string | null
   parentTaskId: string | null
-  teamId: string
+  teamId: string | null
   title: string
   description: string | null
   status: $Enums.TaskStatus
@@ -314,7 +314,7 @@ export type TaskWhereInput = {
   projectId?: Prisma.StringNullableFilter<"Task"> | string | null
   sprintId?: Prisma.StringNullableFilter<"Task"> | string | null
   parentTaskId?: Prisma.StringNullableFilter<"Task"> | string | null
-  teamId?: Prisma.StringFilter<"Task"> | string
+  teamId?: Prisma.StringNullableFilter<"Task"> | string | null
   title?: Prisma.StringFilter<"Task"> | string
   description?: Prisma.StringNullableFilter<"Task"> | string | null
   status?: Prisma.EnumTaskStatusFilter<"Task"> | $Enums.TaskStatus
@@ -338,7 +338,7 @@ export type TaskWhereInput = {
   subTasks?: Prisma.TaskListRelationFilter
   project?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
   sprint?: Prisma.XOR<Prisma.SprintNullableScalarRelationFilter, Prisma.SprintWhereInput> | null
-  team?: Prisma.XOR<Prisma.TeamScalarRelationFilter, Prisma.TeamWhereInput>
+  team?: Prisma.XOR<Prisma.TeamNullableScalarRelationFilter, Prisma.TeamWhereInput> | null
 }
 
 export type TaskOrderByWithRelationInput = {
@@ -346,7 +346,7 @@ export type TaskOrderByWithRelationInput = {
   projectId?: Prisma.SortOrderInput | Prisma.SortOrder
   sprintId?: Prisma.SortOrderInput | Prisma.SortOrder
   parentTaskId?: Prisma.SortOrderInput | Prisma.SortOrder
-  teamId?: Prisma.SortOrder
+  teamId?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -381,7 +381,7 @@ export type TaskWhereUniqueInput = Prisma.AtLeast<{
   projectId?: Prisma.StringNullableFilter<"Task"> | string | null
   sprintId?: Prisma.StringNullableFilter<"Task"> | string | null
   parentTaskId?: Prisma.StringNullableFilter<"Task"> | string | null
-  teamId?: Prisma.StringFilter<"Task"> | string
+  teamId?: Prisma.StringNullableFilter<"Task"> | string | null
   title?: Prisma.StringFilter<"Task"> | string
   description?: Prisma.StringNullableFilter<"Task"> | string | null
   status?: Prisma.EnumTaskStatusFilter<"Task"> | $Enums.TaskStatus
@@ -405,7 +405,7 @@ export type TaskWhereUniqueInput = Prisma.AtLeast<{
   subTasks?: Prisma.TaskListRelationFilter
   project?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
   sprint?: Prisma.XOR<Prisma.SprintNullableScalarRelationFilter, Prisma.SprintWhereInput> | null
-  team?: Prisma.XOR<Prisma.TeamScalarRelationFilter, Prisma.TeamWhereInput>
+  team?: Prisma.XOR<Prisma.TeamNullableScalarRelationFilter, Prisma.TeamWhereInput> | null
 }, "id">
 
 export type TaskOrderByWithAggregationInput = {
@@ -413,7 +413,7 @@ export type TaskOrderByWithAggregationInput = {
   projectId?: Prisma.SortOrderInput | Prisma.SortOrder
   sprintId?: Prisma.SortOrderInput | Prisma.SortOrder
   parentTaskId?: Prisma.SortOrderInput | Prisma.SortOrder
-  teamId?: Prisma.SortOrder
+  teamId?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -442,7 +442,7 @@ export type TaskScalarWhereWithAggregatesInput = {
   projectId?: Prisma.StringNullableWithAggregatesFilter<"Task"> | string | null
   sprintId?: Prisma.StringNullableWithAggregatesFilter<"Task"> | string | null
   parentTaskId?: Prisma.StringNullableWithAggregatesFilter<"Task"> | string | null
-  teamId?: Prisma.StringWithAggregatesFilter<"Task"> | string
+  teamId?: Prisma.StringNullableWithAggregatesFilter<"Task"> | string | null
   title?: Prisma.StringWithAggregatesFilter<"Task"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"Task"> | string | null
   status?: Prisma.EnumTaskStatusWithAggregatesFilter<"Task"> | $Enums.TaskStatus
@@ -481,7 +481,7 @@ export type TaskCreateInput = {
   subTasks?: Prisma.TaskCreateNestedManyWithoutParentInput
   project?: Prisma.ProjectCreateNestedOneWithoutTasksInput
   sprint?: Prisma.SprintCreateNestedOneWithoutTasksInput
-  team: Prisma.TeamCreateNestedOneWithoutTasksInput
+  team?: Prisma.TeamCreateNestedOneWithoutTasksInput
 }
 
 export type TaskUncheckedCreateInput = {
@@ -489,7 +489,7 @@ export type TaskUncheckedCreateInput = {
   projectId?: string | null
   sprintId?: string | null
   parentTaskId?: string | null
-  teamId: string
+  teamId?: string | null
   title: string
   description?: string | null
   status?: $Enums.TaskStatus
@@ -533,7 +533,7 @@ export type TaskUpdateInput = {
   subTasks?: Prisma.TaskUpdateManyWithoutParentNestedInput
   project?: Prisma.ProjectUpdateOneWithoutTasksNestedInput
   sprint?: Prisma.SprintUpdateOneWithoutTasksNestedInput
-  team?: Prisma.TeamUpdateOneRequiredWithoutTasksNestedInput
+  team?: Prisma.TeamUpdateOneWithoutTasksNestedInput
 }
 
 export type TaskUncheckedUpdateInput = {
@@ -541,7 +541,7 @@ export type TaskUncheckedUpdateInput = {
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sprintId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentTaskId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  teamId?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
@@ -567,7 +567,7 @@ export type TaskCreateManyInput = {
   projectId?: string | null
   sprintId?: string | null
   parentTaskId?: string | null
-  teamId: string
+  teamId?: string | null
   title: string
   description?: string | null
   status?: $Enums.TaskStatus
@@ -603,7 +603,7 @@ export type TaskUncheckedUpdateManyInput = {
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sprintId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentTaskId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  teamId?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
@@ -1080,7 +1080,7 @@ export type TaskCreateWithoutAssignedToInput = {
   subTasks?: Prisma.TaskCreateNestedManyWithoutParentInput
   project?: Prisma.ProjectCreateNestedOneWithoutTasksInput
   sprint?: Prisma.SprintCreateNestedOneWithoutTasksInput
-  team: Prisma.TeamCreateNestedOneWithoutTasksInput
+  team?: Prisma.TeamCreateNestedOneWithoutTasksInput
 }
 
 export type TaskUncheckedCreateWithoutAssignedToInput = {
@@ -1088,7 +1088,7 @@ export type TaskUncheckedCreateWithoutAssignedToInput = {
   projectId?: string | null
   sprintId?: string | null
   parentTaskId?: string | null
-  teamId: string
+  teamId?: string | null
   title: string
   description?: string | null
   status?: $Enums.TaskStatus
@@ -1140,7 +1140,7 @@ export type TaskCreateWithoutCreatedByInput = {
   subTasks?: Prisma.TaskCreateNestedManyWithoutParentInput
   project?: Prisma.ProjectCreateNestedOneWithoutTasksInput
   sprint?: Prisma.SprintCreateNestedOneWithoutTasksInput
-  team: Prisma.TeamCreateNestedOneWithoutTasksInput
+  team?: Prisma.TeamCreateNestedOneWithoutTasksInput
 }
 
 export type TaskUncheckedCreateWithoutCreatedByInput = {
@@ -1148,7 +1148,7 @@ export type TaskUncheckedCreateWithoutCreatedByInput = {
   projectId?: string | null
   sprintId?: string | null
   parentTaskId?: string | null
-  teamId: string
+  teamId?: string | null
   title: string
   description?: string | null
   status?: $Enums.TaskStatus
@@ -1202,7 +1202,7 @@ export type TaskScalarWhereInput = {
   projectId?: Prisma.StringNullableFilter<"Task"> | string | null
   sprintId?: Prisma.StringNullableFilter<"Task"> | string | null
   parentTaskId?: Prisma.StringNullableFilter<"Task"> | string | null
-  teamId?: Prisma.StringFilter<"Task"> | string
+  teamId?: Prisma.StringNullableFilter<"Task"> | string | null
   title?: Prisma.StringFilter<"Task"> | string
   description?: Prisma.StringNullableFilter<"Task"> | string | null
   status?: Prisma.EnumTaskStatusFilter<"Task"> | $Enums.TaskStatus
@@ -1332,14 +1332,14 @@ export type TaskCreateWithoutProjectInput = {
   parent?: Prisma.TaskCreateNestedOneWithoutSubTasksInput
   subTasks?: Prisma.TaskCreateNestedManyWithoutParentInput
   sprint?: Prisma.SprintCreateNestedOneWithoutTasksInput
-  team: Prisma.TeamCreateNestedOneWithoutTasksInput
+  team?: Prisma.TeamCreateNestedOneWithoutTasksInput
 }
 
 export type TaskUncheckedCreateWithoutProjectInput = {
   id?: string
   sprintId?: string | null
   parentTaskId?: string | null
-  teamId: string
+  teamId?: string | null
   title: string
   description?: string | null
   status?: $Enums.TaskStatus
@@ -1408,14 +1408,14 @@ export type TaskCreateWithoutSprintInput = {
   parent?: Prisma.TaskCreateNestedOneWithoutSubTasksInput
   subTasks?: Prisma.TaskCreateNestedManyWithoutParentInput
   project?: Prisma.ProjectCreateNestedOneWithoutTasksInput
-  team: Prisma.TeamCreateNestedOneWithoutTasksInput
+  team?: Prisma.TeamCreateNestedOneWithoutTasksInput
 }
 
 export type TaskUncheckedCreateWithoutSprintInput = {
   id?: string
   projectId?: string | null
   parentTaskId?: string | null
-  teamId: string
+  teamId?: string | null
   title: string
   description?: string | null
   status?: $Enums.TaskStatus
@@ -1484,7 +1484,7 @@ export type TaskCreateWithoutSubTasksInput = {
   parent?: Prisma.TaskCreateNestedOneWithoutSubTasksInput
   project?: Prisma.ProjectCreateNestedOneWithoutTasksInput
   sprint?: Prisma.SprintCreateNestedOneWithoutTasksInput
-  team: Prisma.TeamCreateNestedOneWithoutTasksInput
+  team?: Prisma.TeamCreateNestedOneWithoutTasksInput
 }
 
 export type TaskUncheckedCreateWithoutSubTasksInput = {
@@ -1492,7 +1492,7 @@ export type TaskUncheckedCreateWithoutSubTasksInput = {
   projectId?: string | null
   sprintId?: string | null
   parentTaskId?: string | null
-  teamId: string
+  teamId?: string | null
   title: string
   description?: string | null
   status?: $Enums.TaskStatus
@@ -1539,14 +1539,14 @@ export type TaskCreateWithoutParentInput = {
   subTasks?: Prisma.TaskCreateNestedManyWithoutParentInput
   project?: Prisma.ProjectCreateNestedOneWithoutTasksInput
   sprint?: Prisma.SprintCreateNestedOneWithoutTasksInput
-  team: Prisma.TeamCreateNestedOneWithoutTasksInput
+  team?: Prisma.TeamCreateNestedOneWithoutTasksInput
 }
 
 export type TaskUncheckedCreateWithoutParentInput = {
   id?: string
   projectId?: string | null
   sprintId?: string | null
-  teamId: string
+  teamId?: string | null
   title: string
   description?: string | null
   status?: $Enums.TaskStatus
@@ -1610,7 +1610,7 @@ export type TaskUpdateWithoutSubTasksInput = {
   parent?: Prisma.TaskUpdateOneWithoutSubTasksNestedInput
   project?: Prisma.ProjectUpdateOneWithoutTasksNestedInput
   sprint?: Prisma.SprintUpdateOneWithoutTasksNestedInput
-  team?: Prisma.TeamUpdateOneRequiredWithoutTasksNestedInput
+  team?: Prisma.TeamUpdateOneWithoutTasksNestedInput
 }
 
 export type TaskUncheckedUpdateWithoutSubTasksInput = {
@@ -1618,7 +1618,7 @@ export type TaskUncheckedUpdateWithoutSubTasksInput = {
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sprintId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentTaskId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  teamId?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
@@ -1676,7 +1676,7 @@ export type TaskCreateWithoutLabelsInput = {
   subTasks?: Prisma.TaskCreateNestedManyWithoutParentInput
   project?: Prisma.ProjectCreateNestedOneWithoutTasksInput
   sprint?: Prisma.SprintCreateNestedOneWithoutTasksInput
-  team: Prisma.TeamCreateNestedOneWithoutTasksInput
+  team?: Prisma.TeamCreateNestedOneWithoutTasksInput
 }
 
 export type TaskUncheckedCreateWithoutLabelsInput = {
@@ -1684,7 +1684,7 @@ export type TaskUncheckedCreateWithoutLabelsInput = {
   projectId?: string | null
   sprintId?: string | null
   parentTaskId?: string | null
-  teamId: string
+  teamId?: string | null
   title: string
   description?: string | null
   status?: $Enums.TaskStatus
@@ -1742,7 +1742,7 @@ export type TaskUpdateWithoutLabelsInput = {
   subTasks?: Prisma.TaskUpdateManyWithoutParentNestedInput
   project?: Prisma.ProjectUpdateOneWithoutTasksNestedInput
   sprint?: Prisma.SprintUpdateOneWithoutTasksNestedInput
-  team?: Prisma.TeamUpdateOneRequiredWithoutTasksNestedInput
+  team?: Prisma.TeamUpdateOneWithoutTasksNestedInput
 }
 
 export type TaskUncheckedUpdateWithoutLabelsInput = {
@@ -1750,7 +1750,7 @@ export type TaskUncheckedUpdateWithoutLabelsInput = {
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sprintId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentTaskId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  teamId?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
@@ -1792,7 +1792,7 @@ export type TaskCreateWithoutCommentsInput = {
   subTasks?: Prisma.TaskCreateNestedManyWithoutParentInput
   project?: Prisma.ProjectCreateNestedOneWithoutTasksInput
   sprint?: Prisma.SprintCreateNestedOneWithoutTasksInput
-  team: Prisma.TeamCreateNestedOneWithoutTasksInput
+  team?: Prisma.TeamCreateNestedOneWithoutTasksInput
 }
 
 export type TaskUncheckedCreateWithoutCommentsInput = {
@@ -1800,7 +1800,7 @@ export type TaskUncheckedCreateWithoutCommentsInput = {
   projectId?: string | null
   sprintId?: string | null
   parentTaskId?: string | null
-  teamId: string
+  teamId?: string | null
   title: string
   description?: string | null
   status?: $Enums.TaskStatus
@@ -1858,7 +1858,7 @@ export type TaskUpdateWithoutCommentsInput = {
   subTasks?: Prisma.TaskUpdateManyWithoutParentNestedInput
   project?: Prisma.ProjectUpdateOneWithoutTasksNestedInput
   sprint?: Prisma.SprintUpdateOneWithoutTasksNestedInput
-  team?: Prisma.TeamUpdateOneRequiredWithoutTasksNestedInput
+  team?: Prisma.TeamUpdateOneWithoutTasksNestedInput
 }
 
 export type TaskUncheckedUpdateWithoutCommentsInput = {
@@ -1866,7 +1866,7 @@ export type TaskUncheckedUpdateWithoutCommentsInput = {
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sprintId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentTaskId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  teamId?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
@@ -1908,7 +1908,7 @@ export type TaskCreateWithoutAttachmentsInput = {
   subTasks?: Prisma.TaskCreateNestedManyWithoutParentInput
   project?: Prisma.ProjectCreateNestedOneWithoutTasksInput
   sprint?: Prisma.SprintCreateNestedOneWithoutTasksInput
-  team: Prisma.TeamCreateNestedOneWithoutTasksInput
+  team?: Prisma.TeamCreateNestedOneWithoutTasksInput
 }
 
 export type TaskUncheckedCreateWithoutAttachmentsInput = {
@@ -1916,7 +1916,7 @@ export type TaskUncheckedCreateWithoutAttachmentsInput = {
   projectId?: string | null
   sprintId?: string | null
   parentTaskId?: string | null
-  teamId: string
+  teamId?: string | null
   title: string
   description?: string | null
   status?: $Enums.TaskStatus
@@ -1974,7 +1974,7 @@ export type TaskUpdateWithoutAttachmentsInput = {
   subTasks?: Prisma.TaskUpdateManyWithoutParentNestedInput
   project?: Prisma.ProjectUpdateOneWithoutTasksNestedInput
   sprint?: Prisma.SprintUpdateOneWithoutTasksNestedInput
-  team?: Prisma.TeamUpdateOneRequiredWithoutTasksNestedInput
+  team?: Prisma.TeamUpdateOneWithoutTasksNestedInput
 }
 
 export type TaskUncheckedUpdateWithoutAttachmentsInput = {
@@ -1982,7 +1982,7 @@ export type TaskUncheckedUpdateWithoutAttachmentsInput = {
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sprintId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentTaskId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  teamId?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
@@ -2024,7 +2024,7 @@ export type TaskCreateWithoutChecklistsInput = {
   subTasks?: Prisma.TaskCreateNestedManyWithoutParentInput
   project?: Prisma.ProjectCreateNestedOneWithoutTasksInput
   sprint?: Prisma.SprintCreateNestedOneWithoutTasksInput
-  team: Prisma.TeamCreateNestedOneWithoutTasksInput
+  team?: Prisma.TeamCreateNestedOneWithoutTasksInput
 }
 
 export type TaskUncheckedCreateWithoutChecklistsInput = {
@@ -2032,7 +2032,7 @@ export type TaskUncheckedCreateWithoutChecklistsInput = {
   projectId?: string | null
   sprintId?: string | null
   parentTaskId?: string | null
-  teamId: string
+  teamId?: string | null
   title: string
   description?: string | null
   status?: $Enums.TaskStatus
@@ -2090,7 +2090,7 @@ export type TaskUpdateWithoutChecklistsInput = {
   subTasks?: Prisma.TaskUpdateManyWithoutParentNestedInput
   project?: Prisma.ProjectUpdateOneWithoutTasksNestedInput
   sprint?: Prisma.SprintUpdateOneWithoutTasksNestedInput
-  team?: Prisma.TeamUpdateOneRequiredWithoutTasksNestedInput
+  team?: Prisma.TeamUpdateOneWithoutTasksNestedInput
 }
 
 export type TaskUncheckedUpdateWithoutChecklistsInput = {
@@ -2098,7 +2098,7 @@ export type TaskUncheckedUpdateWithoutChecklistsInput = {
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sprintId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentTaskId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  teamId?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
@@ -2123,7 +2123,7 @@ export type TaskCreateManyAssignedToInput = {
   projectId?: string | null
   sprintId?: string | null
   parentTaskId?: string | null
-  teamId: string
+  teamId?: string | null
   title: string
   description?: string | null
   status?: $Enums.TaskStatus
@@ -2143,7 +2143,7 @@ export type TaskCreateManyCreatedByInput = {
   projectId?: string | null
   sprintId?: string | null
   parentTaskId?: string | null
-  teamId: string
+  teamId?: string | null
   title: string
   description?: string | null
   status?: $Enums.TaskStatus
@@ -2180,7 +2180,7 @@ export type TaskUpdateWithoutAssignedToInput = {
   subTasks?: Prisma.TaskUpdateManyWithoutParentNestedInput
   project?: Prisma.ProjectUpdateOneWithoutTasksNestedInput
   sprint?: Prisma.SprintUpdateOneWithoutTasksNestedInput
-  team?: Prisma.TeamUpdateOneRequiredWithoutTasksNestedInput
+  team?: Prisma.TeamUpdateOneWithoutTasksNestedInput
 }
 
 export type TaskUncheckedUpdateWithoutAssignedToInput = {
@@ -2188,7 +2188,7 @@ export type TaskUncheckedUpdateWithoutAssignedToInput = {
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sprintId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentTaskId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  teamId?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
@@ -2213,7 +2213,7 @@ export type TaskUncheckedUpdateManyWithoutAssignedToInput = {
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sprintId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentTaskId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  teamId?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
@@ -2250,7 +2250,7 @@ export type TaskUpdateWithoutCreatedByInput = {
   subTasks?: Prisma.TaskUpdateManyWithoutParentNestedInput
   project?: Prisma.ProjectUpdateOneWithoutTasksNestedInput
   sprint?: Prisma.SprintUpdateOneWithoutTasksNestedInput
-  team?: Prisma.TeamUpdateOneRequiredWithoutTasksNestedInput
+  team?: Prisma.TeamUpdateOneWithoutTasksNestedInput
 }
 
 export type TaskUncheckedUpdateWithoutCreatedByInput = {
@@ -2258,7 +2258,7 @@ export type TaskUncheckedUpdateWithoutCreatedByInput = {
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sprintId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentTaskId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  teamId?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
@@ -2283,7 +2283,7 @@ export type TaskUncheckedUpdateManyWithoutCreatedByInput = {
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sprintId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentTaskId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  teamId?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
@@ -2392,7 +2392,7 @@ export type TaskCreateManyProjectInput = {
   id?: string
   sprintId?: string | null
   parentTaskId?: string | null
-  teamId: string
+  teamId?: string | null
   title: string
   description?: string | null
   status?: $Enums.TaskStatus
@@ -2430,14 +2430,14 @@ export type TaskUpdateWithoutProjectInput = {
   parent?: Prisma.TaskUpdateOneWithoutSubTasksNestedInput
   subTasks?: Prisma.TaskUpdateManyWithoutParentNestedInput
   sprint?: Prisma.SprintUpdateOneWithoutTasksNestedInput
-  team?: Prisma.TeamUpdateOneRequiredWithoutTasksNestedInput
+  team?: Prisma.TeamUpdateOneWithoutTasksNestedInput
 }
 
 export type TaskUncheckedUpdateWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   sprintId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentTaskId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  teamId?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
@@ -2462,7 +2462,7 @@ export type TaskUncheckedUpdateManyWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   sprintId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentTaskId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  teamId?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
@@ -2482,7 +2482,7 @@ export type TaskCreateManySprintInput = {
   id?: string
   projectId?: string | null
   parentTaskId?: string | null
-  teamId: string
+  teamId?: string | null
   title: string
   description?: string | null
   status?: $Enums.TaskStatus
@@ -2520,14 +2520,14 @@ export type TaskUpdateWithoutSprintInput = {
   parent?: Prisma.TaskUpdateOneWithoutSubTasksNestedInput
   subTasks?: Prisma.TaskUpdateManyWithoutParentNestedInput
   project?: Prisma.ProjectUpdateOneWithoutTasksNestedInput
-  team?: Prisma.TeamUpdateOneRequiredWithoutTasksNestedInput
+  team?: Prisma.TeamUpdateOneWithoutTasksNestedInput
 }
 
 export type TaskUncheckedUpdateWithoutSprintInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentTaskId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  teamId?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
@@ -2552,7 +2552,7 @@ export type TaskUncheckedUpdateManyWithoutSprintInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentTaskId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  teamId?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
@@ -2572,7 +2572,7 @@ export type TaskCreateManyParentInput = {
   id?: string
   projectId?: string | null
   sprintId?: string | null
-  teamId: string
+  teamId?: string | null
   title: string
   description?: string | null
   status?: $Enums.TaskStatus
@@ -2610,14 +2610,14 @@ export type TaskUpdateWithoutParentInput = {
   subTasks?: Prisma.TaskUpdateManyWithoutParentNestedInput
   project?: Prisma.ProjectUpdateOneWithoutTasksNestedInput
   sprint?: Prisma.SprintUpdateOneWithoutTasksNestedInput
-  team?: Prisma.TeamUpdateOneRequiredWithoutTasksNestedInput
+  team?: Prisma.TeamUpdateOneWithoutTasksNestedInput
 }
 
 export type TaskUncheckedUpdateWithoutParentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sprintId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  teamId?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
@@ -2642,7 +2642,7 @@ export type TaskUncheckedUpdateManyWithoutParentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sprintId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  teamId?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
@@ -2754,7 +2754,7 @@ export type TaskSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   subTasks?: boolean | Prisma.Task$subTasksArgs<ExtArgs>
   project?: boolean | Prisma.Task$projectArgs<ExtArgs>
   sprint?: boolean | Prisma.Task$sprintArgs<ExtArgs>
-  team?: boolean | Prisma.TeamDefaultArgs<ExtArgs>
+  team?: boolean | Prisma.Task$teamArgs<ExtArgs>
   _count?: boolean | Prisma.TaskCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["task"]>
 
@@ -2782,7 +2782,7 @@ export type TaskSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   parent?: boolean | Prisma.Task$parentArgs<ExtArgs>
   project?: boolean | Prisma.Task$projectArgs<ExtArgs>
   sprint?: boolean | Prisma.Task$sprintArgs<ExtArgs>
-  team?: boolean | Prisma.TeamDefaultArgs<ExtArgs>
+  team?: boolean | Prisma.Task$teamArgs<ExtArgs>
 }, ExtArgs["result"]["task"]>
 
 export type TaskSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -2809,7 +2809,7 @@ export type TaskSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   parent?: boolean | Prisma.Task$parentArgs<ExtArgs>
   project?: boolean | Prisma.Task$projectArgs<ExtArgs>
   sprint?: boolean | Prisma.Task$sprintArgs<ExtArgs>
-  team?: boolean | Prisma.TeamDefaultArgs<ExtArgs>
+  team?: boolean | Prisma.Task$teamArgs<ExtArgs>
 }, ExtArgs["result"]["task"]>
 
 export type TaskSelectScalar = {
@@ -2845,7 +2845,7 @@ export type TaskInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   subTasks?: boolean | Prisma.Task$subTasksArgs<ExtArgs>
   project?: boolean | Prisma.Task$projectArgs<ExtArgs>
   sprint?: boolean | Prisma.Task$sprintArgs<ExtArgs>
-  team?: boolean | Prisma.TeamDefaultArgs<ExtArgs>
+  team?: boolean | Prisma.Task$teamArgs<ExtArgs>
   _count?: boolean | Prisma.TaskCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TaskIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2854,7 +2854,7 @@ export type TaskIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   parent?: boolean | Prisma.Task$parentArgs<ExtArgs>
   project?: boolean | Prisma.Task$projectArgs<ExtArgs>
   sprint?: boolean | Prisma.Task$sprintArgs<ExtArgs>
-  team?: boolean | Prisma.TeamDefaultArgs<ExtArgs>
+  team?: boolean | Prisma.Task$teamArgs<ExtArgs>
 }
 export type TaskIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignedTo?: boolean | Prisma.Task$assignedToArgs<ExtArgs>
@@ -2862,7 +2862,7 @@ export type TaskIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   parent?: boolean | Prisma.Task$parentArgs<ExtArgs>
   project?: boolean | Prisma.Task$projectArgs<ExtArgs>
   sprint?: boolean | Prisma.Task$sprintArgs<ExtArgs>
-  team?: boolean | Prisma.TeamDefaultArgs<ExtArgs>
+  team?: boolean | Prisma.Task$teamArgs<ExtArgs>
 }
 
 export type $TaskPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2878,14 +2878,14 @@ export type $TaskPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     subTasks: Prisma.$TaskPayload<ExtArgs>[]
     project: Prisma.$ProjectPayload<ExtArgs> | null
     sprint: Prisma.$SprintPayload<ExtArgs> | null
-    team: Prisma.$TeamPayload<ExtArgs>
+    team: Prisma.$TeamPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     projectId: string | null
     sprintId: string | null
     parentTaskId: string | null
-    teamId: string
+    teamId: string | null
     title: string
     description: string | null
     status: $Enums.TaskStatus
@@ -3303,7 +3303,7 @@ export interface Prisma__TaskClient<T, Null = never, ExtArgs extends runtime.Typ
   subTasks<T extends Prisma.Task$subTasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Task$subTasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   project<T extends Prisma.Task$projectArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Task$projectArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   sprint<T extends Prisma.Task$sprintArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Task$sprintArgs<ExtArgs>>): Prisma.Prisma__SprintClient<runtime.Types.Result.GetResult<Prisma.$SprintPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  team<T extends Prisma.TeamDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TeamDefaultArgs<ExtArgs>>): Prisma.Prisma__TeamClient<runtime.Types.Result.GetResult<Prisma.$TeamPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  team<T extends Prisma.Task$teamArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Task$teamArgs<ExtArgs>>): Prisma.Prisma__TeamClient<runtime.Types.Result.GetResult<Prisma.$TeamPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3945,6 +3945,25 @@ export type Task$sprintArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
    */
   include?: Prisma.SprintInclude<ExtArgs> | null
   where?: Prisma.SprintWhereInput
+}
+
+/**
+ * Task.team
+ */
+export type Task$teamArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Team
+   */
+  select?: Prisma.TeamSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Team
+   */
+  omit?: Prisma.TeamOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TeamInclude<ExtArgs> | null
+  where?: Prisma.TeamWhereInput
 }
 
 /**

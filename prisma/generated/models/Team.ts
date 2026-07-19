@@ -365,6 +365,11 @@ export type TeamScalarRelationFilter = {
   isNot?: Prisma.TeamWhereInput
 }
 
+export type TeamNullableScalarRelationFilter = {
+  is?: Prisma.TeamWhereInput | null
+  isNot?: Prisma.TeamWhereInput | null
+}
+
 export type TeamCreateNestedManyWithoutOrganizationInput = {
   create?: Prisma.XOR<Prisma.TeamCreateWithoutOrganizationInput, Prisma.TeamUncheckedCreateWithoutOrganizationInput> | Prisma.TeamCreateWithoutOrganizationInput[] | Prisma.TeamUncheckedCreateWithoutOrganizationInput[]
   connectOrCreate?: Prisma.TeamCreateOrConnectWithoutOrganizationInput | Prisma.TeamCreateOrConnectWithoutOrganizationInput[]
@@ -427,10 +432,12 @@ export type TeamCreateNestedOneWithoutProjectsInput = {
   connect?: Prisma.TeamWhereUniqueInput
 }
 
-export type TeamUpdateOneRequiredWithoutProjectsNestedInput = {
+export type TeamUpdateOneWithoutProjectsNestedInput = {
   create?: Prisma.XOR<Prisma.TeamCreateWithoutProjectsInput, Prisma.TeamUncheckedCreateWithoutProjectsInput>
   connectOrCreate?: Prisma.TeamCreateOrConnectWithoutProjectsInput
   upsert?: Prisma.TeamUpsertWithoutProjectsInput
+  disconnect?: Prisma.TeamWhereInput | boolean
+  delete?: Prisma.TeamWhereInput | boolean
   connect?: Prisma.TeamWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.TeamUpdateToOneWithWhereWithoutProjectsInput, Prisma.TeamUpdateWithoutProjectsInput>, Prisma.TeamUncheckedUpdateWithoutProjectsInput>
 }
@@ -441,10 +448,12 @@ export type TeamCreateNestedOneWithoutTasksInput = {
   connect?: Prisma.TeamWhereUniqueInput
 }
 
-export type TeamUpdateOneRequiredWithoutTasksNestedInput = {
+export type TeamUpdateOneWithoutTasksNestedInput = {
   create?: Prisma.XOR<Prisma.TeamCreateWithoutTasksInput, Prisma.TeamUncheckedCreateWithoutTasksInput>
   connectOrCreate?: Prisma.TeamCreateOrConnectWithoutTasksInput
   upsert?: Prisma.TeamUpsertWithoutTasksInput
+  disconnect?: Prisma.TeamWhereInput | boolean
+  delete?: Prisma.TeamWhereInput | boolean
   connect?: Prisma.TeamWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.TeamUpdateToOneWithWhereWithoutTasksInput, Prisma.TeamUpdateWithoutTasksInput>, Prisma.TeamUncheckedUpdateWithoutTasksInput>
 }

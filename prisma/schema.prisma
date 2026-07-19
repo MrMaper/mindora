@@ -26,6 +26,7 @@ model User {
   assignedTasks       Task[]               @relation("TaskAssignedTo")
   createdTasks        Task[]               @relation("TaskCreatedBy")
   teamMembers         TeamMember[]
+  projectMembers      ProjectMember[]
   preferences         UserPreferences?
 
   @@map("users")
@@ -171,17 +172,31 @@ model TeamMember {
 
 model Project {
   id          String        @id @default(cuid())
-  teamId      String
+  teamId      String?
   name        String
   description String?
   status      ProjectStatus @default(ACTIVE)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
-  team        Team          @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  team        Team?         @relation(fields: [teamId], references: [id], onDelete: SetNull)
   sprints     Sprint[]
   tasks       Task[]
+  members     ProjectMember[]
 
   @@map("projects")
+}
+
+model ProjectMember {
+  id        String      @id @default(cuid())
+  projectId String
+  userId    String
+  role      ProjectRole @default(MEMBER)
+  project   Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now())
+
+  @@unique([projectId, userId])
+  @@map("project_members")
 }
 
 model Sprint {
@@ -204,7 +219,7 @@ model Task {
   projectId    String?
   sprintId     String?
   parentTaskId String?
-  teamId       String
+  teamId       String?
   title        String
   description  String?
   status       TaskStatus   @default(BACKLOG)
@@ -228,7 +243,7 @@ model Task {
   subTasks     Task[]       @relation("SubTasks")
   project      Project?     @relation(fields: [projectId], references: [id])
   sprint       Sprint?      @relation(fields: [sprintId], references: [id])
-  team         Team         @relation(fields: [teamId], references: [id])
+  team         Team?        @relation(fields: [teamId], references: [id])
 
   @@map("tasks")
 }
@@ -369,6 +384,13 @@ enum ProjectStatus {
   ACTIVE
   ARCHIVED
   ON_HOLD
+}
+
+enum ProjectRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
 }
 
 enum NotificationType {
