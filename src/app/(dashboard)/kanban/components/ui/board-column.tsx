@@ -1,7 +1,10 @@
 "use client";
 
 import { useDroppable } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { useTranslation } from "@/i18n/provider";
 import { statusToDisplay, STATUS_OPTIONS } from "@/features/tasks/types";
 import { SortableKanbanCard } from "./sortable-kanban-card";
@@ -27,9 +30,12 @@ export function BoardColumn({
   const label = t.tasks[labelKey as keyof typeof t.tasks] as string;
 
   return (
-    <div className="w-[280px] flex-none flex flex-col max-h-full">
+    <div className="w-70 flex-none flex flex-col max-h-full">
       <div className="flex items-center gap-2 px-1 py-2.5 flex-nowrap">
-        <span className="size-2.5 rounded-full flex-none" style={{ background: `var(--status-${display})` }} />
+        <span
+          className="size-2.5 rounded-full flex-none"
+          style={{ background: `var(--status-${display})` }}
+        />
         <span className="text-sm font-semibold whitespace-nowrap">{label}</span>
         <span className="font-mono text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">
           {tasks.length}
@@ -55,7 +61,7 @@ export function BoardColumn({
           ))}
         </SortableContext>
         {tasks.length === 0 && (
-          <div className="flex items-center justify-center h-[60px] border-dashed border-border-muted text-muted-foreground text-[10px] rounded-md">
+          <div className="flex items-center justify-center h-15 border-dashed border-border-muted text-muted-foreground text-[10px] rounded-md">
             {t.board.noTasks}
           </div>
         )}
