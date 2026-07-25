@@ -14,10 +14,12 @@ interface NavItem {
   href: string;
   icon: IconName;
   badge?: number;
+  roles?: string[];
 }
 
 interface SidebarNavProps {
   navItems: NavItem[];
+  userRole: string;
   language: "EN" | "FA";
   settingsHref: string;
   settingsLabel: string;
@@ -29,6 +31,7 @@ interface SidebarNavProps {
 
 export function SidebarNav({
   navItems,
+  userRole,
   language,
   settingsHref,
   settingsLabel,
@@ -39,13 +42,17 @@ export function SidebarNav({
 }: SidebarNavProps) {
   const pathname = usePathname();
 
+  const filteredNavItems = navItems.filter(
+    item => !item.roles || item.roles.includes(userRole)
+  );
+
   return (
     <nav
       className="flex h-full flex-col p-3 overflow-hidden"
       aria-label={language === "FA" ? "منوی اصلی" : "Main navigation"}
     >
       <div className="flex-1 overflow-y-auto space-y-1">
-        {navItems.map(item => {
+        {filteredNavItems.map(item => {
           const isActive =
             pathname === item.href || pathname.startsWith(item.href + "/");
           return (

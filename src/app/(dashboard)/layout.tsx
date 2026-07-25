@@ -15,6 +15,7 @@ interface NavItem {
   href: string;
   icon: IconName;
   badge?: number;
+  roles?: string[];
 }
 
 export default async function DashboardLayout({
@@ -32,19 +33,22 @@ export default async function DashboardLayout({
   ]);
   const language = preferences?.language ?? "FA";
   const t = getTranslations(language);
+  const userRole = session.user.role;
 
   const NAV: NavItem[] = [
     { label: t.nav.dashboard, href: "/dashboard", icon: "layout-dashboard" },
     { label: t.nav.tasks, href: "/tasks", icon: "list" },
     { label: t.nav.board, href: "/kanban", icon: "columns" },
-    { label: t.nav.users, href: "/users", icon: "users" },
-    { label: t.nav.teams, href: "/teams", icon: "users-round" },
+    { label: t.nav.projects, href: "/projects", icon: "folder" },
+    { label: t.nav.users, href: "/users", icon: "users", roles: ["ADMIN"] },
+    { label: t.nav.teams, href: "/teams", icon: "users-round", roles: ["ADMIN"] },
     {
       label: t.nav.notifications,
       href: "/notifications",
       icon: "bell",
       badge: unreadCount,
     },
+    { label: t.nav.settings, href: "/settings", icon: "settings", roles: ["ADMIN"] },
   ];
 
   return (
@@ -63,16 +67,17 @@ export default async function DashboardLayout({
           </span>
         </div>
 
-        <SidebarNav
-          navItems={NAV}
-          language={language}
-          settingsHref="/settings"
-          settingsLabel={t.nav.settings}
-          profileHref="/profile"
-          userName={session.user.name ?? "User"}
-          userEmail={session.user.email ?? ""}
-          userImage={session.user.image ?? undefined}
-        />
+<SidebarNav
+        navItems={NAV}
+        userRole={session.user.role}
+        language={language}
+        settingsHref="/settings"
+        settingsLabel={t.nav.settings}
+        profileHref="/profile"
+        userName={session.user.name ?? "User"}
+        userEmail={session.user.email ?? ""}
+        userImage={session.user.image ?? undefined}
+      />
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">
