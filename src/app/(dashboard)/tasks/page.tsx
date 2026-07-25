@@ -66,6 +66,7 @@ export default async function TasksPage({
         page={Math.max(1, Number(page))}
         language={language}
         currentUserId={session.user.id}
+        currentUserRole={session.user.role}
       />
     </SelectProvider>
   );

@@ -38,6 +38,7 @@ interface TasksCCProps {
   page: number;
   language: Language;
   currentUserId: string;
+  currentUserRole: string;
 }
 
 export function TasksCC({
@@ -48,6 +49,7 @@ export function TasksCC({
   page,
   language,
   currentUserId,
+  currentUserRole,
 }: TasksCCProps) {
   const u = useTasks(filters);
   const t = getTranslations(language);
@@ -133,6 +135,7 @@ export function TasksCC({
         onDelete={u.setDeleteTarget}
         formatDate={formatDate}
         currentUserId={currentUserId}
+        currentUserRole={currentUserRole}
       />
 
       {/* ── Pagination ───────────────────────────────────────────────── */}

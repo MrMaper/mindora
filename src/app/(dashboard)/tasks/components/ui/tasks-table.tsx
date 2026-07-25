@@ -19,6 +19,7 @@ interface TasksTableProps {
     order: string;
   };
   currentUserId: string;
+  currentUserRole: string;
   onSortChange: (key: string) => void;
   onRowClick: (task: TaskRow) => void;
   onEdit: (task: TaskRow) => void;
@@ -31,6 +32,7 @@ export function TasksTable({
   t,
   filters,
   currentUserId,
+  currentUserRole,
   onSortChange,
   onRowClick,
   onEdit,
@@ -103,8 +105,10 @@ export function TasksTable({
         </div>
       ) : (
         tasks.map(task => {
+          const isAdmin = currentUserRole === "ADMIN";
           const isAssignee = task.assignedTo?.id === currentUserId;
-          const menuItems: MenuItem[] = isAssignee
+          const canEdit = isAdmin || isAssignee;
+          const menuItems: MenuItem[] = canEdit
             ? [
                 {
                   label: t.common.edit,
@@ -124,7 +128,7 @@ export function TasksTable({
           return (
             <div
               key={task.id}
-              onClick={isAssignee ? () => onRowClick(task) : undefined}
+              onClick={canEdit ? () => onRowClick(task) : undefined}
               className="grid gap-3 px-4 min-h-13 items-center border-b border-border-subtle hover:bg-bg-sunken/50 cursor-pointer"
               style={{ gridTemplateColumns: "1fr 130px 90px 160px 110px 40px" }}
             >

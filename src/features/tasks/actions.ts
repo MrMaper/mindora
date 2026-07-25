@@ -124,6 +124,13 @@ export async function updateTask(id: string, formData: FormData): Promise<Action
   });
   if (!existing) return { success: false, error: "Task not found." };
 
+  // Authorization: only admin or assignee can edit
+  const isAdmin = session.user.role === "ADMIN";
+  const isAssignee = existing.assignedToId === session.user.id;
+  if (!isAdmin && !isAssignee) {
+    return { success: false, error: "Only the assignee or an admin can edit this task." };
+  }
+
   const labelIds = parseLabelIds(parsed.data.labelIds);
   const nextDueDate = parsed.data.dueDate ? new Date(parsed.data.dueDate) : null;
   const nextAssignedToId = parsed.data.assignedToId || null;
@@ -245,6 +252,13 @@ export async function updateTaskStatus(id: string, status: string): Promise<Acti
   });
   if (!existing) return { success: false, error: "Task not found." };
 
+  // Authorization: only admin or assignee can change status
+  const isAdmin = session.user.role === "ADMIN";
+  const isAssignee = existing.assignedToId === session.user.id;
+  if (!isAdmin && !isAssignee) {
+    return { success: false, error: "Only the assignee or an admin can change task status." };
+  }
+
   await db.task.update({ where: { id }, data: { status: status as never } });
 
   if (existing.status !== status) {
@@ -284,8 +298,15 @@ export async function deleteTask(id: string): Promise<ActionResult> {
   const session = await auth();
   if (!session?.user) return { success: false, error: "Unauthorized." };
 
-  const existing = await db.task.findUnique({ where: { id }, select: { id: true } });
+  const existing = await db.task.findUnique({ where: { id }, select: { id: true, assignedToId: true } });
   if (!existing) return { success: false, error: "Task not found." };
+
+  // Authorization: only admin or assignee can delete
+  const isAdmin = session.user.role === "ADMIN";
+  const isAssignee = existing.assignedToId === session.user.id;
+  if (!isAdmin && !isAssignee) {
+    return { success: false, error: "Only the assignee or an admin can delete this task." };
+  }
 
   await db.task.delete({ where: { id } });
   revalidatePath("/tasks");
