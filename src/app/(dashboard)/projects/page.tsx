@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getProjects } from "@/features/projects/queries";
 import { getUserPreferences } from "@/features/settings/queries";
-import { ProjectsCC } from "./projects-cc";
+import { ProjectsCC } from "./components/client";
 
 export const metadata: Metadata = { title: "Projects" };
 
@@ -21,5 +21,11 @@ export default async function ProjectsPage({
   const preferences = await getUserPreferences(session.user.id);
   const language = preferences?.language ?? "EN";
 
-  return <ProjectsCC initialData={data} search={search} page={Math.max(1, Number(page))} language={language} />;
+  return (
+    <ProjectsCC
+      initialData={data}
+      search={search}
+      page={Math.max(1, Number(page))}
+    />
+  );
 }

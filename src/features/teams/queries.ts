@@ -1,18 +1,36 @@
 import { prisma as db } from "@/lib/db";
-import type { GetTeamsResult, TeamRow, TeamDetail, TeamMemberRow, RoleRow, AvailableUserRow } from "./types";
+import type {
+  GetTeamsResult,
+  TeamRow,
+  TeamDetail,
+  TeamMemberRow,
+  RoleRow,
+  AvailableUserRow,
+} from "./types";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 15;
 
 export async function getTeams(
   search = "",
-  page = 1
+  status = "",
+  page = 1,
 ): Promise<GetTeamsResult> {
   const skip = (page - 1) * PAGE_SIZE;
-  const where = search
-    ? {
-        name: { contains: search, mode: "insensitive" as const },
-      }
-    : {};
+  const andConditions: Record<string, unknown>[] = [];
+
+  if (search) {
+    andConditions.push({
+      name: { contains: search, mode: "insensitive" as const },
+    });
+  }
+
+  if (status === "ACTIVE") {
+    andConditions.push({ NOT: { name: { startsWith: "[Archived]" } } });
+  } else if (status === "ARCHIVED") {
+    andConditions.push({ name: { startsWith: "[Archived]" } });
+  }
+
+  const where = andConditions.length > 0 ? { AND: andConditions } : {};
 
   const [teams, total] = await Promise.all([
     db.team.findMany({
@@ -32,12 +50,14 @@ export async function getTeams(
   ]);
 
   return {
-    teams: teams.map((t) => ({
+    teams: teams.map(t => ({
       id: t.id,
       name: t.name,
       description: t.description,
       memberCount: t._count.members,
-      status: "ACTIVE" as const,
+      status: t.name.startsWith("[Archived]")
+        ? ("ARCHIVED" as const)
+        : ("ACTIVE" as const),
       createdAt: t.createdAt,
     })),
     total,
@@ -62,12 +82,14 @@ export async function getUserTeams(userId: string): Promise<TeamRow[]> {
     },
   });
 
-  return memberships.map((m) => ({
+  return memberships.map(m => ({
     id: m.team.id,
     name: m.team.name,
     description: m.team.description,
     memberCount: m.team._count.members,
-    status: "ACTIVE" as const,
+    status: m.team.name.startsWith("[Archived]")
+      ? ("ARCHIVED" as const)
+      : ("ACTIVE" as const),
     createdAt: m.team.createdAt,
   }));
 }
@@ -103,9 +125,11 @@ export async function getTeamById(id: string): Promise<TeamDetail | null> {
     description: team.description,
     organizationId: team.organizationId,
     memberCount: team._count.members,
-    status: "ACTIVE" as const,
+    status: team.name.startsWith("[Archived]")
+      ? ("ARCHIVED" as const)
+      : ("ACTIVE" as const),
     createdAt: team.createdAt,
-    members: team.members.map((m) => ({
+    members: team.members.map(m => ({
       id: m.id,
       userId: m.userId,
       userName: m.user.name,
@@ -118,9 +142,7 @@ export async function getTeamById(id: string): Promise<TeamDetail | null> {
   };
 }
 
-export async function getTeamMembers(
-  teamId: string
-): Promise<TeamMemberRow[]> {
+export async function getTeamMembers(teamId: string): Promise<TeamMemberRow[]> {
   const members = await db.teamMember.findMany({
     where: { teamId },
     select: {
@@ -134,7 +156,7 @@ export async function getTeamMembers(
     orderBy: { createdAt: "asc" },
   });
 
-  return members.map((m) => ({
+  return members.map(m => ({
     id: m.id,
     userId: m.userId,
     userName: m.user.name,
@@ -160,20 +182,22 @@ export async function getAvailableRoles(): Promise<RoleRow[]> {
     orderBy: { name: "asc" },
   });
 
-  return roles.map((r) => ({
+  return roles.map(r => ({
     id: r.id,
     name: r.name,
-    permissions: r.permissions.map((p) => p.permission.key),
+    permissions: r.permissions.map(p => p.permission.key),
   }));
 }
 
-export async function getAllUsersForInvite(teamId: string): Promise<AvailableUserRow[]> {
+export async function getAllUsersForInvite(
+  teamId: string,
+): Promise<AvailableUserRow[]> {
   const existingMemberIds = await db.teamMember.findMany({
     where: { teamId },
     select: { userId: true },
   });
 
-  const userIds = existingMemberIds.map((m) => m.userId);
+  const userIds = existingMemberIds.map(m => m.userId);
 
   const users = await db.user.findMany({
     where: {

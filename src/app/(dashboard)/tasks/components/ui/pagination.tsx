@@ -2,9 +2,9 @@
 
 import * as React from "react";
 import { Button } from "@/components/ui-kit/forms/button";
+import { useLanguage, useTranslation } from "@/i18n/provider";
 
 export interface PaginationProps {
-  t: Record<string, any>;
   page: number;
   totalPages: number;
   filters: {
@@ -17,7 +17,12 @@ export interface PaginationProps {
   };
 }
 
-export function Pagination({ t, page, totalPages, filters }: PaginationProps) {
+export function Pagination({ page, totalPages, filters }: PaginationProps) {
+  const t = useTranslation();
+  const language = useLanguage();
+
+  console.log(language);
+
   if (totalPages <= 1) return null;
 
   return (
@@ -29,7 +34,7 @@ export function Pagination({ t, page, totalPages, filters }: PaginationProps) {
         <Button
           variant="secondary"
           size="sm"
-          icon="chevron-left"
+          icon={language === "FA" ? "chevron-right" : "chevron-left"}
           disabled={page <= 1}
           onClick={() => {
             const p = new URLSearchParams({
@@ -44,7 +49,8 @@ export function Pagination({ t, page, totalPages, filters }: PaginationProps) {
         <Button
           variant="secondary"
           size="sm"
-          iconRight="chevron-right"
+          iconRight={language === "FA" ? "chevron-left" : "chevron-right"}
+          // iconRight="chevron-right"
           disabled={page >= totalPages}
           onClick={() => {
             const p = new URLSearchParams({

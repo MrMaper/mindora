@@ -7,6 +7,7 @@ import {
   getAllOptionsWithLabels,
   withEmptyOption,
 } from "@/components/ui-kit/forms/select-utils";
+import { Pagination } from "@/components/ui-kit/tables/pagination";
 import type { UserRow } from "@/features/users/types";
 import type { LabelRow } from "@/features/labels/types";
 import type { Language } from "@/types/db";
@@ -14,14 +15,13 @@ import type { Language } from "@/types/db";
 // UI components
 import { PageHeader } from "../ui/page-header";
 import { SearchFilters } from "../ui/search-filters";
-import { GlobalError } from "../ui/global-error";
 import { TasksTable } from "../ui/tasks-table";
-import { Pagination } from "../ui/pagination";
 import { CreateTaskDrawer } from "../ui/create-task-drawer";
 import { EditTaskDrawer } from "../ui/edit-task-drawer";
 import { LabelManagementDialog } from "../ui/label-management-dialog";
 import { DeleteConfirmationDialog } from "../ui/delete-confirmation-dialog";
 import { GetTasksResult } from "@/features/tasks/types";
+import { GlobalError } from "@/components/ui-kit/global";
 
 interface TasksCCProps {
   initialData: GetTasksResult;
@@ -93,7 +93,6 @@ export function TasksCC({
     <>
       {/* ── Page header ─────────────────────────────────────────────── */}
       <PageHeader
-        t={t.tasks}
         total={total}
         onLabelDialogOpen={u.onLabelDialogOpen}
         onCreate={u.openCreate}
@@ -136,7 +135,7 @@ export function TasksCC({
       />
 
       {/* ── Pagination ───────────────────────────────────────────────── */}
-      <Pagination t={t} page={page} totalPages={totalPages} filters={filters} />
+      <Pagination page={page} totalPages={totalPages} filters={filters} />
 
       {/* ── Create task drawer ──────────────────────────────────────── */}
       <CreateTaskDrawer

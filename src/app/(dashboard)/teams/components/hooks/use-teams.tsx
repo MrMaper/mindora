@@ -16,6 +16,10 @@ import type { TeamRow } from "@/features/teams/types";
 
 type DrawerMode = "none" | "create" | "edit";
 
+export interface TeamFilters {
+  status: string;
+}
+
 export function useTeams(initialSearch: string) {
   const router = useRouter();
 
@@ -26,6 +30,10 @@ export function useTeams(initialSearch: string) {
   const [isPending, startTransition] = React.useTransition();
 
   const [search, setSearch] = React.useState(initialSearch);
+
+  const [filters, setFilters] = React.useState<TeamFilters>({
+    status: "",
+  });
 
   const createForm = useForm<CreateTeamInput>({
     resolver: zodResolver(createTeamSchema),
@@ -107,12 +115,42 @@ export function useTeams(initialSearch: string) {
     });
   }
 
+  const hasActiveFilters = !!search || !!filters.status;
+
   function onSearchSubmit(e: React.FormEvent) {
     e.preventDefault();
+    applyFilters({});
+  }
+
+  function onFiltersChange(filter: Partial<TeamFilters>) {
+    setFilters(prev => ({ ...prev, ...filter }));
     const params = new URLSearchParams();
+    const newFilters = { ...filters, ...filter };
     if (search) params.set("search", search);
+    if (newFilters.status) params.set("status", newFilters.status);
     params.set("page", "1");
     router.push(`/teams?${params.toString()}`);
+  }
+
+  function applyFilters(next: Partial<TeamFilters>) {
+    const params = new URLSearchParams();
+    if (search) params.set("search", search);
+    if (next.status) params.set("status", next.status);
+    else if (filters.status) params.set("status", filters.status);
+    params.set("page", "1");
+    router.push(`/teams?${params.toString()}`);
+  }
+
+  function onClearFilters() {
+    const params = new URLSearchParams();
+    params.set("page", "1");
+    router.push(`/teams?${params.toString()}`);
+    setSearch("");
+    setFilters({ status: "" });
+  }
+
+  function onView(team: TeamRow) {
+    router.push(`/teams/${team.id}`);
   }
 
   return {
@@ -125,6 +163,8 @@ export function useTeams(initialSearch: string) {
     isPending,
     search,
     setSearch,
+    hasActiveFilters,
+    filters,
     createForm,
     editForm,
     openCreate,
@@ -135,5 +175,8 @@ export function useTeams(initialSearch: string) {
     onArchive,
     onDeleteConfirm,
     onSearchSubmit,
+    onFiltersChange,
+    onClearFilters,
+    onView,
   };
 }

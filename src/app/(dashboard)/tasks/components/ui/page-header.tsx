@@ -1,34 +1,36 @@
 import * as React from "react";
 import { Button } from "@/components/ui-kit/forms/button";
+import { useTranslation } from "@/i18n/provider";
 
 export interface PageHeaderProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  t: Record<string, any>;
   total: number;
   onLabelDialogOpen: () => void;
   onCreate: () => void;
 }
 
 export function PageHeader({
-  t,
   total,
   onLabelDialogOpen,
   onCreate,
 }: PageHeaderProps) {
+  const t = useTranslation();
+
   return (
-    <div className="flex items-center justify-between mb-5">
+    <div className="flex items-start justify-between mb-5">
       <div>
-        <h1 className="text-xl font-semibold text-text-primary">{t.title}</h1>
+        <h1 className="text-xl font-semibold text-text-primary">
+          {t.tasks.title}
+        </h1>
         <p className="text-sm text-text-tertiary mt-0.5">
-          {total} {t.totalTasks}
+          {total} {t.tasks.totalTasks}
         </p>
       </div>
       <div className="flex gap-2">
         <Button variant="secondary" icon="flag" onClick={onLabelDialogOpen}>
-          {t.manageLabels}
+          {t.tasks.manageLabels}
         </Button>
         <Button variant="primary" icon="plus" onClick={onCreate}>
-          {t.createTaskButton}
+          {t.tasks.createTaskButton}
         </Button>
       </div>
     </div>

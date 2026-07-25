@@ -2,19 +2,29 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { inviteMember, updateMemberRole, removeMember } from "@/features/teams/actions";
-import type { TeamDetail, RoleRow, AvailableUserRow } from "@/features/teams/types";
+import {
+  inviteMember,
+  updateMemberRole,
+  removeMember,
+} from "@/features/teams/actions";
+import type {
+  TeamDetail,
+  RoleRow,
+  AvailableUserRow,
+} from "@/features/teams/types";
 
 export function useTeamDetail(
   initialTeam: TeamDetail,
   initialRoles: RoleRow[],
-  initialAvailableUsers: AvailableUserRow[]
+  initialAvailableUsers: AvailableUserRow[],
 ) {
   const router = useRouter();
 
   const [team, setTeam] = React.useState(initialTeam);
   const [roles] = React.useState(initialRoles);
-  const [availableUsers, setAvailableUsers] = React.useState(initialAvailableUsers);
+  const [availableUsers, setAvailableUsers] = React.useState(
+    initialAvailableUsers,
+  );
 
   const [inviteOpen, setInviteOpen] = React.useState(false);
   const [selectedUserId, setSelectedUserId] = React.useState("");
@@ -27,7 +37,9 @@ export function useTeamDetail(
     userName: string;
   } | null>(null);
 
-  const [changingRoleId, setChangingRoleId] = React.useState<string | null>(null);
+  const [changingRoleId, setChangingRoleId] = React.useState<string | null>(
+    null,
+  );
 
   function openInvite() {
     setSelectedUserId("");
@@ -59,7 +71,7 @@ export function useTeamDetail(
         return;
       }
 
-      setAvailableUsers((prev) => prev.filter((u) => u.id !== selectedUserId));
+      setAvailableUsers(prev => prev.filter(u => u.id !== selectedUserId));
       closeInvite();
       router.refresh();
     });

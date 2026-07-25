@@ -88,6 +88,7 @@ export function LoginCC() {
                   size="sm"
                   icon={passwordVisible ? "eye" : "eyeOff"}
                   onClick={alterVisibility}
+                  tabIndex={-1}
                 />
               }
             />

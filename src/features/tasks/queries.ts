@@ -6,7 +6,7 @@ import type {
   TaskDetail,
 } from "./types";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 15;
 
 const userRefSelect = { id: true, name: true, avatar: true } as const;
 
@@ -40,7 +40,9 @@ export function toTaskRow(task: {
   };
 }
 
-export async function getTasks(params: GetTasksParams): Promise<GetTasksResult> {
+export async function getTasks(
+  params: GetTasksParams,
+): Promise<GetTasksResult> {
   const page = Math.max(1, params.page ?? 1);
   const skip = (page - 1) * PAGE_SIZE;
 
@@ -86,7 +88,9 @@ export async function getTasks(params: GetTasksParams): Promise<GetTasksResult> 
         updatedAt: true,
         createdBy: { select: userRefSelect },
         assignedTo: { select: userRefSelect },
-        labels: { select: { label: { select: { id: true, name: true, color: true } } } },
+        labels: {
+          select: { label: { select: { id: true, name: true, color: true } } },
+        },
       },
     }),
     db.task.count({ where }),
@@ -116,7 +120,9 @@ export async function getTaskById(id: string): Promise<TaskDetail | null> {
       updatedAt: true,
       createdBy: { select: userRefSelect },
       assignedTo: { select: userRefSelect },
-      labels: { select: { label: { select: { id: true, name: true, color: true } } } },
+      labels: {
+        select: { label: { select: { id: true, name: true, color: true } } },
+      },
     },
   });
   if (!task) return null;

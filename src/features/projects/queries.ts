@@ -8,11 +8,11 @@ import type {
   ProjectActivityRow,
 } from "./types";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 15;
 
 export async function getProjects(
   search = "",
-  page = 1
+  page = 1,
 ): Promise<GetProjectsResult> {
   const skip = (page - 1) * PAGE_SIZE;
   const where = search
@@ -42,7 +42,7 @@ export async function getProjects(
   ]);
 
   return {
-    projects: projects.map((p) => ({
+    projects: projects.map(p => ({
       id: p.id,
       name: p.name,
       description: p.description,
@@ -76,7 +76,7 @@ export async function getUserProjects(userId: string): Promise<ProjectRow[]> {
     },
   });
 
-  return memberships.map((m) => ({
+  return memberships.map(m => ({
     id: m.project.id,
     name: m.project.name,
     description: m.project.description,
@@ -88,7 +88,9 @@ export async function getUserProjects(userId: string): Promise<ProjectRow[]> {
   }));
 }
 
-export async function getProjectById(id: string): Promise<ProjectDetail | null> {
+export async function getProjectById(
+  id: string,
+): Promise<ProjectDetail | null> {
   const project = await db.project.findUnique({
     where: { id },
     select: {
@@ -125,7 +127,7 @@ export async function getProjectById(id: string): Promise<ProjectDetail | null> 
     teamName: project.team?.name ?? null,
     createdAt: project.createdAt,
     updatedAt: project.updatedAt,
-    members: project.members.map((m) => ({
+    members: project.members.map(m => ({
       id: m.id,
       userId: m.userId,
       userName: m.user.name,
@@ -143,7 +145,7 @@ export async function getProjectById(id: string): Promise<ProjectDetail | null> 
 }
 
 export async function getProjectMembers(
-  projectId: string
+  projectId: string,
 ): Promise<ProjectMemberRow[]> {
   const members = await db.projectMember.findMany({
     where: { projectId },
@@ -157,7 +159,7 @@ export async function getProjectMembers(
     orderBy: { createdAt: "asc" },
   });
 
-  return members.map((m) => ({
+  return members.map(m => ({
     id: m.id,
     userId: m.userId,
     userName: m.user.name,
@@ -183,7 +185,7 @@ export async function getAllUsersForInvite(projectId: string) {
     select: { userId: true },
   });
 
-  const userIds = existingMemberIds.map((m) => m.userId);
+  const userIds = existingMemberIds.map(m => m.userId);
 
   const users = await db.user.findMany({
     where: {
@@ -197,7 +199,9 @@ export async function getAllUsersForInvite(projectId: string) {
   return users;
 }
 
-export async function getProjectTasks(projectId: string): Promise<ProjectTaskRow[]> {
+export async function getProjectTasks(
+  projectId: string,
+): Promise<ProjectTaskRow[]> {
   const tasks = await db.task.findMany({
     where: { projectId },
     orderBy: { createdAt: "desc" },
@@ -216,7 +220,7 @@ export async function getProjectTasks(projectId: string): Promise<ProjectTaskRow
     },
   });
 
-  return tasks.map((t) => ({
+  return tasks.map(t => ({
     ...t,
     assignee: t.assignee
       ? { id: t.assignee.id, name: t.assignee.name, avatar: t.assignee.avatar }
@@ -224,7 +228,9 @@ export async function getProjectTasks(projectId: string): Promise<ProjectTaskRow
   }));
 }
 
-export async function getProjectActivity(projectId: string): Promise<ProjectActivityRow[]> {
+export async function getProjectActivity(
+  projectId: string,
+): Promise<ProjectActivityRow[]> {
   const taskIds = await db.task.findMany({
     where: { projectId },
     select: { id: true },
@@ -235,7 +241,7 @@ export async function getProjectActivity(projectId: string): Promise<ProjectActi
   const activities = await db.activityLog.findMany({
     where: {
       entity: "TASK",
-      entityId: { in: taskIds.map((t) => t.id) },
+      entityId: { in: taskIds.map(t => t.id) },
     },
     orderBy: { timestamp: "desc" },
     take: 50,
@@ -252,7 +258,7 @@ export async function getProjectActivity(projectId: string): Promise<ProjectActi
     },
   });
 
-  return activities.map((a) => ({
+  return activities.map(a => ({
     id: a.id,
     entity: a.entity,
     entityId: a.entityId,

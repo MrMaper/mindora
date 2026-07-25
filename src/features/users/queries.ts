@@ -1,21 +1,48 @@
 import { prisma as db } from "@/lib/db";
 import type { GetUsersResult, UserRow } from "./types";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 15;
 
 export async function getUsers(
   search = "",
-  page = 1
+  page = 1,
+  role = "",
+  status = "",
+  teamId = "",
+  sort = "createdAt",
+  order = "desc",
 ): Promise<GetUsersResult> {
   const skip = (page - 1) * PAGE_SIZE;
-  const where = search
-    ? {
-        OR: [
-          { name: { contains: search, mode: "insensitive" as const } },
-          { email: { contains: search, mode: "insensitive" as const } },
-        ],
-      }
-    : {};
+
+  const where: Record<string, any> = {};
+
+  if (search) {
+    where.OR = [
+      { name: { contains: search, mode: "insensitive" } },
+      { email: { contains: search, mode: "insensitive" } },
+    ];
+  }
+
+  if (role) {
+    where.role = role;
+  }
+
+  if (status) {
+    where.status = status;
+  }
+
+  if (teamId) {
+    where.teamMembers = {
+      some: {
+        teamId: teamId,
+      },
+    };
+  }
+
+  const orderBy: Record<string, "asc" | "desc"> = {};
+  const validSortFields = ["createdAt", "name", "email", "role", "status"];
+  const sortField = validSortFields.includes(sort) ? sort : "createdAt";
+  orderBy[sortField] = order === "asc" ? "asc" : "desc";
 
   const [users, total] = await Promise.all([
     db.user.findMany({
@@ -34,7 +61,7 @@ export async function getUsers(
           },
         },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy,
       skip,
       take: PAGE_SIZE,
     }),
@@ -42,7 +69,7 @@ export async function getUsers(
   ]);
 
   return {
-    users: users.map((u) => ({
+    users: users.map(u => ({
       id: u.id,
       name: u.name,
       email: u.email,
@@ -78,7 +105,7 @@ export async function getAllActiveUsers(): Promise<UserRow[]> {
     },
     orderBy: { name: "asc" },
   });
-  return users.map((u) => ({
+  return users.map(u => ({
     id: u.id,
     name: u.name,
     email: u.email,

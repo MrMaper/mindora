@@ -69,7 +69,7 @@ export function KanbanFilters({
             icon="search"
             value={search}
             onChange={e => onSearchChange(e.target.value)}
-            className="w-full"
+            className="w-full bg-bg-surface"
             button={
               <Button
                 variant="primary"
@@ -112,7 +112,7 @@ export function KanbanFilters({
           variant="ghost"
           icon="x"
           onClick={onClearFilters}
-          className="text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20"
+          className="text-red-500! hover:bg-red-50 dark:hover:bg-red-950/20"
         >
           {t.board.clearFilters}
         </Button>

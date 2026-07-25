@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { getProjectById, getProjectMembers, getProjectTasks } from "@/features/projects/queries";
+import {
+  getProjectById,
+  getProjectMembers,
+  getProjectTasks,
+} from "@/features/projects/queries";
 import { getUserPreferences } from "@/features/settings/queries";
-import { ProjectDetailCC } from "./project-detail-cc";
+import { ProjectDetailCC } from "./components/client";
 
 export const metadata: Metadata = { title: "Project Details" };
 
@@ -34,7 +38,6 @@ export default async function ProjectDetailPage({
       members={members}
       tasks={tasks}
       currentUserId={session.user.id}
-      language={language}
     />
   );
 }

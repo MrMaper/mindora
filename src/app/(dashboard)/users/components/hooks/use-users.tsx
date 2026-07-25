@@ -16,6 +16,15 @@ import type { UserRow } from "@/features/users/types";
 
 type DrawerMode = "none" | "create" | "edit";
 
+export interface UserFilters {
+  search: string;
+  role: string;
+  status: string;
+  teamId: string;
+  sort: string;
+  order: string;
+}
+
 export function useUsers(initialSearch: string) {
   const router = useRouter();
 
@@ -23,10 +32,19 @@ export function useUsers(initialSearch: string) {
   const [editingUser, setEditingUser] = React.useState<UserRow | null>(null);
   const [deleteTarget, setDeleteTarget] = React.useState<UserRow | null>(null);
   const [actionError, setActionError] = React.useState<string | null>(null);
-  const [createdPassword, setCreatedPassword] = React.useState<string | null>(null);
+  const [createdPassword, setCreatedPassword] = React.useState<string | null>(
+    null,
+  );
   const [isPending, startTransition] = React.useTransition();
 
   const [search, setSearch] = React.useState(initialSearch);
+
+  const [filters, setFilters] = React.useState<UserFilters>({
+    search: initialSearch,
+    role: "",
+    status: "",
+    teamId: "",
+  });
 
   const createForm = useForm<CreateUserInput>({
     resolver: zodResolver(createUserSchema),
@@ -59,7 +77,7 @@ export function useUsers(initialSearch: string) {
     setCreatedPassword(null);
   }
 
-  const onCreateSubmit = createForm.handleSubmit((data) => {
+  const onCreateSubmit = createForm.handleSubmit(data => {
     setActionError(null);
     startTransition(async () => {
       const fd = new FormData();
@@ -76,7 +94,7 @@ export function useUsers(initialSearch: string) {
     });
   });
 
-  const onEditSubmit = editForm.handleSubmit((data) => {
+  const onEditSubmit = editForm.handleSubmit(data => {
     if (!editingUser) return;
     setActionError(null);
     startTransition(async () => {
@@ -96,7 +114,8 @@ export function useUsers(initialSearch: string) {
   function onToggleStatus(user: UserRow) {
     startTransition(async () => {
       const result = await toggleUserStatus(user.id);
-      if (!result.success) setActionError(result.error ?? "Failed to update status.");
+      if (!result.success)
+        setActionError(result.error ?? "Failed to update status.");
       else router.refresh();
     });
   }
@@ -106,17 +125,53 @@ export function useUsers(initialSearch: string) {
     startTransition(async () => {
       const result = await deleteUser(deleteTarget.id);
       setDeleteTarget(null);
-      if (!result.success) setActionError(result.error ?? "Failed to delete user.");
+      if (!result.success)
+        setActionError(result.error ?? "Failed to delete user.");
       else router.refresh();
     });
   }
 
   function onSearchSubmit(e: React.FormEvent) {
     e.preventDefault();
+    applyFilters({ search });
+  }
+
+  function applyFilters(next: Partial<UserFilters>) {
+    const merged = { search, ...next };
     const params = new URLSearchParams();
-    if (search) params.set("search", search);
+    if (merged.search) params.set("search", search);
+    if (merged.role) params.set("role", merged.role);
+    if (merged.status) params.set("status", merged.status);
+    if (merged.teamId) params.set("teamId", merged.teamId);
+    if (merged.sort) params.set("sort", merged.sort);
+    if (merged.order) params.set("order", merged.order);
     params.set("page", "1");
     router.push(`/users?${params.toString()}`);
+  }
+
+  function onFiltersChange(filter: Partial<UserFilters>) {
+    setFilters(prev => ({ ...prev, ...filter }));
+    const params = new URLSearchParams();
+    const newFilters = { ...filters, ...filter };
+    if (newFilters.search) params.set("search", newFilters.search);
+    if (newFilters.role) params.set("role", newFilters.role);
+    if (newFilters.status) params.set("status", newFilters.status);
+    if (newFilters.teamId) params.set("teamId", newFilters.teamId);
+    params.set("page", "1");
+    router.push(`/users?${params.toString()}`);
+  }
+
+  function onClearFilters() {
+    const params = new URLSearchParams();
+    params.set("page", "1");
+    router.push(`/users?${params.toString()}`);
+    setSearch("");
+    setFilters({
+      search: "",
+      role: "",
+      status: "",
+      teamId: "",
+    });
   }
 
   return {
@@ -130,6 +185,8 @@ export function useUsers(initialSearch: string) {
     isPending,
     search,
     setSearch,
+    filters,
+    setFilters,
     createForm,
     editForm,
     openCreate,
@@ -140,5 +197,8 @@ export function useUsers(initialSearch: string) {
     onToggleStatus,
     onDeleteConfirm,
     onSearchSubmit,
+    applyFilters,
+    onFiltersChange,
+    onClearFilters,
   };
 }

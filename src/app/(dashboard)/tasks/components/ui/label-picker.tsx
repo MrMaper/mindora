@@ -39,7 +39,7 @@ export function LabelPicker({
                 onClick={() => onToggle(l.id)}
                 className={cn(
                   "opacity-45 hover:opacity-100 transition-opacity",
-                  active && "opacity-100"
+                  active && "opacity-100",
                 )}
               >
                 <Tag color={l.color}>{l.name}</Tag>

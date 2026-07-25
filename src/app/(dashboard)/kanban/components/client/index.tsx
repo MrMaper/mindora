@@ -19,6 +19,7 @@ import { BOARD_STATUSES } from "@/features/kanban/types";
 import type { BoardColumns } from "@/features/kanban/types";
 import type { UserRow } from "@/features/users/types";
 import type { LabelRow } from "@/features/labels/types";
+import { Separator } from "@/components/ui/separator";
 
 interface KanbanCCProps {
   initialColumns: BoardColumns;
@@ -130,14 +131,17 @@ export function KanbanCC({
         onDragEnd={k.onDragEnd}
       >
         <div className="flex gap-3 py-4 items-start min-h-full overflow-x-auto">
-          {BOARD_STATUSES.map(status => (
-            <BoardColumn
-              key={status}
-              status={status}
-              tasks={k.columns[status]}
-              selectedId={k.editingTaskId}
-              onCardClick={k.openTask}
-            />
+          {BOARD_STATUSES.map((status, index) => (
+            <>
+              <BoardColumn
+                key={status}
+                status={status}
+                tasks={k.columns[status]}
+                selectedId={k.editingTaskId}
+                onCardClick={k.openTask}
+              />
+              {index !== status.length && <Separator orientation="vertical" />}
+            </>
           ))}
         </div>
 
@@ -189,5 +193,3 @@ export function KanbanCC({
     </>
   );
 }
-
-

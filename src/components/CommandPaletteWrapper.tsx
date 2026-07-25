@@ -1,10 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { CommandPalette, type CommandGroup } from "@/components/ui-kit/overlays/command-palette";
-import { getTranslations } from "@/i18n";
-import type { Language } from "@/types/db";
+import {
+  CommandPalette,
+  type CommandGroup,
+} from "@/components/ui-kit/overlays/command-palette";
 import type { IconName } from "@/components/ui-kit/foundation/icon";
+import { useTranslation } from "@/i18n/provider";
 
 interface SearchResult {
   tasks: Array<{
@@ -26,10 +28,7 @@ export function CommandPaletteWrapper() {
   const [results, setResults] = React.useState<SearchResult | null>(null);
   const [loading, setLoading] = React.useState(false);
   const [debouncedQuery, setDebouncedQuery] = React.useState("");
-
-  // Get language from document
-  const language = (document.documentElement.lang === "fa" ? "FA" : "EN") as Language;
-  const t = getTranslations(language);
+  const t = useTranslation();
 
   // Debounce search query
   React.useEffect(() => {
@@ -42,6 +41,7 @@ export function CommandPaletteWrapper() {
   // Search on debounced query change
   React.useEffect(() => {
     if (!debouncedQuery.trim()) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setResults(null);
       return;
     }
@@ -52,12 +52,12 @@ export function CommandPaletteWrapper() {
     fetch(`/api/search?q=${encodeURIComponent(debouncedQuery)}`, {
       signal: controller.signal,
     })
-      .then((res) => res.json())
-      .then((data) => {
+      .then(res => res.json())
+      .then(data => {
         setResults(data);
         setLoading(false);
       })
-      .catch((err) => {
+      .catch(err => {
         if (err.name !== "AbortError") {
           setResults(null);
           setLoading(false);
@@ -87,7 +87,7 @@ export function CommandPaletteWrapper() {
   const groups: CommandGroup[] = React.useMemo(() => {
     if (!results) return [];
 
-    const taskItems = results.tasks.map((task) => ({
+    const taskItems = results.tasks.map(task => ({
       label: task.title,
       meta: task.status,
       icon: "folder" as IconName,
@@ -97,7 +97,7 @@ export function CommandPaletteWrapper() {
       },
     }));
 
-    const userItems = results.users.map((user) => ({
+    const userItems = results.users.map(user => ({
       label: user.name,
       meta: user.email,
       icon: "user" as IconName,
@@ -137,7 +137,7 @@ export function CommandPaletteWrapper() {
     >
       <input
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        onChange={e => setQuery(e.target.value)}
         placeholder={placeholder}
         autoFocus
         style={{

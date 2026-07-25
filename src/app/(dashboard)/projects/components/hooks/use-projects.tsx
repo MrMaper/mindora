@@ -5,31 +5,42 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createProjectSchema, updateProjectSchema } from "@/schemas/projects";
-import { createProject, updateProject, archiveProject, deleteProject } from "@/features/projects/actions";
-import type { CreateProjectInput, UpdateProjectInput } from "@/schemas/projects";
+import {
+  createProject,
+  updateProject,
+  archiveProject,
+  deleteProject,
+} from "@/features/projects/actions";
+import type {
+  CreateProjectInput,
+  UpdateProjectInput,
+} from "@/schemas/projects";
 import type { ProjectRow } from "@/features/projects/types";
-
-type DrawerMode = "none" | "create" | "edit";
+import { DrawerMode } from "@/components/ui-kit/global/error";
 
 export function useProjects(initialSearch: string) {
   const router = useRouter();
 
   const [drawerMode, setDrawerMode] = React.useState<DrawerMode>("none");
-  const [editingProject, setEditingProject] = React.useState<ProjectRow | null>(null);
-  const [deleteTarget, setDeleteTarget] = React.useState<ProjectRow | null>(null);
+  const [editingProject, setEditingProject] = React.useState<ProjectRow | null>(
+    null,
+  );
+  const [deleteTarget, setDeleteTarget] = React.useState<ProjectRow | null>(
+    null,
+  );
   const [actionError, setActionError] = React.useState<string | null>(null);
   const [isPending, startTransition] = React.useTransition();
 
   const [search, setSearch] = React.useState(initialSearch);
 
-  const createForm = useForm<CreateProjectInput>({
-    resolver: zodResolver(createProjectSchema),
-    defaultValues: { name: "", description: "", teamId: "" },
-  });
-
   const editForm = useForm<UpdateProjectInput>({
     resolver: zodResolver(updateProjectSchema),
     defaultValues: { name: "", description: "" },
+  });
+
+  const createForm = useForm<CreateProjectInput>({
+    resolver: zodResolver(createProjectSchema),
+    defaultValues: { name: "", description: "", teamId: "" },
   });
 
   function openCreate() {
@@ -39,7 +50,10 @@ export function useProjects(initialSearch: string) {
   }
 
   function openEdit(project: ProjectRow) {
-    editForm.reset({ name: project.name, description: project.description ?? "" });
+    editForm.reset({
+      name: project.name,
+      description: project.description ?? "",
+    });
     setEditingProject(project);
     setActionError(null);
     setDrawerMode("edit");
@@ -51,7 +65,7 @@ export function useProjects(initialSearch: string) {
     setActionError(null);
   }
 
-  const onCreateSubmit = createForm.handleSubmit((data) => {
+  const onCreateSubmit = createForm.handleSubmit(data => {
     setActionError(null);
     startTransition(async () => {
       const fd = new FormData();
@@ -68,7 +82,7 @@ export function useProjects(initialSearch: string) {
     });
   });
 
-  const onEditSubmit = editForm.handleSubmit((data) => {
+  const onEditSubmit = editForm.handleSubmit(data => {
     if (!editingProject) return;
     setActionError(null);
     startTransition(async () => {
@@ -88,7 +102,8 @@ export function useProjects(initialSearch: string) {
   function onArchive(project: ProjectRow) {
     startTransition(async () => {
       const result = await archiveProject(project.id);
-      if (!result.success) setActionError(result.error ?? "Failed to archive project.");
+      if (!result.success)
+        setActionError(result.error ?? "Failed to archive project.");
       else router.refresh();
     });
   }
@@ -98,10 +113,11 @@ export function useProjects(initialSearch: string) {
     startTransition(async () => {
       const result = await deleteProject(deleteTarget.id);
       setDeleteTarget(null);
-      if (!result.success) setActionError(result.error ?? "Failed to delete project.");
+      if (!result.success)
+        setActionError(result.error ?? "Failed to delete project.");
       else router.refresh();
     });
-  }
+  };
 
   function onSearchSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -109,6 +125,10 @@ export function useProjects(initialSearch: string) {
     if (search) params.set("search", search);
     params.set("page", "1");
     router.push(`/projects?${params.toString()}`);
+  }
+
+  function onView(project: ProjectRow) {
+    router.push(`/projects/${project.id}`);
   }
 
   return {
@@ -131,5 +151,6 @@ export function useProjects(initialSearch: string) {
     onArchive,
     onDeleteConfirm,
     onSearchSubmit,
+    onView,
   };
 }

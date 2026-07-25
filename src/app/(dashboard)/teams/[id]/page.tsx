@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { getTeamById, getAvailableRoles, getAllUsersForInvite } from "@/features/teams/queries";
+import {
+  getTeamById,
+  getAvailableRoles,
+  getAllUsersForInvite,
+} from "@/features/teams/queries";
 import { getUserPreferences } from "@/features/settings/queries";
-import { TeamDetailCC } from "./team-detail-cc";
+import { TeamDetailCC } from "./components/client";
 
 export const metadata: Metadata = { title: "Team Details" };
 
@@ -28,7 +32,7 @@ export default async function TeamDetailPage({
 
   const language = preferences?.language ?? "EN";
 
-  const callerMember = team.members.find((m) => m.userId === session.user.id);
+  const callerMember = team.members.find(m => m.userId === session.user.id);
   const callerRole = callerMember?.roleName ?? null;
 
   return (
