@@ -11,7 +11,10 @@ import type { TaskStatus } from "./status-badge";
 import type { CardLabel, CardUser } from "./kanban-card";
 import { cn } from "@/lib/utils";
 
-export interface TaskCardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "title"> {
+export interface TaskCardProps extends Omit<
+  React.HTMLAttributes<HTMLDivElement>,
+  "title"
+> {
   issueKey: string;
   title: string;
   priority?: Priority;
@@ -54,7 +57,9 @@ export function TaskCard({
         </span>
       )}
       <PriorityIcon priority={priority} />
-      <span className="font-mono text-[10px] text-muted-foreground w-[86px] flex-none">{issueKey}</span>
+      <span className="font-mono text-[10px] text-muted-foreground w-[86px] flex-none">
+        {issueKey}
+      </span>
       <span className="truncate flex-1">{title}</span>
       {labels.length > 0 && (
         <span className="flex gap-1.5 flex-none">
@@ -73,7 +78,9 @@ export function TaskCard({
       )}
       {status && <StatusBadge status={status} />}
       {points != null && (
-        <span className="font-mono text-[10px] font-semibold text-muted-foreground">{points}</span>
+        <span className="font-mono text-[10px] font-semibold text-muted-foreground">
+          {points}
+        </span>
       )}
       {assignee && (
         <Avatar

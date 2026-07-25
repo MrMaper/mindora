@@ -41,7 +41,10 @@ export function ProgressBar({
     <div className={cn("w-full", className)} {...rest}>
       <ShadcnProgress
         value={percentage}
-        className={cn(sizeClass, "relative overflow-hidden rounded-full bg-muted")}
+        className={cn(
+          sizeClass,
+          "relative overflow-hidden rounded-full bg-muted",
+        )}
       >
         <div
           className={cn(

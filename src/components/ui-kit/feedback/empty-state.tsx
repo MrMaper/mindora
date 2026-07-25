@@ -1,8 +1,5 @@
 import * as React from "react";
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Icon } from "../foundation/icon";
 import type { IconName } from "../foundation/icon";
 import { cn } from "@/lib/utils";
@@ -50,12 +47,27 @@ export function EmptyState({
 
   return (
     <Card className={cn("w-full max-w-sm", className)} {...rest}>
-      <CardContent className={cn("flex flex-col items-center text-center", sizeClasses[size])}>
+      <CardContent
+        className={cn(
+          "flex flex-col items-center text-center",
+          sizeClasses[size],
+        )}
+      >
         <div className="flex items-center justify-center rounded-full bg-muted p-3">
-          <Icon name={icon} size={iconSizes[size]} className="text-muted-foreground" />
+          <Icon
+            name={icon}
+            size={iconSizes[size]}
+            className="text-muted-foreground"
+          />
         </div>
-        {title && <p className={cn(titleSizes[size], "text-foreground")}>{title}</p>}
-        {description && <p className={cn(descSizes[size], "text-muted-foreground")}>{description}</p>}
+        {title && (
+          <p className={cn(titleSizes[size], "text-foreground")}>{title}</p>
+        )}
+        {description && (
+          <p className={cn(descSizes[size], "text-muted-foreground")}>
+            {description}
+          </p>
+        )}
         {action && <div className="mt-2">{action}</div>}
       </CardContent>
     </Card>

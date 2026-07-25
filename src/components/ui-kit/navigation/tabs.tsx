@@ -17,7 +17,10 @@ export interface TabItem {
   count?: number;
 }
 
-export interface TabsProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange"> {
+export interface TabsProps extends Omit<
+  React.HTMLAttributes<HTMLDivElement>,
+  "onChange"
+> {
   tabs: TabItem[];
   value?: string;
   defaultValue?: string;
@@ -40,7 +43,7 @@ export function Tabs({
       {...rest}
     >
       <ShadcnTabsList>
-        {tabs.map((t) => (
+        {tabs.map(t => (
           <ShadcnTabsTrigger key={t.value} value={t.value} className="gap-1.5">
             {t.icon && <Icon name={t.icon} size={15} />}
             {t.label}

@@ -2,9 +2,10 @@
 
 import * as React from "react";
 
+export type DrawerMode = "none" | "create" | "edit";
 export interface GlobalErrorProps {
   error: string | null;
-  drawerMode: "none" | "create" | "edit";
+  drawerMode: DrawerMode;
 }
 
 export function GlobalError({ error, drawerMode }: GlobalErrorProps) {

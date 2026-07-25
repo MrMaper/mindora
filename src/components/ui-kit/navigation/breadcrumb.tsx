@@ -31,13 +31,14 @@ export function Breadcrumb({
   className = "",
   ...rest
 }: BreadcrumbProps): React.JSX.Element {
-  const visibleItems = items.length > maxItems
-    ? [
-        ...items.slice(0, maxItems - 2),
-        { label: "...", href: undefined, disabled: true },
-        items[items.length - 1],
-      ]
-    : items;
+  const visibleItems =
+    items.length > maxItems
+      ? [
+          ...items.slice(0, maxItems - 2),
+          { label: "...", href: undefined, disabled: true },
+          items[items.length - 1],
+        ]
+      : items;
 
   return (
     <ShadcnBreadcrumb className={className} {...rest}>
@@ -64,7 +65,9 @@ export function Breadcrumb({
                     }}
                     className={cn(
                       "flex items-center gap-1",
-                      !item.href && !item.onClick && "cursor-default pointer-events-none",
+                      !item.href &&
+                        !item.onClick &&
+                        "cursor-default pointer-events-none",
                     )}
                   >
                     {item.icon && <Icon name={item.icon} size={14} />}

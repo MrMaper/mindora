@@ -83,6 +83,7 @@ export function Select({
         <ShadcnSelectTrigger
           id={fieldId}
           className={cn(
+            "px-3 border-border hover:border-gray-400 hover:dark:border-gray-600 focus-visible:border-ring h-8!",
             errorMessage &&
               "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/30",
             className,

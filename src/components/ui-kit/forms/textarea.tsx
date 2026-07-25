@@ -32,14 +32,19 @@ export function Textarea({
       {label && (
         <ShadcnLabel htmlFor={fieldId} className="mb-1.5">
           {label}
-          {required && <span className="text-red-500 ml-1" aria-hidden="true">*</span>}
+          {required && (
+            <span className="text-red-500 ml-1" aria-hidden="true">
+              *
+            </span>
+          )}
         </ShadcnLabel>
       )}
       <ShadcnTextarea
         id={fieldId}
         rows={rows}
         className={cn(
-          error && "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/30",
+          error &&
+            "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/30",
           className,
         )}
         aria-invalid={!!error}

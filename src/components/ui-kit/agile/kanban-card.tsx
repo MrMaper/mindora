@@ -18,7 +18,10 @@ export interface CardUser {
   src?: string;
 }
 
-export interface KanbanCardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "title"> {
+export interface KanbanCardProps extends Omit<
+  React.HTMLAttributes<HTMLDivElement>,
+  "title"
+> {
   issueKey: string;
   title: string;
   priority?: Priority;
@@ -70,7 +73,9 @@ export function KanbanCard({
     <div className={cls} tabIndex={0} role="button" {...rest}>
       <div className="flex items-center gap-2">
         <PriorityIcon priority={priority} />
-        <span className="font-mono text-xs font-medium text-muted-foreground">{issueKey}</span>
+        <span className="font-mono text-xs font-medium text-muted-foreground">
+          {issueKey}
+        </span>
         {blocked && (
           <span className="flex items-center gap-1.5 ml-auto text-xs text-destructive">
             <Icon name="alert-triangle" size={11} />
@@ -117,7 +122,12 @@ export function KanbanCard({
         )}
         <div className="flex items-center gap-2 ml-auto">
           {due && (
-            <span className={cn("flex items-center gap-1.5 text-[10px]", overdue && "text-destructive font-medium")}>
+            <span
+              className={cn(
+                "flex items-center gap-1.5 text-[10px]",
+                overdue && "text-destructive font-medium",
+              )}
+            >
               <Icon name="clock" size={11} />
               {due}
             </span>

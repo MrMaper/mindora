@@ -4,7 +4,9 @@ import * as React from "react";
 import { Separator as ShadcnSeparator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
-export interface SeparatorProps extends React.ComponentProps<typeof ShadcnSeparator> {
+export interface SeparatorProps extends React.ComponentProps<
+  typeof ShadcnSeparator
+> {
   orientation?: "horizontal" | "vertical";
   decorative?: boolean;
 }

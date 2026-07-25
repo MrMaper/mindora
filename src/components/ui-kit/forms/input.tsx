@@ -73,6 +73,7 @@ export function Input({
           id={fieldId}
           className={cn(
             "px-3",
+            "bg-bg-surface! hover:border-gray-400 hover:dark:border-gray-600",
             icon && "pl-9",
             rightIcon && "pr-9",
             size === "lg" && "h-10 text-base px-4",

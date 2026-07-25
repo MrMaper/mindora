@@ -54,6 +54,7 @@ import {
   Zap,
   Mail,
   Archive,
+  UserX,
   RotateCcw,
   Eye,
   EyeOff,
@@ -63,6 +64,7 @@ export type IconName =
   | "home"
   | "search"
   | "archive"
+  | "user-x"
   | "bell"
   | "eye"
   | "eyeOff"
@@ -125,6 +127,7 @@ const iconMap: Record<
   home: Home,
   search: Search,
   archive: Archive,
+  "user-x": UserX,
   bell: Bell,
   eye: Eye,
   eyeOff: EyeOff,

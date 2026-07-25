@@ -15,7 +15,11 @@ function RadioGroup({ className, ...props }: RadioGroupPrimitive.Props) {
   );
 }
 
-function RadioGroupItem({ className, children, ...props }: RadioPrimitive.Root.Props) {
+function RadioGroupItem({
+  className,
+  children,
+  ...props
+}: RadioPrimitive.Root.Props) {
   return (
     <RadioPrimitive.Root
       data-slot="radio-group-item"

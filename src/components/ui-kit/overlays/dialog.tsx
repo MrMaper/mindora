@@ -35,7 +35,12 @@ export function Dialog({
   ...rest
 }: DialogProps): React.JSX.Element {
   return (
-    <ShadcnDialog open={open} onOpenChange={(newOpen) => { if (!newOpen) onClose?.(); }}>
+    <ShadcnDialog
+      open={open}
+      onOpenChange={newOpen => {
+        if (!newOpen) onClose?.();
+      }}
+    >
       <ShadcnDialogContent
         className={cn("sm:max-w-sm", className)}
         style={{ maxWidth: width }}
@@ -45,7 +50,9 @@ export function Dialog({
         {(title || description) && (
           <ShadcnDialogHeader>
             {title && <ShadcnDialogTitle>{title}</ShadcnDialogTitle>}
-            {description && <ShadcnDialogDescription>{description}</ShadcnDialogDescription>}
+            {description && (
+              <ShadcnDialogDescription>{description}</ShadcnDialogDescription>
+            )}
           </ShadcnDialogHeader>
         )}
         <div className="p-0">{children}</div>

@@ -46,7 +46,11 @@ export function RadioGroup({
       {label && (
         <ShadcnLabel className="mb-1.5">
           {label}
-          {required && <span className="text-red-500 ml-1" aria-hidden="true">*</span>}
+          {required && (
+            <span className="text-red-500 ml-1" aria-hidden="true">
+              *
+            </span>
+          )}
         </ShadcnLabel>
       )}
       <ShadcnRadioGroup
@@ -61,7 +65,7 @@ export function RadioGroup({
         aria-invalid={!!error}
         aria-describedby={error ? errorId : hint ? hintId : undefined}
       >
-        {options.map((option) => (
+        {options.map(option => (
           <ShadcnRadioGroupItem key={option.value} value={option.value}>
             <ShadcnLabel className="flex items-center gap-2 cursor-pointer">
               <span className="sr-only">{option.label}</span>
@@ -107,12 +111,14 @@ export function Radio({
   const radioId = id ?? generatedId;
 
   return (
-    <ShadcnLabel className={cn("flex items-center gap-2 cursor-pointer", disabled && "opacity-50 pointer-events-none", className)}>
-      <ShadcnRadioGroupItem
-        id={radioId}
-        value={value}
-        disabled={disabled}
-      >
+    <ShadcnLabel
+      className={cn(
+        "flex items-center gap-2 cursor-pointer",
+        disabled && "opacity-50 pointer-events-none",
+        className,
+      )}
+    >
+      <ShadcnRadioGroupItem id={radioId} value={value} disabled={disabled}>
         <span className="sr-only">{label}</span>
       </ShadcnRadioGroupItem>
       {label && <span className="text-sm text-text-primary">{label}</span>}

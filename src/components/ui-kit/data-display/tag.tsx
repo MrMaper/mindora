@@ -25,7 +25,9 @@ export function Tag({
       )}
       {...rest}
     >
-      {color && <span className="size-1.5 rounded-full" style={{ background: color }} />}
+      {color && (
+        <span className="size-1.5 rounded-full" style={{ background: color }} />
+      )}
       {children}
       {onRemove && (
         <span
@@ -34,7 +36,7 @@ export function Tag({
           tabIndex={0}
           aria-label="Remove"
           onClick={onRemove}
-          onKeyDown={(e) => e.key === "Enter" && onRemove()}
+          onKeyDown={e => e.key === "Enter" && onRemove()}
         >
           <Icon name="x" size={10} strokeWidth={2.5} />
         </span>
