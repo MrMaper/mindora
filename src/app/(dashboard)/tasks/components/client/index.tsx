@@ -132,6 +132,7 @@ export function TasksCC({
         onEdit={u.openEdit}
         onDelete={u.setDeleteTarget}
         formatDate={formatDate}
+        currentUserId={currentUserId}
       />
 
       {/* ── Pagination ───────────────────────────────────────────────── */}

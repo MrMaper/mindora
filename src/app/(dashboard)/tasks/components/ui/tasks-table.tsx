@@ -5,7 +5,7 @@ import { Avatar } from "@/components/ui-kit/data-display/avatar";
 import { Tag } from "@/components/ui-kit/data-display/tag";
 import { StatusBadge } from "@/components/ui-kit/agile/status-badge";
 import { PriorityIcon } from "@/components/ui-kit/agile/priority-icon";
-import { Menu } from "@/components/ui-kit/overlays/menu";
+import { Menu, type MenuItem } from "@/components/ui-kit/overlays/menu";
 import { IconButton } from "@/components/ui-kit/forms/icon-button";
 import type { TaskRow } from "@/features/tasks/types";
 import { statusToDisplay, priorityToDisplay } from "@/features/tasks/types";
@@ -18,6 +18,7 @@ interface TasksTableProps {
     sort: string;
     order: string;
   };
+  currentUserId: string;
   onSortChange: (key: string) => void;
   onRowClick: (task: TaskRow) => void;
   onEdit: (task: TaskRow) => void;
@@ -29,6 +30,7 @@ export function TasksTable({
   tasks,
   t,
   filters,
+  currentUserId,
   onSortChange,
   onRowClick,
   onEdit,
@@ -100,83 +102,90 @@ export function TasksTable({
           {t.tasks.noResults}
         </div>
       ) : (
-        tasks.map(task => (
-          <div
-            key={task.id}
-            onClick={() => onRowClick(task)}
-            className="grid gap-3 px-4 min-h-13 items-center border-b border-border-subtle hover:bg-bg-sunken/50 cursor-pointer"
-            style={{ gridTemplateColumns: "1fr 130px 90px 160px 110px 40px" }}
-          >
-            <div className="min-w-0">
-              <div className="text-sm font-medium text-text-primary truncate">
-                {task.title}
-              </div>
-              {task.labels.length > 0 && (
-                <div className="flex gap-1 mt-1 flex-wrap">
-                  {task.labels.map(l => (
-                    <Tag key={l.id} color={l.color}>
-                      {l.name}
-                    </Tag>
-                  ))}
+        tasks.map(task => {
+          const isAssignee = task.assignedTo?.id === currentUserId;
+          const menuItems: MenuItem[] = isAssignee
+            ? [
+                {
+                  label: t.common.edit,
+                  icon: "pencil",
+                  onClick: () => onEdit(task),
+                },
+                { divider: true },
+                {
+                  label: t.common.delete,
+                  icon: "trash",
+                  danger: true,
+                  onClick: () => onDelete(task),
+                },
+              ]
+            : [];
+
+          return (
+            <div
+              key={task.id}
+              onClick={isAssignee ? () => onRowClick(task) : undefined}
+              className="grid gap-3 px-4 min-h-13 items-center border-b border-border-subtle hover:bg-bg-sunken/50 cursor-pointer"
+              style={{ gridTemplateColumns: "1fr 130px 90px 160px 110px 40px" }}
+            >
+              <div className="min-w-0">
+                <div className="text-sm font-medium text-text-primary truncate">
+                  {task.title}
                 </div>
-              )}
-            </div>
+                {task.labels.length > 0 && (
+                  <div className="flex gap-1 mt-1 flex-wrap">
+                    {task.labels.map(l => (
+                      <Tag key={l.id} color={l.color}>
+                        {l.name}
+                      </Tag>
+                    ))}
+                  </div>
+                )}
+              </div>
 
-            <StatusBadge status={statusToDisplay(task.status)} />
+              <StatusBadge status={statusToDisplay(task.status)} />
 
-            <PriorityIcon priority={priorityToDisplay(task.priority)} />
+              <PriorityIcon priority={priorityToDisplay(task.priority)} />
 
-            <div className="flex items-center gap-2 min-w-0">
-              {task.assignedTo ? (
-                <>
-                  <Avatar
-                    name={task.assignedTo.name}
-                    src={task.assignedTo.avatar ?? undefined}
-                    size="sm"
-                  />
-                  <span className="text-xs text-text-secondary truncate">
-                    {task.assignedTo.name}
+              <div className="flex items-center gap-2 min-w-0">
+                {task.assignedTo ? (
+                  <>
+                    <Avatar
+                      name={task.assignedTo.name}
+                      src={task.assignedTo.avatar ?? undefined}
+                      size="sm"
+                    />
+                    <span className="text-xs text-text-secondary truncate">
+                      {task.assignedTo.name}
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-xs text-text-tertiary">
+                    {t.tasks.unassigned}
                   </span>
-                </>
-              ) : (
-                <span className="text-xs text-text-tertiary">
-                  {t.tasks.unassigned}
-                </span>
-              )}
+                )}
+              </div>
+
+              <span className="text-xs text-text-tertiary">
+                {formatDate(task.dueDate)}
+              </span>
+
+              <span onClick={e => e.stopPropagation()}>
+                <Menu
+                  trigger={
+                    <IconButton
+                      icon="more-horizontal"
+                      aria-label={t.tasks.taskActionsLabel}
+                      size="sm"
+                    />
+                  }
+                  align="end"
+                  items={menuItems}
+                />
+              </span>
             </div>
-
-            <span className="text-xs text-text-tertiary">
-              {formatDate(task.dueDate)}
-            </span>
-
-            <span onClick={e => e.stopPropagation()}>
-              <Menu
-                trigger={
-                  <IconButton
-                    icon="more-horizontal"
-                    aria-label={t.tasks.taskActionsLabel}
-                    size="sm"
-                  />
-                }
-                align="end"
-                items={[
-                  {
-                    label: t.common.edit,
-                    icon: "pencil",
-                    onClick: () => onEdit(task),
-                  },
-                  { divider: true },
-                  {
-                    label: t.common.delete,
-                    icon: "trash",
-                    danger: true,
-                    onClick: () => onDelete(task),
-                  },
-                ]}
-              />
-            </span>
-          </div>
-        ))
+          );
+        })
       )}
     </div>
   );
