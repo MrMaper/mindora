@@ -74,7 +74,7 @@ export function EditTaskDrawer({
       footer={
         <div className="flex gap-2 ml-auto">
           <Button variant="ghost" onClick={onClose} disabled={isPending}>
-            Cancel
+            {t.common.cancel}
           </Button>
           <Button
             variant="primary"
@@ -83,7 +83,7 @@ export function EditTaskDrawer({
             form="edit-task-form"
             disabled={isLoadingDetail}
           >
-            Save Changes
+            {t.tasks.saveChanges}
           </Button>
         </div>
       }
@@ -104,7 +104,7 @@ export function EditTaskDrawer({
 
         {isLoadingDetail ? (
           <div className="p-8 text-center text-text-tertiary text-sm">
-            Loading...
+            {t.common.loading}
           </div>
         ) : (
           <>
@@ -114,7 +114,7 @@ export function EditTaskDrawer({
               render={({ field, fieldState }) => (
                 <Input
                   {...field}
-                  label={activeTask?.title ?? "Title"}
+                  label={t.tasks.taskTitle}
                   error={fieldState.error?.message}
                 />
               )}
@@ -125,7 +125,7 @@ export function EditTaskDrawer({
               render={({ field, fieldState }) => (
                 <Textarea
                   {...field}
-                  label="Description"
+                  label={t.tasks.description}
                   error={fieldState.error?.message}
                 />
               )}
@@ -137,7 +137,7 @@ export function EditTaskDrawer({
                 render={({ field, fieldState }) => (
                   <Select
                     {...field}
-                    label="Status"
+                    label={t.tasks.status}
                     options={statusFieldOptions}
                     error={fieldState.error?.message}
                   />
@@ -149,7 +149,7 @@ export function EditTaskDrawer({
                 render={({ field, fieldState }) => (
                   <Select
                     {...field}
-                    label="Priority"
+                    label={t.tasks.priority}
                     options={priorityFieldOptions}
                     error={fieldState.error?.message}
                   />
@@ -161,7 +161,7 @@ export function EditTaskDrawer({
                 render={({ field, fieldState }) => (
                   <Select
                     {...field}
-                    label="Type"
+                    label={t.tasks.type}
                     options={typeFieldOptions}
                     error={fieldState.error?.message}
                   />
@@ -173,7 +173,7 @@ export function EditTaskDrawer({
                 render={({ field, fieldState }) => (
                   <Select
                     {...field}
-                    label="Assignee"
+                    label={t.tasks.assignee}
                     options={userOptions}
                     error={fieldState.error?.message}
                   />
@@ -192,7 +192,7 @@ export function EditTaskDrawer({
                         field.onChange(date ? date.toISOString() : "");
                       }}
                       mode="single"
-                      label="Due Date"
+                      label={t.tasks.dueDate}
                       error={fieldState.error?.message}
                     />
                   );
@@ -204,18 +204,18 @@ export function EditTaskDrawer({
               labels={labels}
               selected={selectedLabelIds}
               onToggle={onLabelToggle}
-              title="Labels"
-              addLabel="Add label"
+              title={t.tasks.labels}
+              addLabel={t.tasks.addLabel}
             />
 
             {/* ── Activity history ──────────────────────────────── */}
             <div>
               <div className="text-2xs font-semibold uppercase tracking-caps text-text-tertiary mb-2">
-                Activity
+                {t.tasks.activity}
               </div>
               {!activeTask || activeTask.activity.length === 0 ? (
                 <div className="text-sm text-text-tertiary">
-                  No activity
+                  {t.tasks.noActivity}
                 </div>
               ) : (
                 <div className="flex flex-col gap-3">
