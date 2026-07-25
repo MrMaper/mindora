@@ -29,6 +29,8 @@ export default async function TasksPage({
   const session = await auth();
   if (!session?.user) redirect("/login");
 
+  const isAdmin = session.user.role === "ADMIN";
+
   const {
     search = "",
     status = "",
@@ -39,12 +41,15 @@ export default async function TasksPage({
     page = "1",
   } = await searchParams;
 
+  // For non-admins, force filter by their own user ID
+  const effectiveAssignee = isAdmin ? (assignee || undefined) : session.user.id;
+
   const [data, users, labels, preferences] = await Promise.all([
     getTasks({
       search,
       status: (status || undefined) as TaskStatus | undefined,
       priority: (priority || undefined) as TaskPriority | undefined,
-      assigneeId: assignee || undefined,
+      assigneeId: effectiveAssignee,
       sort: sort as "title" | "priority" | "status" | "dueDate" | "createdAt",
       order: order as "asc" | "desc",
       page: Math.max(1, Number(page)),

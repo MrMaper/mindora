@@ -27,6 +27,7 @@ export interface SearchFiltersProps {
   onFiltersChange: (filter: Partial<TaskFilters>) => void;
   onClearFilters: (filter?: Partial<TaskFilters>) => void;
   hasActiveFilters: boolean;
+  currentUserRole: string;
 }
 
 export function SearchFilters({
@@ -41,7 +42,9 @@ export function SearchFilters({
   onFiltersChange,
   onClearFilters,
   hasActiveFilters,
+  currentUserRole,
 }: SearchFiltersProps) {
+  const isAdmin = currentUserRole === "ADMIN";
   return (
     <div className="mb-4 flex flex-wrap gap-2 justify-between items-end">
       <div className="flex gap-2 items-center w-fit">
@@ -83,6 +86,7 @@ export function SearchFilters({
             options={priorityOptions}
           />
         </div>
+        {isAdmin && (
         <div className="w-40">
           <Select
             label={t.assignee}
@@ -91,6 +95,7 @@ export function SearchFilters({
             options={userOptions}
           />
         </div>
+      )}
       </div>
 
       {hasActiveFilters && (

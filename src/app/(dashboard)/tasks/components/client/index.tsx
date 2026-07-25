@@ -119,6 +119,7 @@ export function TasksCC({
           u.applyFilters({ search: "", status: "", priority: "", assignee: "" })
         }
         hasActiveFilters={hasActiveFilters}
+        currentUserRole={currentUserRole}
       />
 
       {/* ── Global error ─────────────────────────────────────────────── */}
