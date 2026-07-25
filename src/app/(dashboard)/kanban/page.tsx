@@ -49,6 +49,7 @@ export default async function KanbanPage({
       labels={labels}
       filters={{ search, assignee, label, priority }}
       currentUserId={session.user.id}
+      currentUserRole={session.user.role}
     />
   );
 }

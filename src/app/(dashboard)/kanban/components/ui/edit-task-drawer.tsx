@@ -3,18 +3,21 @@
 import * as React from "react";
 import { Controller } from "react-hook-form";
 import type { Control } from "react-hook-form";
+import { Drawer } from "@/components/ui-kit/overlays/drawer";
 import { Button } from "@/components/ui-kit/forms/button";
 import { Input } from "@/components/ui-kit/forms/input";
-import { Select } from "@/components/ui-kit/forms/select";
 import { Textarea } from "@/components/ui-kit/forms/textarea";
-import { Tag } from "@/components/ui-kit/data-display/tag";
-import { Drawer } from "@/components/ui-kit/overlays/drawer";
+import { Select } from "@/components/ui-kit/forms/select";
+import { DatePicker } from "@/components/ui-kit/forms/date-picker";
+import { LabelPicker } from "./label-picker";
+import { Avatar } from "@/components/ui-kit/data-display/avatar";
 import { TaskComments } from "@/components/tasks/task-comments";
 import { useTranslation } from "@/i18n/provider";
 import type { UpdateTaskInput } from "@/schemas/tasks";
 import type { TaskDetail } from "@/features/tasks/types";
 import type { LabelRow } from "@/features/labels/types";
 import type { UserRow } from "@/features/users/types";
+import { activityLabel } from "@/features/tasks/types";
 
 interface EditTaskDrawerProps {
   open: boolean;
@@ -29,28 +32,12 @@ interface EditTaskDrawerProps {
   activeTask: TaskDetail | null;
   users: UserRow[];
   currentUserId: string;
+  currentUserRole: string;
   onSubmit: () => void;
   statusFieldOptions: { value: string; label: string }[];
   priorityFieldOptions: { value: string; label: string }[];
   typeFieldOptions: { value: string; label: string }[];
   userOptions: { value: string; label: string }[];
-}
-
-function activityLabel(t: ReturnType<typeof useTranslation>, action: string): string {
-  switch (action) {
-    case "created":
-      return t.tasks.activityCreated;
-    case "status_changed":
-      return t.tasks.activityStatusChanged;
-    case "assigned":
-      return t.tasks.activityAssigned;
-    case "commented":
-      return t.tasks.activityCommented;
-    case "attachment_added":
-      return t.tasks.activityAttachment;
-    default:
-      return t.tasks.activityUpdated;
-  }
 }
 
 export function EditTaskDrawer({
@@ -66,6 +53,7 @@ export function EditTaskDrawer({
   activeTask,
   users,
   currentUserId,
+  currentUserRole,
   onSubmit,
   statusFieldOptions,
   priorityFieldOptions,
@@ -73,60 +61,41 @@ export function EditTaskDrawer({
   userOptions,
 }: EditTaskDrawerProps) {
   const t = useTranslation();
-
   return (
     <Drawer
       open={open}
       onClose={onClose}
       wide
       header={
-        <span
-          style={{
-            fontSize: "var(--text-sm)",
-            fontWeight: "var(--weight-semibold)",
-            color: "var(--text-primary)",
-          }}
-        >
-          {t.tasks.editTask}
+        <span className="text-sm font-semibold text-text-primary">
+          {activeTask?.title ?? "Edit Task"}
         </span>
       }
       footer={
-        <div
-          style={{
-            display: "flex",
-            gap: "var(--space-2)",
-            marginLeft: "auto",
-          }}
-        >
-          <Button
-            variant="ghost"
-            onClick={onClose}
-            disabled={isPending}
-          >
-            {t.common.cancel}
+        <div className="flex gap-2 ml-auto">
+          <Button variant="ghost" onClick={onClose} disabled={isPending}>
+            Cancel
           </Button>
           <Button
             variant="primary"
             loading={isPending}
-            onClick={onSubmit}
+            type="submit"
+            form="edit-task-form"
             disabled={isLoadingDetail}
           >
-            {t.tasks.saveChanges}
+            Save Changes
           </Button>
         </div>
       }
     >
-      <div
-        style={{
-          padding: "var(--space-4)",
-          display: "flex",
-          flexDirection: "column",
-          gap: "var(--space-4)",
-        }}
+      <form
+        id="edit-task-form"
+        onSubmit={onSubmit}
+        className="py-4 flex flex-col gap-4"
       >
         {actionError && (
           <div
-            className="auth-card__alert auth-card__alert--error"
+            className="rounded-md border border-red-500/30 bg-red-500/10 p-3 text-red-500 text-sm"
             role="alert"
           >
             {actionError}
@@ -134,15 +103,8 @@ export function EditTaskDrawer({
         )}
 
         {isLoadingDetail ? (
-          <div
-            style={{
-              padding: "var(--space-8)",
-              textAlign: "center",
-              color: "var(--text-tertiary)",
-              fontSize: "var(--text-sm)",
-            }}
-          >
-            {t.common.loading}
+          <div className="p-8 text-center text-text-tertiary text-sm">
+            Loading...
           </div>
         ) : (
           <>
@@ -152,7 +114,7 @@ export function EditTaskDrawer({
               render={({ field, fieldState }) => (
                 <Input
                   {...field}
-                  label={t.tasks.taskTitle}
+                  label={activeTask?.title ?? "Title"}
                   error={fieldState.error?.message}
                 />
               )}
@@ -163,25 +125,19 @@ export function EditTaskDrawer({
               render={({ field, fieldState }) => (
                 <Textarea
                   {...field}
-                  label={t.tasks.description}
+                  label="Description"
                   error={fieldState.error?.message}
                 />
               )}
             />
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "var(--space-3)",
-              }}
-            >
+            <div className="grid grid-cols-2 gap-3">
               <Controller
                 name="status"
                 control={control}
                 render={({ field, fieldState }) => (
                   <Select
                     {...field}
-                    label={t.tasks.status}
+                    label="Status"
                     options={statusFieldOptions}
                     error={fieldState.error?.message}
                   />
@@ -193,7 +149,7 @@ export function EditTaskDrawer({
                 render={({ field, fieldState }) => (
                   <Select
                     {...field}
-                    label={t.tasks.priority}
+                    label="Priority"
                     options={priorityFieldOptions}
                     error={fieldState.error?.message}
                   />
@@ -205,7 +161,7 @@ export function EditTaskDrawer({
                 render={({ field, fieldState }) => (
                   <Select
                     {...field}
-                    label={t.tasks.type}
+                    label="Type"
                     options={typeFieldOptions}
                     error={fieldState.error?.message}
                   />
@@ -217,7 +173,7 @@ export function EditTaskDrawer({
                 render={({ field, fieldState }) => (
                   <Select
                     {...field}
-                    label={t.tasks.assignee}
+                    label="Assignee"
                     options={userOptions}
                     error={fieldState.error?.message}
                   />
@@ -226,106 +182,58 @@ export function EditTaskDrawer({
               <Controller
                 name="dueDate"
                 control={control}
-                render={({ field, fieldState }) => (
-                  <Input
-                    {...field}
-                    type="date"
-                    label={t.tasks.dueDate}
-                    error={fieldState.error?.message}
-                  />
-                )}
+                render={({ field, fieldState }) => {
+                  const value = field.value ? new Date(field.value) : null;
+
+                  return (
+                    <DatePicker
+                      value={value}
+                      onChange={date => {
+                        field.onChange(date ? date.toISOString() : "");
+                      }}
+                      mode="single"
+                      label="Due Date"
+                      error={fieldState.error?.message}
+                    />
+                  );
+                }}
               />
             </div>
 
-            <div>
-              <div
-                style={{
-                  fontSize: "var(--text-xs)",
-                  fontWeight: "var(--weight-semibold)",
-                  color: "var(--text-tertiary)",
-                  textTransform: "uppercase",
-                  letterSpacing: "var(--tracking-caps)",
-                  marginBottom: "var(--space-2)",
-                }}
-              >
-                {t.tasks.labels}
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: "var(--space-2)",
-                }}
-              >
-                {labels.map(l => {
-                  const active = selectedLabelIds.includes(l.id);
-                  return (
-                    <button
-                      key={l.id}
-                      type="button"
-                      onClick={() => onLabelToggle(l.id)}
-                      style={{
-                        background: "none",
-                        border: "none",
-                        padding: 0,
-                        cursor: "pointer",
-                        opacity: active ? 1 : 0.45,
-                      }}
-                    >
-                      <Tag color={l.color}>{l.name}</Tag>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+            <LabelPicker
+              labels={labels}
+              selected={selectedLabelIds}
+              onToggle={onLabelToggle}
+              title="Labels"
+              addLabel="Add label"
+            />
 
+            {/* ── Activity history ──────────────────────────────── */}
             <div>
-              <div
-                style={{
-                  fontSize: "var(--text-xs)",
-                  fontWeight: "var(--weight-semibold)",
-                  color: "var(--text-tertiary)",
-                  textTransform: "uppercase",
-                  letterSpacing: "var(--tracking-caps)",
-                  marginBottom: "var(--space-2)",
-                }}
-              >
-                {t.tasks.activity}
+              <div className="text-2xs font-semibold uppercase tracking-caps text-text-tertiary mb-2">
+                Activity
               </div>
               {!activeTask || activeTask.activity.length === 0 ? (
-                <div
-                  style={{
-                    fontSize: "var(--text-sm)",
-                    color: "var(--text-tertiary)",
-                  }}
-                >
-                  {t.tasks.noActivity}
+                <div className="text-sm text-text-tertiary">
+                  No activity
                 </div>
               ) : (
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "var(--space-3)",
-                  }}
-                >
+                <div className="flex flex-col gap-3">
                   {activeTask.activity.map(entry => (
-                    <div
-                      key={entry.id}
-                      style={{
-                        fontSize: "var(--text-sm)",
-                        color: "var(--text-primary)",
-                      }}
-                    >
-                      <strong>{entry.performedBy.name}</strong>{" "}
-                      {activityLabel(t, entry.action)}
-                      <div
-                        style={{
-                          fontSize: "var(--text-2xs)",
-                          color: "var(--text-tertiary)",
-                        }}
-                      >
-                        {new Date(entry.timestamp).toLocaleString()}
+                    <div key={entry.id} className="flex items-start gap-2">
+                      <Avatar
+                        name={entry.performedBy.name}
+                        src={entry.performedBy.avatar ?? undefined}
+                        size="sm"
+                      />
+                      <div>
+                        <div className="text-sm text-text-primary">
+                          <strong>{entry.performedBy.name}</strong>{" "}
+                          {activityLabel(t, entry.action)}
+                        </div>
+                        <div className="text-2xs text-text-tertiary">
+                          {new Date(entry.timestamp).toLocaleString()}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -343,7 +251,7 @@ export function EditTaskDrawer({
             )}
           </>
         )}
-      </div>
+      </form>
     </Drawer>
   );
 }

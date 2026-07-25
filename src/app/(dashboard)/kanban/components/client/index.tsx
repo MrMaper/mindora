@@ -32,6 +32,7 @@ interface KanbanCCProps {
     priority: string;
   };
   currentUserId: string;
+  currentUserRole: string;
 }
 
 export function KanbanCC({
@@ -40,6 +41,7 @@ export function KanbanCC({
   labels,
   filters,
   currentUserId,
+  currentUserRole,
 }: KanbanCCProps) {
   const k = useKanban(initialColumns, filters);
   const t = useTranslation();
@@ -184,6 +186,7 @@ export function KanbanCC({
         activeTask={k.activeTask}
         users={users}
         currentUserId={currentUserId}
+        currentUserRole={currentUserRole}
         onSubmit={k.onEditSubmit}
         statusFieldOptions={statusFieldOptions}
         priorityFieldOptions={priorityFieldOptions}
