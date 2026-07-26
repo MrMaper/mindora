@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { Icon } from "@/components/ui-kit/foundation/icon";
 import type { IconName } from "@/components/ui-kit/foundation/icon";
+import Image from "next/image";
 import { getTranslations } from "@/i18n";
 import { getUserPreferences } from "@/features/settings/queries";
 import { getUnreadCount } from "@/features/notifications/queries";
@@ -59,9 +60,12 @@ export default async function DashboardLayout({
       <DirectionSync language={language} />
       <aside className="fixed top-0 z-40 w-64 h-screen flex flex-col border-r bg-card">
         <div className="flex items-center justify-center gap-2 h-14 border-b px-4">
-          <span className="flex items-center justify-center size-5 bg-primary rounded-lg text-primary-foreground shrink-0">
-            <Icon name="zap" size={12} strokeWidth={2.5} />
-          </span>
+          <Image
+            src="/assets/images/logo-new.png"
+            alt="sf-logo"
+            width={24}
+            height={24}
+          />
           <span className="text-base font-semibold text-foreground tracking-tight">
             ScrumFlow
           </span>
