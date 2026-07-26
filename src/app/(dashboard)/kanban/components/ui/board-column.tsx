@@ -43,7 +43,7 @@ export function BoardColumn({
       </div>
       <div
         ref={setNodeRef}
-        className={`flex flex-col gap-2 overflow-y-auto py-0.5 min-h-[40px] rounded-md transition-colors ${
+        className={`flex flex-col gap-2 overflow-y-auto py-0.5 min-h-[40px] rounded-md transition-colors max-h-[calc(100vh-240px)] ${
           isOver ? "bg-accent" : ""
         }`}
       >

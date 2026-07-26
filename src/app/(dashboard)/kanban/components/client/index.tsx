@@ -132,7 +132,7 @@ export function KanbanCC({
         onDragOver={k.onDragOver}
         onDragEnd={k.onDragEnd}
       >
-        <div className="flex gap-3 py-4 items-start min-h-full overflow-x-auto">
+        <div className="flex gap-3 py-4 h-full min-h-0 overflow-x-auto items-stretch">
           {BOARD_STATUSES.map((status, index) => (
             <>
               <BoardColumn
