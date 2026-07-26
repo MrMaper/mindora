@@ -57,7 +57,7 @@ export default async function DashboardLayout({
       dir={language === "FA" ? "rtl" : "ltr"}
     >
       <DirectionSync language={language} />
-      <aside className="w-64 flex flex-col border-r bg-card">
+      <aside className="fixed top-0 z-40 w-64 h-screen flex flex-col border-r bg-card">
         <div className="flex items-center justify-center gap-2 h-14 border-b px-4">
           <span className="flex items-center justify-center size-5 bg-primary rounded-lg text-primary-foreground shrink-0">
             <Icon name="zap" size={12} strokeWidth={2.5} />
@@ -80,7 +80,7 @@ export default async function DashboardLayout({
       />
       </aside>
 
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className={`flex-1 flex flex-col min-w-0 ${language === "FA" ? "mr-64" : "ml-64"}`}>
         <main className="flex-1 p-6 overflow-auto">{children}</main>
       </div>
 
