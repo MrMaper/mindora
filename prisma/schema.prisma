@@ -82,23 +82,23 @@ model PasswordResetToken {
 }
 
 model UserPreferences {
-  id                    String   @id @default(cuid())
-  userId                String   @unique
-  language              Language @default(FA)
-  theme                 Theme    @default(SYSTEM)
-  emailNotifs           Boolean  @default(true)
-  notifications         Boolean  @default(true)
-  soundNotifs           Boolean  @default(false)
-  notifyTaskAssigned    Boolean  @default(true)
-  notifyTaskUpdated     Boolean  @default(true)
-  notifyTaskCommented   Boolean  @default(true)
-  notifyMention         Boolean  @default(true)
-  notifySprintStarted   Boolean  @default(true)
-  notifySprintEnded     Boolean  @default(true)
-  notifyDeadlineApproaching Boolean @default(true)
-  notifyStatusChanged   Boolean  @default(true)
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  id                        String   @id @default(cuid())
+  userId                    String   @unique
+  language                  Language @default(FA)
+  theme                     Theme    @default(SYSTEM)
+  emailNotifs               Boolean  @default(true)
+  notifications             Boolean  @default(true)
+  soundNotifs               Boolean  @default(false)
+  notifyTaskAssigned        Boolean  @default(true)
+  notifyTaskUpdated         Boolean  @default(true)
+  notifyTaskCommented       Boolean  @default(true)
+  notifyMention             Boolean  @default(true)
+  notifySprintStarted       Boolean  @default(true)
+  notifySprintEnded         Boolean  @default(true)
+  notifyDeadlineApproaching Boolean  @default(true)
+  notifyStatusChanged       Boolean  @default(true)
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -171,14 +171,14 @@ model TeamMember {
 }
 
 model Project {
-  id          String        @id @default(cuid())
+  id          String          @id @default(cuid())
   teamId      String?
   name        String
   description String?
-  status      ProjectStatus @default(ACTIVE)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  team        Team?         @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  status      ProjectStatus   @default(ACTIVE)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  team        Team?           @relation(fields: [teamId], references: [id], onDelete: SetNull)
   sprints     Sprint[]
   tasks       Task[]
   members     ProjectMember[]
