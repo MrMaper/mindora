@@ -16,13 +16,13 @@ interface ProjectHeaderProps {
 
 export function ProjectHeader({ project, t, isAdmin, onInviteMember }: ProjectHeaderProps) {
   return (
-    <div className="flex items-start justify-between gap-4">
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-3 mb-2">
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
           <div className="size-12 rounded-xl bg-primary flex items-center justify-center text-primary-foreground font-semibold text-base">
             {project.name.charAt(0).toUpperCase()}
           </div>
-          <div>
+          <div className="min-w-0">
             <h1 className="text-2xl font-semibold text-foreground truncate">{project.name}</h1>
             <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
               <span className="flex items-center gap-1">
@@ -39,15 +39,15 @@ export function ProjectHeader({ project, t, isAdmin, onInviteMember }: ProjectHe
             </div>
           </div>
         </div>
-        {project.description && (
-          <p className="text-base text-muted-foreground max-w-3xl">{project.description}</p>
-        )}
         {isAdmin && (
-          <Button variant="primary" icon="plus" onClick={onInviteMember} className="mt-4">
+          <Button variant="primary" icon="plus" onClick={onInviteMember} className="flex-shrink-0">
             {t.projects.inviteMember}
           </Button>
         )}
       </div>
+      {project.description && (
+        <p className="text-base text-muted-foreground max-w-3xl">{project.description}</p>
+      )}
     </div>
   );
 }

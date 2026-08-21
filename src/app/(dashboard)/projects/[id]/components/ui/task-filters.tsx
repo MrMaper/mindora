@@ -17,8 +17,9 @@ interface TaskFiltersProps {
   onSearchChange: (value: string) => void;
   onSearchSubmit: (e: React.FormEvent) => void;
   onFiltersChange: (filter: Partial<ProjectTaskFilters>) => void;
-  onClearFilters: () => void;
+  onClearFilters: (filter?: Partial<ProjectTaskFilters>) => void;
   hasActiveFilters: boolean;
+  currentUserRole: string;
 }
 
 export function TaskFilters({
@@ -33,72 +34,79 @@ export function TaskFilters({
   onFiltersChange,
   onClearFilters,
   hasActiveFilters,
+  currentUserRole,
 }: TaskFiltersProps) {
+  const isAdmin = currentUserRole === "ADMIN";
   return (
-    <div className="mb-4 space-y-4">
-      <form onSubmit={onSearchSubmit} className="flex gap-2">
-        <Input
-          placeholder={t.projects.search || "Search tasks"}
-          icon="search"
-          value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
-          className="max-w-[320px]"
-        />
-        <Button type="submit" variant="secondary">
-          {t.projects.searchButton || "Search"}
-        </Button>
-      </form>
+    <div className="mb-4 flex flex-wrap gap-2 justify-between items-end">
+      <div className="flex gap-2 items-center w-fit">
+        <form
+          onSubmit={onSearchSubmit}
+          className="flex gap-1 w-full max-w-60 items-end"
+        >
+          <Input
+            label={t.tasks.searchButton}
+            placeholder={t.tasks.search}
+            icon="search"
+            value={search}
+            onChange={e => onSearchChange(e.target.value)}
+            className="w-full bg-bg-surface"
+            button={
+              <Button
+                variant="primary"
+                size="sm"
+                iconRight="search"
+                onClick={onSearchSubmit}
+              />
+            }
+          />
+        </form>
 
-      <div className="flex flex-wrap gap-3">
-        <Select
-          value={filters.status}
-          onChange={(v) => onFiltersChange({ status: v })}
-          options={statusOptions}
-          className="w-[160px]"
-        />
-        <Select
-          value={filters.priority}
-          onChange={(v) => onFiltersChange({ priority: v })}
-          options={priorityOptions}
-          className="w-[160px]"
-        />
-        <Select
-          value={filters.assignee}
-          onChange={(v) => onFiltersChange({ assignee: v })}
-          options={assigneeOptions}
-          className="w-[180px]"
-        />
-        <Select
-          value={filters.sort}
-          onChange={(v) => onFiltersChange({ sort: v })}
-          options={[
-            { value: "createdAt", label: t.projects.sortCreated || "Created" },
-            { value: "updatedAt", label: t.projects.sortUpdated || "Updated" },
-            { value: "priority", label: t.projects.sortPriority || "Priority" },
-            { value: "title", label: t.projects.sortTitle || "Title" },
-          ]}
-          className="w-[160px]"
-        />
-        <Select
-          value={filters.order}
-          onChange={(v) => onFiltersChange({ order: v })}
-          options={[
-            { value: "desc", label: t.projects.sortDesc || "Descending" },
-            { value: "asc", label: t.projects.sortAsc || "Ascending" },
-          ]}
-          className="w-[100px]"
-        />
-        {hasActiveFilters && (
-          <Button
-            variant="ghost"
-            icon="x"
-            onClick={onClearFilters}
-            className="text-destructive hover:bg-destructive/10"
-          >
-            {t.projects.clearFilters || "Clear filters"}
-          </Button>
-        )}
+        <div className="w-40">
+          <Select
+            label={t.tasks.status}
+            value={filters.status}
+            onChange={value => onFiltersChange({ ...filters, status: value })}
+            options={statusOptions}
+          />
+        </div>
+        <div className="w-40">
+          <Select
+            label={t.tasks.priority}
+            value={filters.priority}
+            onChange={value => onFiltersChange({ ...filters, priority: value })}
+            options={priorityOptions}
+          />
+        </div>
+        {isAdmin && (
+        <div className="w-40">
+          <Select
+            label={t.tasks.assignee}
+            value={filters.assignee}
+            onChange={value => onFiltersChange({ ...filters, assignee: value })}
+            options={assigneeOptions}
+          />
+        </div>
+      )}
       </div>
+
+      {hasActiveFilters && (
+        <Button
+          variant="ghost"
+          icon="x"
+          onClick={() => {
+            onClearFilters({
+              search: "",
+              status: "",
+              priority: "",
+              assignee: "",
+            });
+          }}
+          className="text-red-500! hover:bg-red-50 dark:hover:bg-red-950/20"
+        >
+          {t.tasks.clearFilters}
+        </Button>
+      )}
     </div>
   );
 }

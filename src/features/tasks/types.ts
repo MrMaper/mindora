@@ -27,6 +27,8 @@ export interface TaskRow {
   createdBy: TaskUserRef;
   assignedTo: TaskUserRef | null;
   labels: TaskLabelRef[];
+  projectId: string | null;
+  projectName: string | null;
 }
 
 export interface TaskActivityEntry {
@@ -48,6 +50,7 @@ export interface GetTasksParams {
   status?: TaskStatus;
   priority?: TaskPriority;
   assigneeId?: string;
+  projectIds?: string[];
   sort?: "title" | "priority" | "status" | "dueDate" | "createdAt";
   order?: "asc" | "desc";
   page?: number;

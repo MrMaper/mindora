@@ -12,4 +12,5 @@ export interface BoardFilters {
   assigneeId?: string;
   labelId?: string;
   priority?: TaskPriority;
+  projectIds?: string[];
 }

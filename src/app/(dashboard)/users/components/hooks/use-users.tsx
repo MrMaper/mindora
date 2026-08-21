@@ -44,6 +44,8 @@ export function useUsers(initialSearch: string) {
     role: "",
     status: "",
     teamId: "",
+    sort: "createdAt",
+    order: "desc",
   });
 
   const createForm = useForm<CreateUserInput>({
@@ -171,6 +173,8 @@ export function useUsers(initialSearch: string) {
       role: "",
       status: "",
       teamId: "",
+      sort: "createdAt",
+      order: "desc",
     });
   }
 

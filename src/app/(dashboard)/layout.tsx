@@ -49,7 +49,6 @@ export default async function DashboardLayout({
       icon: "bell",
       badge: unreadCount,
     },
-    { label: t.nav.settings, href: "/settings", icon: "settings", roles: ["ADMIN"] },
   ];
 
   return (

@@ -13,7 +13,7 @@ export default async function ProfilePage() {
   if (!user) notFound();
 
   const preferences = await getUserPreferences(session.user.id);
-  const language = preferences?.language ?? "EN";
+  const language = preferences?.language ?? "FA";
 
   return <ProfileCC user={user} language={language} />;
 }

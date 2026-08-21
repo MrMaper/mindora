@@ -14,6 +14,16 @@ export async function getBoardColumns(filters: BoardFilters): Promise<BoardColum
     ...(filters.assigneeId ? { assignedToId: filters.assigneeId } : {}),
     ...(filters.priority ? { priority: filters.priority } : {}),
     ...(filters.labelId ? { labels: { some: { labelId: filters.labelId } } } : {}),
+    ...(filters.projectIds && filters.projectIds.length > 0
+      ? { projectId: { in: filters.projectIds } }
+      : {}),
+    // Exclude archived projects
+    project: { isNot: { status: "ARCHIVED" as const } },
+    // Exclude orphaned tasks (projectId set but project deleted)
+    OR: [
+      { projectId: null },
+      { project: { isNot: null } },
+    ],
   };
 
   const tasks = await db.task.findMany({
@@ -29,6 +39,8 @@ export async function getBoardColumns(filters: BoardFilters): Promise<BoardColum
       position: true,
       createdAt: true,
       updatedAt: true,
+      projectId: true,
+      project: { select: { name: true } },
       createdBy: { select: userRefSelect },
       assignedTo: { select: userRefSelect },
       labels: { select: { label: { select: { id: true, name: true, color: true } } } },

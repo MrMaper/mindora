@@ -16,7 +16,7 @@ export default async function TeamsPage({
   const data = await getTeams(search, status, Math.max(1, Number(page)));
 
   const preferences = await getUserPreferences(session.user.id);
-  const language = preferences?.language ?? "EN";
+  const language = preferences?.language ?? "FA";
 
   return (
     <TeamsCC

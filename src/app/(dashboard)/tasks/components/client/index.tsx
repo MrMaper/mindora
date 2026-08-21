@@ -11,6 +11,7 @@ import { Pagination } from "@/components/ui-kit/tables/pagination";
 import type { UserRow } from "@/features/users/types";
 import type { LabelRow } from "@/features/labels/types";
 import type { Language } from "@/types/db";
+import type { ProjectRow } from "@/features/projects/types";
 
 // UI components
 import { PageHeader } from "../ui/page-header";
@@ -26,12 +27,14 @@ import { GlobalError } from "@/components/ui-kit/global";
 interface TasksCCProps {
   initialData: GetTasksResult;
   users: UserRow[];
+  userProjects: ProjectRow[];
   labels: LabelRow[];
   filters: {
     search: string;
     status: string;
     priority: string;
     assignee: string;
+    project: string;
     sort: string;
     order: string;
   };
@@ -44,6 +47,7 @@ interface TasksCCProps {
 export function TasksCC({
   initialData,
   users,
+  userProjects,
   labels,
   filters,
   page,
@@ -60,6 +64,12 @@ export function TasksCC({
     { value: "", label: t.tasks.unassigned },
     ...users.map(usr => ({ value: usr.id, label: usr.name })),
   ];
+
+  const projectOptions = [
+    { value: "", label: t.tasks.noProject },
+    ...userProjects.map(proj => ({ value: proj.id, label: proj.name })),
+  ];
+
   const statusOptions = withEmptyOption(
     getAllOptionsWithLabels(language, "status"),
     t.tasks.allStatuses,
@@ -77,6 +87,7 @@ export function TasksCC({
     filters.status ||
     filters.priority ||
     filters.assignee ||
+    filters.project ||
     filters.search
   );
 
@@ -98,6 +109,7 @@ export function TasksCC({
         total={total}
         onLabelDialogOpen={u.onLabelDialogOpen}
         onCreate={u.openCreate}
+        currentUserRole={currentUserRole}
       />
 
       {/* ── Search + filters ────────────────────────────────────────── */}
@@ -105,6 +117,8 @@ export function TasksCC({
         t={t.tasks}
         filters={filters}
         search={u.search}
+        project={u.project}
+        projectOptions={projectOptions}
         statusOptions={statusOptions}
         priorityOptions={priorityOptions}
         userOptions={userOptions}
@@ -115,9 +129,11 @@ export function TasksCC({
             filter as Partial<import("../hooks/use-tasks").TaskFilters>,
           )
         }
-        onClearFilters={() =>
-          u.applyFilters({ search: "", status: "", priority: "", assignee: "" })
-        }
+        onProjectChange={u.setProject}
+        onClearFilters={() => {
+          u.setProject("");
+          u.applyFilters({ search: "", status: "", priority: "", assignee: "", project: "" });
+        }}
         hasActiveFilters={hasActiveFilters}
         currentUserRole={currentUserRole}
       />
@@ -150,11 +166,13 @@ export function TasksCC({
         form={{ ...u.createForm, isPending: u.isPending } as any}
         t={t.tasks}
         users={users}
+        projects={userProjects}
         labels={labels}
         statusOptions={statusOptions}
         priorityOptions={priorityOptions}
         typeOptions={typeOptions}
         userOptions={userOptions}
+        projectOptions={projectOptions}
         selectedLabelIds={u.selectedLabelIds}
         onLabelToggle={u.toggleLabel}
         onSubmit={u.onCreateSubmit}
@@ -162,7 +180,7 @@ export function TasksCC({
         isPending={u.isPending}
       />
 
-      {/* ── Edit task drawer ────────────────────────────────────────── */}
+      {/* ── Edit task drawer ────────────────────────────────────────__ */}
       <EditTaskDrawer
         isOpen={u.drawerMode === "edit"}
         onClose={u.closeDrawer}
@@ -170,6 +188,7 @@ export function TasksCC({
         form={{ ...u.editForm, isPending: u.isPending } as any}
         t={t}
         users={users}
+        projects={userProjects}
         labels={labels}
         activeTask={u.activeTask}
         isLoadingDetail={u.isLoadingDetail}
@@ -177,6 +196,7 @@ export function TasksCC({
         priorityOptions={priorityOptions}
         typeOptions={typeOptions}
         userOptions={userOptions}
+        projectOptions={projectOptions}
         selectedLabelIds={u.selectedLabelIds}
         onLabelToggle={u.toggleLabel}
         onSubmit={u.onEditSubmit}
@@ -186,18 +206,20 @@ export function TasksCC({
       />
 
       {/* ── Label management dialog ─────────────────────────────────── */}
-      <LabelManagementDialog
-        isOpen={u.labelDialogOpen}
-        onClose={() => u.setLabelDialogOpen(false)}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        form={u.labelForm as any}
-        labels={labels}
-        t={t.tasks}
-        onCreateSubmit={u.onCreateLabelSubmit}
-        onDeleteLabel={u.onDeleteLabel}
-        labelError={u.labelError}
-        isPending={u.isPending}
-      />
+      {currentUserRole === "ADMIN" && (
+        <LabelManagementDialog
+          isOpen={u.labelDialogOpen}
+          onClose={() => u.setLabelDialogOpen(false)}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          form={u.labelForm as any}
+          labels={labels}
+          t={t.tasks}
+          onCreateSubmit={u.onCreateLabelSubmit}
+          onDeleteLabel={u.onDeleteLabel}
+          labelError={u.labelError}
+          isPending={u.isPending}
+        />
+      )}
 
       {/* ── Delete confirmation dialog ───────────────────────────────── */}
       <DeleteConfirmationDialog

@@ -5,6 +5,7 @@ import { getTasks } from "@/features/tasks/queries";
 import { getAllActiveUsers } from "@/features/users/queries";
 import { getLabels } from "@/features/labels/queries";
 import { getUserPreferences } from "@/features/settings/queries";
+import { getUserProjects } from "@/features/projects/queries";
 import { TasksCC } from "./components/client";
 import { SelectProvider } from "@/components/ui-kit/forms/common";
 import type { TaskStatus, TaskPriority } from "@/types/db";
@@ -16,6 +17,7 @@ interface TasksSearchParams {
   status?: string;
   priority?: string;
   assignee?: string;
+  project?: string;
   sort?: string;
   order?: string;
   page?: string;
@@ -36,6 +38,7 @@ export default async function TasksPage({
     status = "",
     priority = "",
     assignee = "",
+    project = "",
     sort = "createdAt",
     order = "desc",
     page = "1",
@@ -44,12 +47,16 @@ export default async function TasksPage({
   // For non-admins, force filter by their own user ID
   const effectiveAssignee = isAdmin ? (assignee || undefined) : session.user.id;
 
-  const [data, users, labels, preferences] = await Promise.all([
+  // Parse project IDs (comma-separated for multi-select)
+  const projectIds = project ? project.split(",").filter(Boolean) : undefined;
+
+  const [data, users, labels, preferences, userProjects] = await Promise.all([
     getTasks({
       search,
       status: (status || undefined) as TaskStatus | undefined,
       priority: (priority || undefined) as TaskPriority | undefined,
       assigneeId: effectiveAssignee,
+      projectIds,
       sort: sort as "title" | "priority" | "status" | "dueDate" | "createdAt",
       order: order as "asc" | "desc",
       page: Math.max(1, Number(page)),
@@ -57,6 +64,7 @@ export default async function TasksPage({
     getAllActiveUsers(),
     getLabels(),
     getUserPreferences(session.user.id),
+    getUserProjects(session.user.id),
   ]);
 
   const language = preferences?.language ?? "FA";
@@ -67,7 +75,8 @@ export default async function TasksPage({
         initialData={data}
         users={users}
         labels={labels}
-        filters={{ search, status, priority, assignee, sort, order }}
+        userProjects={userProjects}
+        filters={{ search, status, priority, assignee, project, sort, order }}
         page={Math.max(1, Number(page))}
         language={language}
         currentUserId={session.user.id}

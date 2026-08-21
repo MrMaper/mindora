@@ -82,6 +82,7 @@ export function ProjectsTable({
                   icon="more-horizontal"
                   aria-label={t.projects.projectActionsLabel}
                   size="sm"
+                  onClick={(e) => e.stopPropagation()}
                 />
               }
               align="end"
@@ -89,13 +90,13 @@ export function ProjectsTable({
                 {
                   label: t.projects.view,
                   icon: "eye",
-                  onClick: () => { onView(project); },
+                  onClick: (e) => { e.stopPropagation(); onView(project); },
                 },
                 { divider: true },
                 {
                   label: t.common.edit,
                   icon: "pencil",
-                  onClick: () => { onEdit(project); },
+                  onClick: (e) => { e.stopPropagation(); onEdit(project); },
                 },
                 {
                   label:
@@ -103,14 +104,14 @@ export function ProjectsTable({
                       ? t.projects.archive
                       : t.projects.restore,
                   icon: project.status === "ACTIVE" ? "archive" : "rotate-ccw",
-                  onClick: () => { onArchive(project); },
+                  onClick: (e) => { e.stopPropagation(); onArchive(project); },
                 },
                 { divider: true },
                 {
                   label: t.common.delete,
                   icon: "trash",
                   danger: true,
-                  onClick: () => { onDelete(project); },
+                  onClick: (e) => { e.stopPropagation(); onDelete(project); },
                 },
               ]}
             />

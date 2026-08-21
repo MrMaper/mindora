@@ -5,10 +5,12 @@ import { CSS } from "@dnd-kit/utilities";
 import { KanbanCard } from "@/components/ui-kit/agile/kanban-card";
 import { priorityToDisplay } from "@/features/tasks/types";
 import type { TaskRow } from "@/features/tasks/types";
+import { useLanguage } from "@/i18n/provider";
 
-export function formatDate(date: Date | null): string | undefined {
+export function formatDate(date: Date | null, language: "EN" | "FA"): string | undefined {
   if (!date) return undefined;
-  return new Date(date).toLocaleDateString(undefined, {
+  const locale = language === "FA" ? "fa-IR" : "en-US";
+  return new Date(date).toLocaleDateString(locale, {
     month: "short",
     day: "numeric",
   });
@@ -31,6 +33,7 @@ export function SortableKanbanCard({
   selected: boolean;
   onClick: () => void;
 }) {
+  const language = useLanguage();
   const {
     attributes,
     listeners,
@@ -60,7 +63,7 @@ export function SortableKanbanCard({
               }
             : undefined
         }
-        due={formatDate(task.dueDate)}
+        due={formatDate(task.dueDate, language)}
         overdue={isOverdue(task)}
         state={selected ? "selected" : undefined}
         onClick={onClick}

@@ -9,6 +9,7 @@ import type { ProjectTaskRow } from "@/features/projects/types";
 
 export interface ProjectTaskFilters {
   search: string;
+  project: string;
   status: string;
   priority: string;
   assignee: string;
@@ -160,9 +161,23 @@ export function getProjectTaskAssigneeOptions(
   ];
 }
 
+export function getProjectTaskProjectOptions(
+  projects: { id: string; name: string }[],
+  t: ReturnType<typeof useTranslation>,
+) {
+  return [
+    { value: "", label: t.tasks.noProject },
+    ...projects.map(p => ({
+      value: p.id,
+      label: p.name,
+    })),
+  ];
+}
+
 export function getProjectTaskDefaultFilters(): ProjectTaskFilters {
   return {
     search: "",
+    project: "",
     status: "",
     priority: "",
     assignee: "",
@@ -176,6 +191,7 @@ export function hasActiveProjectTaskFilters(
 ): boolean {
   return (
     filters.search !== "" ||
+    filters.project !== "" ||
     filters.status !== "" ||
     filters.priority !== "" ||
     filters.assignee !== ""

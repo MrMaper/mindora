@@ -12,11 +12,13 @@ import { DatePicker } from "@/components/ui-kit/forms/date-picker";
 import { LabelPicker } from "./label-picker";
 import { Avatar } from "@/components/ui-kit/data-display/avatar";
 import { TaskComments } from "@/components/tasks/task-comments";
-import { useTranslation } from "@/i18n/provider";
+import { Icon } from "@/components/ui-kit/foundation/icon";
+import { useTranslation, useLanguage } from "@/i18n/provider";
 import type { UpdateTaskInput } from "@/schemas/tasks";
 import type { TaskDetail } from "@/features/tasks/types";
 import type { LabelRow } from "@/features/labels/types";
 import type { UserRow } from "@/features/users/types";
+import type { ProjectRow } from "@/features/projects/types";
 import { activityLabel } from "@/features/tasks/types";
 
 interface EditTaskDrawerProps {
@@ -26,11 +28,17 @@ interface EditTaskDrawerProps {
   isLoadingDetail: boolean;
   actionError: string | null;
   control: Control<UpdateTaskInput>;
+  setValue: (
+    name: "projectId",
+    value: string,
+    options?: { shouldValidate?: boolean },
+  ) => void;
   labels: LabelRow[];
   selectedLabelIds: string[];
   onLabelToggle: (id: string) => void;
   activeTask: TaskDetail | null;
   users: UserRow[];
+  projects: ProjectRow[];
   currentUserId: string;
   currentUserRole: string;
   onSubmit: () => void;
@@ -38,6 +46,7 @@ interface EditTaskDrawerProps {
   priorityFieldOptions: { value: string; label: string }[];
   typeFieldOptions: { value: string; label: string }[];
   userOptions: { value: string; label: string }[];
+  projectOptions: { value: string; label: string }[];
 }
 
 export function EditTaskDrawer({
@@ -47,11 +56,13 @@ export function EditTaskDrawer({
   isLoadingDetail,
   actionError,
   control,
+  setValue,
   labels,
   selectedLabelIds,
   onLabelToggle,
   activeTask,
   users,
+  projects,
   currentUserId,
   currentUserRole,
   onSubmit,
@@ -59,8 +70,35 @@ export function EditTaskDrawer({
   priorityFieldOptions,
   typeFieldOptions,
   userOptions,
+  projectOptions,
 }: EditTaskDrawerProps) {
   const t = useTranslation();
+  const language = useLanguage();
+  const dateLocale = language === "EN" ? "en-US" : "fa-IR";
+
+  const [selectedProjectId, setSelectedProjectId] = React.useState<string>("");
+  const initialProjectId = activeTask?.projectId ?? "";
+
+  React.useEffect(() => {
+    if (initialProjectId && selectedProjectId !== initialProjectId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSelectedProjectId(initialProjectId);
+    }
+  }, [initialProjectId]);
+
+  // Filter assignees based on selected project
+  const filteredUserOptions = React.useMemo(() => {
+    if (!selectedProjectId) return userOptions;
+    const project = projects.find(p => p.id === selectedProjectId);
+    if (!project) return userOptions;
+    return userOptions;
+  }, [selectedProjectId, projects, userOptions]);
+
+  const handleProjectChange = (value: string) => {
+    setSelectedProjectId(value);
+    setValue("projectId", value, { shouldValidate: true });
+  };
+
   return (
     <Drawer
       open={open}
@@ -132,6 +170,19 @@ export function EditTaskDrawer({
             />
             <div className="grid grid-cols-2 gap-3">
               <Controller
+                name="projectId"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Select
+                    {...field}
+                    label={t.tasks.project}
+                    options={projectOptions}
+                    onChange={handleProjectChange}
+                    error={fieldState.error?.message}
+                  />
+                )}
+              />
+              <Controller
                 name="status"
                 control={control}
                 render={({ field, fieldState }) => (
@@ -174,7 +225,7 @@ export function EditTaskDrawer({
                   <Select
                     {...field}
                     label={t.tasks.assignee}
-                    options={userOptions}
+                    options={filteredUserOptions}
                     error={fieldState.error?.message}
                   />
                 )}
@@ -231,8 +282,36 @@ export function EditTaskDrawer({
                           <strong>{entry.performedBy.name}</strong>{" "}
                           {activityLabel(t, entry.action)}
                         </div>
-                        <div className="text-2xs text-text-tertiary">
-                          {new Date(entry.timestamp).toLocaleString()}
+                        <div className="flex items-center gap-2 text-xs text-text-secondary">
+                          <span className="flex items-center gap-1.5">
+                            <Icon
+                              name="calendar"
+                              size={15}
+                              className="text-text-tertiary"
+                            />
+                            {new Date(entry.timestamp).toLocaleDateString(
+                              dateLocale,
+                              {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                              },
+                            )}
+                          </span>
+                          <span className="flex items-center gap-1.5">
+                            <Icon
+                              name="clock"
+                              size={15}
+                              className="text-text-tertiary"
+                            />
+                            {new Date(entry.timestamp).toLocaleTimeString(
+                              dateLocale,
+                              {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              },
+                            )}
+                          </span>
                         </div>
                       </div>
                     </div>

@@ -15,7 +15,7 @@ export interface UserFilters {
 
 interface SearchFiltersProps {
   search: string;
-  filters: UserFilters;
+  filters: Partial<UserFilters>;
   roleOptions: { value: string; label: string }[];
   statusOptions: { value: string; label: string }[];
   teamOptions: { value: string; label: string }[];

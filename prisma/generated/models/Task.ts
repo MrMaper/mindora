@@ -332,6 +332,7 @@ export type TaskWhereInput = {
   checklists?: Prisma.ChecklistListRelationFilter
   comments?: Prisma.CommentListRelationFilter
   labels?: Prisma.TaskLabelListRelationFilter
+  workLogs?: Prisma.WorkLogListRelationFilter
   assignedTo?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   createdBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   parent?: Prisma.XOR<Prisma.TaskNullableScalarRelationFilter, Prisma.TaskWhereInput> | null
@@ -364,6 +365,7 @@ export type TaskOrderByWithRelationInput = {
   checklists?: Prisma.ChecklistOrderByRelationAggregateInput
   comments?: Prisma.CommentOrderByRelationAggregateInput
   labels?: Prisma.TaskLabelOrderByRelationAggregateInput
+  workLogs?: Prisma.WorkLogOrderByRelationAggregateInput
   assignedTo?: Prisma.UserOrderByWithRelationInput
   createdBy?: Prisma.UserOrderByWithRelationInput
   parent?: Prisma.TaskOrderByWithRelationInput
@@ -399,6 +401,7 @@ export type TaskWhereUniqueInput = Prisma.AtLeast<{
   checklists?: Prisma.ChecklistListRelationFilter
   comments?: Prisma.CommentListRelationFilter
   labels?: Prisma.TaskLabelListRelationFilter
+  workLogs?: Prisma.WorkLogListRelationFilter
   assignedTo?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   createdBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   parent?: Prisma.XOR<Prisma.TaskNullableScalarRelationFilter, Prisma.TaskWhereInput> | null
@@ -475,6 +478,7 @@ export type TaskCreateInput = {
   checklists?: Prisma.ChecklistCreateNestedManyWithoutTaskInput
   comments?: Prisma.CommentCreateNestedManyWithoutTaskInput
   labels?: Prisma.TaskLabelCreateNestedManyWithoutTaskInput
+  workLogs?: Prisma.WorkLogCreateNestedManyWithoutTaskInput
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedTasksInput
   createdBy: Prisma.UserCreateNestedOneWithoutCreatedTasksInput
   parent?: Prisma.TaskCreateNestedOneWithoutSubTasksInput
@@ -507,6 +511,7 @@ export type TaskUncheckedCreateInput = {
   checklists?: Prisma.ChecklistUncheckedCreateNestedManyWithoutTaskInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutTaskInput
   labels?: Prisma.TaskLabelUncheckedCreateNestedManyWithoutTaskInput
+  workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutTaskInput
   subTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutParentInput
 }
 
@@ -527,6 +532,7 @@ export type TaskUpdateInput = {
   checklists?: Prisma.ChecklistUpdateManyWithoutTaskNestedInput
   comments?: Prisma.CommentUpdateManyWithoutTaskNestedInput
   labels?: Prisma.TaskLabelUpdateManyWithoutTaskNestedInput
+  workLogs?: Prisma.WorkLogUpdateManyWithoutTaskNestedInput
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedTasksNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedTasksNestedInput
   parent?: Prisma.TaskUpdateOneWithoutSubTasksNestedInput
@@ -559,6 +565,7 @@ export type TaskUncheckedUpdateInput = {
   checklists?: Prisma.ChecklistUncheckedUpdateManyWithoutTaskNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutTaskNestedInput
   labels?: Prisma.TaskLabelUncheckedUpdateManyWithoutTaskNestedInput
+  workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutTaskNestedInput
   subTasks?: Prisma.TaskUncheckedUpdateManyWithoutParentNestedInput
 }
 
@@ -1058,6 +1065,20 @@ export type TaskUpdateOneRequiredWithoutChecklistsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.TaskUpdateToOneWithWhereWithoutChecklistsInput, Prisma.TaskUpdateWithoutChecklistsInput>, Prisma.TaskUncheckedUpdateWithoutChecklistsInput>
 }
 
+export type TaskCreateNestedOneWithoutWorkLogsInput = {
+  create?: Prisma.XOR<Prisma.TaskCreateWithoutWorkLogsInput, Prisma.TaskUncheckedCreateWithoutWorkLogsInput>
+  connectOrCreate?: Prisma.TaskCreateOrConnectWithoutWorkLogsInput
+  connect?: Prisma.TaskWhereUniqueInput
+}
+
+export type TaskUpdateOneRequiredWithoutWorkLogsNestedInput = {
+  create?: Prisma.XOR<Prisma.TaskCreateWithoutWorkLogsInput, Prisma.TaskUncheckedCreateWithoutWorkLogsInput>
+  connectOrCreate?: Prisma.TaskCreateOrConnectWithoutWorkLogsInput
+  upsert?: Prisma.TaskUpsertWithoutWorkLogsInput
+  connect?: Prisma.TaskWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TaskUpdateToOneWithWhereWithoutWorkLogsInput, Prisma.TaskUpdateWithoutWorkLogsInput>, Prisma.TaskUncheckedUpdateWithoutWorkLogsInput>
+}
+
 export type TaskCreateWithoutAssignedToInput = {
   id?: string
   title: string
@@ -1075,6 +1096,7 @@ export type TaskCreateWithoutAssignedToInput = {
   checklists?: Prisma.ChecklistCreateNestedManyWithoutTaskInput
   comments?: Prisma.CommentCreateNestedManyWithoutTaskInput
   labels?: Prisma.TaskLabelCreateNestedManyWithoutTaskInput
+  workLogs?: Prisma.WorkLogCreateNestedManyWithoutTaskInput
   createdBy: Prisma.UserCreateNestedOneWithoutCreatedTasksInput
   parent?: Prisma.TaskCreateNestedOneWithoutSubTasksInput
   subTasks?: Prisma.TaskCreateNestedManyWithoutParentInput
@@ -1105,6 +1127,7 @@ export type TaskUncheckedCreateWithoutAssignedToInput = {
   checklists?: Prisma.ChecklistUncheckedCreateNestedManyWithoutTaskInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutTaskInput
   labels?: Prisma.TaskLabelUncheckedCreateNestedManyWithoutTaskInput
+  workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutTaskInput
   subTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutParentInput
 }
 
@@ -1135,6 +1158,7 @@ export type TaskCreateWithoutCreatedByInput = {
   checklists?: Prisma.ChecklistCreateNestedManyWithoutTaskInput
   comments?: Prisma.CommentCreateNestedManyWithoutTaskInput
   labels?: Prisma.TaskLabelCreateNestedManyWithoutTaskInput
+  workLogs?: Prisma.WorkLogCreateNestedManyWithoutTaskInput
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedTasksInput
   parent?: Prisma.TaskCreateNestedOneWithoutSubTasksInput
   subTasks?: Prisma.TaskCreateNestedManyWithoutParentInput
@@ -1165,6 +1189,7 @@ export type TaskUncheckedCreateWithoutCreatedByInput = {
   checklists?: Prisma.ChecklistUncheckedCreateNestedManyWithoutTaskInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutTaskInput
   labels?: Prisma.TaskLabelUncheckedCreateNestedManyWithoutTaskInput
+  workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutTaskInput
   subTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutParentInput
 }
 
@@ -1251,6 +1276,7 @@ export type TaskCreateWithoutTeamInput = {
   checklists?: Prisma.ChecklistCreateNestedManyWithoutTaskInput
   comments?: Prisma.CommentCreateNestedManyWithoutTaskInput
   labels?: Prisma.TaskLabelCreateNestedManyWithoutTaskInput
+  workLogs?: Prisma.WorkLogCreateNestedManyWithoutTaskInput
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedTasksInput
   createdBy: Prisma.UserCreateNestedOneWithoutCreatedTasksInput
   parent?: Prisma.TaskCreateNestedOneWithoutSubTasksInput
@@ -1281,6 +1307,7 @@ export type TaskUncheckedCreateWithoutTeamInput = {
   checklists?: Prisma.ChecklistUncheckedCreateNestedManyWithoutTaskInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutTaskInput
   labels?: Prisma.TaskLabelUncheckedCreateNestedManyWithoutTaskInput
+  workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutTaskInput
   subTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutParentInput
 }
 
@@ -1327,6 +1354,7 @@ export type TaskCreateWithoutProjectInput = {
   checklists?: Prisma.ChecklistCreateNestedManyWithoutTaskInput
   comments?: Prisma.CommentCreateNestedManyWithoutTaskInput
   labels?: Prisma.TaskLabelCreateNestedManyWithoutTaskInput
+  workLogs?: Prisma.WorkLogCreateNestedManyWithoutTaskInput
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedTasksInput
   createdBy: Prisma.UserCreateNestedOneWithoutCreatedTasksInput
   parent?: Prisma.TaskCreateNestedOneWithoutSubTasksInput
@@ -1357,6 +1385,7 @@ export type TaskUncheckedCreateWithoutProjectInput = {
   checklists?: Prisma.ChecklistUncheckedCreateNestedManyWithoutTaskInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutTaskInput
   labels?: Prisma.TaskLabelUncheckedCreateNestedManyWithoutTaskInput
+  workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutTaskInput
   subTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutParentInput
 }
 
@@ -1403,6 +1432,7 @@ export type TaskCreateWithoutSprintInput = {
   checklists?: Prisma.ChecklistCreateNestedManyWithoutTaskInput
   comments?: Prisma.CommentCreateNestedManyWithoutTaskInput
   labels?: Prisma.TaskLabelCreateNestedManyWithoutTaskInput
+  workLogs?: Prisma.WorkLogCreateNestedManyWithoutTaskInput
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedTasksInput
   createdBy: Prisma.UserCreateNestedOneWithoutCreatedTasksInput
   parent?: Prisma.TaskCreateNestedOneWithoutSubTasksInput
@@ -1433,6 +1463,7 @@ export type TaskUncheckedCreateWithoutSprintInput = {
   checklists?: Prisma.ChecklistUncheckedCreateNestedManyWithoutTaskInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutTaskInput
   labels?: Prisma.TaskLabelUncheckedCreateNestedManyWithoutTaskInput
+  workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutTaskInput
   subTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutParentInput
 }
 
@@ -1479,6 +1510,7 @@ export type TaskCreateWithoutSubTasksInput = {
   checklists?: Prisma.ChecklistCreateNestedManyWithoutTaskInput
   comments?: Prisma.CommentCreateNestedManyWithoutTaskInput
   labels?: Prisma.TaskLabelCreateNestedManyWithoutTaskInput
+  workLogs?: Prisma.WorkLogCreateNestedManyWithoutTaskInput
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedTasksInput
   createdBy: Prisma.UserCreateNestedOneWithoutCreatedTasksInput
   parent?: Prisma.TaskCreateNestedOneWithoutSubTasksInput
@@ -1510,6 +1542,7 @@ export type TaskUncheckedCreateWithoutSubTasksInput = {
   checklists?: Prisma.ChecklistUncheckedCreateNestedManyWithoutTaskInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutTaskInput
   labels?: Prisma.TaskLabelUncheckedCreateNestedManyWithoutTaskInput
+  workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutTaskInput
 }
 
 export type TaskCreateOrConnectWithoutSubTasksInput = {
@@ -1534,6 +1567,7 @@ export type TaskCreateWithoutParentInput = {
   checklists?: Prisma.ChecklistCreateNestedManyWithoutTaskInput
   comments?: Prisma.CommentCreateNestedManyWithoutTaskInput
   labels?: Prisma.TaskLabelCreateNestedManyWithoutTaskInput
+  workLogs?: Prisma.WorkLogCreateNestedManyWithoutTaskInput
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedTasksInput
   createdBy: Prisma.UserCreateNestedOneWithoutCreatedTasksInput
   subTasks?: Prisma.TaskCreateNestedManyWithoutParentInput
@@ -1564,6 +1598,7 @@ export type TaskUncheckedCreateWithoutParentInput = {
   checklists?: Prisma.ChecklistUncheckedCreateNestedManyWithoutTaskInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutTaskInput
   labels?: Prisma.TaskLabelUncheckedCreateNestedManyWithoutTaskInput
+  workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutTaskInput
   subTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutParentInput
 }
 
@@ -1605,6 +1640,7 @@ export type TaskUpdateWithoutSubTasksInput = {
   checklists?: Prisma.ChecklistUpdateManyWithoutTaskNestedInput
   comments?: Prisma.CommentUpdateManyWithoutTaskNestedInput
   labels?: Prisma.TaskLabelUpdateManyWithoutTaskNestedInput
+  workLogs?: Prisma.WorkLogUpdateManyWithoutTaskNestedInput
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedTasksNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedTasksNestedInput
   parent?: Prisma.TaskUpdateOneWithoutSubTasksNestedInput
@@ -1636,6 +1672,7 @@ export type TaskUncheckedUpdateWithoutSubTasksInput = {
   checklists?: Prisma.ChecklistUncheckedUpdateManyWithoutTaskNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutTaskNestedInput
   labels?: Prisma.TaskLabelUncheckedUpdateManyWithoutTaskNestedInput
+  workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutTaskNestedInput
 }
 
 export type TaskUpsertWithWhereUniqueWithoutParentInput = {
@@ -1670,6 +1707,7 @@ export type TaskCreateWithoutLabelsInput = {
   attachments?: Prisma.AttachmentCreateNestedManyWithoutTaskInput
   checklists?: Prisma.ChecklistCreateNestedManyWithoutTaskInput
   comments?: Prisma.CommentCreateNestedManyWithoutTaskInput
+  workLogs?: Prisma.WorkLogCreateNestedManyWithoutTaskInput
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedTasksInput
   createdBy: Prisma.UserCreateNestedOneWithoutCreatedTasksInput
   parent?: Prisma.TaskCreateNestedOneWithoutSubTasksInput
@@ -1701,6 +1739,7 @@ export type TaskUncheckedCreateWithoutLabelsInput = {
   attachments?: Prisma.AttachmentUncheckedCreateNestedManyWithoutTaskInput
   checklists?: Prisma.ChecklistUncheckedCreateNestedManyWithoutTaskInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutTaskInput
+  workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutTaskInput
   subTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutParentInput
 }
 
@@ -1736,6 +1775,7 @@ export type TaskUpdateWithoutLabelsInput = {
   attachments?: Prisma.AttachmentUpdateManyWithoutTaskNestedInput
   checklists?: Prisma.ChecklistUpdateManyWithoutTaskNestedInput
   comments?: Prisma.CommentUpdateManyWithoutTaskNestedInput
+  workLogs?: Prisma.WorkLogUpdateManyWithoutTaskNestedInput
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedTasksNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedTasksNestedInput
   parent?: Prisma.TaskUpdateOneWithoutSubTasksNestedInput
@@ -1767,6 +1807,7 @@ export type TaskUncheckedUpdateWithoutLabelsInput = {
   attachments?: Prisma.AttachmentUncheckedUpdateManyWithoutTaskNestedInput
   checklists?: Prisma.ChecklistUncheckedUpdateManyWithoutTaskNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutTaskNestedInput
+  workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutTaskNestedInput
   subTasks?: Prisma.TaskUncheckedUpdateManyWithoutParentNestedInput
 }
 
@@ -1786,6 +1827,7 @@ export type TaskCreateWithoutCommentsInput = {
   attachments?: Prisma.AttachmentCreateNestedManyWithoutTaskInput
   checklists?: Prisma.ChecklistCreateNestedManyWithoutTaskInput
   labels?: Prisma.TaskLabelCreateNestedManyWithoutTaskInput
+  workLogs?: Prisma.WorkLogCreateNestedManyWithoutTaskInput
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedTasksInput
   createdBy: Prisma.UserCreateNestedOneWithoutCreatedTasksInput
   parent?: Prisma.TaskCreateNestedOneWithoutSubTasksInput
@@ -1817,6 +1859,7 @@ export type TaskUncheckedCreateWithoutCommentsInput = {
   attachments?: Prisma.AttachmentUncheckedCreateNestedManyWithoutTaskInput
   checklists?: Prisma.ChecklistUncheckedCreateNestedManyWithoutTaskInput
   labels?: Prisma.TaskLabelUncheckedCreateNestedManyWithoutTaskInput
+  workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutTaskInput
   subTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutParentInput
 }
 
@@ -1852,6 +1895,7 @@ export type TaskUpdateWithoutCommentsInput = {
   attachments?: Prisma.AttachmentUpdateManyWithoutTaskNestedInput
   checklists?: Prisma.ChecklistUpdateManyWithoutTaskNestedInput
   labels?: Prisma.TaskLabelUpdateManyWithoutTaskNestedInput
+  workLogs?: Prisma.WorkLogUpdateManyWithoutTaskNestedInput
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedTasksNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedTasksNestedInput
   parent?: Prisma.TaskUpdateOneWithoutSubTasksNestedInput
@@ -1883,6 +1927,7 @@ export type TaskUncheckedUpdateWithoutCommentsInput = {
   attachments?: Prisma.AttachmentUncheckedUpdateManyWithoutTaskNestedInput
   checklists?: Prisma.ChecklistUncheckedUpdateManyWithoutTaskNestedInput
   labels?: Prisma.TaskLabelUncheckedUpdateManyWithoutTaskNestedInput
+  workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutTaskNestedInput
   subTasks?: Prisma.TaskUncheckedUpdateManyWithoutParentNestedInput
 }
 
@@ -1902,6 +1947,7 @@ export type TaskCreateWithoutAttachmentsInput = {
   checklists?: Prisma.ChecklistCreateNestedManyWithoutTaskInput
   comments?: Prisma.CommentCreateNestedManyWithoutTaskInput
   labels?: Prisma.TaskLabelCreateNestedManyWithoutTaskInput
+  workLogs?: Prisma.WorkLogCreateNestedManyWithoutTaskInput
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedTasksInput
   createdBy: Prisma.UserCreateNestedOneWithoutCreatedTasksInput
   parent?: Prisma.TaskCreateNestedOneWithoutSubTasksInput
@@ -1933,6 +1979,7 @@ export type TaskUncheckedCreateWithoutAttachmentsInput = {
   checklists?: Prisma.ChecklistUncheckedCreateNestedManyWithoutTaskInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutTaskInput
   labels?: Prisma.TaskLabelUncheckedCreateNestedManyWithoutTaskInput
+  workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutTaskInput
   subTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutParentInput
 }
 
@@ -1968,6 +2015,7 @@ export type TaskUpdateWithoutAttachmentsInput = {
   checklists?: Prisma.ChecklistUpdateManyWithoutTaskNestedInput
   comments?: Prisma.CommentUpdateManyWithoutTaskNestedInput
   labels?: Prisma.TaskLabelUpdateManyWithoutTaskNestedInput
+  workLogs?: Prisma.WorkLogUpdateManyWithoutTaskNestedInput
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedTasksNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedTasksNestedInput
   parent?: Prisma.TaskUpdateOneWithoutSubTasksNestedInput
@@ -1999,6 +2047,7 @@ export type TaskUncheckedUpdateWithoutAttachmentsInput = {
   checklists?: Prisma.ChecklistUncheckedUpdateManyWithoutTaskNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutTaskNestedInput
   labels?: Prisma.TaskLabelUncheckedUpdateManyWithoutTaskNestedInput
+  workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutTaskNestedInput
   subTasks?: Prisma.TaskUncheckedUpdateManyWithoutParentNestedInput
 }
 
@@ -2018,6 +2067,7 @@ export type TaskCreateWithoutChecklistsInput = {
   attachments?: Prisma.AttachmentCreateNestedManyWithoutTaskInput
   comments?: Prisma.CommentCreateNestedManyWithoutTaskInput
   labels?: Prisma.TaskLabelCreateNestedManyWithoutTaskInput
+  workLogs?: Prisma.WorkLogCreateNestedManyWithoutTaskInput
   assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedTasksInput
   createdBy: Prisma.UserCreateNestedOneWithoutCreatedTasksInput
   parent?: Prisma.TaskCreateNestedOneWithoutSubTasksInput
@@ -2049,6 +2099,7 @@ export type TaskUncheckedCreateWithoutChecklistsInput = {
   attachments?: Prisma.AttachmentUncheckedCreateNestedManyWithoutTaskInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutTaskInput
   labels?: Prisma.TaskLabelUncheckedCreateNestedManyWithoutTaskInput
+  workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutTaskInput
   subTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutParentInput
 }
 
@@ -2084,6 +2135,7 @@ export type TaskUpdateWithoutChecklistsInput = {
   attachments?: Prisma.AttachmentUpdateManyWithoutTaskNestedInput
   comments?: Prisma.CommentUpdateManyWithoutTaskNestedInput
   labels?: Prisma.TaskLabelUpdateManyWithoutTaskNestedInput
+  workLogs?: Prisma.WorkLogUpdateManyWithoutTaskNestedInput
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedTasksNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedTasksNestedInput
   parent?: Prisma.TaskUpdateOneWithoutSubTasksNestedInput
@@ -2113,6 +2165,127 @@ export type TaskUncheckedUpdateWithoutChecklistsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attachments?: Prisma.AttachmentUncheckedUpdateManyWithoutTaskNestedInput
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutTaskNestedInput
+  labels?: Prisma.TaskLabelUncheckedUpdateManyWithoutTaskNestedInput
+  workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutTaskNestedInput
+  subTasks?: Prisma.TaskUncheckedUpdateManyWithoutParentNestedInput
+}
+
+export type TaskCreateWithoutWorkLogsInput = {
+  id?: string
+  title: string
+  description?: string | null
+  status?: $Enums.TaskStatus
+  priority?: $Enums.TaskPriority
+  type?: $Enums.TaskType
+  storyPoints?: number | null
+  estimate?: number | null
+  dueDate?: Date | string | null
+  position?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  attachments?: Prisma.AttachmentCreateNestedManyWithoutTaskInput
+  checklists?: Prisma.ChecklistCreateNestedManyWithoutTaskInput
+  comments?: Prisma.CommentCreateNestedManyWithoutTaskInput
+  labels?: Prisma.TaskLabelCreateNestedManyWithoutTaskInput
+  assignedTo?: Prisma.UserCreateNestedOneWithoutAssignedTasksInput
+  createdBy: Prisma.UserCreateNestedOneWithoutCreatedTasksInput
+  parent?: Prisma.TaskCreateNestedOneWithoutSubTasksInput
+  subTasks?: Prisma.TaskCreateNestedManyWithoutParentInput
+  project?: Prisma.ProjectCreateNestedOneWithoutTasksInput
+  sprint?: Prisma.SprintCreateNestedOneWithoutTasksInput
+  team?: Prisma.TeamCreateNestedOneWithoutTasksInput
+}
+
+export type TaskUncheckedCreateWithoutWorkLogsInput = {
+  id?: string
+  projectId?: string | null
+  sprintId?: string | null
+  parentTaskId?: string | null
+  teamId?: string | null
+  title: string
+  description?: string | null
+  status?: $Enums.TaskStatus
+  priority?: $Enums.TaskPriority
+  type?: $Enums.TaskType
+  storyPoints?: number | null
+  estimate?: number | null
+  dueDate?: Date | string | null
+  position?: number
+  createdById: string
+  assignedToId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  attachments?: Prisma.AttachmentUncheckedCreateNestedManyWithoutTaskInput
+  checklists?: Prisma.ChecklistUncheckedCreateNestedManyWithoutTaskInput
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutTaskInput
+  labels?: Prisma.TaskLabelUncheckedCreateNestedManyWithoutTaskInput
+  subTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutParentInput
+}
+
+export type TaskCreateOrConnectWithoutWorkLogsInput = {
+  where: Prisma.TaskWhereUniqueInput
+  create: Prisma.XOR<Prisma.TaskCreateWithoutWorkLogsInput, Prisma.TaskUncheckedCreateWithoutWorkLogsInput>
+}
+
+export type TaskUpsertWithoutWorkLogsInput = {
+  update: Prisma.XOR<Prisma.TaskUpdateWithoutWorkLogsInput, Prisma.TaskUncheckedUpdateWithoutWorkLogsInput>
+  create: Prisma.XOR<Prisma.TaskCreateWithoutWorkLogsInput, Prisma.TaskUncheckedCreateWithoutWorkLogsInput>
+  where?: Prisma.TaskWhereInput
+}
+
+export type TaskUpdateToOneWithWhereWithoutWorkLogsInput = {
+  where?: Prisma.TaskWhereInput
+  data: Prisma.XOR<Prisma.TaskUpdateWithoutWorkLogsInput, Prisma.TaskUncheckedUpdateWithoutWorkLogsInput>
+}
+
+export type TaskUpdateWithoutWorkLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
+  priority?: Prisma.EnumTaskPriorityFieldUpdateOperationsInput | $Enums.TaskPriority
+  type?: Prisma.EnumTaskTypeFieldUpdateOperationsInput | $Enums.TaskType
+  storyPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  estimate?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  position?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attachments?: Prisma.AttachmentUpdateManyWithoutTaskNestedInput
+  checklists?: Prisma.ChecklistUpdateManyWithoutTaskNestedInput
+  comments?: Prisma.CommentUpdateManyWithoutTaskNestedInput
+  labels?: Prisma.TaskLabelUpdateManyWithoutTaskNestedInput
+  assignedTo?: Prisma.UserUpdateOneWithoutAssignedTasksNestedInput
+  createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedTasksNestedInput
+  parent?: Prisma.TaskUpdateOneWithoutSubTasksNestedInput
+  subTasks?: Prisma.TaskUpdateManyWithoutParentNestedInput
+  project?: Prisma.ProjectUpdateOneWithoutTasksNestedInput
+  sprint?: Prisma.SprintUpdateOneWithoutTasksNestedInput
+  team?: Prisma.TeamUpdateOneWithoutTasksNestedInput
+}
+
+export type TaskUncheckedUpdateWithoutWorkLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sprintId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parentTaskId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
+  priority?: Prisma.EnumTaskPriorityFieldUpdateOperationsInput | $Enums.TaskPriority
+  type?: Prisma.EnumTaskTypeFieldUpdateOperationsInput | $Enums.TaskType
+  storyPoints?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  estimate?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  position?: Prisma.IntFieldUpdateOperationsInput | number
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attachments?: Prisma.AttachmentUncheckedUpdateManyWithoutTaskNestedInput
+  checklists?: Prisma.ChecklistUncheckedUpdateManyWithoutTaskNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutTaskNestedInput
   labels?: Prisma.TaskLabelUncheckedUpdateManyWithoutTaskNestedInput
   subTasks?: Prisma.TaskUncheckedUpdateManyWithoutParentNestedInput
@@ -2175,6 +2348,7 @@ export type TaskUpdateWithoutAssignedToInput = {
   checklists?: Prisma.ChecklistUpdateManyWithoutTaskNestedInput
   comments?: Prisma.CommentUpdateManyWithoutTaskNestedInput
   labels?: Prisma.TaskLabelUpdateManyWithoutTaskNestedInput
+  workLogs?: Prisma.WorkLogUpdateManyWithoutTaskNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedTasksNestedInput
   parent?: Prisma.TaskUpdateOneWithoutSubTasksNestedInput
   subTasks?: Prisma.TaskUpdateManyWithoutParentNestedInput
@@ -2205,6 +2379,7 @@ export type TaskUncheckedUpdateWithoutAssignedToInput = {
   checklists?: Prisma.ChecklistUncheckedUpdateManyWithoutTaskNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutTaskNestedInput
   labels?: Prisma.TaskLabelUncheckedUpdateManyWithoutTaskNestedInput
+  workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutTaskNestedInput
   subTasks?: Prisma.TaskUncheckedUpdateManyWithoutParentNestedInput
 }
 
@@ -2245,6 +2420,7 @@ export type TaskUpdateWithoutCreatedByInput = {
   checklists?: Prisma.ChecklistUpdateManyWithoutTaskNestedInput
   comments?: Prisma.CommentUpdateManyWithoutTaskNestedInput
   labels?: Prisma.TaskLabelUpdateManyWithoutTaskNestedInput
+  workLogs?: Prisma.WorkLogUpdateManyWithoutTaskNestedInput
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedTasksNestedInput
   parent?: Prisma.TaskUpdateOneWithoutSubTasksNestedInput
   subTasks?: Prisma.TaskUpdateManyWithoutParentNestedInput
@@ -2275,6 +2451,7 @@ export type TaskUncheckedUpdateWithoutCreatedByInput = {
   checklists?: Prisma.ChecklistUncheckedUpdateManyWithoutTaskNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutTaskNestedInput
   labels?: Prisma.TaskLabelUncheckedUpdateManyWithoutTaskNestedInput
+  workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutTaskNestedInput
   subTasks?: Prisma.TaskUncheckedUpdateManyWithoutParentNestedInput
 }
 
@@ -2335,6 +2512,7 @@ export type TaskUpdateWithoutTeamInput = {
   checklists?: Prisma.ChecklistUpdateManyWithoutTaskNestedInput
   comments?: Prisma.CommentUpdateManyWithoutTaskNestedInput
   labels?: Prisma.TaskLabelUpdateManyWithoutTaskNestedInput
+  workLogs?: Prisma.WorkLogUpdateManyWithoutTaskNestedInput
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedTasksNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedTasksNestedInput
   parent?: Prisma.TaskUpdateOneWithoutSubTasksNestedInput
@@ -2365,6 +2543,7 @@ export type TaskUncheckedUpdateWithoutTeamInput = {
   checklists?: Prisma.ChecklistUncheckedUpdateManyWithoutTaskNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutTaskNestedInput
   labels?: Prisma.TaskLabelUncheckedUpdateManyWithoutTaskNestedInput
+  workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutTaskNestedInput
   subTasks?: Prisma.TaskUncheckedUpdateManyWithoutParentNestedInput
 }
 
@@ -2425,6 +2604,7 @@ export type TaskUpdateWithoutProjectInput = {
   checklists?: Prisma.ChecklistUpdateManyWithoutTaskNestedInput
   comments?: Prisma.CommentUpdateManyWithoutTaskNestedInput
   labels?: Prisma.TaskLabelUpdateManyWithoutTaskNestedInput
+  workLogs?: Prisma.WorkLogUpdateManyWithoutTaskNestedInput
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedTasksNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedTasksNestedInput
   parent?: Prisma.TaskUpdateOneWithoutSubTasksNestedInput
@@ -2455,6 +2635,7 @@ export type TaskUncheckedUpdateWithoutProjectInput = {
   checklists?: Prisma.ChecklistUncheckedUpdateManyWithoutTaskNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutTaskNestedInput
   labels?: Prisma.TaskLabelUncheckedUpdateManyWithoutTaskNestedInput
+  workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutTaskNestedInput
   subTasks?: Prisma.TaskUncheckedUpdateManyWithoutParentNestedInput
 }
 
@@ -2515,6 +2696,7 @@ export type TaskUpdateWithoutSprintInput = {
   checklists?: Prisma.ChecklistUpdateManyWithoutTaskNestedInput
   comments?: Prisma.CommentUpdateManyWithoutTaskNestedInput
   labels?: Prisma.TaskLabelUpdateManyWithoutTaskNestedInput
+  workLogs?: Prisma.WorkLogUpdateManyWithoutTaskNestedInput
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedTasksNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedTasksNestedInput
   parent?: Prisma.TaskUpdateOneWithoutSubTasksNestedInput
@@ -2545,6 +2727,7 @@ export type TaskUncheckedUpdateWithoutSprintInput = {
   checklists?: Prisma.ChecklistUncheckedUpdateManyWithoutTaskNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutTaskNestedInput
   labels?: Prisma.TaskLabelUncheckedUpdateManyWithoutTaskNestedInput
+  workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutTaskNestedInput
   subTasks?: Prisma.TaskUncheckedUpdateManyWithoutParentNestedInput
 }
 
@@ -2605,6 +2788,7 @@ export type TaskUpdateWithoutParentInput = {
   checklists?: Prisma.ChecklistUpdateManyWithoutTaskNestedInput
   comments?: Prisma.CommentUpdateManyWithoutTaskNestedInput
   labels?: Prisma.TaskLabelUpdateManyWithoutTaskNestedInput
+  workLogs?: Prisma.WorkLogUpdateManyWithoutTaskNestedInput
   assignedTo?: Prisma.UserUpdateOneWithoutAssignedTasksNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedTasksNestedInput
   subTasks?: Prisma.TaskUpdateManyWithoutParentNestedInput
@@ -2635,6 +2819,7 @@ export type TaskUncheckedUpdateWithoutParentInput = {
   checklists?: Prisma.ChecklistUncheckedUpdateManyWithoutTaskNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutTaskNestedInput
   labels?: Prisma.TaskLabelUncheckedUpdateManyWithoutTaskNestedInput
+  workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutTaskNestedInput
   subTasks?: Prisma.TaskUncheckedUpdateManyWithoutParentNestedInput
 }
 
@@ -2668,6 +2853,7 @@ export type TaskCountOutputType = {
   checklists: number
   comments: number
   labels: number
+  workLogs: number
   subTasks: number
 }
 
@@ -2676,6 +2862,7 @@ export type TaskCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   checklists?: boolean | TaskCountOutputTypeCountChecklistsArgs
   comments?: boolean | TaskCountOutputTypeCountCommentsArgs
   labels?: boolean | TaskCountOutputTypeCountLabelsArgs
+  workLogs?: boolean | TaskCountOutputTypeCountWorkLogsArgs
   subTasks?: boolean | TaskCountOutputTypeCountSubTasksArgs
 }
 
@@ -2720,6 +2907,13 @@ export type TaskCountOutputTypeCountLabelsArgs<ExtArgs extends runtime.Types.Ext
 /**
  * TaskCountOutputType without action
  */
+export type TaskCountOutputTypeCountWorkLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WorkLogWhereInput
+}
+
+/**
+ * TaskCountOutputType without action
+ */
 export type TaskCountOutputTypeCountSubTasksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.TaskWhereInput
 }
@@ -2748,6 +2942,7 @@ export type TaskSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   checklists?: boolean | Prisma.Task$checklistsArgs<ExtArgs>
   comments?: boolean | Prisma.Task$commentsArgs<ExtArgs>
   labels?: boolean | Prisma.Task$labelsArgs<ExtArgs>
+  workLogs?: boolean | Prisma.Task$workLogsArgs<ExtArgs>
   assignedTo?: boolean | Prisma.Task$assignedToArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   parent?: boolean | Prisma.Task$parentArgs<ExtArgs>
@@ -2839,6 +3034,7 @@ export type TaskInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   checklists?: boolean | Prisma.Task$checklistsArgs<ExtArgs>
   comments?: boolean | Prisma.Task$commentsArgs<ExtArgs>
   labels?: boolean | Prisma.Task$labelsArgs<ExtArgs>
+  workLogs?: boolean | Prisma.Task$workLogsArgs<ExtArgs>
   assignedTo?: boolean | Prisma.Task$assignedToArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   parent?: boolean | Prisma.Task$parentArgs<ExtArgs>
@@ -2872,6 +3068,7 @@ export type $TaskPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     checklists: Prisma.$ChecklistPayload<ExtArgs>[]
     comments: Prisma.$CommentPayload<ExtArgs>[]
     labels: Prisma.$TaskLabelPayload<ExtArgs>[]
+    workLogs: Prisma.$WorkLogPayload<ExtArgs>[]
     assignedTo: Prisma.$UserPayload<ExtArgs> | null
     createdBy: Prisma.$UserPayload<ExtArgs>
     parent: Prisma.$TaskPayload<ExtArgs> | null
@@ -3297,6 +3494,7 @@ export interface Prisma__TaskClient<T, Null = never, ExtArgs extends runtime.Typ
   checklists<T extends Prisma.Task$checklistsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Task$checklistsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChecklistPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   comments<T extends Prisma.Task$commentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Task$commentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CommentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   labels<T extends Prisma.Task$labelsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Task$labelsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskLabelPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  workLogs<T extends Prisma.Task$workLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Task$workLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assignedTo<T extends Prisma.Task$assignedToArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Task$assignedToArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   createdBy<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   parent<T extends Prisma.Task$parentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Task$parentArgs<ExtArgs>>): Prisma.Prisma__TaskClient<runtime.Types.Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -3845,6 +4043,30 @@ export type Task$labelsArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   distinct?: Prisma.TaskLabelScalarFieldEnum | Prisma.TaskLabelScalarFieldEnum[]
+}
+
+/**
+ * Task.workLogs
+ */
+export type Task$workLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WorkLog
+   */
+  select?: Prisma.WorkLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WorkLog
+   */
+  omit?: Prisma.WorkLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WorkLogInclude<ExtArgs> | null
+  where?: Prisma.WorkLogWhereInput
+  orderBy?: Prisma.WorkLogOrderByWithRelationInput | Prisma.WorkLogOrderByWithRelationInput[]
+  cursor?: Prisma.WorkLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WorkLogScalarFieldEnum | Prisma.WorkLogScalarFieldEnum[]
 }
 
 /**

@@ -18,9 +18,10 @@ interface ProjectsCCProps {
   initialData: GetProjectsResult;
   search: string;
   page: number;
+  currentUserRole: string;
 }
 
-export function ProjectsCC({ initialData, search, page }: ProjectsCCProps) {
+export function ProjectsCC({ initialData, search, page, currentUserRole }: ProjectsCCProps) {
   const u = useProjects(search);
   const t = useTranslation();
 
@@ -37,9 +38,11 @@ export function ProjectsCC({ initialData, search, page }: ProjectsCCProps) {
     createdAt: p.createdAt,
   }));
 
+  const canCreateProject = currentUserRole === "ADMIN";
+
   return (
     <>
-      <PageHeader total={total} onCreate={u.openCreate} />
+      <PageHeader total={total} onCreate={canCreateProject ? u.openCreate : undefined} />
 
       <SearchFilter
         search={u.search}
@@ -59,17 +62,19 @@ export function ProjectsCC({ initialData, search, page }: ProjectsCCProps) {
 
       <Pagination page={page} totalPages={totalPages} filters={{ search }} />
 
-      <CreateProjectDrawer
-        isOpen={u.drawerMode === "create"}
-        onClose={u.closeDrawer}
-        form={{
-          control: u.createForm.control,
-          isPending: u.isPending,
-        }}
-        onSubmit={u.onCreateSubmit}
-        actionError={u.actionError}
-        isPending={u.isPending}
-      />
+      {canCreateProject && (
+        <CreateProjectDrawer
+          isOpen={u.drawerMode === "create"}
+          onClose={u.closeDrawer}
+          form={{
+            control: u.createForm.control,
+            isPending: u.isPending,
+          }}
+          onSubmit={u.onCreateSubmit}
+          actionError={u.actionError}
+          isPending={u.isPending}
+        />
+      )}
 
       <EditProjectDrawer
         isOpen={u.drawerMode === "edit"}

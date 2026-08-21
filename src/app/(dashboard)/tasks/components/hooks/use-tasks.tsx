@@ -27,7 +27,8 @@ type DrawerMode = "none" | "create" | "edit";
 
 function toDateInputValue(date: Date | null): string {
   if (!date) return "";
-  return new Date(date).toISOString().slice(0, 10);
+  // return new Date(date).toISOString().slice(0, 10);
+  return new Date(date).toISOString();
 }
 
 export interface TaskFilters {
@@ -35,6 +36,7 @@ export interface TaskFilters {
   status: string;
   priority: string;
   assignee: string;
+  project: string;
   sort: string;
   order: string;
 }
@@ -55,6 +57,7 @@ export function useTasks(initialFilters: TaskFilters) {
   const [labelError, setLabelError] = React.useState<string | null>(null);
 
   const [search, setSearch] = React.useState(initialFilters.search);
+  const [project, setProject] = React.useState(initialFilters.project);
 
   const createForm = useForm<CreateTaskInput>({
     resolver: zodResolver(createTaskSchema),
@@ -124,6 +127,7 @@ export function useTasks(initialFilters: TaskFilters) {
       status: detail.status,
       priority: detail.priority,
       type: detail.type,
+      projectId: detail.projectId ?? "",
       assignedToId: detail.assignedTo?.id ?? "",
       dueDate: toDateInputValue(detail.dueDate),
     });
@@ -155,6 +159,7 @@ export function useTasks(initialFilters: TaskFilters) {
       fd.append("status", data.status);
       fd.append("priority", data.priority);
       fd.append("type", data.type);
+      fd.append("projectId", data.projectId ?? "");
       fd.append("assignedToId", data.assignedToId ?? "");
       fd.append("dueDate", data.dueDate ?? "");
       fd.append("labelIds", JSON.stringify(selectedLabelIds));
@@ -178,6 +183,7 @@ export function useTasks(initialFilters: TaskFilters) {
       fd.append("status", data.status);
       fd.append("priority", data.priority);
       fd.append("type", data.type);
+      fd.append("projectId", data.projectId ?? "");
       fd.append("assignedToId", data.assignedToId ?? "");
       fd.append("dueDate", data.dueDate ?? "");
       fd.append("labelIds", JSON.stringify(selectedLabelIds));
@@ -217,6 +223,7 @@ export function useTasks(initialFilters: TaskFilters) {
     if (merged.status) params.set("status", merged.status);
     if (merged.priority) params.set("priority", merged.priority);
     if (merged.assignee) params.set("assignee", merged.assignee);
+    if (merged.project) params.set("project", merged.project);
     if (merged.sort) params.set("sort", merged.sort);
     if (merged.order) params.set("order", merged.order);
     params.set("page", "1");
@@ -229,6 +236,11 @@ export function useTasks(initialFilters: TaskFilters) {
         ? "desc"
         : "asc";
     applyFilters({ sort: field, order: nextOrder });
+  }
+
+  function setProjectFilter(value: string) {
+    setProject(value);
+    applyFilters({ project: value });
   }
 
   function onLabelDialogOpen() {
@@ -272,6 +284,8 @@ export function useTasks(initialFilters: TaskFilters) {
     isPending,
     search,
     setSearch,
+    project,
+    setProject: setProjectFilter,
     createForm,
     editForm,
     openCreate,

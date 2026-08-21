@@ -6,9 +6,10 @@ export const createTaskSchema = z.object({
   status: z.enum(["BACKLOG", "TODO", "IN_PROGRESS", "REVIEW", "TESTING", "DONE", "BLOCKED"]),
   priority: z.enum(["URGENT", "HIGH", "MEDIUM", "LOW", "NONE"]),
   type: z.enum(["TASK", "STORY", "BUG", "EPIC"]),
+  projectId: z.string().optional().or(z.literal("")),
   assignedToId: z.string().optional().or(z.literal("")),
   dueDate: z.string().optional().or(z.literal("")),
-  labelIds: z.string().optional(), // JSON-encoded string[]
+  labelIds: z.string().optional(),
 });
 
 export const updateTaskSchema = createTaskSchema;

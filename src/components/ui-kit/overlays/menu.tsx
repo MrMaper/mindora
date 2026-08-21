@@ -18,7 +18,7 @@ export interface MenuItem {
   kbd?: string;
   danger?: boolean;
   disabled?: boolean;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent) => void;
   divider?: boolean;
   heading?: string;
 }
@@ -59,7 +59,7 @@ export function Menu({
                 key={i}
                 disabled={it.disabled}
                 variant={it.danger ? "destructive" : "default"}
-                onClick={it.onClick}
+                onClick={(e) => it.onClick?.(e)}
               >
                 {it.icon && <Icon name={it.icon} size={15} />}
                 <span className="flex-1">{it.label}</span>

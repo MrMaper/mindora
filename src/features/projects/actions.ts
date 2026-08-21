@@ -43,7 +43,12 @@ async function requireProjectOwner(projectId: string, userId: string) {
 
 export async function createProject(formData: FormData): Promise<ActionResult> {
   const session = await requireAuth();
-  if (!session) return { success: false, error: "Unauthorized." };
+  if (!session) return { success: false, error: "Unauthorized" };
+
+  // Only admins can create projects
+  if (session.user.role !== "ADMIN") {
+    return { success: false, error: "Only admins can create projects" };
+  }
 
   const parsed = createProjectSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
@@ -52,7 +57,7 @@ export async function createProject(formData: FormData): Promise<ActionResult> {
 
   // Get default organization
   const org = await db.organization.findFirst();
-  if (!org) return { success: false, error: "No organization found." };
+  if (!org) return { success: false, error: "Organization not found" };
 
   const project = await db.project.create({
     data: {
@@ -80,10 +85,10 @@ export async function updateProject(
   formData: FormData
 ): Promise<ActionResult> {
   const session = await requireAuth();
-  if (!session) return { success: false, error: "Unauthorized." };
+  if (!session) return { success: false, error: "غیرمجاز" };
 
   const isAdmin = await requireProjectAdmin(id, session.user.id);
-  if (!isAdmin) return { success: false, error: "Only project admins can update this project." };
+  if (!isAdmin) return { success: false, error: "تنها مدیران پروژه می‌توانند این پروژه را به‌روزرسانی کنند" };
 
   const parsed = updateProjectSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
@@ -108,10 +113,10 @@ export async function updateProject(
 
 export async function archiveProject(id: string): Promise<ActionResult> {
   const session = await requireAuth();
-  if (!session) return { success: false, error: "Unauthorized." };
+  if (!session) return { success: false, error: "غیرمجاز" };
 
   const isAdmin = await requireProjectAdmin(id, session.user.id);
-  if (!isAdmin) return { success: false, error: "Only project admins can archive this project." };
+  if (!isAdmin) return { success: false, error: "تنها مدیران پروژه می‌توانند این پروژه را بایگانی کنند" };
 
   const parsed = archiveProjectSchema.safeParse({ id });
   if (!parsed.success) {
@@ -128,14 +133,38 @@ export async function archiveProject(id: string): Promise<ActionResult> {
   return { success: true };
 }
 
+// ─── Unarchive project ───────────────────────────────────────────────────────
+
+export async function unarchiveProject(id: string): Promise<ActionResult> {
+  const session = await requireAuth();
+  if (!session) return { success: false, error: "غیرمجاز" };
+
+  const isAdmin = await requireProjectAdmin(id, session.user.id);
+  if (!isAdmin) return { success: false, error: "تنها مدیران پروژه می‌توانند این پروژه را بازگردانند" };
+
+  const parsed = archiveProjectSchema.safeParse({ id });
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message };
+  }
+
+  await db.project.update({
+    where: { id },
+    data: { status: "ACTIVE" },
+  });
+
+  revalidatePath("/projects");
+  revalidatePath(`/projects/${id}`);
+  return { success: true };
+}
+
 // ─── Delete project ────────────────────────────────────────────────────────
 
 export async function deleteProject(id: string): Promise<ActionResult> {
   const session = await requireAuth();
-  if (!session) return { success: false, error: "Unauthorized." };
+  if (!session) return { success: false, error: "غیرمجاز" };
 
   const isOwner = await requireProjectOwner(id, session.user.id);
-  if (!isOwner) return { success: false, error: "Only the project owner can delete this project." };
+  if (!isOwner) return { success: false, error: "تنها مالک پروژه می‌تواند این پروژه را حذف کند" };
 
   const parsed = deleteProjectSchema.safeParse({ id });
   if (!parsed.success) {
@@ -147,7 +176,7 @@ export async function deleteProject(id: string): Promise<ActionResult> {
     where: { projectId: id, status: { not: "DONE" } },
   });
   if (activeTasks > 0) {
-    return { success: false, error: `Cannot delete project with ${activeTasks} active tasks.` };
+    return { success: false, error: `نمی‌توان پروژه‌ای با ${activeTasks} تسک فعال را حذف کرد` };
   }
 
   await db.project.delete({ where: { id } });
@@ -163,10 +192,10 @@ export async function inviteMember(
   formData: FormData
 ): Promise<ActionResult> {
   const session = await requireAuth();
-  if (!session) return { success: false, error: "Unauthorized." };
+  if (!session) return { success: false, error: "غیرمجاز" };
 
   const isAdmin = await requireProjectAdmin(projectId, session.user.id);
-  if (!isAdmin) return { success: false, error: "You do not have permission to invite members." };
+  if (!isAdmin) return { success: false, error: "شما مجوز دعوت عضو ندارید" };
 
   const { userId, role } = Object.fromEntries(formData) as { userId: string; role: string };
 
@@ -175,7 +204,7 @@ export async function inviteMember(
     where: { projectId_userId: { projectId, userId } },
   });
   if (existing) {
-    return { success: false, error: "User is already a member of this project." };
+    return { success: false, error: "کاربر قبلاً عضو این پروژه است" };
   }
 
   await db.projectMember.create({
@@ -193,7 +222,7 @@ export async function updateMemberRole(
   formData: FormData
 ): Promise<ActionResult> {
   const session = await requireAuth();
-  if (!session) return { success: false, error: "Unauthorized." };
+  if (!session) return { success: false, error: "غیرمجاز" };
 
   const { role } = Object.fromEntries(formData) as { role: string };
 
@@ -201,11 +230,11 @@ export async function updateMemberRole(
     where: { id: memberId },
     select: { projectId: true, userId: true, role: true },
   });
-  if (!member) return { success: false, error: "Member not found." };
+  if (!member) return { success: false, error: "عضو یافت نشد" };
 
   // Only OWNER can change roles
   const isOwner = await requireProjectOwner(member.projectId, session.user.id);
-  if (!isOwner) return { success: false, error: "Only the project owner can change member roles." };
+  if (!isOwner) return { success: false, error: "تنها مالک پروژه می‌تواند نقش اعضا را تغییر دهد" };
 
   // Guard: prevent changing the last OWNER's role
   if (member.role === "OWNER") {
@@ -213,7 +242,7 @@ export async function updateMemberRole(
       where: { projectId: member.projectId, role: "OWNER" },
     });
     if (ownerCount <= 1) {
-      return { success: false, error: "Cannot change the role of the last owner." };
+      return { success: false, error: "نمی‌توان نقش آخرین مالک را تغییر داد" };
     }
   }
 
@@ -230,17 +259,17 @@ export async function updateMemberRole(
 
 export async function removeMember(memberId: string): Promise<ActionResult> {
   const session = await requireAuth();
-  if (!session) return { success: false, error: "Unauthorized." };
+  if (!session) return { success: false, error: "غیرمجاز" };
 
   const member = await db.projectMember.findUnique({
     where: { id: memberId },
     select: { projectId: true, userId: true, role: true },
   });
-  if (!member) return { success: false, error: "Member not found." };
+  if (!member) return { success: false, error: "عضو یافت نشد" };
 
   // Caller must be ADMIN or OWNER
   const isAdmin = await requireProjectAdmin(member.projectId, session.user.id);
-  if (!isAdmin) return { success: false, error: "You do not have permission to remove members." };
+  if (!isAdmin) return { success: false, error: "شما مجوز حذف اعضا را ندارید" };
 
   // Guard: prevent removing the last OWNER
   if (member.role === "OWNER") {
@@ -248,13 +277,13 @@ export async function removeMember(memberId: string): Promise<ActionResult> {
       where: { projectId: member.projectId, role: "OWNER" },
     });
     if (ownerCount <= 1) {
-      return { success: false, error: "Cannot remove the last owner." };
+      return { success: false, error: "نمی‌توان آخرین مالک را حذف کرد" };
     }
   }
 
   // Cannot remove yourself
   if (member.userId === session.user.id) {
-    return { success: false, error: "You cannot remove yourself from the project." };
+    return { success: false, error: "شما نمی‌توانید خود را از پروژه حذف کنید" };
   }
 
   await db.projectMember.delete({ where: { id: memberId } });

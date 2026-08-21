@@ -22,6 +22,7 @@ import type { TaskRow, TaskDetail } from "@/features/tasks/types";
 
 interface KanbanFilters {
   search: string;
+  project: string;
   assignee: string;
   label: string;
   priority: string;
@@ -48,6 +49,7 @@ export function useKanban(initialColumns: BoardColumns, initialFilters: KanbanFi
 
   const [activeTaskCard, setActiveTaskCard] = React.useState<TaskRow | null>(null);
   const [search, setSearch] = React.useState(initialFilters.search);
+  const [project, setProject] = React.useState(initialFilters.project);
 
   const [editingTaskId, setEditingTaskId] = React.useState<string | null>(null);
   const [activeTask, setActiveTask] = React.useState<TaskDetail | null>(null);
@@ -64,10 +66,11 @@ export function useKanban(initialColumns: BoardColumns, initialFilters: KanbanFi
       status: "BACKLOG",
       priority: "NONE",
       type: "TASK",
+      projectId: "",
       assignedToId: "",
       dueDate: "",
     },
-  });
+  }) as import("react-hook-form").UseFormReturn<UpdateTaskInput>;
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } })
@@ -162,6 +165,7 @@ export function useKanban(initialColumns: BoardColumns, initialFilters: KanbanFi
       status: detail.status,
       priority: detail.priority,
       type: detail.type,
+      projectId: detail.projectId ?? "",
       assignedToId: detail.assignedTo?.id ?? "",
       dueDate: toDateInputValue(detail.dueDate),
     });
@@ -190,6 +194,7 @@ export function useKanban(initialColumns: BoardColumns, initialFilters: KanbanFi
       fd.append("status", data.status);
       fd.append("priority", data.priority);
       fd.append("type", data.type);
+      fd.append("projectId", data.projectId ?? "");
       fd.append("assignedToId", data.assignedToId ?? "");
       fd.append("dueDate", data.dueDate ?? "");
       fd.append("labelIds", JSON.stringify(selectedLabelIds));
@@ -215,7 +220,13 @@ export function useKanban(initialColumns: BoardColumns, initialFilters: KanbanFi
     if (merged.assignee) params.set("assignee", merged.assignee);
     if (merged.label) params.set("label", merged.label);
     if (merged.priority) params.set("priority", merged.priority);
+    if (merged.project) params.set("project", merged.project);
     router.push(`/kanban?${params.toString()}`);
+  }
+
+  function setProjectFilter(value: string) {
+    setProject(value);
+    applyFilters({ project: value });
   }
 
   return {
@@ -228,6 +239,8 @@ export function useKanban(initialColumns: BoardColumns, initialFilters: KanbanFi
     onDragEnd,
     search,
     setSearch,
+    project,
+    setProject: setProjectFilter,
     onSearchSubmit,
     applyFilters,
     editingTaskId,

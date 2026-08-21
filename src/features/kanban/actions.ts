@@ -38,13 +38,13 @@ export async function moveTask(params: {
   orderedIds: string[];
 }): Promise<ActionResult> {
   const session = await auth();
-  if (!session?.user) return { success: false, error: "Unauthorized." };
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const existing = await db.task.findUnique({
     where: { id: params.taskId },
     select: { status: true, title: true, assignedToId: true },
   });
-  if (!existing) return { success: false, error: "Task not found." };
+  if (!existing) return { success: false, error: "تسک یافت نشد" };
 
   await db.$transaction(
     params.orderedIds.map((id, index) =>
@@ -71,7 +71,7 @@ export async function moveTask(params: {
       await notify({
         userId: existing.assignedToId,
         type: "STATUS_CHANGED",
-        title: `Status changed to ${params.toStatus.replace("_", " ")} on "${existing.title}"`,
+        title: `وضعیت به «${params.toStatus.replace("_", " ")}» در «${existing.title}» تغییر کرد`,
         data: { taskId: params.taskId },
       });
     }

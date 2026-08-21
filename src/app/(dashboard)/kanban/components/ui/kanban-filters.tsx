@@ -10,8 +10,11 @@ import type { LabelRow } from "@/features/labels/types";
 
 interface KanbanFiltersProps {
   search: string;
+  project: string;
+  projectOptions: { value: string; label: string }[];
   onSearchChange: (value: string) => void;
   onSearchSubmit: (e: React.FormEvent) => void;
+  onProjectChange: (value: string) => void;
   assignee: string;
   label: string;
   priority: string;
@@ -19,6 +22,7 @@ interface KanbanFiltersProps {
     assignee?: string;
     label?: string;
     priority?: string;
+    project?: string;
   }) => void;
   users: UserRow[];
   labels: LabelRow[];
@@ -29,8 +33,11 @@ interface KanbanFiltersProps {
 
 export function KanbanFilters({
   search,
+  project,
+  projectOptions,
   onSearchChange,
   onSearchSubmit,
+  onProjectChange,
   assignee,
   label,
   priority,
@@ -81,6 +88,14 @@ export function KanbanFilters({
           />
         </form>
 
+        <div className="w-48">
+          <Select
+            label={t.board.project}
+            value={project}
+            onChange={onProjectChange}
+            options={projectOptions}
+          />
+        </div>
         <div className="w-40">
           <Select
             label={t.board.assignee}

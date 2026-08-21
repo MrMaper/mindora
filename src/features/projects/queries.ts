@@ -13,13 +13,20 @@ const PAGE_SIZE = 15;
 export async function getProjects(
   search = "",
   page = 1,
+  userId?: string,
 ): Promise<GetProjectsResult> {
   const skip = (page - 1) * PAGE_SIZE;
-  const where = search
+  const where: Record<string, unknown> = search
     ? {
         name: { contains: search, mode: "insensitive" as const },
       }
     : {};
+
+  if (userId) {
+    where.members = {
+      some: { userId },
+    };
+  }
 
   const [projects, total] = await Promise.all([
     db.project.findMany({
@@ -67,6 +74,7 @@ export async function getUserProjects(userId: string): Promise<ProjectRow[]> {
           id: true,
           name: true,
           description: true,
+          status: true,
           teamId: true,
           team: { select: { name: true } },
           _count: { select: { members: true } },
@@ -76,16 +84,18 @@ export async function getUserProjects(userId: string): Promise<ProjectRow[]> {
     },
   });
 
-  return memberships.map(m => ({
-    id: m.project.id,
-    name: m.project.name,
-    description: m.project.description,
-    status: "ACTIVE" as const,
-    teamId: m.project.teamId,
-    teamName: m.project.team?.name ?? null,
-    memberCount: m.project._count.members,
-    createdAt: m.project.createdAt,
-  }));
+  return memberships
+    .filter(m => m.project.status !== "ARCHIVED")
+    .map(m => ({
+      id: m.project.id,
+      name: m.project.name,
+      description: m.project.description,
+      status: m.project.status,
+      teamId: m.project.teamId,
+      teamName: m.project.team?.name ?? null,
+      memberCount: m.project._count.members,
+      createdAt: m.project.createdAt,
+    }));
 }
 
 export async function getProjectById(
@@ -170,6 +180,20 @@ export async function getProjectMembers(
   }));
 }
 
+export async function getProjectMemberUserOptions(projectId: string): Promise<{ value: string; label: string }[]> {
+  const members = await db.projectMember.findMany({
+    where: { projectId },
+    select: {
+      user: { select: { id: true, name: true, email: true } },
+    },
+  });
+
+  return members.map(m => ({
+    value: m.user.id,
+    label: `${m.user.name} (${m.user.email})`,
+  }));
+}
+
 export async function getAvailableRoles() {
   return [
     { value: "OWNER", label: "Owner" },
@@ -214,7 +238,7 @@ export async function getProjectTasks(
       type: true,
       storyPoints: true,
       dueDate: true,
-      assignee: { select: { id: true, name: true, avatar: true } },
+      assignedTo: { select: { id: true, name: true, avatar: true } },
       createdAt: true,
       updatedAt: true,
     },
@@ -222,8 +246,8 @@ export async function getProjectTasks(
 
   return tasks.map(t => ({
     ...t,
-    assignee: t.assignee
-      ? { id: t.assignee.id, name: t.assignee.name, avatar: t.assignee.avatar }
+    assignee: t.assignedTo
+      ? { id: t.assignedTo.id, name: t.assignedTo.name, avatar: t.assignedTo.avatar }
       : null,
   }));
 }
@@ -264,8 +288,8 @@ export async function getProjectActivity(
     entityId: a.entityId,
     action: a.action,
     performedBy: a.user,
-    oldValue: a.oldValue,
-    newValue: a.newValue,
+    oldValue: a.oldValue as Record<string, unknown> | null,
+    newValue: a.newValue as Record<string, unknown> | null,
     timestamp: a.timestamp,
   }));
 }

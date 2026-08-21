@@ -407,7 +407,8 @@ export const ModelName = {
   Checklist: 'Checklist',
   ChecklistItem: 'ChecklistItem',
   Notification: 'Notification',
-  ActivityLog: 'ActivityLog'
+  ActivityLog: 'ActivityLog',
+  WorkLog: 'WorkLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -423,7 +424,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "account" | "session" | "verificationToken" | "passwordResetToken" | "userPreferences" | "role" | "permission" | "rolePermission" | "organization" | "team" | "teamMember" | "project" | "projectMember" | "sprint" | "task" | "label" | "taskLabel" | "comment" | "attachment" | "checklist" | "checklistItem" | "notification" | "activityLog"
+    modelProps: "user" | "account" | "session" | "verificationToken" | "passwordResetToken" | "userPreferences" | "role" | "permission" | "rolePermission" | "organization" | "team" | "teamMember" | "project" | "projectMember" | "sprint" | "task" | "label" | "taskLabel" | "comment" | "attachment" | "checklist" | "checklistItem" | "notification" | "activityLog" | "workLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2203,6 +2204,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    WorkLog: {
+      payload: Prisma.$WorkLogPayload<ExtArgs>
+      fields: Prisma.WorkLogFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.WorkLogFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkLogPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.WorkLogFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkLogPayload>
+        }
+        findFirst: {
+          args: Prisma.WorkLogFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkLogPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.WorkLogFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkLogPayload>
+        }
+        findMany: {
+          args: Prisma.WorkLogFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkLogPayload>[]
+        }
+        create: {
+          args: Prisma.WorkLogCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkLogPayload>
+        }
+        createMany: {
+          args: Prisma.WorkLogCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.WorkLogCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkLogPayload>[]
+        }
+        delete: {
+          args: Prisma.WorkLogDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkLogPayload>
+        }
+        update: {
+          args: Prisma.WorkLogUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkLogPayload>
+        }
+        deleteMany: {
+          args: Prisma.WorkLogDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.WorkLogUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.WorkLogUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkLogPayload>[]
+        }
+        upsert: {
+          args: Prisma.WorkLogUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkLogPayload>
+        }
+        aggregate: {
+          args: Prisma.WorkLogAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateWorkLog>
+        }
+        groupBy: {
+          args: Prisma.WorkLogGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WorkLogGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.WorkLogCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WorkLogCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -2531,6 +2606,20 @@ export const ActivityLogScalarFieldEnum = {
 } as const
 
 export type ActivityLogScalarFieldEnum = (typeof ActivityLogScalarFieldEnum)[keyof typeof ActivityLogScalarFieldEnum]
+
+
+export const WorkLogScalarFieldEnum = {
+  id: 'id',
+  taskId: 'taskId',
+  userId: 'userId',
+  hours: 'hours',
+  date: 'date',
+  description: 'description',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WorkLogScalarFieldEnum = (typeof WorkLogScalarFieldEnum)[keyof typeof WorkLogScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2929,6 +3018,7 @@ export type GlobalOmitConfig = {
   checklistItem?: Prisma.ChecklistItemOmit
   notification?: Prisma.NotificationOmit
   activityLog?: Prisma.ActivityLogOmit
+  workLog?: Prisma.WorkLogOmit
 }
 
 /* Types for Logging */

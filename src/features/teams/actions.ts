@@ -22,7 +22,7 @@ async function requireAdminSession() {
 
 export async function createTeam(formData: FormData): Promise<ActionResult> {
   const session = await requireAdminSession();
-  if (!session) return { success: false, error: "Unauthorized." };
+  if (!session) return { success: false, error: "غیرمجاز" };
 
   const parsed = createTeamSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
@@ -31,11 +31,11 @@ export async function createTeam(formData: FormData): Promise<ActionResult> {
 
   // Get default organization (first one)
   const org = await db.organization.findFirst();
-  if (!org) return { success: false, error: "No organization found." };
+  if (!org) return { success: false, error: "سازمانی یافت نشد" };
 
   // Get ADMINISTRATOR role
   const adminRole = await db.role.findUnique({ where: { name: "ADMINISTRATOR" } });
-  if (!adminRole) return { success: false, error: "Administrator role not found." };
+  if (!adminRole) return { success: false, error: "نقش مدیر یافت نشد" };
 
   const team = await db.team.create({
     data: {
@@ -62,7 +62,7 @@ export async function updateTeam(
   formData: FormData
 ): Promise<ActionResult> {
   const session = await requireAdminSession();
-  if (!session) return { success: false, error: "Unauthorized." };
+  if (!session) return { success: false, error: "غیرمجاز" };
 
   const parsed = updateTeamSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
@@ -81,7 +81,7 @@ export async function updateTeam(
   });
 
   if (!membership || membership.role.name !== "ADMINISTRATOR") {
-    return { success: false, error: "Only team administrators can update this team." };
+    return { success: false, error: "تنها مدیران تیم می‌توانند این تیم را به‌روزرسانی کنند" };
   }
 
   await db.team.update({
@@ -97,7 +97,7 @@ export async function updateTeam(
 
 export async function archiveTeam(id: string): Promise<ActionResult> {
   const session = await requireAdminSession();
-  if (!session) return { success: false, error: "Unauthorized." };
+  if (!session) return { success: false, error: "غیرمجاز" };
 
   const parsed = archiveTeamSchema.safeParse({ id });
   if (!parsed.success) {
@@ -116,7 +116,7 @@ export async function archiveTeam(id: string): Promise<ActionResult> {
   });
 
   if (!membership || membership.role.name !== "ADMINISTRATOR") {
-    return { success: false, error: "Only team administrators can archive this team." };
+    return { success: false, error: "تنها مدیران تیم می‌توانند این تیم را بایگانی کنند" };
   }
 
   // Soft archive - we could add an archivedAt field or status field to Team model
@@ -135,7 +135,7 @@ export async function archiveTeam(id: string): Promise<ActionResult> {
 
 export async function deleteTeam(id: string): Promise<ActionResult> {
   const session = await requireAdminSession();
-  if (!session) return { success: false, error: "Unauthorized." };
+  if (!session) return { success: false, error: "غیرمجاز" };
 
   const parsed = deleteTeamSchema.safeParse({ id });
   if (!parsed.success) {
@@ -154,7 +154,7 @@ export async function deleteTeam(id: string): Promise<ActionResult> {
   });
 
   if (!membership || membership.role.name !== "ADMINISTRATOR") {
-    return { success: false, error: "Only team administrators can delete this team." };
+    return { success: false, error: "تنها مدیران تیم می‌توانند این تیم را حذف کنند" };
   }
 
   // Guard: check for active tasks
@@ -162,13 +162,13 @@ export async function deleteTeam(id: string): Promise<ActionResult> {
     where: { teamId: id, status: { not: "DONE" } },
   });
   if (activeTasks > 0) {
-    return { success: false, error: `Cannot delete team with ${activeTasks} active tasks.` };
+    return { success: false, error: `نمی‌توان تیمی با ${activeTasks} تسک فعال را حذف کرد` };
   }
 
   // Guard: check for members
   const memberCount = await db.teamMember.count({ where: { teamId: id } });
   if (memberCount > 0) {
-    return { success: false, error: `Cannot delete team with ${memberCount} members.` };
+    return { success: false, error: `نمی‌توان تیمی با ${memberCount} عضو را حذف کرد` };
   }
 
   await db.team.delete({ where: { id } });
@@ -184,7 +184,7 @@ export async function inviteMember(
   formData: FormData
 ): Promise<ActionResult> {
   const session = await auth();
-  if (!session?.user) return { success: false, error: "Unauthorized." };
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const parsed = inviteMemberSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
@@ -197,7 +197,7 @@ export async function inviteMember(
     select: { role: { select: { name: true } } },
   });
   if (!caller || (caller.role.name !== "ADMINISTRATOR" && caller.role.name !== "TEAM_LEAD")) {
-    return { success: false, error: "You do not have permission to invite members." };
+    return { success: false, error: "شما مجوز دعوت عضو ندارید" };
   }
 
   // Check user is not already a member
@@ -205,7 +205,7 @@ export async function inviteMember(
     where: { teamId_userId: { teamId, userId: parsed.data.userId } },
   });
   if (existing) {
-    return { success: false, error: "User is already a member of this team." };
+    return { success: false, error: "کاربر قبلاً عضو این تیم است" };
   }
 
   await db.teamMember.create({
@@ -227,7 +227,7 @@ export async function updateMemberRole(
   formData: FormData
 ): Promise<ActionResult> {
   const session = await auth();
-  if (!session?.user) return { success: false, error: "Unauthorized." };
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const parsed = updateMemberRoleSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
@@ -242,7 +242,7 @@ export async function updateMemberRole(
       role: { select: { name: true } },
     },
   });
-  if (!member) return { success: false, error: "Member not found." };
+  if (!member) return { success: false, error: "عضو یافت نشد" };
 
   // Caller must be ADMINISTRATOR to change roles
   const caller = await db.teamMember.findUnique({
@@ -250,7 +250,7 @@ export async function updateMemberRole(
     select: { role: { select: { name: true } } },
   });
   if (!caller || caller.role.name !== "ADMINISTRATOR") {
-    return { success: false, error: "Only administrators can change member roles." };
+    return { success: false, error: "تنها مدیران می‌توانند نقش اعضا را تغییر دهند" };
   }
 
   // Guard: prevent changing the last ADMINISTRATOR's role
@@ -259,7 +259,7 @@ export async function updateMemberRole(
       where: { teamId: member.teamId, role: { name: "ADMINISTRATOR" } },
     });
     if (adminCount <= 1) {
-      return { success: false, error: "Cannot change the role of the last administrator." };
+      return { success: false, error: "نمی‌توان نقش آخرین مدیر را تغییر داد" };
     }
   }
 
@@ -276,7 +276,7 @@ export async function updateMemberRole(
 
 export async function removeMember(memberId: string): Promise<ActionResult> {
   const session = await auth();
-  if (!session?.user) return { success: false, error: "Unauthorized." };
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const member = await db.teamMember.findUnique({
     where: { id: memberId },
@@ -286,7 +286,7 @@ export async function removeMember(memberId: string): Promise<ActionResult> {
       role: { select: { name: true } },
     },
   });
-  if (!member) return { success: false, error: "Member not found." };
+  if (!member) return { success: false, error: "عضو یافت نشد" };
 
   // Caller must be ADMINISTRATOR or TEAM_LEAD
   const caller = await db.teamMember.findUnique({
@@ -294,7 +294,7 @@ export async function removeMember(memberId: string): Promise<ActionResult> {
     select: { role: { select: { name: true } } },
   });
   if (!caller || (caller.role.name !== "ADMINISTRATOR" && caller.role.name !== "TEAM_LEAD")) {
-    return { success: false, error: "You do not have permission to remove members." };
+    return { success: false, error: "شما مجوز حذف اعضا را ندارید" };
   }
 
   // Guard: prevent removing the last ADMINISTRATOR
@@ -303,7 +303,7 @@ export async function removeMember(memberId: string): Promise<ActionResult> {
       where: { teamId: member.teamId, role: { name: "ADMINISTRATOR" } },
     });
     if (adminCount <= 1) {
-      return { success: false, error: "Cannot remove the last administrator." };
+      return { success: false, error: "نمی‌توان آخرین مدیر را حذف کرد" };
     }
   }
 
@@ -313,13 +313,13 @@ export async function removeMember(memberId: string): Promise<ActionResult> {
       where: { teamId: member.teamId, role: { name: "TEAM_LEAD" } },
     });
     if (leadCount <= 1) {
-      return { success: false, error: "Cannot remove the last team lead." };
+      return { success: false, error: "نمی‌توان آخرین رهبر تیم را حذف کرد" };
     }
   }
 
   // Cannot remove yourself
   if (member.userId === session.user.id) {
-    return { success: false, error: "You cannot remove yourself from the team." };
+    return { success: false, error: "شما نمی‌توانید خود را از تیم حذف کنید" };
   }
 
   await db.teamMember.delete({ where: { id: memberId } });

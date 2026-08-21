@@ -23,6 +23,8 @@ export function toTaskRow(task: {
   createdBy: { id: string; name: string; avatar: string | null };
   assignedTo: { id: string; name: string; avatar: string | null } | null;
   labels: { label: { id: string; name: string; color: string } }[];
+  projectId: string | null;
+  project: { name: string } | null;
 }): TaskRow {
   return {
     id: task.id,
@@ -37,6 +39,8 @@ export function toTaskRow(task: {
     createdBy: task.createdBy,
     assignedTo: task.assignedTo,
     labels: task.labels.map(l => l.label),
+    projectId: task.projectId,
+    projectName: task.project?.name ?? null,
   };
 }
 
@@ -53,6 +57,16 @@ export async function getTasks(
     ...(params.status ? { status: params.status } : {}),
     ...(params.priority ? { priority: params.priority } : {}),
     ...(params.assigneeId ? { assignedToId: params.assigneeId } : {}),
+    ...(params.projectIds && params.projectIds.length > 0
+      ? { projectId: { in: params.projectIds } }
+      : {}),
+    // Exclude archived projects
+    project: { isNot: { status: "ARCHIVED" as const } },
+    // Exclude orphaned tasks (projectId set but project deleted)
+    OR: [
+      { projectId: null }, // Tasks without a project
+      { project: { isNot: null } }, // Tasks with a valid project
+    ],
   };
 
   const orderBy = (() => {
@@ -86,6 +100,8 @@ export async function getTasks(
         position: true,
         createdAt: true,
         updatedAt: true,
+        projectId: true,
+        project: { select: { name: true } },
         createdBy: { select: userRefSelect },
         assignedTo: { select: userRefSelect },
         labels: {
@@ -118,6 +134,8 @@ export async function getTaskById(id: string): Promise<TaskDetail | null> {
       position: true,
       createdAt: true,
       updatedAt: true,
+      projectId: true,
+      project: { select: { name: true } },
       createdBy: { select: userRefSelect },
       assignedTo: { select: userRefSelect },
       labels: {

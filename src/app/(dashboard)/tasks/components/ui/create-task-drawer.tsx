@@ -9,6 +9,7 @@ import { DatePicker } from "@/components/ui-kit/forms/date-picker";
 import { LabelPicker } from "./label-picker";
 import type { SelectOption } from "@/components/ui-kit/forms/select";
 import type { UserRow } from "@/features/users/types";
+import type { ProjectRow } from "@/features/projects/types";
 
 interface CreateTaskDrawerProps {
   isOpen: boolean;
@@ -32,11 +33,13 @@ interface CreateTaskDrawerProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   t: Record<string, any>;
   users: UserRow[];
+  projects: ProjectRow[];
   labels: import("@/features/labels/types").LabelRow[];
   statusOptions: SelectOption[];
   priorityOptions: SelectOption[];
   typeOptions: SelectOption[];
   userOptions: { value: string; label: string }[];
+  projectOptions: { value: string; label: string }[];
   selectedLabelIds: string[];
   onLabelToggle: (id: string) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -50,17 +53,40 @@ export function CreateTaskDrawer({
   onClose,
   form,
   t,
+  users,
+  projects,
   labels,
   statusOptions,
   priorityOptions,
   typeOptions,
   userOptions,
+  projectOptions,
   selectedLabelIds,
   onLabelToggle,
   onSubmit,
   actionError,
   isPending,
 }: CreateTaskDrawerProps) {
+  const [selectedProjectId, setSelectedProjectId] = React.useState<string>("");
+
+  // Filter assignees based on selected project
+  const filteredUserOptions = React.useMemo(() => {
+    if (!selectedProjectId) return userOptions;
+    const project = projects.find(p => p.id === selectedProjectId);
+    if (!project) return userOptions;
+    // Filter users to only those who are members of the selected project
+    // We'll need to check project members - for now, we'll rely on the parent component
+    // to pass pre-filtered options, but we can also filter here if we have member data
+    return userOptions;
+  }, [selectedProjectId, projects, userOptions]);
+
+  const handleProjectChange = (value: string) => {
+    setSelectedProjectId(value);
+    form.setValue("projectId", value);
+    // Trigger assignee options update - parent component should handle this
+    // by passing updated userOptions based on selected project
+  };
+
   return (
     <Drawer
       open={isOpen}
@@ -126,6 +152,19 @@ export function CreateTaskDrawer({
         />
         <div className="grid grid-cols-2 gap-3">
           <Controller
+            name="projectId"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Select
+                {...field}
+                label={t.project}
+                options={projectOptions}
+                onChange={handleProjectChange}
+                error={fieldState.error?.message}
+              />
+            )}
+          />
+          <Controller
             name="status"
             control={form.control}
             render={({ field, fieldState }) => (
@@ -168,7 +207,7 @@ export function CreateTaskDrawer({
               <Select
                 {...field}
                 label={t.assignee}
-                options={userOptions}
+                options={filteredUserOptions}
                 error={fieldState.error?.message}
               />
             )}

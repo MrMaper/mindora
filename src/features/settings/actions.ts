@@ -66,7 +66,7 @@ export async function updateUserPreferences(
     console.error("Error updating user preferences:", error);
     return {
       success: false,
-      error: "Failed to update preferences",
+      error: "به‌روزرسانی ترجیحات ناموفق بود",
     };
   }
 }

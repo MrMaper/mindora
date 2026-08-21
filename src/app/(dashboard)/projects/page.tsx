@@ -16,16 +16,17 @@ export default async function ProjectsPage({
   if (!session?.user) redirect("/login");
 
   const { search = "", page = "1" } = await searchParams;
-  const data = await getProjects(search, Math.max(1, Number(page)));
+  const data = await getProjects(search, Math.max(1, Number(page)), session.user.id);
 
   const preferences = await getUserPreferences(session.user.id);
-  const language = preferences?.language ?? "EN";
+  const language = preferences?.language ?? "FA";
 
   return (
     <ProjectsCC
       initialData={data}
       search={search}
       page={Math.max(1, Number(page))}
+      currentUserRole={session.user.role}
     />
   );
 }

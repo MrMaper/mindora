@@ -6,7 +6,7 @@ import { useTranslation } from "@/i18n/provider";
 
 interface PageHeaderProps {
   total: number;
-  onCreate: () => void;
+  onCreate?: () => void;
 }
 
 export function PageHeader({ total, onCreate }: PageHeaderProps) {
@@ -22,9 +22,11 @@ export function PageHeader({ total, onCreate }: PageHeaderProps) {
           {total} {total === 1 ? t.projects.project : t.projects.projects}
         </p>
       </div>
-      <Button variant="primary" icon="plus" onClick={onCreate}>
-        {t.common.add} {t.projects.project.toLowerCase()}
-      </Button>
+      {onCreate && (
+        <Button variant="primary" icon="plus" onClick={onCreate}>
+          {t.common.add} {t.projects.project.toLowerCase()}
+        </Button>
+      )}
     </div>
   );
 }

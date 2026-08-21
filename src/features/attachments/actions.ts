@@ -32,18 +32,18 @@ export async function getAttachmentsAction(taskId: string): Promise<AttachmentRo
 
 export async function uploadAttachment(taskId: string, formData: FormData): Promise<ActionResult> {
   const session = await auth();
-  if (!session?.user) return { success: false, error: "Unauthorized." };
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const task = await db.task.findUnique({ where: { id: taskId }, select: { id: true } });
-  if (!task) return { success: false, error: "Task not found." };
+  if (!task) return { success: false, error: "تسک یافت نشد" };
 
   const file = formData.get("file") as File | null;
-  if (!file || file.size === 0) return { success: false, error: "No file selected." };
-  if (file.size > 10 * 1024 * 1024) return { success: false, error: "File must be smaller than 10 MB." };
+  if (!file || file.size === 0) return { success: false, error: "فایلی انتخاب نشده است" };
+  if (file.size > 10 * 1024 * 1024) return { success: false, error: "فایل باید کوچکتر از ۱۰ مگابایت باشد" };
 
   const url = await uploadToStorage(file, taskId);
   if (!url) {
-    return { success: false, error: "Storage is not configured. Add S3 environment variables to enable attachments." };
+    return { success: false, error: "ذخیره‌سازی پیکربندی نشده است. متغیرهای محیطی S3 را برای فعال‌سازی پیوست‌ها اضافه کنید" };
   }
 
   await db.attachment.create({ data: { taskId, url, filename: file.name } });
@@ -57,7 +57,7 @@ export async function uploadAttachment(taskId: string, formData: FormData): Prom
 
 export async function deleteAttachment(attachmentId: string): Promise<ActionResult> {
   const session = await auth();
-  if (!session?.user) return { success: false, error: "Unauthorized." };
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   await db.attachment.delete({ where: { id: attachmentId } });
   revalidatePath("/tasks");

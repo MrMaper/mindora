@@ -5,7 +5,7 @@ import { prisma as db } from "@/lib/db";
 export async function GET(request: NextRequest) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "غیرمجاز" }, { status: 401 });
   }
 
   const searchParams = request.nextUrl.searchParams;
@@ -57,6 +57,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ tasks, users });
   } catch (error) {
     console.error("Search error:", error);
-    return NextResponse.json({ error: "Search failed" }, { status: 500 });
+    return NextResponse.json({ error: "جستجو ناموفق بود" }, { status: 500 });
   }
 }

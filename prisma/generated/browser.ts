@@ -137,3 +137,8 @@ export type Notification = Prisma.NotificationModel
  * 
  */
 export type ActivityLog = Prisma.ActivityLogModel
+/**
+ * Model WorkLog
+ * 
+ */
+export type WorkLog = Prisma.WorkLogModel

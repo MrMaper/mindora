@@ -30,7 +30,7 @@ export default async function TeamDetailPage({
 
   if (!team) notFound();
 
-  const language = preferences?.language ?? "EN";
+  const language = preferences?.language ?? "FA";
 
   const callerMember = team.members.find(m => m.userId === session.user.id);
   const callerRole = callerMember?.roleName ?? null;

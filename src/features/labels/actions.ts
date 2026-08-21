@@ -13,7 +13,10 @@ export interface ActionResult {
 
 export async function createLabel(formData: FormData): Promise<ActionResult> {
   const session = await auth();
-  if (!session?.user) return { success: false, error: "Unauthorized." };
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
+
+  const isAdmin = session.user.role === "ADMIN";
+  if (!isAdmin) return { success: false, error: "فقط ادمین می‌تواند برچسب ایجاد کند" };
 
   const parsed = createLabelSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
@@ -21,7 +24,7 @@ export async function createLabel(formData: FormData): Promise<ActionResult> {
   }
 
   const existing = await db.label.findFirst({ where: { name: parsed.data.name } });
-  if (existing) return { success: false, error: "A label with this name already exists." };
+  if (existing) return { success: false, error: "برچسبی با این نام قبلاً وجود دارد" };
 
   const label = await db.label.create({
     data: { name: parsed.data.name, color: parsed.data.color },
@@ -33,7 +36,10 @@ export async function createLabel(formData: FormData): Promise<ActionResult> {
 
 export async function deleteLabel(id: string): Promise<ActionResult> {
   const session = await auth();
-  if (!session?.user) return { success: false, error: "Unauthorized." };
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
+
+  const isAdmin = session.user.role === "ADMIN";
+  if (!isAdmin) return { success: false, error: "فقط ادمین می‌تواند برچسب حذف کند" };
 
   await db.label.delete({ where: { id } });
   revalidatePath("/tasks");

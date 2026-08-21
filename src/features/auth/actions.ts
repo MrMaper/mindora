@@ -37,7 +37,7 @@ export async function forgotPassword(formData: FormData): Promise<ActionResult> 
 
   await sendMail({
     to: user.email,
-    subject: "Reset your ScrumFlow password",
+    subject: "بازنشانی رمز عبور ScrumFlow",
     html: buildPasswordResetEmail(resetUrl),
   });
 
@@ -56,7 +56,7 @@ export async function resetPassword(formData: FormData): Promise<ActionResult> {
   });
 
   if (!record || record.expiresAt < new Date()) {
-    return { success: false, error: "This reset link is invalid or has expired." };
+    return { success: false, error: "لینک بازنشانی نامعتبر یا منقضی شده است" };
   }
 
   const hashed = await bcrypt.hash(parsed.data.password, 12);

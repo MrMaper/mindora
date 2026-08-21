@@ -39,7 +39,7 @@ export async function getCommentsAction(taskId: string): Promise<CommentRow[]> {
 
 export async function createComment(taskId: string, formData: FormData): Promise<ActionResult> {
   const session = await auth();
-  if (!session?.user) return { success: false, error: "Unauthorized." };
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const parsed = createCommentSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
@@ -50,7 +50,7 @@ export async function createComment(taskId: string, formData: FormData): Promise
     where: { id: taskId },
     select: { id: true, title: true, assignedToId: true, createdById: true },
   });
-  if (!task) return { success: false, error: "Task not found." };
+  if (!task) return { success: false, error: "تسک یافت نشد" };
 
   await db.comment.create({
     data: { taskId, userId: session.user.id, body: parsed.data.body },
@@ -68,7 +68,7 @@ export async function createComment(taskId: string, formData: FormData): Promise
     await notify({
       userId,
       type: "TASK_COMMENTED",
-      title: `New comment on "${task.title}"`,
+      title: `دیدگاه جدید در «${task.title}»`,
       body: parsed.data.body.slice(0, 140),
       data: { taskId },
     });
@@ -81,7 +81,7 @@ export async function createComment(taskId: string, formData: FormData): Promise
 
 export async function updateComment(commentId: string, formData: FormData): Promise<ActionResult> {
   const session = await auth();
-  if (!session?.user) return { success: false, error: "Unauthorized." };
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const parsed = updateCommentSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
@@ -92,12 +92,12 @@ export async function updateComment(commentId: string, formData: FormData): Prom
     where: { id: commentId },
     select: { userId: true, createdAt: true },
   });
-  if (!comment) return { success: false, error: "Comment not found." };
+  if (!comment) return { success: false, error: "دیدگاه یافت نشد" };
   if (comment.userId !== session.user.id) {
-    return { success: false, error: "You can only edit your own comments." };
+    return { success: false, error: "شما فقط می‌توانید دیدگاه‌های خود را ویرایش کنید" };
   }
   if (Date.now() - comment.createdAt.getTime() > EDIT_WINDOW_MS) {
-    return { success: false, error: "This comment can no longer be edited." };
+    return { success: false, error: "این دیدگاه دیگر قابل ویرایش نیست" };
   }
 
   await db.comment.update({ where: { id: commentId }, data: { body: parsed.data.body } });
@@ -108,12 +108,12 @@ export async function updateComment(commentId: string, formData: FormData): Prom
 
 export async function deleteComment(commentId: string): Promise<ActionResult> {
   const session = await auth();
-  if (!session?.user) return { success: false, error: "Unauthorized." };
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const comment = await db.comment.findUnique({ where: { id: commentId }, select: { userId: true } });
-  if (!comment) return { success: false, error: "Comment not found." };
+  if (!comment) return { success: false, error: "دیدگاه یافت نشد" };
   if (comment.userId !== session.user.id) {
-    return { success: false, error: "You can only delete your own comments." };
+    return { success: false, error: "شما فقط می‌توانید دیدگاه‌های خود را حذف کنید" };
   }
 
   await db.comment.delete({ where: { id: commentId } });

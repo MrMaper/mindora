@@ -9,7 +9,7 @@ import { Input } from "@/components/ui-kit/forms/input";
 
 interface ProjectFormValues {
   name: string;
-  teamId: string;
+  teamId?: string;
   description?: string;
 }
 

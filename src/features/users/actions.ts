@@ -34,7 +34,7 @@ async function requireAdminSession() {
 
 export async function createUser(formData: FormData): Promise<ActionResult> {
   const session = await requireAdminSession();
-  if (!session) return { success: false, error: "Unauthorized." };
+  if (!session) return { success: false, error: "غیرمجاز" };
 
   const parsed = createUserSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
@@ -42,7 +42,7 @@ export async function createUser(formData: FormData): Promise<ActionResult> {
   }
 
   const existing = await db.user.findUnique({ where: { email: parsed.data.email } });
-  if (existing) return { success: false, error: "A user with this email already exists." };
+  if (existing) return { success: false, error: "کاربری با این ایمیل قبلاً وجود دارد" };
 
   const tempPassword = generateTempPassword();
   const hashed = await bcrypt.hash(tempPassword, 12);
@@ -68,8 +68,8 @@ export async function createUser(formData: FormData): Promise<ActionResult> {
   if (process.env.SMTP_HOST) {
     await sendMail({
       to: user.email,
-      subject: "Your ScrumFlow account",
-      html: `<p>Hi ${user.name},</p><p>Your temporary password is: <strong>${tempPassword}</strong></p><p>Please sign in and change it.</p>`,
+      subject: "حساب کاربری ScrumFlow شما",
+      html: `<p>سلام ${user.name}،</p><p>رمز عبور موقت شما: <strong>${tempPassword}</strong></p><p>لطفاً وارد شوید و رمز عبور را تغییر دهید.</p>`,
     });
   } else {
     console.log(`[users:dev] Temp password for ${user.email}: ${tempPassword}`);
@@ -86,7 +86,7 @@ export async function updateUser(
   formData: FormData
 ): Promise<ActionResult> {
   const session = await requireAdminSession();
-  if (!session) return { success: false, error: "Unauthorized." };
+  if (!session) return { success: false, error: "غیرمجاز" };
 
   const parsed = updateUserSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
@@ -98,7 +98,7 @@ export async function updateUser(
     if (target?.role === "ADMIN") {
       const adminCount = await db.user.count({ where: { role: "ADMIN" } });
       if (adminCount <= 1) {
-        return { success: false, error: "Cannot demote the last administrator." };
+        return { success: false, error: "نمی‌توان آخرین مدیر را به عضو تبدیل کرد" };
       }
     }
   }
@@ -143,19 +143,19 @@ export async function updateUser(
 
 export async function toggleUserStatus(id: string): Promise<ActionResult> {
   const session = await requireAdminSession();
-  if (!session) return { success: false, error: "Unauthorized." };
+  if (!session) return { success: false, error: "غیرمجاز" };
 
   if (id === session.user.id) {
-    return { success: false, error: "You cannot deactivate your own account." };
+    return { success: false, error: "شما نمی‌توانید حساب کاربری خود را غیرفعال کنید" };
   }
 
   const user = await db.user.findUnique({ where: { id }, select: { status: true, role: true } });
-  if (!user) return { success: false, error: "User not found." };
+  if (!user) return { success: false, error: "کاربر یافت نشد" };
 
   if (user.role === "ADMIN" && user.status === "ACTIVE") {
     const activeAdmins = await db.user.count({ where: { role: "ADMIN", status: "ACTIVE" } });
     if (activeAdmins <= 1) {
-      return { success: false, error: "Cannot deactivate the last active administrator." };
+      return { success: false, error: "نمی‌توان آخرین مدیر فعال را غیرفعال کرد" };
     }
   }
 
@@ -171,19 +171,19 @@ export async function toggleUserStatus(id: string): Promise<ActionResult> {
 
 export async function deleteUser(id: string): Promise<ActionResult> {
   const session = await requireAdminSession();
-  if (!session) return { success: false, error: "Unauthorized." };
+  if (!session) return { success: false, error: "غیرمجاز" };
 
   if (id === session.user.id) {
-    return { success: false, error: "You cannot delete your own account." };
+    return { success: false, error: "شما نمی‌توانید حساب کاربری خود را حذف کنید" };
   }
 
   const user = await db.user.findUnique({ where: { id }, select: { role: true } });
-  if (!user) return { success: false, error: "User not found." };
+  if (!user) return { success: false, error: "کاربر یافت نشد" };
 
   if (user.role === "ADMIN") {
     const adminCount = await db.user.count({ where: { role: "ADMIN" } });
     if (adminCount <= 1) {
-      return { success: false, error: "Cannot delete the last administrator." };
+      return { success: false, error: "نمی‌توان آخرین مدیر را حذف کرد" };
     }
   }
 
@@ -199,19 +199,19 @@ export async function uploadUserAvatar(
   formData: FormData
 ): Promise<ActionResult> {
   const session = await auth();
-  if (!session?.user) return { success: false, error: "Unauthorized." };
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
   if (id !== session.user.id && session.user.role !== "ADMIN") {
-    return { success: false, error: "Unauthorized." };
+    return { success: false, error: "غیرمجاز" };
   }
 
   const file = formData.get("avatar") as File | null;
-  if (!file || file.size === 0) return { success: false, error: "No file selected." };
-  if (!file.type.startsWith("image/")) return { success: false, error: "File must be an image." };
-  if (file.size > 2 * 1024 * 1024) return { success: false, error: "Image must be smaller than 2 MB." };
+  if (!file || file.size === 0) return { success: false, error: "فایلی انتخاب نشده است" };
+  if (!file.type.startsWith("image/")) return { success: false, error: "فایل باید تصویر باشد" };
+  if (file.size > 2 * 1024 * 1024) return { success: false, error: "تصویر باید کوچکتر از ۲ مگابایت باشد" };
 
   const url = await uploadToStorage(file, id);
   if (!url) {
-    return { success: false, error: "Storage is not configured. Add S3 environment variables to enable avatar uploads." };
+    return { success: false, error: "ذخیره‌سازی پیکربندی نشده است. متغیرهای محیطی S3 را برای فعال‌سازی آپلود عکس پروفایل اضافه کنید" };
   }
 
   await db.user.update({ where: { id }, data: { avatar: url } });
@@ -224,7 +224,7 @@ export async function uploadUserAvatar(
 
 export async function updateProfile(formData: FormData): Promise<ActionResult> {
   const session = await auth();
-  if (!session?.user) return { success: false, error: "Unauthorized." };
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const parsed = updateProfileSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
@@ -240,7 +240,7 @@ export async function updateProfile(formData: FormData): Promise<ActionResult> {
 
 export async function changePassword(formData: FormData): Promise<ActionResult> {
   const session = await auth();
-  if (!session?.user) return { success: false, error: "Unauthorized." };
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const parsed = changePasswordSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
@@ -248,10 +248,10 @@ export async function changePassword(formData: FormData): Promise<ActionResult> 
   }
 
   const user = await db.user.findUnique({ where: { id: session.user.id }, select: { password: true } });
-  if (!user?.password) return { success: false, error: "No password set for this account." };
+  if (!user?.password) return { success: false, error: "رمز عبوری برای این حساب تنظیم نشده است" };
 
   const valid = await bcrypt.compare(parsed.data.currentPassword, user.password);
-  if (!valid) return { success: false, error: "Current password is incorrect." };
+  if (!valid) return { success: false, error: "رمز عبور فعلی اشتباه است" };
 
   const hashed = await bcrypt.hash(parsed.data.password, 12);
   await db.user.update({ where: { id: session.user.id }, data: { password: hashed } });

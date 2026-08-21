@@ -10,6 +10,7 @@ interface TaskFilters {
   status: string;
   priority: string;
   assignee: string;
+  project: string;
   sort: string;
   order: string;
 }
@@ -19,12 +20,15 @@ export interface SearchFiltersProps {
   t: Record<string, any>;
   filters: TaskFilters;
   search: string;
+  project: string;
+  projectOptions: { value: string; label: string }[];
   statusOptions: { value: string; label: string }[];
   priorityOptions: { value: string; label: string }[];
   userOptions: { value: string; label: string }[];
   onSearchChange: (value: string) => void;
   onSearchSubmit: (e: React.FormEvent) => void;
   onFiltersChange: (filter: Partial<TaskFilters>) => void;
+  onProjectChange: (value: string) => void;
   onClearFilters: (filter?: Partial<TaskFilters>) => void;
   hasActiveFilters: boolean;
   currentUserRole: string;
@@ -34,12 +38,15 @@ export function SearchFilters({
   t,
   filters,
   search,
+  project,
+  projectOptions,
   statusOptions,
   priorityOptions,
   userOptions,
   onSearchChange,
   onSearchSubmit,
   onFiltersChange,
+  onProjectChange,
   onClearFilters,
   hasActiveFilters,
   currentUserRole,
@@ -70,6 +77,14 @@ export function SearchFilters({
           />
         </form>
 
+        <div className="w-48">
+          <Select
+            label={t.project}
+            value={project}
+            onChange={onProjectChange}
+            options={projectOptions}
+          />
+        </div>
         <div className="w-40">
           <Select
             label={t.status}
@@ -108,6 +123,7 @@ export function SearchFilters({
               status: "",
               priority: "",
               assignee: "",
+              project: "",
             });
           }}
           className="text-red-500! hover:bg-red-50 dark:hover:bg-red-950/20"

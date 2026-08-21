@@ -9,6 +9,7 @@ import { BoardColumn } from "../ui/board-column";
 import { KanbanFilters } from "../ui/kanban-filters";
 import { EditTaskDrawer } from "../ui/edit-task-drawer";
 import { formatDate, isOverdue } from "../ui/sortable-kanban-card";
+import { useLanguage } from "@/i18n/provider";
 import {
   priorityToDisplay,
   STATUS_OPTIONS,
@@ -19,17 +20,20 @@ import { BOARD_STATUSES } from "@/features/kanban/types";
 import type { BoardColumns } from "@/features/kanban/types";
 import type { UserRow } from "@/features/users/types";
 import type { LabelRow } from "@/features/labels/types";
+import type { ProjectRow } from "@/features/projects/types";
 import { Separator } from "@/components/ui/separator";
 
 interface KanbanCCProps {
   initialColumns: BoardColumns;
   users: UserRow[];
+  userProjects: ProjectRow[];
   labels: LabelRow[];
   filters: {
     search: string;
     assignee: string;
     label: string;
     priority: string;
+    project: string;
   };
   currentUserId: string;
   currentUserRole: string;
@@ -38,6 +42,7 @@ interface KanbanCCProps {
 export function KanbanCC({
   initialColumns,
   users,
+  userProjects,
   labels,
   filters,
   currentUserId,
@@ -45,11 +50,18 @@ export function KanbanCC({
 }: KanbanCCProps) {
   const k = useKanban(initialColumns, filters);
   const t = useTranslation();
+  const language = useLanguage();
 
   const userOptions = [
     { value: "", label: t.tasks.unassigned },
     ...users.map(usr => ({ value: usr.id, label: usr.name })),
   ];
+
+  const projectOptions = [
+    { value: "", label: t.tasks.noProject },
+    ...userProjects.map(proj => ({ value: proj.id, label: proj.name })),
+  ];
+
   const statusFieldOptions = STATUS_OPTIONS.map(o => ({
     value: o.value,
     label: t.tasks[o.labelKey as keyof typeof t.tasks] as string,
@@ -67,7 +79,8 @@ export function KanbanCC({
     filters.search ||
     filters.assignee ||
     filters.label ||
-    filters.priority
+    filters.priority ||
+    filters.project
   );
 
   return (
@@ -93,8 +106,11 @@ export function KanbanCC({
 
       <KanbanFilters
         search={k.search}
+        project={k.project}
+        projectOptions={projectOptions}
         onSearchChange={k.setSearch}
         onSearchSubmit={k.onSearchSubmit}
+        onProjectChange={k.setProject}
         assignee={filters.assignee}
         label={filters.label}
         priority={filters.priority}
@@ -104,12 +120,14 @@ export function KanbanCC({
         priorityOptions={priorityFieldOptions}
         hasActiveFilters={hasActiveFilters}
         onClearFilters={() => {
+          k.setProject("");
           k.setSearch("");
           k.applyFilters({
             search: "",
             assignee: "",
             label: "",
             priority: "",
+            project: "",
           });
         }}
       />
@@ -165,7 +183,7 @@ export function KanbanCC({
                     }
                   : undefined
               }
-              due={formatDate(k.activeTaskCard.dueDate)}
+              due={formatDate(k.activeTaskCard.dueDate, language)}
               overdue={isOverdue(k.activeTaskCard)}
               state="dragging"
             />
@@ -180,11 +198,13 @@ export function KanbanCC({
         isLoadingDetail={k.isLoadingDetail}
         actionError={k.actionError}
         control={k.editForm.control}
+        setValue={k.editForm.setValue}
         labels={labels}
         selectedLabelIds={k.selectedLabelIds}
         onLabelToggle={k.toggleLabel}
         activeTask={k.activeTask}
         users={users}
+        projects={userProjects}
         currentUserId={currentUserId}
         currentUserRole={currentUserRole}
         onSubmit={k.onEditSubmit}
@@ -192,6 +212,7 @@ export function KanbanCC({
         priorityFieldOptions={priorityFieldOptions}
         typeFieldOptions={typeFieldOptions}
         userOptions={userOptions}
+        projectOptions={projectOptions}
       />
     </>
   );

@@ -3,11 +3,19 @@
 import * as React from "react";
 import { Button } from "@/components/ui-kit/forms/button";
 import { useTranslation } from "@/i18n/provider";
+import { inviteMember } from "@/features/projects/actions";
 import type {
   ProjectDetail,
   ProjectMemberRow,
   ProjectTaskRow,
 } from "@/features/projects/types";
+
+interface InviteUser {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string | null;
+}
 import {
   ProjectTaskFilters,
   getProjectTaskStatusOptions,
@@ -32,6 +40,7 @@ interface ProjectDetailCCProps {
   project: ProjectDetail;
   members: ProjectMemberRow[];
   tasks: ProjectTaskRow[];
+  availableUsers: InviteUser[];
   currentUserId: string;
 }
 
@@ -39,6 +48,7 @@ export function ProjectDetailCC({
   project,
   members,
   tasks,
+  availableUsers,
   currentUserId,
 }: ProjectDetailCCProps) {
   const t = useTranslation();
@@ -104,9 +114,29 @@ export function ProjectDetailCC({
     setTaskSearch("");
   }
 
-  function handleInviteMember() {
+  async function handleInviteMember(userId: string, role: string) {
+    setInviteError(null);
+    setInvitePending(true);
+
+    const fd = new FormData();
+    fd.append("userId", userId);
+    fd.append("role", role);
+
+    const result = await inviteMember(project.id, fd);
+    setInvitePending(false);
+
+    if (!result.success) {
+      setInviteError(result.error ?? "Failed to invite member.");
+      return;
+    }
+
     setMemberDrawerOpen(false);
+    // Refresh the page to show the new member
+    window.location.reload();
   }
+
+  const [invitePending, setInvitePending] = React.useState(false);
+  const [inviteError, setInviteError] = React.useState<string | null>(null);
 
   const handleRemoveMember = (member: ProjectMemberRow) => {
     if (member.userId === currentUserId) return;
@@ -162,11 +192,14 @@ export function ProjectDetailCC({
             onFiltersChange={handleTaskFiltersChange}
             onClearFilters={handleTaskClearFilters}
             hasActiveFilters={hasActiveTaskFilters}
+            currentUserRole={isAdmin ? "ADMIN" : "MEMBER"}
           />
           <TaskTable
             tasks={filteredTasks}
             t={t}
-            onView={task => { /* TODO: implement view navigation */ }}
+            onView={task => {
+              /* TODO: implement view navigation */
+            }}
             onEdit={task => {
               /* TODO: implement edit */
             }}
@@ -195,9 +228,11 @@ export function ProjectDetailCC({
         open={memberDrawerOpen}
         onClose={() => setMemberDrawerOpen(false)}
         t={t}
-        members={members}
+        availableUsers={availableUsers}
         currentUserId={currentUserId}
         onInvite={handleInviteMember}
+        isPending={invitePending}
+        error={inviteError}
       />
 
       {/* ── Remove Member Dialog ── */}

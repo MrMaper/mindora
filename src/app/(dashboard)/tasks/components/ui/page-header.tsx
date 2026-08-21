@@ -6,14 +6,17 @@ export interface PageHeaderProps {
   total: number;
   onLabelDialogOpen: () => void;
   onCreate: () => void;
+  currentUserRole: string;
 }
 
 export function PageHeader({
   total,
   onLabelDialogOpen,
   onCreate,
+  currentUserRole,
 }: PageHeaderProps) {
   const t = useTranslation();
+  const isAdmin = currentUserRole === "ADMIN";
 
   return (
     <div className="flex items-start justify-between mb-5">
@@ -26,9 +29,11 @@ export function PageHeader({
         </p>
       </div>
       <div className="flex gap-2">
-        <Button variant="secondary" icon="flag" onClick={onLabelDialogOpen}>
-          {t.tasks.manageLabels}
-        </Button>
+        {isAdmin && (
+          <Button variant="secondary" icon="flag" onClick={onLabelDialogOpen}>
+            {t.tasks.manageLabels}
+          </Button>
+        )}
         <Button variant="primary" icon="plus" onClick={onCreate}>
           {t.tasks.createTaskButton}
         </Button>

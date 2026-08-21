@@ -31,19 +31,19 @@ export async function sendMail({ to, subject, html }: SendMailOptions): Promise<
 
 export function buildPasswordResetEmail(resetUrl: string): string {
   return `
-<div style="font-family:system-ui,sans-serif;max-width:540px;margin:0 auto;padding:40px 24px;color:#1a1f25">
-  <h2 style="font-size:18px;font-weight:600;margin:0 0 8px">Reset your password</h2>
+<div style="font-family:system-ui,sans-serif;max-width:540px;margin:0 auto;padding:40px 24px;color:#1a1f25;direction:rtl">
+  <h2 style="font-size:18px;font-weight:600;margin:0 0 8px">بازنشانی رمز عبور</h2>
   <p style="font-size:14px;color:#626d7b;margin:0 0 28px;line-height:1.55">
-    Click the button below to reset your ScrumFlow password.
-    This link expires in <strong>1 hour</strong>.
+    برای بازنشانی رمز عبور ScrumFlow خود، روی دکمه زیر کلیک کنید.
+    این لینک در <strong>۱ ساعت</strong> منقضی می‌شود.
   </p>
   <a href="${resetUrl}"
     style="display:inline-block;background:#3f4cbb;color:#fff;font-size:14px;font-weight:500;
            padding:10px 22px;border-radius:5px;text-decoration:none">
-    Reset password
+    بازنشانی رمز عبور
   </a>
   <p style="font-size:12px;color:#828c99;margin:28px 0 0">
-    If you didn't request this, you can safely ignore this email.
+    اگر شما درخواست این کار را نداده‌ید، می‌توانید این ایمیل را نادیده بگیرید.
   </p>
 </div>`;
 }

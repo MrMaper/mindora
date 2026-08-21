@@ -6,28 +6,39 @@ import { Button } from "@/components/ui-kit/forms/button";
 import { Drawer } from "@/components/ui-kit/overlays/drawer";
 import type { Translations } from "@/i18n";
 
+interface InviteUser {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string | null;
+}
+
 interface InviteMemberDrawerProps {
   open: boolean;
   onClose: () => void;
   t: Translations;
-  members: Array<{ userId: string; userName: string; userEmail: string }>;
+  availableUsers: InviteUser[];
   currentUserId: string;
-  onInvite: () => void;
+  onInvite: (userId: string, role: string) => void;
+  isPending?: boolean;
+  error?: string | null;
 }
 
 export function InviteMemberDrawer({
   open,
   onClose,
   t,
-  members,
+  availableUsers,
   currentUserId,
   onInvite,
+  isPending,
+  error,
 }: InviteMemberDrawerProps) {
   const [selectedUserId, setSelectedUserId] = React.useState("");
   const [selectedRole, setSelectedRole] = React.useState("MEMBER");
 
-  const availableMembers = members.filter(
-    (m) => m.userId !== currentUserId,
+  const filteredUsers = availableUsers.filter(
+    (u) => u.id !== currentUserId,
   );
 
   return (
@@ -42,8 +53,13 @@ export function InviteMemberDrawer({
           </Button>
           <Button
             variant="primary"
-            onClick={onInvite}
-            disabled={!selectedUserId || !selectedRole}
+            loading={isPending}
+            onClick={() => {
+              if (selectedUserId && selectedRole) {
+                onInvite(selectedUserId, selectedRole);
+              }
+            }}
+            disabled={!selectedUserId || !selectedRole || isPending}
           >
             {t.projects.invite}
           </Button>
@@ -51,15 +67,20 @@ export function InviteMemberDrawer({
       }
     >
       <div className="p-4 space-y-4">
+        {error && (
+          <div className="rounded-md border border-red-500/30 bg-red-500/10 p-3 text-red-500 text-sm">
+            {error}
+          </div>
+        )}
         <Select
           label={t.projects.selectUser}
           value={selectedUserId}
           onChange={setSelectedUserId}
           options={[
             { value: "", label: t.projects.selectUser },
-            ...availableMembers.map((m) => ({
-              value: m.userId,
-              label: `${m.userName} (${m.userEmail})`,
+            ...filteredUsers.map((u) => ({
+              value: u.id,
+              label: `${u.name} (${u.email})`,
             })),
           ]}
         />

@@ -37,7 +37,7 @@ export default async function UsersPage({
 
   const [preferences, teamsData, users] = await Promise.all([
     getUserPreferences(session.user.id),
-    getTeams("", 1),
+    getTeams("", "1"),
     getUsers(
       search,
       Math.max(1, Number(page)),
@@ -48,7 +48,7 @@ export default async function UsersPage({
       order,
     ),
   ]);
-  const language = preferences?.language ?? "EN";
+  const language = preferences?.language ?? "FA";
   const teams = teamsData.teams.map(t => ({ id: t.id, name: t.name }));
 
   return (

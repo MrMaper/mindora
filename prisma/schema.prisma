@@ -28,6 +28,7 @@ model User {
   teamMembers         TeamMember[]
   projectMembers      ProjectMember[]
   preferences         UserPreferences?
+  workLogs            WorkLog[]
 
   @@map("users")
 }
@@ -237,6 +238,7 @@ model Task {
   checklists   Checklist[]
   comments     Comment[]
   labels       TaskLabel[]
+  workLogs     WorkLog[]
   assignedTo   User?        @relation("TaskAssignedTo", fields: [assignedToId], references: [id])
   createdBy    User         @relation("TaskCreatedBy", fields: [createdById], references: [id])
   parent       Task?        @relation("SubTasks", fields: [parentTaskId], references: [id])
@@ -337,6 +339,21 @@ model ActivityLog {
   user        User     @relation(fields: [performedBy], references: [id])
 
   @@map("activity_logs")
+}
+
+model WorkLog {
+  id          String   @id @default(cuid())
+  taskId      String
+  userId      String
+  hours       Float
+  date        DateTime
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  task        Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("work_logs")
 }
 
 enum UserRole {

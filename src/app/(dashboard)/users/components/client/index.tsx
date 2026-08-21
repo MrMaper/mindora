@@ -22,7 +22,7 @@ interface UsersCCProps {
   page: number;
   language: Language;
   teams: { id: string; name: string }[];
-  filters: UserFilters;
+  filters: Partial<UserFilters>;
 }
 
 export function UsersCC({
@@ -33,7 +33,7 @@ export function UsersCC({
   filters,
 }: UsersCCProps) {
   const t = useTranslation();
-  const u = useUsers(filters.search);
+  const u = useUsers(filters.search ?? "");
 
   const { users, total, totalPages } = initialData;
 

@@ -47,7 +47,7 @@ async function logActivity(opts: {
 
 export async function createTask(formData: FormData): Promise<ActionResult> {
   const session = await auth();
-  if (!session?.user) return { success: false, error: "Unauthorized." };
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const parsed = createTaskSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
@@ -59,7 +59,18 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
     where: { userId: session.user.id },
     select: { teamId: true },
   });
-  if (!membership) return { success: false, error: "User is not a member of any team." };
+  if (!membership) return { success: false, error: "کاربر عضو هیچ تیمی نیست" };
+
+  // Validate project access if projectId is provided
+  const projectId = parsed.data.projectId || null;
+  if (projectId) {
+    const projectMember = await db.projectMember.findUnique({
+      where: { projectId_userId: { projectId, userId: session.user.id } },
+    });
+    if (!projectMember) {
+      return { success: false, error: "شما به این پروژه دسترسی ندارید" };
+    }
+  }
 
   const labelIds = parseLabelIds(parsed.data.labelIds);
 
@@ -72,6 +83,7 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
       type: parsed.data.type,
       assignedToId: parsed.data.assignedToId || null,
       dueDate: parsed.data.dueDate ? new Date(parsed.data.dueDate) : null,
+      projectId,
       createdById: session.user.id,
       teamId: membership.teamId,
       labels: { create: labelIds.map(labelId => ({ labelId })) },
@@ -89,7 +101,7 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
     await notify({
       userId: task.assignedToId,
       type: "TASK_ASSIGNED",
-      title: `You were assigned to "${task.title}"`,
+      title: `شما به «${task.title}» واگذار شدید`,
       data: { taskId: task.id },
     });
   }
@@ -102,7 +114,7 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
 
 export async function updateTask(id: string, formData: FormData): Promise<ActionResult> {
   const session = await auth();
-  if (!session?.user) return { success: false, error: "Unauthorized." };
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const parsed = updateTaskSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
@@ -119,16 +131,28 @@ export async function updateTask(id: string, formData: FormData): Promise<Action
       type: true,
       assignedToId: true,
       dueDate: true,
+      projectId: true,
       labels: { select: { labelId: true } },
     },
   });
-  if (!existing) return { success: false, error: "Task not found." };
+  if (!existing) return { success: false, error: "تسک یافت نشد" };
+
+  // Validate project access if projectId is provided
+  const projectId = parsed.data.projectId || null;
+  if (projectId && projectId !== existing.projectId) {
+    const projectMember = await db.projectMember.findUnique({
+      where: { projectId_userId: { projectId, userId: session.user.id } },
+    });
+    if (!projectMember) {
+      return { success: false, error: "شما به این پروژه دسترسی ندارید" };
+    }
+  }
 
   // Authorization: only admin or assignee can edit
   const isAdmin = session.user.role === "ADMIN";
   const isAssignee = existing.assignedToId === session.user.id;
   if (!isAdmin && !isAssignee) {
-    return { success: false, error: "Only the assignee or an admin can edit this task." };
+    return { success: false, error: "تنها عامل یا ادمین می‌تواند این تسک را ویرایش کند" };
   }
 
   const labelIds = parseLabelIds(parsed.data.labelIds);
@@ -145,6 +169,7 @@ export async function updateTask(id: string, formData: FormData): Promise<Action
       type: parsed.data.type,
       assignedToId: nextAssignedToId,
       dueDate: nextDueDate,
+      projectId,
       labels: {
         deleteMany: {},
         create: labelIds.map(labelId => ({ labelId })),
@@ -155,6 +180,7 @@ export async function updateTask(id: string, formData: FormData): Promise<Action
   const assigneeChanged = (existing.assignedToId ?? null) !== nextAssignedToId;
   const statusChanged = existing.status !== parsed.data.status;
   const dueDateChanged = (existing.dueDate?.getTime() ?? null) !== (nextDueDate?.getTime() ?? null);
+  const projectChanged = (existing.projectId ?? null) !== projectId;
 
   if (statusChanged) {
     await logActivity({
@@ -176,19 +202,29 @@ export async function updateTask(id: string, formData: FormData): Promise<Action
     });
   }
 
+  if (projectChanged) {
+    await logActivity({
+      entityId: id,
+      action: "project_changed",
+      performedBy: session.user.id,
+      oldValue: { projectId: existing.projectId },
+      newValue: { projectId },
+    });
+  }
+
   // ─── Notifications ──────────────────────────────────────────────
   if (assigneeChanged && nextAssignedToId && nextAssignedToId !== session.user.id) {
     await notify({
       userId: nextAssignedToId,
       type: "TASK_ASSIGNED",
-      title: `You were assigned to "${parsed.data.title}"`,
+      title: `شما به «${parsed.data.title}» واگذار شدید`,
       data: { taskId: id },
     });
   } else if (statusChanged && nextAssignedToId && nextAssignedToId !== session.user.id) {
     await notify({
       userId: nextAssignedToId,
       type: "STATUS_CHANGED",
-      title: `Status changed to ${parsed.data.status.replace("_", " ")} on "${parsed.data.title}"`,
+      title: `وضعیت به «${parsed.data.status.replace("_", " ")}» در «${parsed.data.title}» تغییر کرد`,
       data: { taskId: id },
     });
   }
@@ -197,7 +233,7 @@ export async function updateTask(id: string, formData: FormData): Promise<Action
     await notify({
       userId: nextAssignedToId,
       type: "TASK_UPDATED",
-      title: `Due date changed on "${parsed.data.title}"`,
+      title: `تاریخ سررسید در «${parsed.data.title}» تغییر کرد`,
       data: { taskId: id },
     });
   }
@@ -244,19 +280,19 @@ export async function updateTask(id: string, formData: FormData): Promise<Action
 
 export async function updateTaskStatus(id: string, status: string): Promise<ActionResult> {
   const session = await auth();
-  if (!session?.user) return { success: false, error: "Unauthorized." };
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const existing = await db.task.findUnique({
     where: { id },
     select: { status: true, title: true, assignedToId: true },
   });
-  if (!existing) return { success: false, error: "Task not found." };
+  if (!existing) return { success: false, error: "تسک یافت نشد" };
 
   // Authorization: only admin or assignee can change status
   const isAdmin = session.user.role === "ADMIN";
   const isAssignee = existing.assignedToId === session.user.id;
   if (!isAdmin && !isAssignee) {
-    return { success: false, error: "Only the assignee or an admin can change task status." };
+    return { success: false, error: "تنها عامل یا ادمین می‌تواند وضعیت تسک را تغییر دهد" };
   }
 
   await db.task.update({ where: { id }, data: { status: status as never } });
@@ -274,7 +310,7 @@ export async function updateTaskStatus(id: string, status: string): Promise<Acti
       await notify({
         userId: existing.assignedToId,
         type: "STATUS_CHANGED",
-        title: `Status changed to ${status.replace("_", " ")} on "${existing.title}"`,
+        title: `وضعیت به «${status.replace("_", " ")}» در «${existing.title}» تغییر کرد`,
         data: { taskId: id },
       });
     }
@@ -296,16 +332,16 @@ export async function getTaskDetailAction(id: string): Promise<TaskDetail | null
 
 export async function deleteTask(id: string): Promise<ActionResult> {
   const session = await auth();
-  if (!session?.user) return { success: false, error: "Unauthorized." };
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const existing = await db.task.findUnique({ where: { id }, select: { id: true, assignedToId: true } });
-  if (!existing) return { success: false, error: "Task not found." };
+  if (!existing) return { success: false, error: "تسک یافت نشد" };
 
   // Authorization: only admin or assignee can delete
   const isAdmin = session.user.role === "ADMIN";
   const isAssignee = existing.assignedToId === session.user.id;
   if (!isAdmin && !isAssignee) {
-    return { success: false, error: "Only the assignee or an admin can delete this task." };
+    return { success: false, error: "تنها عامل یا ادمین می‌تواند این تسک را حذف کند" };
   }
 
   await db.task.delete({ where: { id } });

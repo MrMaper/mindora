@@ -9,6 +9,7 @@ import {
   createProject,
   updateProject,
   archiveProject,
+  unarchiveProject,
   deleteProject,
 } from "@/features/projects/actions";
 import type {
@@ -101,7 +102,9 @@ export function useProjects(initialSearch: string) {
 
   function onArchive(project: ProjectRow) {
     startTransition(async () => {
-      const result = await archiveProject(project.id);
+      const result = project.status === "ARCHIVED"
+        ? await unarchiveProject(project.id)
+        : await archiveProject(project.id);
       if (!result.success)
         setActionError(result.error ?? "Failed to archive project.");
       else router.refresh();
