@@ -33,9 +33,11 @@ export function WorkLogButton({
 
   const [showDrawer, setShowDrawer] = React.useState(isOpen);
   
+  // Sync with controlled isOpen prop
   React.useEffect(() => {
     setShowDrawer(isOpen);
   }, [isOpen]);
+  
   const [workLogs, setWorkLogs] = React.useState<WorkLogRow[]>([]);
   const [totalHours, setTotalHours] = React.useState(0);
   const [isLoading, setIsLoading] = React.useState(false);
@@ -74,6 +76,11 @@ export function WorkLogButton({
     return null;
   }
 
+  const handleClose = () => {
+    setShowDrawer(false);
+    onClose?.();
+  };
+
   return (
     <>
       <Button
@@ -89,10 +96,7 @@ export function WorkLogButton({
 
       <WorkLogDrawer
         isOpen={showDrawer}
-        onClose={() => {
-          setShowDrawer(false);
-          onClose?.();
-        }}
+        onClose={handleClose}
         taskId={taskId}
         taskTitle={taskTitle}
         workLogs={workLogs}

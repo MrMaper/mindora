@@ -242,6 +242,7 @@ export function TasksTable({
                 assignedToId={task.assignedTo?.id ?? null}
                 currentUserId={currentUserId}
                 currentUserRole={currentUserRole}
+                isOpen={true}
                 onClose={() => setWorkLogOpenTaskId(null)}
               />
             ))}
