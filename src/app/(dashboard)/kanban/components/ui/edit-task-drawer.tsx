@@ -99,6 +99,97 @@ export function EditTaskDrawer({
     setValue("projectId", value, { shouldValidate: true });
   };
 
+  const [expandedEntries, setExpandedEntries] = React.useState<Set<string>>(new Set());
+
+  const toggleEntry = (entryId: string) => {
+    setExpandedEntries(prev => {
+      const next = new Set(prev);
+      if (next.has(entryId)) next.delete(entryId);
+      else next.add(entryId);
+      return next;
+    });
+  };
+
+  const hasChanges = (entry: TaskDetail["activity"][0]) => {
+    const oldVal = entry.oldValue as Record<string, unknown> | null;
+    const newVal = entry.newValue as Record<string, unknown> | null;
+    if (!oldVal && !newVal) return false;
+    const fields = new Set([...Object.keys(oldVal || {}), ...Object.keys(newVal || {})]);
+    return Array.from(fields).some(field => oldVal?.[field] !== newVal?.[field]);
+  };
+
+  const getFieldLabel = (field: string) => {
+    switch (field) {
+      case "status":
+        return t.tasks.activityFieldStatus;
+      case "priority":
+        return t.tasks.activityFieldPriority;
+      case "assignedToId":
+        return t.tasks.activityFieldAssignee;
+      case "projectId":
+        return t.tasks.activityFieldProject;
+      case "title":
+        return t.tasks.activityFieldTitle;
+      case "description":
+        return t.tasks.activityFieldDescription;
+      case "type":
+        return t.tasks.activityFieldType;
+      case "dueDate":
+        return t.tasks.activityFieldDueDate;
+      case "labels":
+        return t.tasks.activityFieldLabels;
+      default:
+        return field;
+    }
+  };
+
+  const formatValue = (value: unknown, field: string): string => {
+    if (value === null || value === undefined) return t.tasks.activityNoChanges;
+    if (field === "dueDate" && value) {
+      return new Date(value as string).toLocaleDateString(dateLocale, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    }
+    if (field === "assignedToId" && value) {
+      const user = users.find(u => u.id === value as string);
+      return user?.name ?? String(value);
+    }
+    if (field === "projectId" && value) {
+      const project = projects.find(p => p.id === value as string);
+      return project?.name ?? String(value);
+    }
+    return String(value);
+  };
+
+  const renderChanges = (entry: TaskDetail["activity"][0]) => {
+    const oldVal = entry.oldValue as Record<string, unknown> | null;
+    const newVal = entry.newValue as Record<string, unknown> | null;
+    if (!oldVal && !newVal) return null;
+
+    const fields = new Set([...Object.keys(oldVal || {}), ...Object.keys(newVal || {})]);
+    const changes = Array.from(fields).map(field => {
+      const oldFieldVal = oldVal?.[field];
+      const newFieldVal = newVal?.[field];
+      if (oldFieldVal === newFieldVal) return null;
+
+      return (
+        <div key={field} className="flex items-center gap-1.5 text-xs">
+          <span className="font-medium text-text-secondary">{getFieldLabel(field)}</span>
+          <span className="text-text-tertiary">{t.tasks.activityFrom}</span>
+          <span className="text-text-secondary line-through">{formatValue(oldFieldVal, field)}</span>
+          <span className="text-text-tertiary">{t.tasks.activityTo}</span>
+          <span className="font-medium text-text-primary">{formatValue(newFieldVal, field)}</span>
+        </div>
+      );
+    }).filter(Boolean);
+
+    if (changes.length === 0) return null;
+
+    return <div className="mt-2 ml-10 flex flex-col gap-1">{changes}</div>;
+  };
+
   return (
     <Drawer
       open={open}
@@ -270,53 +361,75 @@ export function EditTaskDrawer({
                 </div>
               ) : (
                 <div className="flex flex-col gap-3">
-                  {activeTask.activity.map(entry => (
-                    <div key={entry.id} className="flex items-start gap-2">
-                      <Avatar
-                        name={entry.performedBy.name}
-                        src={entry.performedBy.avatar ?? undefined}
-                        size="sm"
-                      />
-                      <div>
-                        <div className="text-sm text-text-primary">
-                          <strong>{entry.performedBy.name}</strong>{" "}
-                          {activityLabel(t, entry.action)}
-                        </div>
-                        <div className="flex items-center gap-2 text-xs text-text-secondary">
-                          <span className="flex items-center gap-1.5">
-                            <Icon
-                              name="calendar"
-                              size={15}
-                              className="text-text-tertiary"
+                      {activeTask.activity.map(entry => {
+                        const isExpanded = expandedEntries.has(entry.id);
+                        const hasEntryChanges = hasChanges(entry);
+
+                        return (
+                          <div key={entry.id} className="flex items-start gap-2">
+                            <Avatar
+                              name={entry.performedBy.name}
+                              src={entry.performedBy.avatar ?? undefined}
+                              size="sm"
                             />
-                            {new Date(entry.timestamp).toLocaleDateString(
-                              dateLocale,
-                              {
-                                year: "numeric",
-                                month: "short",
-                                day: "numeric",
-                              },
-                            )}
-                          </span>
-                          <span className="flex items-center gap-1.5">
-                            <Icon
-                              name="clock"
-                              size={15}
-                              className="text-text-tertiary"
-                            />
-                            {new Date(entry.timestamp).toLocaleTimeString(
-                              dateLocale,
-                              {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              },
-                            )}
-                          </span>
-                        </div>
-                      </div>
+                            <div className="flex-1">
+                              <div
+                                className="text-sm text-text-primary flex items-center gap-1 cursor-pointer"
+                                onClick={() => hasEntryChanges && toggleEntry(entry.id)}
+                              >
+                                <strong>{entry.performedBy.name}</strong>{" "}
+                                {activityLabel(t, entry.action)}
+                                {hasEntryChanges && (
+                                  <Icon
+                                    name={isExpanded ? "chevron-up" : "chevron-down"}
+                                    size={16}
+                                    className="text-text-tertiary transition-transform duration-200 ml-1"
+                                  />
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2 text-xs text-text-secondary">
+                                <span className="flex items-center gap-1.5">
+                                  <Icon
+                                    name="calendar"
+                                    size={15}
+                                    className="text-text-tertiary"
+                                  />
+                                  {new Date(entry.timestamp).toLocaleDateString(
+                                    dateLocale,
+                                    {
+                                      year: "numeric",
+                                      month: "short",
+                                      day: "numeric",
+                                    },
+                                  )}
+                                </span>
+                                <span className="flex items-center gap-1.5">
+                                  <Icon
+                                    name="clock"
+                                    size={15}
+                                    className="text-text-tertiary"
+                                  />
+                                  {new Date(entry.timestamp).toLocaleTimeString(
+                                    dateLocale,
+                                    {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    },
+                                  )}
+                                </span>
+                              </div>
+                              <div
+                                className={`overflow-hidden transition-[max-height,opacity,transform] duration-200 ease-out ${
+                                  isExpanded ? "max-h-96 opacity-100 translate-y-0" : "max-h-0 opacity-0 -translate-y-1"
+                                }`}
+                              >
+                                {renderChanges(entry)}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
-                  ))}
-                </div>
               )}
             </div>
 

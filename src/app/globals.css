@@ -485,7 +485,43 @@
   }
 
   /* Reduced motion */
-  @media (prefers-reduced-motion: reduce) {
+/* ─── Custom animations ───────────────────────────────────────────────────── */
+@layer utilities {
+  .animate-expand {
+    animation: expand-down var(--duration-base) var(--ease-out) forwards;
+  }
+  .animate-collapse {
+    animation: expand-up var(--duration-fast) var(--ease-in) forwards;
+  }
+}
+
+@keyframes expand-down {
+  from {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+    transform: translateY(0);
+  }
+}
+
+@keyframes expand-up {
+  from {
+    opacity: 1;
+    max-height: 500px;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
       animation-duration: 0ms !important;
       transition-duration: 0ms !important;
