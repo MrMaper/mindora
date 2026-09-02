@@ -41,8 +41,9 @@ export default async function DashboardLayout({
     { label: t.nav.tasks, href: "/tasks", icon: "list" },
     { label: t.nav.board, href: "/kanban", icon: "columns" },
     { label: t.nav.projects, href: "/projects", icon: "folder" },
+    // { label: t.nav.botMessage, href: "/bale-bot", icon: "bot", roles: ["ADMIN"] },
     { label: t.nav.users, href: "/users", icon: "users", roles: ["ADMIN"] },
-    { label: t.nav.teams, href: "/teams", icon: "users-round", roles: ["ADMIN"] },
+    // { label: t.nav.teams, href: "/teams", icon: "users-connected", roles: ["ADMIN"] },
     {
       label: t.nav.notifications,
       href: "/notifications",
@@ -70,20 +71,22 @@ export default async function DashboardLayout({
           </span>
         </div>
 
-<SidebarNav
-        navItems={NAV}
-        userRole={session.user.role}
-        language={language}
-        settingsHref="/settings"
-        settingsLabel={t.nav.settings}
-        profileHref="/profile"
-        userName={session.user.name ?? "User"}
-        userEmail={session.user.email ?? ""}
-        userImage={session.user.image ?? undefined}
-      />
+        <SidebarNav
+          navItems={NAV}
+          userRole={session.user.role}
+          language={language}
+          settingsHref="/settings"
+          settingsLabel={t.nav.settings}
+          profileHref="/profile"
+          userName={session.user.name ?? "User"}
+          userEmail={session.user.email ?? ""}
+          userImage={session.user.image ?? undefined}
+        />
       </aside>
 
-      <div className={`flex-1 flex flex-col min-w-0 ${language === "FA" ? "mr-64" : "ml-64"}`}>
+      <div
+        className={`flex-1 flex flex-col min-w-0 ${language === "FA" ? "mr-64" : "ml-64"}`}
+      >
         <main className="flex-1 p-6 overflow-auto">{children}</main>
       </div>
 
