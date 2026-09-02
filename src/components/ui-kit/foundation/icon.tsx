@@ -13,6 +13,7 @@ import {
   Users,
   UsersRound,
   User,
+  UserCircle,
   BarChart3,
   Shield,
   Plus,
@@ -58,7 +59,30 @@ import {
   RotateCcw,
   Eye,
   EyeOff,
+  Bot,
+  Send,
 } from "lucide-react";
+
+const UsersConnected = (props: React.SVGAttributes<SVGSVGElement>) => (
+  <svg
+    {...props}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={1.75}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="12" cy="5" r="3" />
+    <circle cx="5" cy="19" r="3" />
+    <circle cx="19" cy="19" r="3" />
+    <path d="M12 8v9" />
+    <path d="M5 16h9" />
+    <path d="M14 16h5" />
+    <path d="M8 5l-5 14" />
+    <path d="M16 5l5 14" />
+  </svg>
+);
 
 export type IconName =
   | "home"
@@ -77,7 +101,9 @@ export type IconName =
   | "folder"
   | "users"
   | "users-round"
+  | "users-connected"
   | "user"
+  | "user-circle"
   | "bar-chart"
   | "shield"
   | "plus"
@@ -118,7 +144,9 @@ export type IconName =
   | "language"
   | "zap"
   | "mail"
-  | "rotate-ccw";
+  | "rotate-ccw"
+  | "bot"
+  | "send";
 
 const iconMap: Record<
   IconName,
@@ -140,7 +168,9 @@ const iconMap: Record<
   folder: FolderOpen,
   users: Users,
   "users-round": UsersRound,
+  "users-connected": UsersConnected,
   user: User,
+  "user-circle": UserCircle,
   "bar-chart": BarChart3,
   shield: Shield,
   plus: Plus,
@@ -182,6 +212,8 @@ const iconMap: Record<
   zap: Zap,
   mail: Mail,
   "rotate-ccw": RotateCcw,
+  send: Send,
+  bot: Bot,
 };
 
 export interface IconProps extends Omit<
