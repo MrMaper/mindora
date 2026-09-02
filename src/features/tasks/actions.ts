@@ -6,6 +6,7 @@ import { prisma as db } from "@/lib/db";
 import { createTaskSchema, updateTaskSchema } from "@/schemas/tasks";
 import { getTaskById } from "./queries";
 import { notify } from "@/lib/notify";
+import { sendBaleTaskNotification } from "@/features/external/bots/bale/notifications";
 import type { TaskDetail } from "./types";
 
 export interface ActionResult {
@@ -105,6 +106,19 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
       data: { taskId: task.id },
     });
   }
+
+  // Send Bale notification
+  const assignee = await db.user.findUnique({
+    where: { id: task.assignedToId ?? "" },
+    select: { name: true },
+  });
+  await sendBaleTaskNotification("created", {
+    id: task.id,
+    title: task.title,
+    status: task.status,
+    priority: task.priority,
+    assigneeName: assignee?.name,
+  });
 
   revalidatePath("/tasks");
   return { success: true, data: { id: task.id } };
@@ -238,6 +252,44 @@ export async function updateTask(id: string, formData: FormData): Promise<Action
     });
   }
 
+  // Send Bale notifications
+  const assignee = nextAssignedToId ? await db.user.findUnique({
+    where: { id: nextAssignedToId },
+    select: { name: true },
+  }) : null;
+
+  if (statusChanged) {
+    await sendBaleTaskNotification("status_changed", {
+      id,
+      title: parsed.data.title,
+      changedFields: {
+        status: { old: existing.status, new: parsed.data.status },
+      },
+    });
+  }
+
+  if (assigneeChanged) {
+    await sendBaleTaskNotification("assigned", {
+      id,
+      title: parsed.data.title,
+      assigneeName: assignee?.name,
+    });
+  }
+
+  const changedFields: Record<string, { old: unknown; new: unknown }> = {};
+  if (existing.title !== parsed.data.title) changedFields.title = { old: existing.title, new: parsed.data.title };
+  if (existing.priority !== parsed.data.priority) changedFields.priority = { old: existing.priority, new: parsed.data.priority };
+  if (existing.type !== parsed.data.type) changedFields.type = { old: existing.type, new: parsed.data.type };
+  if (dueDateChanged) changedFields.dueDate = { old: existing.dueDate, new: nextDueDate };
+
+  if (Object.keys(changedFields).length > 0) {
+    await sendBaleTaskNotification("updated", {
+      id,
+      title: parsed.data.title,
+      changedFields,
+    });
+  }
+
   const existingLabelIds = existing.labels.map(l => l.labelId).sort();
   const nextLabelIds = [...labelIds].sort();
   const labelsChanged =
@@ -314,6 +366,14 @@ export async function updateTaskStatus(id: string, status: string): Promise<Acti
         data: { taskId: id },
       });
     }
+
+    await sendBaleTaskNotification("status_changed", {
+      id,
+      title: existing.title,
+      changedFields: {
+        status: { old: existing.status, new: status },
+      },
+    });
   }
 
   revalidatePath("/tasks");

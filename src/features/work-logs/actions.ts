@@ -6,6 +6,7 @@ import { prisma as db } from "@/lib/db";
 import { createWorkLogSchema, updateWorkLogSchema } from "@/schemas/work-logs";
 import type { ActionResult } from "@/features/tasks/actions";
 import type { WorkLogRow, WorkLogDetail } from "./types";
+import { sendBaleTaskNotification } from "../external/bots/bale/notifications";
 
 async function logActivity(opts: {
   entityId: string;
@@ -20,8 +21,10 @@ async function logActivity(opts: {
       entityId: opts.entityId,
       action: opts.action,
       performedBy: opts.performedBy,
-      oldValue: opts.oldValue === undefined ? undefined : (opts.oldValue as object),
-      newValue: opts.newValue === undefined ? undefined : (opts.newValue as object),
+      oldValue:
+        opts.oldValue === undefined ? undefined : (opts.oldValue as object),
+      newValue:
+        opts.newValue === undefined ? undefined : (opts.newValue as object),
     },
   });
 }
@@ -37,7 +40,14 @@ export async function createWorkLog(formData: FormData): Promise<ActionResult> {
 
   const task = await db.task.findUnique({
     where: { id: parsed.data.taskId },
-    select: { id: true, title: true, assignedToId: true, projectId: true },
+    select: {
+      id: true,
+      title: true,
+      assignedToId: true,
+      projectId: true,
+      assignedTo: { select: { name: true } },
+      project: { select: { name: true } },
+    },
   });
   if (!task) return { success: false, error: "تسک یافت نشد" };
 
@@ -62,7 +72,23 @@ export async function createWorkLog(formData: FormData): Promise<ActionResult> {
     entityId: workLog.id,
     action: "created",
     performedBy: session.user.id,
-    newValue: { hours: workLog.hours, date: workLog.date, description: workLog.description },
+    newValue: {
+      hours: workLog.hours,
+      date: workLog.date,
+      description: workLog.description,
+    },
+  });
+
+  await sendBaleTaskNotification("logged_work", {
+    id: workLog.id,
+    title: task.title,
+    workLog: {
+      hours: workLog.hours,
+      date: workLog.date.toISOString().split("T")[0],
+      assignee: task.assignedTo?.name,
+      project: task.project?.name,
+      description: workLog.description || undefined,
+    },
   });
 
   revalidatePath("/tasks");
@@ -96,13 +122,18 @@ export async function updateWorkLog(formData: FormData): Promise<ActionResult> {
   const isAdmin = session.user.role === "ADMIN";
   const isOwner = existing.userId === session.user.id;
   if (!isAdmin && !isOwner) {
-    return { success: false, error: "تنها صاحب لاگ یا ادمین می‌تواند آن را ویرایش کند" };
+    return {
+      success: false,
+      error: "تنها صاحب لاگ یا ادمین می‌تواند آن را ویرایش کند",
+    };
   }
 
   const updateData: Record<string, unknown> = {};
   if (parsed.data.hours !== undefined) updateData.hours = parsed.data.hours;
-  if (parsed.data.date !== undefined) updateData.date = new Date(parsed.data.date);
-  if (parsed.data.description !== undefined) updateData.description = parsed.data.description || null;
+  if (parsed.data.date !== undefined)
+    updateData.date = new Date(parsed.data.date);
+  if (parsed.data.description !== undefined)
+    updateData.description = parsed.data.description || null;
 
   if (Object.keys(updateData).length === 0) {
     return { success: false, error: "هیچ تغییری برای اعمال وجود ندارد" };
@@ -117,7 +148,11 @@ export async function updateWorkLog(formData: FormData): Promise<ActionResult> {
     entityId: parsed.data.id,
     action: "updated",
     performedBy: session.user.id,
-    oldValue: { hours: existing.hours, date: existing.date, description: existing.description },
+    oldValue: {
+      hours: existing.hours,
+      date: existing.date,
+      description: existing.description,
+    },
     newValue: updateData,
   });
 
@@ -132,14 +167,24 @@ export async function deleteWorkLog(id: string): Promise<ActionResult> {
 
   const existing = await db.workLog.findUnique({
     where: { id },
-    select: { id: true, taskId: true, userId: true, hours: true, date: true, description: true },
+    select: {
+      id: true,
+      taskId: true,
+      userId: true,
+      hours: true,
+      date: true,
+      description: true,
+    },
   });
   if (!existing) return { success: false, error: "لاگ کاری یافت نشد" };
 
   const isAdmin = session.user.role === "ADMIN";
   const isOwner = existing.userId === session.user.id;
   if (!isAdmin && !isOwner) {
-    return { success: false, error: "تنها صاحب لاگ یا ادمین می‌تواند آن را حذف کند" };
+    return {
+      success: false,
+      error: "تنها صاحب لاگ یا ادمین می‌تواند آن را حذف کند",
+    };
   }
 
   await db.workLog.delete({ where: { id } });
@@ -148,7 +193,11 @@ export async function deleteWorkLog(id: string): Promise<ActionResult> {
     entityId: id,
     action: "deleted",
     performedBy: session.user.id,
-    oldValue: { hours: existing.hours, date: existing.date, description: existing.description },
+    oldValue: {
+      hours: existing.hours,
+      date: existing.date,
+      description: existing.description,
+    },
   });
 
   revalidatePath("/tasks");
@@ -156,7 +205,9 @@ export async function deleteWorkLog(id: string): Promise<ActionResult> {
   return { success: true };
 }
 
-export async function getWorkLogDetailAction(id: string): Promise<WorkLogDetail | null> {
+export async function getWorkLogDetailAction(
+  id: string,
+): Promise<WorkLogDetail | null> {
   const session = await auth();
   if (!session?.user) return null;
   const { getWorkLogById } = await import("./queries");

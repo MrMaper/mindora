@@ -6,6 +6,7 @@ import { prisma as db } from "@/lib/db";
 import { createCommentSchema, updateCommentSchema } from "@/schemas/comments";
 import { getComments } from "./queries";
 import { notify } from "@/lib/notify";
+import { sendBaleTaskNotification } from "@/features/external/bots/bale/notifications";
 import { EDIT_WINDOW_MS } from "./types";
 import type { CommentRow } from "./types";
 
@@ -73,6 +74,12 @@ export async function createComment(taskId: string, formData: FormData): Promise
       data: { taskId },
     });
   }
+
+  await sendBaleTaskNotification("commented", {
+    id: taskId,
+    title: task.title,
+    commentBody: parsed.data.body,
+  });
 
   revalidatePath("/tasks");
   revalidatePath("/kanban");
