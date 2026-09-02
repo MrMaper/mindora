@@ -6,6 +6,7 @@ const PUBLIC_PATHS = [
   "/forgot-password",
   "/reset-password",
   "/assets",
+  "/api/bale/webhook",
 ];
 
 export default auth(req => {
