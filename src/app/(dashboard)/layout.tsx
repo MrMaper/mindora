@@ -30,17 +30,20 @@ export default async function DashboardLayout({
   const [preferences, unreadCount] = await Promise.all([
     getUserPreferences(session.user.id),
     getUnreadCount(session.user.id),
-    getUserTeams(session.user.id),
   ]);
   const language = preferences?.language ?? "FA";
   const t = getTranslations(language);
   const userRole = session.user.role;
+
+  const isAdmin = userRole === "ADMIN";
 
   const NAV: NavItem[] = [
     { label: t.nav.dashboard, href: "/dashboard", icon: "layout-dashboard" },
     { label: t.nav.tasks, href: "/tasks", icon: "list" },
     { label: t.nav.board, href: "/kanban", icon: "columns" },
     { label: t.nav.projects, href: "/projects", icon: "folder" },
+    { label: t.nav.workLogs, href: "/work-logs", icon: "clock" },
+    { label: t.nav.reporting, href: "/reporting", icon: "file-text", roles: ["ADMIN"] },
     // { label: t.nav.botMessage, href: "/bale-bot", icon: "bot", roles: ["ADMIN"] },
     { label: t.nav.users, href: "/users", icon: "users", roles: ["ADMIN"] },
     // { label: t.nav.teams, href: "/teams", icon: "users-connected", roles: ["ADMIN"] },
