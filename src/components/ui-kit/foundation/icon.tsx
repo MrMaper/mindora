@@ -61,6 +61,9 @@ import {
   EyeOff,
   Bot,
   Send,
+  FileText,
+  Download,
+  Info,
 } from "lucide-react";
 
 const UsersConnected = (props: React.SVGAttributes<SVGSVGElement>) => (
@@ -146,7 +149,10 @@ export type IconName =
   | "mail"
   | "rotate-ccw"
   | "bot"
-  | "send";
+  | "send"
+  | "file-text"
+  | "download"
+  | "info";
 
 const iconMap: Record<
   IconName,
@@ -214,6 +220,9 @@ const iconMap: Record<
   "rotate-ccw": RotateCcw,
   send: Send,
   bot: Bot,
+  "file-text": FileText,
+  download: Download,
+  info: Info,
 };
 
 export interface IconProps extends Omit<

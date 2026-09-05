@@ -52,16 +52,21 @@ export function Button({
       size={resolvedSize}
       disabled={isDisabled}
       aria-busy={loading || undefined}
-      className={cn("gap-1.5", className)}
+      className={cn("gap-1.5 flex items-center", className)}
       {...rest}
     >
       {loading ? (
-        <LoaderCircleIcon className="size-4 animate-spin" aria-hidden="true" />
+        <>
+          <LoaderCircleIcon className="size-4 animate-spin shrink-0" aria-hidden="true" />
+          {children && <span className="flex items-center">{children}</span>}
+        </>
       ) : (
-        icon && <Icon name={icon} size={iconSize} />
+        <>
+          {icon && <Icon name={icon} size={iconSize} className="shrink-0" />}
+          {children && <span className="flex items-center">{children}</span>}
+          {iconRight && <Icon name={iconRight} size={iconSize} className="shrink-0" />}
+        </>
       )}
-      {children && <span className="leading-none">{children}</span>}
-      {!loading && iconRight && <Icon name={iconRight} size={iconSize} />}
     </ShadcnButton>
   );
 }

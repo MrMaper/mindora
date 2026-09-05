@@ -90,6 +90,8 @@ interface DatePickerBaseProps {
   id?: string;
   captionLayout?: "label" | "dropdown";
   language?: Language;
+  numberOfMonths?: number;
+  showOutsideDays?: boolean;
 }
 
 export interface DatePickerSingleProps extends DatePickerBaseProps {
@@ -125,6 +127,8 @@ export function DatePicker({
   value,
   onChange,
   showTimePicker = false,
+  numberOfMonths = 1,
+  showOutsideDays = true,
 }: DatePickerProps): React.JSX.Element {
   const generatedId = React.useId();
   const fieldId = id ?? generatedId;
@@ -200,7 +204,7 @@ export function DatePicker({
     (
       onChange as (date: { from: Date | null; to: Date | null } | null) => void
     )?.({ from: newFrom, to: newTo });
-    if (newFrom && newTo) setOpen(false);
+    // Don't auto-close - let user close via clicking outside or ESC
   };
 
   const handleTimeChange = (type: "hours" | "minutes", raw: string) => {
@@ -289,6 +293,8 @@ export function DatePicker({
               onSelect={handleSingleSelect}
               disabled={disabled}
               required={false}
+              numberOfMonths={numberOfMonths}
+              showOutsideDays={showOutsideDays}
             />
           ) : (
             <CalendarComponent
@@ -304,6 +310,8 @@ export function DatePicker({
               onSelect={handleRangeSelect}
               disabled={disabled}
               required={false}
+              numberOfMonths={numberOfMonths}
+              showOutsideDays={showOutsideDays}
             />
           )}
           {mode === "single" && showTimePicker && (
