@@ -42,6 +42,7 @@ export const fa = {
     teams: "تیم‌ها",
     projects: "پروژه‌ها",
     workLogs: "لاگ‌های کاری",
+    reporting: "گزارش‌گیری",
     notifications: "اعلان‌ها",
     settings: "تنظیمات",
     botMessage: "پیام ربات",
@@ -262,7 +263,7 @@ export const fa = {
   },
 
   // Kanban Board Page
-board: {
+  board: {
     title: "کانبان",
     search: "جستجو در کانبان",
     searchButton: "جستجو",
@@ -512,6 +513,33 @@ board: {
     allProjects: "همه پروژه‌ها",
     clearFilters: "پاک کردن فیلترها",
     noData: "هیچ لاگ کاری یافت نشد",
-    noDataDesc: "لاگ‌های کاری اینجا نمایش داده می‌شوند زمانی که اعضای تیم زمان خود را روی تسک‌ها ثبت کنند.",
+    noDataDesc:
+      "لاگ‌های کاری اینجا نمایش داده می‌شوند زمانی که اعضای تیم زمان خود را روی تسک‌ها ثبت کنند.",
+  },
+
+  // Reporting Page
+  reporting: {
+    title: "گزارش‌گیری",
+    subtitle: "تولید گزارش اکسل ساعات کاری کاربران",
+    user: "کاربر",
+    dateRange: "بازه زمانی",
+    dateFrom: "از تاریخ",
+    dateTo: "تا تاریخ",
+    generateReport: "تولید گزارش",
+    generating: "در حال تولید...",
+    selectUser: "کاربر را انتخاب کنید",
+    selectDateRange: "بازه زمانی را انتخاب کنید",
+    noUserSelected: "لطفاً یک کاربر انتخاب کنید",
+    noDateRangeSelected: "لطفاً بازه زمانی را انتخاب کنید",
+    downloadSuccess: "گزارش با موفقیت دانلود شد",
+    downloadError: "خطا در دانلود گزارش",
+    noData: "هیچ داده‌ای برای گزارش یافت نشد",
+    columns: {
+      dayOfWeek: "روز هفته",
+      date: "تاریخ",
+      totalWorkingHours: "جمع ساعات کاری",
+      totalOvertimeHours: "جمع ساعات اضافه‌کاری",
+      workReport: "گزارش کار",
+    },
   },
 };
