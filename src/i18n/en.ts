@@ -513,7 +513,8 @@ export const en = {
     allProjects: "All Projects",
     clearFilters: "Clear filters",
     noData: "No work logs found",
-    noDataDesc: "Work logs will appear here when team members log time on tasks.",
+    noDataDesc:
+      "Work logs will appear here when team members log time on tasks.",
   },
 
   // Reporting Page
@@ -540,5 +541,12 @@ export const en = {
       totalOvertimeHours: "Total Overtime Hours",
       workReport: "Work Report",
     },
+    guideTitle: "Guide",
+    guideStep1: "First, select a user from the list",
+    guideStep2: "Specify the desired date range (from date to date)",
+    guideStep3: "Click the 'Generate Report' button",
+    guideStep4: "The Excel file will be downloaded automatically",
+    guideStep5:
+      "Report includes day of week, date, working hours, overtime hours, and daily work log",
   },
 };
