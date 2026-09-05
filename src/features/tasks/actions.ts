@@ -19,7 +19,9 @@ function parseLabelIds(raw: string | undefined): string[] {
   if (!raw) return [];
   try {
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed.filter((v): v is string => typeof v === "string") : [];
+    return Array.isArray(parsed)
+      ? parsed.filter((v): v is string => typeof v === "string")
+      : [];
   } catch {
     return [];
   }
@@ -38,8 +40,10 @@ async function logActivity(opts: {
       entityId: opts.entityId,
       action: opts.action,
       performedBy: opts.performedBy,
-      oldValue: opts.oldValue === undefined ? undefined : (opts.oldValue as object),
-      newValue: opts.newValue === undefined ? undefined : (opts.newValue as object),
+      oldValue:
+        opts.oldValue === undefined ? undefined : (opts.oldValue as object),
+      newValue:
+        opts.newValue === undefined ? undefined : (opts.newValue as object),
     },
   });
 }
@@ -95,7 +99,11 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
     entityId: task.id,
     action: "created",
     performedBy: session.user.id,
-    newValue: { title: task.title, status: task.status, priority: task.priority },
+    newValue: {
+      title: task.title,
+      status: task.status,
+      priority: task.priority,
+    },
   });
 
   if (task.assignedToId && task.assignedToId !== session.user.id) {
@@ -126,7 +134,10 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
 
 // ─── Update task ────────────────────────────────────────────────────────
 
-export async function updateTask(id: string, formData: FormData): Promise<ActionResult> {
+export async function updateTask(
+  id: string,
+  formData: FormData,
+): Promise<ActionResult> {
   const session = await auth();
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
@@ -166,11 +177,16 @@ export async function updateTask(id: string, formData: FormData): Promise<Action
   const isAdmin = session.user.role === "ADMIN";
   const isAssignee = existing.assignedToId === session.user.id;
   if (!isAdmin && !isAssignee) {
-    return { success: false, error: "تنها عامل یا ادمین می‌تواند این تسک را ویرایش کند" };
+    return {
+      success: false,
+      error: "تنها عامل یا ادمین می‌تواند این تسک را ویرایش کند",
+    };
   }
 
   const labelIds = parseLabelIds(parsed.data.labelIds);
-  const nextDueDate = parsed.data.dueDate ? new Date(parsed.data.dueDate) : null;
+  const nextDueDate = parsed.data.dueDate
+    ? new Date(parsed.data.dueDate)
+    : null;
   const nextAssignedToId = parsed.data.assignedToId || null;
 
   await db.task.update({
@@ -193,7 +209,8 @@ export async function updateTask(id: string, formData: FormData): Promise<Action
 
   const assigneeChanged = (existing.assignedToId ?? null) !== nextAssignedToId;
   const statusChanged = existing.status !== parsed.data.status;
-  const dueDateChanged = (existing.dueDate?.getTime() ?? null) !== (nextDueDate?.getTime() ?? null);
+  const dueDateChanged =
+    (existing.dueDate?.getTime() ?? null) !== (nextDueDate?.getTime() ?? null);
   const projectChanged = (existing.projectId ?? null) !== projectId;
 
   if (statusChanged) {
@@ -227,14 +244,22 @@ export async function updateTask(id: string, formData: FormData): Promise<Action
   }
 
   // ─── Notifications ──────────────────────────────────────────────
-  if (assigneeChanged && nextAssignedToId && nextAssignedToId !== session.user.id) {
+  if (
+    assigneeChanged &&
+    nextAssignedToId &&
+    nextAssignedToId !== session.user.id
+  ) {
     await notify({
       userId: nextAssignedToId,
       type: "TASK_ASSIGNED",
       title: `شما به «${parsed.data.title}» واگذار شدید`,
       data: { taskId: id },
     });
-  } else if (statusChanged && nextAssignedToId && nextAssignedToId !== session.user.id) {
+  } else if (
+    statusChanged &&
+    nextAssignedToId &&
+    nextAssignedToId !== session.user.id
+  ) {
     await notify({
       userId: nextAssignedToId,
       type: "STATUS_CHANGED",
@@ -243,7 +268,11 @@ export async function updateTask(id: string, formData: FormData): Promise<Action
     });
   }
 
-  if (dueDateChanged && nextAssignedToId && nextAssignedToId !== session.user.id) {
+  if (
+    dueDateChanged &&
+    nextAssignedToId &&
+    nextAssignedToId !== session.user.id
+  ) {
     await notify({
       userId: nextAssignedToId,
       type: "TASK_UPDATED",
@@ -253,10 +282,12 @@ export async function updateTask(id: string, formData: FormData): Promise<Action
   }
 
   // Send Bale notifications
-  const assignee = nextAssignedToId ? await db.user.findUnique({
-    where: { id: nextAssignedToId },
-    select: { name: true },
-  }) : null;
+  const assignee = nextAssignedToId
+    ? await db.user.findUnique({
+        where: { id: nextAssignedToId },
+        select: { name: true },
+      })
+    : null;
 
   if (statusChanged) {
     await sendBaleTaskNotification("status_changed", {
@@ -277,10 +308,17 @@ export async function updateTask(id: string, formData: FormData): Promise<Action
   }
 
   const changedFields: Record<string, { old: unknown; new: unknown }> = {};
-  if (existing.title !== parsed.data.title) changedFields.title = { old: existing.title, new: parsed.data.title };
-  if (existing.priority !== parsed.data.priority) changedFields.priority = { old: existing.priority, new: parsed.data.priority };
-  if (existing.type !== parsed.data.type) changedFields.type = { old: existing.type, new: parsed.data.type };
-  if (dueDateChanged) changedFields.dueDate = { old: existing.dueDate, new: nextDueDate };
+  if (existing.title !== parsed.data.title)
+    changedFields.title = { old: existing.title, new: parsed.data.title };
+  if (existing.priority !== parsed.data.priority)
+    changedFields.priority = {
+      old: existing.priority,
+      new: parsed.data.priority,
+    };
+  if (existing.type !== parsed.data.type)
+    changedFields.type = { old: existing.type, new: parsed.data.type };
+  if (dueDateChanged)
+    changedFields.dueDate = { old: existing.dueDate, new: nextDueDate };
 
   if (Object.keys(changedFields).length > 0) {
     await sendBaleTaskNotification("updated", {
@@ -330,7 +368,10 @@ export async function updateTask(id: string, formData: FormData): Promise<Action
 
 // ─── Update task status (used by drag/drop or quick status change) ───────
 
-export async function updateTaskStatus(id: string, status: string): Promise<ActionResult> {
+export async function updateTaskStatus(
+  id: string,
+  status: string,
+): Promise<ActionResult> {
   const session = await auth();
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
@@ -344,7 +385,10 @@ export async function updateTaskStatus(id: string, status: string): Promise<Acti
   const isAdmin = session.user.role === "ADMIN";
   const isAssignee = existing.assignedToId === session.user.id;
   if (!isAdmin && !isAssignee) {
-    return { success: false, error: "تنها عامل یا ادمین می‌تواند وضعیت تسک را تغییر دهد" };
+    return {
+      success: false,
+      error: "تنها عامل یا ادمین می‌تواند وضعیت تسک را تغییر دهد",
+    };
   }
 
   await db.task.update({ where: { id }, data: { status: status as never } });
@@ -382,7 +426,9 @@ export async function updateTaskStatus(id: string, status: string): Promise<Acti
 
 // ─── Fetch full task detail (for client-side drawer loading) ─────────────
 
-export async function getTaskDetailAction(id: string): Promise<TaskDetail | null> {
+export async function getTaskDetailAction(
+  id: string,
+): Promise<TaskDetail | null> {
   const session = await auth();
   if (!session?.user) return null;
   return getTaskById(id);
@@ -394,14 +440,20 @@ export async function deleteTask(id: string): Promise<ActionResult> {
   const session = await auth();
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
-  const existing = await db.task.findUnique({ where: { id }, select: { id: true, assignedToId: true } });
+  const existing = await db.task.findUnique({
+    where: { id },
+    select: { id: true, assignedToId: true },
+  });
   if (!existing) return { success: false, error: "تسک یافت نشد" };
 
   // Authorization: only admin or assignee can delete
   const isAdmin = session.user.role === "ADMIN";
   const isAssignee = existing.assignedToId === session.user.id;
   if (!isAdmin && !isAssignee) {
-    return { success: false, error: "تنها عامل یا ادمین می‌تواند این تسک را حذف کند" };
+    return {
+      success: false,
+      error: "تنها عامل یا ادمین می‌تواند این تسک را حذف کند",
+    };
   }
 
   await db.task.delete({ where: { id } });
