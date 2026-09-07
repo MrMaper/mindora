@@ -203,6 +203,7 @@ export function TasksCC({
         actionError={u.actionError}
         isPending={u.isPending}
         currentUserId={currentUserId}
+        currentUserRole={currentUserRole}
       />
 
       {/* ── Label management dialog ─────────────────────────────────── */}
