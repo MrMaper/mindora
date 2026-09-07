@@ -1,6 +1,6 @@
 {
   "name": "scrumflow-app",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -12,7 +12,10 @@
     "db:push": "prisma db push",
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio",
-    "bale:set-webhook": "tsx scripts/bale/set-webhook.ts"
+    "bale:set-webhook": "tsx scripts/bale/set-webhook.ts",
+    "version:patch": "tsx scripts/version-bump.ts patch",
+    "version:minor": "tsx scripts/version-bump.ts minor",
+    "version:major": "tsx scripts/version-bump.ts major"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
