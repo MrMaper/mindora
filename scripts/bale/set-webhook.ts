@@ -17,7 +17,7 @@ function getVersion(): string {
 async function setWebhook() {
   const token = process.env.BALE_BOT_TOKEN;
   const appUrl = process.env.APP_URL;
-  const baseUrl = process.env.BALE_BASE_URL;
+  const baseUrl = process.env.BALE_BASE_URL ?? "https://tapi.bale.ai/bot";
   const adminChatId = process.env.BALE_ADMIN_CHAT_ID;
 
   if (!token) {
@@ -54,7 +54,11 @@ async function setWebhook() {
   }
 }
 
-async function sendStartupMessage(token: string, baseUrl: string, chatId: string) {
+async function sendStartupMessage(
+  token: string,
+  baseUrl: string,
+  chatId: string,
+) {
   const version = getVersion();
   const message = `🚀 *Scrumflow Started*\n\nVersion: \`${version}\`\nStatus: Webhook configured\nTime: ${new Date().toISOString()}`;
 
