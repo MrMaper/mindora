@@ -54,6 +54,7 @@ interface EditTaskDrawerProps {
   actionError: string | null;
   isPending: boolean;
   currentUserId: string;
+  currentUserRole: string;
 }
 
 export function EditTaskDrawer({
@@ -77,6 +78,7 @@ export function EditTaskDrawer({
   actionError,
   isPending,
   currentUserId,
+  currentUserRole,
 }: EditTaskDrawerProps) {
   const language = useLanguage();
   const dateLocale = language === "EN" ? "en-US" : "fa-IR";
@@ -318,14 +320,22 @@ export function EditTaskDrawer({
                 <Controller
                   name="assignedToId"
                   control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Select
-                      {...field}
-                      label={t.tasks.assignee}
-                      options={filteredUserOptions}
-                      error={fieldState.error?.message}
-                    />
-                  )}
+                  render={({ field, fieldState }) => {
+                    const isAdmin = currentUserRole === "ADMIN";
+                    const assigneeValue = isAdmin ? field.value : currentUserId;
+                    const assigneeOptions = isAdmin ? filteredUserOptions : filteredUserOptions.filter(o => o.value === currentUserId);
+
+                    return (
+                      <Select
+                        {...field}
+                        label={t.tasks.assignee}
+                        options={assigneeOptions}
+                        value={assigneeValue}
+                        disabled={!isAdmin}
+                        error={fieldState.error?.message}
+                      />
+                    );
+                  }}
                 />
                 <Controller
                   name="dueDate"

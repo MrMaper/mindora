@@ -312,14 +312,22 @@ export function EditTaskDrawer({
               <Controller
                 name="assignedToId"
                 control={control}
-                render={({ field, fieldState }) => (
-                  <Select
-                    {...field}
-                    label={t.tasks.assignee}
-                    options={filteredUserOptions}
-                    error={fieldState.error?.message}
-                  />
-                )}
+                render={({ field, fieldState }) => {
+                  const isAdmin = currentUserRole === "ADMIN";
+                  const assigneeValue = isAdmin ? field.value : currentUserId;
+                  const assigneeOptions = isAdmin ? filteredUserOptions : filteredUserOptions.filter(o => o.value === currentUserId);
+
+                  return (
+                    <Select
+                      {...field}
+                      label={t.tasks.assignee}
+                      options={assigneeOptions}
+                      value={assigneeValue}
+                      disabled={!isAdmin}
+                      error={fieldState.error?.message}
+                    />
+                  );
+                }}
               />
               <Controller
                 name="dueDate"
