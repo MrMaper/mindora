@@ -6,7 +6,7 @@ import { SendMessageParams } from "@/lib/bale/types";
 
 dotenv.config({ path: ".env" });
 
-const BALE_UPDATES_CHAT = process.env.BALE_CHANNELS_TEST;
+const BALE_UPDATES_CHAT = process.env.BALE_CHANNELS;
 
 function escapeMarkdown(text: string): string {
   return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, "\\$&");
