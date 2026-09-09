@@ -1,8 +1,9 @@
 "use server";
 
 import dotenv from "dotenv";
-import { sendMessage } from "@/lib/bale/handlers";
-import { SendMessageParams } from "@/lib/bale/types";
+import { sendMessage } from "@/features/external/bots/bale/actions";
+import { SendMessageParams } from "@/features/external/bots/bale/types";
+import { prisma as db } from "@/lib/db";
 
 dotenv.config({ path: ".env" });
 
@@ -149,5 +150,113 @@ export async function sendBaleTaskNotification(
 
   if (!result.success) {
     console.error("Failed to send Bale notification:", result.error);
+  }
+}
+
+export async function sendBaleAssignmentNotification(
+  assigneeId: string,
+  task: {
+    id: string;
+    title: string;
+    status?: string;
+    priority?: string;
+  }
+): Promise<void> {
+  const user = await db.user.findUnique({
+    where: { id: assigneeId },
+    select: { baleUserId: true, name: true },
+  });
+
+  if (!user?.baleUserId) return;
+
+  const message = `📋 *New Task Assigned*
+
+*${escapeMarkdown(task.title)}*
+${task.status ? `Status: \`${escapeMarkdown(task.status)}\`\n` : ""}${task.priority ? `Priority: \`${escapeMarkdown(task.priority)}\`\n` : ""}
+[View Task](${formatTaskLink(task.id)})`;
+
+  const data = {
+    chat_id: user.baleUserId,
+    text: message,
+    parse_mode: "Markdown",
+  } satisfies SendMessageParams;
+
+  const result = await sendMessage(data);
+
+  if (!result.success) {
+    console.error("Failed to send Bale assignment notification:", result.error);
+  }
+}
+
+export async function sendBaleStatusChangeNotification(
+  assigneeId: string,
+  task: {
+    id: string;
+    title: string;
+    oldStatus: string;
+    newStatus: string;
+  }
+): Promise<void> {
+  const user = await db.user.findUnique({
+    where: { id: assigneeId },
+    select: { baleUserId: true },
+  });
+
+  if (!user?.baleUserId) return;
+
+  const message = `🔄 *Status Changed*
+
+*${escapeMarkdown(task.title)}*
+Status: \`${escapeMarkdown(task.oldStatus)}\` → \`${escapeMarkdown(task.newStatus)}\`
+[View Task](${formatTaskLink(task.id)})`;
+
+  const data = {
+    chat_id: user.baleUserId,
+    text: message,
+    parse_mode: "Markdown",
+  } satisfies SendMessageParams;
+
+  const result = await sendMessage(data);
+
+  if (!result.success) {
+    console.error("Failed to send Bale status change notification:", result.error);
+  }
+}
+
+export async function sendBaleCommentNotification(
+  assigneeId: string,
+  task: {
+    id: string;
+    title: string;
+    commentBody: string;
+  }
+): Promise<void> {
+  const user = await db.user.findUnique({
+    where: { id: assigneeId },
+    select: { baleUserId: true },
+  });
+
+  if (!user?.baleUserId) return;
+
+  const truncated = task.commentBody.length > 200
+    ? task.commentBody.slice(0, 200) + "..."
+    : task.commentBody;
+
+  const message = `💬 *New Comment*
+
+*${escapeMarkdown(task.title)}*
+${escapeMarkdown(truncated)}
+[View Task](${formatTaskLink(task.id)})`;
+
+  const data = {
+    chat_id: user.baleUserId,
+    text: message,
+    parse_mode: "Markdown",
+  } satisfies SendMessageParams;
+
+  const result = await sendMessage(data);
+
+  if (!result.success) {
+    console.error("Failed to send Bale comment notification:", result.error);
   }
 }

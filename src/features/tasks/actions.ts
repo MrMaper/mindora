@@ -6,7 +6,12 @@ import { prisma as db } from "@/lib/db";
 import { createTaskSchema, updateTaskSchema } from "@/schemas/tasks";
 import { getTaskById } from "./queries";
 import { notify } from "@/lib/notify";
-import { sendBaleTaskNotification } from "@/features/external/bots/bale/notifications";
+import {
+  sendBaleTaskNotification,
+  sendBaleAssignmentNotification,
+  sendBaleStatusChangeNotification,
+  sendBaleCommentNotification,
+} from "@/features/external/bots/bale/notifications";
 import type { TaskDetail } from "./types";
 
 export interface ActionResult {
@@ -112,6 +117,14 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
       type: "TASK_ASSIGNED",
       title: `شما به «${task.title}» واگذار شدید`,
       data: { taskId: task.id },
+    });
+
+    // Send Bale notification to assignee if linked
+    await sendBaleAssignmentNotification(task.assignedToId, {
+      id: task.id,
+      title: task.title,
+      status: task.status,
+      priority: task.priority,
     });
   }
 
@@ -255,6 +268,13 @@ export async function updateTask(
       title: `شما به «${parsed.data.title}» واگذار شدید`,
       data: { taskId: id },
     });
+
+    await sendBaleAssignmentNotification(nextAssignedToId, {
+      id,
+      title: parsed.data.title,
+      status: parsed.data.status,
+      priority: parsed.data.priority,
+    });
   } else if (
     statusChanged &&
     nextAssignedToId &&
@@ -265,6 +285,13 @@ export async function updateTask(
       type: "STATUS_CHANGED",
       title: `وضعیت به «${parsed.data.status.replace("_", " ")}» در «${parsed.data.title}» تغییر کرد`,
       data: { taskId: id },
+    });
+
+    await sendBaleStatusChangeNotification(nextAssignedToId, {
+      id,
+      title: parsed.data.title,
+      oldStatus: existing.status,
+      newStatus: parsed.data.status,
     });
   }
 

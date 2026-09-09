@@ -6,7 +6,7 @@ import { prisma as db } from "@/lib/db";
 import { createCommentSchema, updateCommentSchema } from "@/schemas/comments";
 import { getComments } from "./queries";
 import { notify } from "@/lib/notify";
-import { sendBaleTaskNotification } from "@/features/external/bots/bale/notifications";
+import { sendBaleTaskNotification, sendBaleCommentNotification } from "@/features/external/bots/bale/notifications";
 import { EDIT_WINDOW_MS } from "./types";
 import type { CommentRow } from "./types";
 
@@ -72,6 +72,12 @@ export async function createComment(taskId: string, formData: FormData): Promise
       title: `دیدگاه جدید در «${task.title}»`,
       body: parsed.data.body.slice(0, 140),
       data: { taskId },
+    });
+
+    await sendBaleCommentNotification(userId, {
+      id: taskId,
+      title: task.title,
+      commentBody: parsed.data.body,
     });
   }
 
