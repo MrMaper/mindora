@@ -15,6 +15,7 @@ model User {
   avatar              String?
   role                UserRole             @default(MEMBER)
   status              UserStatus           @default(ACTIVE)
+  baleUserId          String?              @unique
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
   accounts            Account[]

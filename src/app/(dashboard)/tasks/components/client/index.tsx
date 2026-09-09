@@ -178,6 +178,8 @@ export function TasksCC({
         onSubmit={u.onCreateSubmit}
         actionError={u.actionError}
         isPending={u.isPending}
+        currentUserId={currentUserId}
+        currentUserRole={currentUserRole}
       />
 
       {/* ── Edit task drawer ────────────────────────────────────────__ */}

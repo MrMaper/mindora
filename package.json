@@ -1,6 +1,6 @@
 {
   "name": "scrumflow-app",
-  "version": "1.0.14",
+  "version": "1.0.16",
   "private": true,
   "scripts": {
     "dev": "next dev",

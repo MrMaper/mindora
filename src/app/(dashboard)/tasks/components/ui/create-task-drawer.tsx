@@ -46,6 +46,8 @@ interface CreateTaskDrawerProps {
   onSubmit: (data: any) => void;
   actionError: string | null;
   isPending: boolean;
+  currentUserId: string;
+  currentUserRole: string;
 }
 
 export function CreateTaskDrawer({
@@ -66,8 +68,18 @@ export function CreateTaskDrawer({
   onSubmit,
   actionError,
   isPending,
+  currentUserId,
+  currentUserRole,
 }: CreateTaskDrawerProps) {
   const [selectedProjectId, setSelectedProjectId] = React.useState<string>("");
+  const isAdmin = currentUserRole === "ADMIN";
+
+  // For non-admin users, auto-set assignee to current user
+  React.useEffect(() => {
+    if (!isAdmin && currentUserId) {
+      form.setValue("assignedToId", currentUserId);
+    }
+  }, [isAdmin, currentUserId, form]);
 
   // Filter assignees based on selected project
   const filteredUserOptions = React.useMemo(() => {
@@ -209,6 +221,7 @@ export function CreateTaskDrawer({
                 label={t.assignee}
                 options={filteredUserOptions}
                 error={fieldState.error?.message}
+                disabled={!isAdmin}
               />
             )}
           />

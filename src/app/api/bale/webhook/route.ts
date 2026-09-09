@@ -1,23 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUpdates, sendMessage } from "@/lib/bale/handlers";
-import { BaleUpdate } from "@/lib/bale/types";
-
-export async function GET(req: NextRequest) {
-  // const update = await req.json();
-
-  const updates = await getUpdates();
-
-  console.log(updates);
-
-  // console.log("Bale update:", JSON.stringify(update, null, 2));
-
-  return NextResponse.json({ ok: true });
-}
+import { handleBaleUpdate } from "@/features/external/bots/bale/webhook";
+import type { BaleUpdate } from "@/features/external/bots/bale/types";
 
 export async function POST(request: NextRequest) {
-  const update = (await request.json()) satisfies BaleUpdate;
+  try {
+    const update = (await request.json()) as BaleUpdate;
 
-  // console.log(update);
+    await handleBaleUpdate(update);
 
-  return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    console.error("[Bale Webhook] Error:", error);
+    return NextResponse.json({ ok: false, error: "Internal server error" }, { status: 500 });
+  }
+}
+
+export async function GET(request: NextRequest) {
+  return NextResponse.json({
+    status: "Bale webhook endpoint",
+    timestamp: new Date().toISOString(),
+  });
 }
