@@ -50,7 +50,6 @@ async function setWebhook() {
   console.log(result);
 
   if (adminChatId) {
-    // @ts-expect-error adminChatId is defined in if block
     await sendStartupMessage(token, baseUrl, adminChatId!);
   }
 }
