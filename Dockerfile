@@ -33,6 +33,6 @@ COPY --from=builder /app/docker-entrypoint.sh ./docker-entrypoint.sh
 
 RUN chmod +x ./docker-entrypoint.sh
 
-EXPOSE 3000
+EXPOSE 3080
 
 ENTRYPOINT ["./docker-entrypoint.sh"]

@@ -39,4 +39,4 @@ else
 fi
 
 echo "Starting app..."
-PORT=3030 HOSTNAME=0.0.0.0 npm run start
+PORT=3080 HOSTNAME=0.0.0.0 npm run start
