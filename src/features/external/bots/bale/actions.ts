@@ -16,11 +16,11 @@ async function baleRequest<T>(
   method: "GET" | "POST" = "POST",
   params?: unknown,
 ): Promise<BaleActionResult<T>> {
-  const token = process.env.BOT_BALE_TOKEN;
-  const baseUrl = process.env.BALE_BASE_URL || "https://tapi.bale.ai/business/bot";
+  const token = process.env.BALE_BOT_TOKEN;
+  const baseUrl = process.env.BALE_BASE_URL || "https://tapi.bale.ai/bot";
 
   if (!token) {
-    throw new Error("BOT_BALE_TOKEN environment variable is not set");
+    throw new Error("BALE_BOT_TOKEN environment variable is not set");
   }
 
   const url = `${baseUrl}${token}/${action}`;
