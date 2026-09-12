@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import { readFileSync } from "fs";
 import { resolve } from "path";
 
-dotenv.config({ path: ".env" });
+// dotenv.config({ path: ".env" });
 
 function getVersion(): string {
   try {

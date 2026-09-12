@@ -30,6 +30,8 @@ else
 fi
 
 if [ -n "$BALE_BOT_TOKEN" ] && [ -n "$APP_URL" ]; then
+  echo "BALE_BOT_TOKEN is ${BALE_BOT_TOKEN:+set}"
+  echo "APP_URL is ${APP_URL:+set}"
   echo "Setting up Bale webhook..."
   retry npx tsx scripts/bale/set-webhook.ts
 else
