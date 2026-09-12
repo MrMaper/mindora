@@ -7,7 +7,7 @@ import { prisma as db } from "@/lib/db";
 
 dotenv.config({ path: ".env" });
 
-const BALE_UPDATES_CHAT = process.env.BALE_CHANNELS;
+const BALE_UPDATES_CHAT = process.env.BALE_CHANNELS_TASKS;
 
 function escapeMarkdown(text: string): string {
   return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, "\\$&");
@@ -160,7 +160,7 @@ export async function sendBaleAssignmentNotification(
     title: string;
     status?: string;
     priority?: string;
-  }
+  },
 ): Promise<void> {
   const user = await db.user.findUnique({
     where: { id: assigneeId },
@@ -195,7 +195,7 @@ export async function sendBaleStatusChangeNotification(
     title: string;
     oldStatus: string;
     newStatus: string;
-  }
+  },
 ): Promise<void> {
   const user = await db.user.findUnique({
     where: { id: assigneeId },
@@ -219,7 +219,10 @@ Status: \`${escapeMarkdown(task.oldStatus)}\` → \`${escapeMarkdown(task.newSta
   const result = await sendMessage(data);
 
   if (!result.success) {
-    console.error("Failed to send Bale status change notification:", result.error);
+    console.error(
+      "Failed to send Bale status change notification:",
+      result.error,
+    );
   }
 }
 
@@ -229,7 +232,7 @@ export async function sendBaleCommentNotification(
     id: string;
     title: string;
     commentBody: string;
-  }
+  },
 ): Promise<void> {
   const user = await db.user.findUnique({
     where: { id: assigneeId },
@@ -238,9 +241,10 @@ export async function sendBaleCommentNotification(
 
   if (!user?.baleUserId) return;
 
-  const truncated = task.commentBody.length > 200
-    ? task.commentBody.slice(0, 200) + "..."
-    : task.commentBody;
+  const truncated =
+    task.commentBody.length > 200
+      ? task.commentBody.slice(0, 200) + "..."
+      : task.commentBody;
 
   const message = `💬 *New Comment*
 
