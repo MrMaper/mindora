@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { getTranslations } from "@/i18n";
 import type { Language } from "@/types/db";
 import { Icon } from "@/components/ui-kit/foundation/icon";
 import { Button } from "@/components/ui-kit/forms/button";
@@ -22,6 +21,24 @@ function resolveLanguage(): Language {
   if (lang.startsWith("en")) return "EN";
   return "FA";
 }
+
+/** Inline copy so the error UI never pulls both locale modules. */
+const COPY = {
+  FA: {
+    error: "خطا",
+    errorDescription:
+      "مشکلی پیش آمد. صفحه را دوباره بارگذاری کنید یا اگر ادامه داشت با پشتیبانی تماس بگیرید.",
+    reloadPage: "بارگذاری مجدد",
+    goHome: "بازگشت به داشبورد",
+  },
+  EN: {
+    error: "Error",
+    errorDescription:
+      "Something went wrong. Reload the page, or contact support if it keeps happening.",
+    reloadPage: "Reload page",
+    goHome: "Back to dashboard",
+  },
+} as const;
 
 export class ErrorBoundary extends React.Component<
   ErrorBoundaryProps,
@@ -57,7 +74,7 @@ export class ErrorBoundary extends React.Component<
       }
 
       const language = resolveLanguage();
-      const t = getTranslations(language);
+      const t = COPY[language];
       const isRtl = language === "FA";
 
       return (
@@ -86,16 +103,16 @@ export class ErrorBoundary extends React.Component<
             <div
               className="mx-auto mb-5 flex size-14 items-center justify-center rounded-2xl bg-[var(--red-tint)] text-[var(--status-blocked)] shadow-sm ring-1 ring-[var(--status-blocked)]/15"
               role="img"
-              aria-label={t.common.error}
+              aria-label={t.error}
             >
               <Icon name="alert-triangle" size={28} />
             </div>
 
             <h2 className="text-xl font-semibold tracking-tight text-foreground">
-              {t.common.error}
+              {t.error}
             </h2>
             <p className="mt-2 text-sm leading-7 text-muted-foreground">
-              {t.common.errorDescription}
+              {t.errorDescription}
             </p>
 
             <div className="mt-7 flex flex-col gap-2 sm:flex-row sm:justify-center">
@@ -105,14 +122,14 @@ export class ErrorBoundary extends React.Component<
                 onClick={this.handleReload}
                 className="min-w-36"
               >
-                {t.common.reloadPage}
+                {t.reloadPage}
               </Button>
               <Button
                 variant="subtle"
                 onClick={this.handleHome}
                 className="min-w-36"
               >
-                {t.common.goHome}
+                {t.goHome}
               </Button>
             </div>
           </div>

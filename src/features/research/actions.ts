@@ -26,12 +26,15 @@ export interface ActionResult {
   data?: Record<string, unknown>;
 }
 
-function revalidateResearch(docId?: string) {
+function revalidateResearch(opts?: {
+  docs?: boolean;
+  docId?: string;
+  projects?: boolean;
+}) {
   revalidatePath("/research");
-  revalidatePath("/docs");
-  revalidatePath("/dashboard");
-  revalidatePath("/projects");
-  if (docId) revalidatePath(`/docs/${docId}`);
+  if (opts?.docs || opts?.docId) revalidatePath("/docs");
+  if (opts?.docId) revalidatePath(`/docs/${opts.docId}`);
+  if (opts?.projects) revalidatePath("/projects");
 }
 
 export async function getResearchHubAction(
@@ -76,7 +79,7 @@ export async function createResearchProjectAction(input: {
     select: { id: true },
   });
 
-  revalidateResearch();
+  revalidateResearch({ projects: true });
   return { success: true, data: { id: project.id } };
 }
 
@@ -145,7 +148,7 @@ export async function createDocLinkedToTask(input: {
     select: { id: true },
   });
 
-  revalidateResearch(doc.id);
+  revalidateResearch({ docs: true, docId: doc.id });
   revalidatePath("/kanban");
   return { success: true, data: { id: doc.id } };
 }
@@ -288,7 +291,7 @@ export async function createSourceNoteFromSourceAction(
     select: { id: true },
   });
 
-  revalidateResearch(doc.id);
+  revalidateResearch({ docs: true, docId: doc.id });
   return { success: true, data: { id: doc.id } };
 }
 
@@ -436,7 +439,7 @@ export async function addPhdSourceAction(input: {
     select: { id: true },
   });
 
-  revalidateResearch(docId);
+  revalidateResearch({ docs: true, docId: docId });
   return { success: true, data: { id: source.id, docId } };
 }
 
@@ -535,7 +538,7 @@ export async function insertCitationIntoDocAction(input: {
     },
   });
 
-  revalidateResearch(doc.id);
+  revalidateResearch({ docs: true, docId: doc.id });
   return { success: true, data: { id: doc.id, sourceId: linkedSourceId } };
 }
 
@@ -574,7 +577,7 @@ export async function annotateSourceQuoteAction(input: {
     select: { id: true },
   });
 
-  revalidateResearch(source.docId);
+  revalidateResearch({ docs: true, docId: source.docId });
   return { success: true, data: { id: quote.id, docId: source.docId } };
 }
 

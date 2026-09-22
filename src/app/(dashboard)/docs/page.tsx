@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { ensurePersonalWorkspace } from "@/features/life/workspace";
+import { ensurePersonalWorkspaceCached } from "@/lib/request-cache";
 import { getDocById, getDocs } from "@/features/docs/queries";
 import { DocsCC } from "./docs-cc";
 
@@ -14,12 +14,15 @@ export default async function DocsPage({
 }) {
   const session = await auth();
   if (!session?.user) redirect("/login");
-  await ensurePersonalWorkspace(session.user.id);
+  await ensurePersonalWorkspaceCached(session.user.id);
 
   const { id } = await searchParams;
   const requested = id ? await getDocById(session.user.id, id) : null;
   const showArchived = requested?.archived ?? false;
-  const docs = await getDocs(session.user.id, { archived: showArchived });
+  const docs = await getDocs(session.user.id, {
+    archived: showArchived,
+    take: 80,
+  });
 
   const initialDoc =
     requested ??

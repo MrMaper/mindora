@@ -1,9 +1,9 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { Controller } from "react-hook-form";
+import { BrandMark } from "@/components/brand-mark";
 import { Input } from "@/components/ui-kit/forms/input";
 import { Button } from "@/components/ui-kit/forms/button";
 import { useLogin } from "./use-login";
@@ -21,16 +21,8 @@ export function LoginCC() {
 
   return (
     <div className="w-full max-w-90 bg-card border border-border rounded-xl shadow-md p-8">
-      <div className="flex flex-col items-center justify-center gap-1 mb-6">
-        <div className="flex items-center gap-2">
-          <Image src="/logo.png" alt="Mindora" width={28} height={28} />
-          <span className="text-base font-semibold text-foreground tracking-tight">
-            Mindora
-          </span>
-        </div>
-        <span className="text-xs text-muted-foreground tracking-wide">
-          Think. Plan. Grow
-        </span>
+      <div className="mb-6 flex justify-center">
+        <BrandMark size="lg" />
       </div>
 
       <div className="mb-5">

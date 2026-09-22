@@ -1,7 +1,7 @@
 "use client";
+import { useTranslation } from "@/i18n/provider";
 
 import * as React from "react";
-import { getTranslations } from "@/i18n";
 import { Icon } from "@/components/ui-kit/foundation/icon";
 import { Card } from "@/components/ui/card";
 import type { Language } from "@/types/db";
@@ -11,7 +11,7 @@ interface ReportingInfoCardProps {
 }
 
 export function ReportingInfoCard({ language }: ReportingInfoCardProps) {
-  const t = getTranslations(language);
+  const t = useTranslation();
 
   return (
     <Card className="p-4 bg-muted/50">

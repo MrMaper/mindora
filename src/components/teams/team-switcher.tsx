@@ -1,4 +1,5 @@
 "use client";
+import { useTranslation } from "@/i18n/provider";
 
 import * as React from "react";
 import Link from "next/link";
@@ -6,7 +7,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { Icon } from "@/components/ui-kit/foundation/icon";
 import type { IconName } from "@/components/ui-kit/foundation/icon";
 import { Select } from "@/components/ui-kit/forms/select";
-import { getTranslations } from "@/i18n";
 import type { TeamRow } from "@/features/teams/types";
 
 interface TeamSwitcherProps {
@@ -27,7 +27,7 @@ export function TeamSwitcher({
 
   if (teams.length === 0) return null;
 
-  const t = getTranslations(language);
+  const t = useTranslation();
 
   const handleChange = (teamId: string) => {
     onTeamChange(teamId);

@@ -350,7 +350,6 @@ export function LanguageVocabPanel({
 
   async function refillReviewQueue() {
     await loadReviewQueue(reviewFilter);
-    router.refresh();
   }
 
   React.useEffect(() => {
@@ -444,7 +443,6 @@ export function LanguageVocabPanel({
       setReviewQueue(q => q.filter(c => c.id !== id));
       setStudyQueue(q => q.filter(c => c.id !== id));
       setBank(b => b.filter(c => c.id !== id));
-      router.refresh();
     } else if (result.error) {
       window.alert(result.error);
     }

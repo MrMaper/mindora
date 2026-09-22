@@ -1,12 +1,9 @@
-"use client";
+﻿"use client";
+
+import { useTranslation } from "@/i18n/provider";
 
 import * as React from "react";
-import { getTranslations } from "@/i18n";
 import { formatNumber } from "@/lib/utils";
-import {
-  getAllOptionsWithLabels,
-  withEmptyOption,
-} from "@/components/ui-kit/forms/select-utils";
 import { Pagination } from "@/components/ui-kit/tables/pagination";
 import type { UserRow } from "@/features/users/types";
 import type { ProjectRow } from "@/features/projects/types";
@@ -48,7 +45,7 @@ export function WorkLogsCC({
   currentUserRole,
   isAdmin,
 }: WorkLogsCCProps) {
-  const t = getTranslations(language);
+  const t = useTranslation();
   const dateLocale = language === "EN" ? "en-US" : "fa-IR";
 
   const userOptions = [

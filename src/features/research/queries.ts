@@ -121,6 +121,8 @@ export async function getAggregatedPhdSources(
     search?: string;
     readingStatus?: SourceReadingStatus | "ALL";
     projectId?: string | null | "NONE";
+    /** Cap list size (default 100, max 250). */
+    take?: number;
   },
 ): Promise<ResearchSourceItem[]> {
   const search = opts?.search?.trim();
@@ -128,6 +130,7 @@ export async function getAggregatedPhdSources(
     opts?.readingStatus && opts.readingStatus !== "ALL"
       ? opts.readingStatus
       : undefined;
+  const take = Math.min(250, Math.max(20, opts?.take ?? 100));
 
   const rows = await db.docSource.findMany({
     where: {
@@ -154,6 +157,7 @@ export async function getAggregatedPhdSources(
         : {}),
     },
     orderBy: [{ updatedAt: "desc" }],
+    take,
     select: {
       id: true,
       title: true,

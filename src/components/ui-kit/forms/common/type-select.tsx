@@ -1,10 +1,9 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { Select } from "../select";
 import { getAllOptionsWithLabels, withEmptyOption } from "../select-utils";
-import { getTranslations } from "@/i18n";
-import { useSelectLanguage } from "./select-provider";
+import { useTranslation } from "@/i18n/provider";
 
 export interface TypeSelectProps {
   label?: string;
@@ -23,10 +22,9 @@ export function TypeSelect({
   onChange,
   placeholder,
 }: TypeSelectProps) {
-  const language = useSelectLanguage();
-  const t = getTranslations(language);
+  const t = useTranslation();
   const options = withEmptyOption(
-    getAllOptionsWithLabels(language, "type"),
+    getAllOptionsWithLabels(t, "type"),
     t.tasks.type,
   );
 

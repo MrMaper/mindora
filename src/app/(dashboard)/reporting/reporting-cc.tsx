@@ -1,7 +1,7 @@
 "use client";
+import { useTranslation } from "@/i18n/provider";
 
 import * as React from "react";
-import { getTranslations } from "@/i18n";
 import type { UserRow } from "@/features/users/types";
 import type { Language } from "@/types/db";
 import { Card } from "@/components/ui/card";
@@ -18,7 +18,7 @@ interface ReportingCCProps {
 }
 
 export function ReportingCC({ users, language }: ReportingCCProps) {
-  const t = getTranslations(language);
+  const t = useTranslation();
 
   const [selectedUserId, setSelectedUserId] = React.useState<string>("");
   const [dateRange, setDateRange] = React.useState<{

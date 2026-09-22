@@ -39,6 +39,8 @@ export interface BoardFilters {
   projectIds?: string[];
   /** When true (default for /kanban), hide research/language hub tasks. */
   excludeHub?: boolean;
+  /** Cap cards loaded for the board (default 400). */
+  limit?: number;
 }
 
 export function isBoardStatus(id: string): id is BoardStatus {

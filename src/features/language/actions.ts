@@ -15,7 +15,7 @@ import {
   type ExamKindKey,
   type MockSectionResult,
 } from "./exam-templates";
-import { deckTag, getVocabDeck } from "./decks";
+import { deckTag, loadVocabDeck } from "./decks";
 import { LISTENING_STARTERS } from "./listening-starters";
 import { parseListeningSource } from "./listening-source";
 import { startOfAppDay } from "./day";
@@ -34,11 +34,10 @@ export interface ActionResult {
   data?: Record<string, unknown>;
 }
 
-function revalidateLanguage(docId?: string) {
+function revalidateLanguage(opts?: { docs?: boolean; docId?: string }) {
   revalidatePath("/language");
-  revalidatePath("/docs");
-  revalidatePath("/dashboard");
-  if (docId) revalidatePath(`/docs/${docId}`);
+  if (opts?.docs) revalidatePath("/docs");
+  if (opts?.docId) revalidatePath(`/docs/${opts.docId}`);
 }
 
 async function assertLangProjectMember(
@@ -252,7 +251,7 @@ export async function createLangDocAction(input?: {
   });
 
   if (result.success && result.data?.id) {
-    revalidateLanguage(result.data.id);
+    revalidateLanguage({ docs: true, docId: result.data.id });
   }
   return result;
 }
@@ -332,7 +331,7 @@ export async function installVocabDeckAction(input: {
   const session = await auth();
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
-  const deck = getVocabDeck(input.deckKey);
+  const deck = await loadVocabDeck(input.deckKey);
   if (!deck) return { success: false, error: "دک پیدا نشد" };
 
   const resolved = await resolveLangProjectId(
@@ -405,7 +404,7 @@ export async function importLessonCardsAction(input: {
   const session = await auth();
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
-  const deck = getVocabDeck(input.deckKey);
+  const deck = await loadVocabDeck(input.deckKey);
   if (!deck) return { success: false, error: "دک پیدا نشد" };
   if (
     !Number.isFinite(input.lesson) ||

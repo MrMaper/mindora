@@ -1,8 +1,8 @@
 "use client";
 
 import * as React from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { DocEditor } from "@/components/docs/doc-editor";
 import { DocSidePanel } from "@/components/docs/doc-side-panel";
 import { Button } from "@/components/ui-kit/forms/button";
 import { IconButton } from "@/components/ui-kit/forms/icon-button";
@@ -82,6 +82,17 @@ import { ChecklistToTasksDrawer } from "@/components/docs/checklist-to-tasks-dra
 import { Menu } from "@/components/ui-kit/overlays/menu";
 import { countWords } from "@/features/docs/utils";
 import { extractTaskCandidatesFromHtml } from "@/features/docs/checklist";
+
+const DocEditor = dynamic(
+  () =>
+    import("@/components/docs/doc-editor").then(m => ({ default: m.DocEditor })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="min-h-[16rem] animate-pulse rounded-lg bg-muted/40" />
+    ),
+  },
+);
 
 const AREA_DOT: Record<LifeArea, string> = {
   PHD: "bg-[var(--status-review)]",

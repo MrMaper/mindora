@@ -1,8 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { getTranslations } from "@/i18n";
 import type { Language } from "@/types/db";
+import type { Translations } from "@/i18n";
+import { loadTranslations } from "@/i18n/load";
 import { Icon } from "@/components/ui-kit/foundation/icon";
 
 const STORAGE_KEY = "mindora-auth-language";
@@ -10,7 +11,7 @@ const defaultLanguage: Language = "FA";
 
 const AuthLanguageContext = React.createContext<{
   language: Language;
-  t: ReturnType<typeof getTranslations>;
+  t: Translations;
   setLanguage: (language: Language) => void;
 } | null>(null);
 
@@ -29,6 +30,7 @@ export function AuthLanguageProvider({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const [language, setLanguageState] = React.useState<Language>(defaultLanguage);
+  const [t, setT] = React.useState<Translations | null>(null);
 
   React.useEffect(() => {
     const raw = window.localStorage.getItem(STORAGE_KEY);
@@ -38,6 +40,16 @@ export function AuthLanguageProvider({
     syncDocumentDirection(storedLanguage);
   }, []);
 
+  React.useEffect(() => {
+    let cancelled = false;
+    void loadTranslations(language).then(next => {
+      if (!cancelled) setT(next);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [language]);
+
   const setLanguage = React.useCallback((nextLanguage: Language) => {
     const normalized = normalizeLanguage(nextLanguage);
     window.localStorage.setItem(STORAGE_KEY, normalized);
@@ -45,13 +57,14 @@ export function AuthLanguageProvider({
     syncDocumentDirection(normalized);
   }, []);
 
-  const value = React.useMemo(
-    () => ({ language, t: getTranslations(language), setLanguage }),
-    [language, setLanguage],
-  );
+  if (!t) {
+    return (
+      <div className="min-h-dvh bg-background" aria-busy="true" aria-label="Loading" />
+    );
+  }
 
   return (
-    <AuthLanguageContext.Provider value={value}>
+    <AuthLanguageContext.Provider value={{ language, t, setLanguage }}>
       {children}
     </AuthLanguageContext.Provider>
   );
@@ -96,7 +109,7 @@ export function AuthLanguageSwitch() {
         type="button"
         aria-haspopup="true"
         aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => setOpen(v => !v)}
         className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-background shadow-sm hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <Icon name="language" size={16} />

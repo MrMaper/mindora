@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
+import { BrandMark } from "@/components/brand-mark";
 import { Icon } from "@/components/ui-kit/foundation/icon";
 import { Button } from "@/components/ui/button";
 import {
@@ -70,16 +70,8 @@ export function DashboardShell({
   );
 
   const brand = (
-    <div className="flex flex-col items-center justify-center gap-0.5 min-h-14 py-2 border-b px-4 shrink-0">
-      <div className="flex items-center gap-2">
-        <Image src="/logo.png" alt="Mindora" width={24} height={24} />
-        <span className="text-base font-semibold text-foreground tracking-tight">
-          Mindora
-        </span>
-      </div>
-      <span className="text-[10px] text-muted-foreground tracking-wide">
-        Think. Plan. Grow
-      </span>
+    <div className="flex items-center justify-center min-h-14 py-3 border-b px-4 shrink-0">
+      <BrandMark size="md" />
     </div>
   );
 
@@ -127,9 +119,8 @@ export function DashboardShell({
           >
             <Icon name="menu" size={18} />
           </Button>
-          <div className="flex items-center gap-2 min-w-0 flex-1">
-            <Image src="/logo.png" alt="" width={20} height={20} />
-            <span className="text-sm font-semibold truncate">Mindora</span>
+          <div className="min-w-0 flex-1">
+            <BrandMark size="sm" showSlogan={false} />
           </div>
           <Button
             type="button"

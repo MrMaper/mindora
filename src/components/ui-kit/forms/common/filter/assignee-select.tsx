@@ -1,9 +1,8 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { Select } from "../../select";
-import { getTranslations } from "@/i18n";
-import { useSelectLanguage } from "../select-provider";
+import { useTranslation } from "@/i18n/provider";
 import type { UserRow } from "@/features/users/types";
 
 export interface FilterAssigneeSelectProps {
@@ -21,8 +20,7 @@ export function FilterAssigneeSelect({
   className,
   placeholder,
 }: FilterAssigneeSelectProps) {
-  const language = useSelectLanguage();
-  const t = getTranslations(language);
+  const t = useTranslation();
 
   const [fetchedUsers, setFetchedUsers] = React.useState<UserRow[]>([]);
   const [loading, setLoading] = React.useState(false);

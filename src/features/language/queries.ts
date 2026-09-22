@@ -23,7 +23,8 @@ import {
   type ExamKindKey,
   type MockSectionResult,
 } from "./exam-templates";
-import { VOCAB_DECK_LIST } from "./decks";
+import { VOCAB_DECK_KEYS, VOCAB_DECK_META } from "./decks/catalog-meta";
+import type { LanguageTab } from "./types";
 import { daysAgoApp, startOfAppDay } from "./day";
 
 function startOfLocalDay(d = new Date()): Date {
@@ -160,7 +161,7 @@ async function ensureVocabDayBackfill(userId: string): Promise<void> {
   const cards = await db.langCard.findMany({
     where: { userId, lastReviewedAt: { not: null } },
     select: { lastReviewedAt: true },
-    take: 5000,
+    take: 2000,
   });
   if (cards.length === 0) return;
 
@@ -405,7 +406,15 @@ function mapMock(r: {
 export async function getLanguageHubData(
   userId: string,
   scope: LanguageProjectScope = "all",
+  opts?: { tab?: LanguageTab },
 ): Promise<LanguageHubData> {
+  const tab = opts?.tab ?? "today";
+  const needVocab = tab === "today" || tab === "vocab" || tab === "skills";
+  const needListening = tab === "today" || tab === "listening";
+  const needExams = tab === "today" || tab === "exams";
+  const needNotes = tab === "today" || tab === "notes";
+  const needSkills = tab === "today" || tab === "skills";
+
   const pf = projectFilter(scope);
   const weekStart = daysAgo(6);
   const now = new Date();
@@ -415,7 +424,14 @@ export async function getLanguageHubData(
     ...(pf.projectId !== undefined ? { projectId: pf.projectId } : {}),
   };
 
-  await ensureVocabDayBackfill(userId);
+  if (needVocab) await ensureVocabDayBackfill(userId);
+
+  const emptyLessons = (lessonCount: number): VocabLessonProgress[] =>
+    Array.from({ length: lessonCount }, (_, i) => ({
+      lesson: i + 1,
+      total: 0,
+      due: 0,
+    }));
 
   const [
     profile,
@@ -431,14 +447,44 @@ export async function getLanguageHubData(
     recentCards,
     hardCards,
     vocabDayRows,
-    catalogDeckRows,
+    deckStats,
+    lessonStats,
+    lessonDueStats,
     listeningClips,
     examTrackRows,
     recentMockRows,
   ] = await Promise.all([
     ensureLangProfile(userId),
     listLangProjects(userId),
-    getSessions(userId, scope, 200),
+    needSkills
+      ? db.langSession.findMany({
+          where: {
+            userId,
+            ...(pf.projectId !== undefined ? { projectId: pf.projectId } : {}),
+          },
+          orderBy: { practicedAt: "desc" },
+          take: 80,
+          select: {
+            id: true,
+            skill: true,
+            minutes: true,
+            note: true,
+            practicedAt: true,
+            projectId: true,
+            project: { select: { name: true } },
+          },
+        })
+      : Promise.resolve(
+          [] as {
+            id: string;
+            skill: LangSkill;
+            minutes: number;
+            note: string | null;
+            practicedAt: Date;
+            projectId: string | null;
+            project: { name: string } | null;
+          }[],
+        ),
     db.langSession.aggregate({
       where: {
         userId,
@@ -447,143 +493,179 @@ export async function getLanguageHubData(
       },
       _sum: { minutes: true },
     }),
-    db.doc.findMany({
-      where: {
-        userId,
-        area: "LANG",
-        deletedAt: null,
-        archived: false,
-        ...(pf.projectId === null
-          ? { projectId: null }
-          : pf.projectId
-            ? { projectId: pf.projectId }
-            : {}),
-      },
-      orderBy: { updatedAt: "desc" },
-      take: 8,
-      select: {
-        id: true,
-        title: true,
-        updatedAt: true,
-        contentText: true,
-      },
-    }),
-    db.langCard.count({
-      where: { ...cardWhere, nextReviewAt: { lte: now } },
-    }),
-    db.langCard.count({ where: cardWhere }),
-    db.langCard.count({ where: { ...cardWhere, reviewCount: 0 } }),
-    db.langCard.count({
-      where: {
-        ...cardWhere,
-        lastReviewedAt: { gte: todayStart },
-      },
-    }),
-    db.langCard.findMany({
-      where: { ...cardWhere, nextReviewAt: { lte: now } },
-      orderBy: [{ nextReviewAt: "asc" }, { createdAt: "asc" }],
-      take: 40,
-      select: cardSelect,
-    }),
-    db.langCard.findMany({
-      where: cardWhere,
-      orderBy: { updatedAt: "desc" },
-      take: 12,
-      select: cardSelect,
-    }),
-    db.langCard.findMany({
-      where: {
-        ...cardWhere,
-        ...hardCardWhere(),
-      },
-      orderBy: [{ lapses: "desc" }, { box: "asc" }, { updatedAt: "desc" }],
-      take: 20,
-      select: cardSelect,
-    }),
-    db.langVocabDay.findMany({
-      where: {
-        userId,
-        day: { gte: daysAgo(120) },
-      },
-      select: { day: true, reviews: true },
-      orderBy: { day: "desc" },
-      take: 200,
-    }),
-    db.langCard.findMany({
-      where: {
-        ...cardWhere,
-        deckKey: { in: VOCAB_DECK_LIST.map(d => d.key) },
-      },
-      select: {
-        deckKey: true,
-        lesson: true,
-        nextReviewAt: true,
-        box: true,
-        reviewCount: true,
-        learningStep: true,
-      },
-      take: 5000,
-    }),
-    db.langListeningClip.findMany({
-      where: {
-        userId,
-        ...(pf.projectId !== undefined ? { projectId: pf.projectId } : {}),
-      },
-      orderBy: [{ lastPlayedAt: "desc" }, { updatedAt: "desc" }],
-      take: 80,
-      select: listeningClipSelect,
-    }),
-    db.examTrack.findMany({
-      where: {
-        userId,
-        ...(pf.projectId !== undefined ? { projectId: pf.projectId } : {}),
-      },
-      orderBy: { updatedAt: "desc" },
-      take: 20,
-      select: {
-        id: true,
-        kind: true,
-        name: true,
-        targetScore: true,
-        examDate: true,
-        projectId: true,
-        project: { select: { name: true } },
-        mocks: {
-          where: { status: "COMPLETED" },
+    needNotes
+      ? db.doc.findMany({
+          where: {
+            userId,
+            deletedAt: null,
+            archived: false,
+            area: "LANG",
+            ...(pf.projectId !== undefined
+              ? pf.projectId === null
+                ? { projectId: null }
+                : { projectId: pf.projectId }
+              : {}),
+          },
+          orderBy: { updatedAt: "desc" },
+          take: 8,
+          select: {
+            id: true,
+            title: true,
+            updatedAt: true,
+            contentText: true,
+          },
+        })
+      : Promise.resolve([]),
+    needVocab
+      ? db.langCard.count({
+          where: { ...cardWhere, nextReviewAt: { lte: now } },
+        })
+      : Promise.resolve(0),
+    needVocab ? db.langCard.count({ where: cardWhere }) : Promise.resolve(0),
+    needVocab
+      ? db.langCard.count({ where: { ...cardWhere, reviewCount: 0 } })
+      : Promise.resolve(0),
+    needVocab
+      ? db.langCard.count({
+          where: { ...cardWhere, lastReviewedAt: { gte: todayStart } },
+        })
+      : Promise.resolve(0),
+    needVocab
+      ? db.langCard.findMany({
+          where: { ...cardWhere, nextReviewAt: { lte: now } },
+          orderBy: [{ nextReviewAt: "asc" }, { createdAt: "asc" }],
+          take: 40,
+          select: cardSelect,
+        })
+      : Promise.resolve([]),
+    needVocab
+      ? db.langCard.findMany({
+          where: cardWhere,
+          orderBy: { updatedAt: "desc" },
+          take: 12,
+          select: cardSelect,
+        })
+      : Promise.resolve([]),
+    needVocab
+      ? db.langCard.findMany({
+          where: { ...cardWhere, ...hardCardWhere() },
+          orderBy: [{ lapses: "desc" }, { box: "asc" }, { updatedAt: "desc" }],
+          take: 20,
+          select: cardSelect,
+        })
+      : Promise.resolve([]),
+    needVocab
+      ? db.langVocabDay.findMany({
+          where: { userId, day: { gte: daysAgo(120) } },
+          select: { day: true, reviews: true },
+          orderBy: { day: "desc" },
+          take: 200,
+        })
+      : Promise.resolve([]),
+    needVocab
+      ? db.langCard.groupBy({
+          by: ["deckKey"],
+          where: { ...cardWhere, deckKey: { in: [...VOCAB_DECK_KEYS] } },
+          _count: { _all: true },
+        })
+      : Promise.resolve([]),
+    needVocab
+      ? db.langCard.groupBy({
+          by: ["deckKey", "lesson"],
+          where: {
+            ...cardWhere,
+            deckKey: { in: [...VOCAB_DECK_KEYS] },
+            lesson: { not: null },
+          },
+          _count: { _all: true },
+        })
+      : Promise.resolve([]),
+    needVocab
+      ? db.langCard.groupBy({
+          by: ["deckKey", "lesson"],
+          where: {
+            ...cardWhere,
+            deckKey: { in: [...VOCAB_DECK_KEYS] },
+            lesson: { not: null },
+            nextReviewAt: { lte: now },
+          },
+          _count: { _all: true },
+        })
+      : Promise.resolve([]),
+    needListening
+      ? db.langListeningClip.findMany({
+          where: {
+            userId,
+            ...(pf.projectId !== undefined ? { projectId: pf.projectId } : {}),
+          },
+          orderBy: [{ lastPlayedAt: "desc" }, { updatedAt: "desc" }],
+          take: 40,
+          select: listeningClipSelect,
+        })
+      : Promise.resolve([]),
+    needExams
+      ? db.examTrack.findMany({
+          where: {
+            userId,
+            ...(pf.projectId !== undefined ? { projectId: pf.projectId } : {}),
+          },
+          orderBy: { updatedAt: "desc" },
+          take: 20,
+          select: {
+            id: true,
+            kind: true,
+            name: true,
+            targetScore: true,
+            examDate: true,
+            projectId: true,
+            project: { select: { name: true } },
+            mocks: {
+              where: { status: "COMPLETED" },
+              orderBy: { finishedAt: "desc" },
+              take: 1,
+              select: { percent: true, finishedAt: true },
+            },
+            _count: { select: { mocks: true } },
+          },
+        })
+      : Promise.resolve([]),
+    needExams
+      ? db.mockAttempt.findMany({
+          where: {
+            userId,
+            status: "COMPLETED",
+            ...(pf.projectId !== undefined ? { projectId: pf.projectId } : {}),
+          },
           orderBy: { finishedAt: "desc" },
-          take: 1,
-          select: { percent: true, finishedAt: true },
-        },
-        _count: { select: { mocks: true } },
-      },
-    }),
-    db.mockAttempt.findMany({
-      where: {
-        userId,
-        status: "COMPLETED",
-        ...(pf.projectId !== undefined ? { projectId: pf.projectId } : {}),
-      },
-      orderBy: { finishedAt: "desc" },
-      take: 8,
-      select: {
-        id: true,
-        trackId: true,
-        kind: true,
-        status: true,
-        startedAt: true,
-        finishedAt: true,
-        durationSec: true,
-        totalCorrect: true,
-        totalQuestions: true,
-        percent: true,
-        sections: true,
-        note: true,
-        track: { select: { name: true } },
-      },
-    }),
+          take: 8,
+          select: {
+            id: true,
+            trackId: true,
+            kind: true,
+            status: true,
+            startedAt: true,
+            finishedAt: true,
+            durationSec: true,
+            totalCorrect: true,
+            totalQuestions: true,
+            percent: true,
+            sections: true,
+            note: true,
+            track: { select: { name: true } },
+          },
+        })
+      : Promise.resolve([]),
   ]);
 
-  const stats = await skillStatsFromDb(userId, scope);
+  const stats = needSkills
+    ? await skillStatsFromDb(userId, scope)
+    : LANG_SKILLS.map(skill => ({
+        skill,
+        minutes7d: 0,
+        minutesTotal: 0,
+        sessionCount: 0,
+      }));
+
   const vocabStreak = computeDayStreak(vocabDayRows.map(r => r.day));
   const todayKey = todayStart.getTime();
   const reviewsToday =
@@ -598,51 +680,103 @@ export async function getLanguageHubData(
     streakDays: vocabStreak,
   };
 
-  const vocabDecks: VocabDeckProgress[] = VOCAB_DECK_LIST.map(deck => {
-    const lessonMap = new Map<number, VocabLessonProgress>();
-    for (let i = 1; i <= deck.lessonCount; i++) {
-      lessonMap.set(i, { lesson: i, total: 0, due: 0 });
-    }
+  const dueByDeckLesson = new Map<string, number>();
+  for (const row of lessonDueStats) {
+    if (!row.deckKey || row.lesson == null) continue;
+    dueByDeckLesson.set(`${row.deckKey}:${row.lesson}`, row._count._all);
+  }
+  const totalByDeckLesson = new Map<string, number>();
+  for (const row of lessonStats) {
+    if (!row.deckKey || row.lesson == null) continue;
+    totalByDeckLesson.set(`${row.deckKey}:${row.lesson}`, row._count._all);
+  }
+  const installedByDeck = new Map(
+    deckStats
+      .filter(r => r.deckKey)
+      .map(r => [r.deckKey as string, r._count._all]),
+  );
+
+  const vocabDecks: VocabDeckProgress[] = VOCAB_DECK_META.map(deck => {
+    const installed = installedByDeck.get(deck.key) ?? 0;
+    const lessons = emptyLessons(deck.lessonCount);
     let due = 0;
-    let installed = 0;
-    let seen = 0;
-    let learning = 0;
-    let mastered = 0;
-    let fresh = 0;
-    for (const row of catalogDeckRows) {
-      if (row.deckKey !== deck.key) continue;
-      installed += 1;
-      if (row.reviewCount === 0) fresh += 1;
-      else seen += 1;
-      if (row.learningStep != null) {
-        if (row.reviewCount > 0) learning += 1;
-      } else if (row.box >= 3) {
-        mastered += 1;
-      }
-      const lesson = row.lesson ?? 0;
-      if (lesson < 1) continue;
-      const slot = lessonMap.get(lesson) ?? { lesson, total: 0, due: 0 };
-      slot.total += 1;
-      if (row.nextReviewAt.getTime() <= now.getTime()) {
-        slot.due += 1;
-        due += 1;
-      }
-      lessonMap.set(lesson, slot);
+    for (const slot of lessons) {
+      const total = totalByDeckLesson.get(`${deck.key}:${slot.lesson}`) ?? 0;
+      const lessonDue =
+        dueByDeckLesson.get(`${deck.key}:${slot.lesson}`) ?? 0;
+      slot.total = total;
+      slot.due = lessonDue;
+      due += lessonDue;
     }
     return {
       key: deck.key,
       installed,
       due,
-      seen,
-      learning,
-      mastered,
-      fresh,
+      seen: 0,
+      learning: 0,
+      mastered: 0,
+      fresh: 0,
       lessonCount: deck.lessonCount,
       wordsPerLesson: deck.wordsPerLesson,
-      starterCount: deck.starter.length,
-      lessons: Array.from(lessonMap.values()),
+      starterCount: deck.starterCount,
+      lessons,
     };
   });
+
+  if (needVocab && installedByDeck.size > 0) {
+    const [freshRows, learningRows, masteredRows] = await Promise.all([
+      db.langCard.groupBy({
+        by: ["deckKey"],
+        where: {
+          ...cardWhere,
+          deckKey: { in: [...VOCAB_DECK_KEYS] },
+          reviewCount: 0,
+        },
+        _count: { _all: true },
+      }),
+      db.langCard.groupBy({
+        by: ["deckKey"],
+        where: {
+          ...cardWhere,
+          deckKey: { in: [...VOCAB_DECK_KEYS] },
+          learningStep: { not: null },
+          reviewCount: { gt: 0 },
+        },
+        _count: { _all: true },
+      }),
+      db.langCard.groupBy({
+        by: ["deckKey"],
+        where: {
+          ...cardWhere,
+          deckKey: { in: [...VOCAB_DECK_KEYS] },
+          learningStep: null,
+          box: { gte: 3 },
+        },
+        _count: { _all: true },
+      }),
+    ]);
+    const freshMap = new Map(
+      freshRows
+        .filter(r => r.deckKey)
+        .map(r => [r.deckKey as string, r._count._all]),
+    );
+    const learningMap = new Map(
+      learningRows
+        .filter(r => r.deckKey)
+        .map(r => [r.deckKey as string, r._count._all]),
+    );
+    const masteredMap = new Map(
+      masteredRows
+        .filter(r => r.deckKey)
+        .map(r => [r.deckKey as string, r._count._all]),
+    );
+    for (const deck of vocabDecks) {
+      deck.fresh = freshMap.get(deck.key) ?? 0;
+      deck.learning = learningMap.get(deck.key) ?? 0;
+      deck.mastered = masteredMap.get(deck.key) ?? 0;
+      deck.seen = Math.max(0, deck.installed - deck.fresh);
+    }
+  }
 
   const examTracks: ExamTrackItem[] = examTrackRows.map(t => ({
     id: t.id,
@@ -657,13 +791,23 @@ export async function getLanguageHubData(
     lastMockAt: t.mocks[0]?.finishedAt ?? null,
   }));
 
+  const sessionItems: LangSessionItem[] = sessions.map(s => ({
+    id: s.id,
+    skill: s.skill as LangSkill,
+    minutes: s.minutes,
+    note: s.note,
+    practicedAt: s.practicedAt,
+    projectId: s.projectId,
+    projectName: s.project?.name ?? null,
+  }));
+
   return {
     profile,
     projects,
-    sessions: sessions.slice(0, 12),
+    sessions: sessionItems.slice(0, 12),
     skillStats: stats,
     weekMinutes: weekAgg._sum.minutes ?? 0,
-    streakDays: computeStreak(sessions),
+    streakDays: computeStreak(sessionItems),
     suggestSkill: suggestSkill(stats),
     recentDocs: docs.map(d => ({
       id: d.id,
@@ -682,7 +826,7 @@ export async function getLanguageHubData(
   };
 }
 
-/** Due cards for review queue / refill. */
+
 export async function listDueCards(
   userId: string,
   opts?: {

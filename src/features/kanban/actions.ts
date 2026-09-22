@@ -85,8 +85,5 @@ export async function moveTask(params: {
   revalidatePath("/kanban");
   revalidatePath("/tasks");
   revalidatePath("/dashboard");
-  revalidatePath("/research");
-  revalidatePath("/review");
-  revalidatePath("/calendar");
   return { success: true };
 }

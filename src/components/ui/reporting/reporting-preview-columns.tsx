@@ -1,7 +1,7 @@
 "use client";
+import { useTranslation } from "@/i18n/provider";
 
 import * as React from "react";
-import { getTranslations } from "@/i18n";
 import { Card } from "@/components/ui/card";
 import type { Language } from "@/types/db";
 
@@ -10,7 +10,7 @@ interface ReportingPreviewColumnsProps {
 }
 
 export function ReportingPreviewColumns({ language }: ReportingPreviewColumnsProps) {
-  const t = getTranslations(language);
+  const t = useTranslation();
 
   return (
     <Card className="p-4">

@@ -19,6 +19,13 @@ import {
 } from "@/features/external/bots/bale/notifications";
 import type { TaskDetail } from "./types";
 
+function revalidateTasks(extra: string[] = []) {
+  revalidatePath("/tasks");
+  revalidatePath("/kanban");
+  revalidatePath("/dashboard");
+  for (const path of extra) revalidatePath(path);
+}
+
 export interface ActionResult {
   success: boolean;
   error?: string;
@@ -177,10 +184,7 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
     assigneeName: assignee?.name,
   });
 
-  revalidatePath("/tasks");
-  revalidatePath("/dashboard");
-  revalidatePath("/kanban");
-  revalidatePath("/calendar");
+  revalidateTasks(["/calendar"]);
   return { success: true, data: { id: task.id } };
 }
 
@@ -466,11 +470,7 @@ export async function updateTask(
     });
   }
 
-  revalidatePath("/tasks");
-  revalidatePath("/calendar");
-  revalidatePath("/dashboard");
-  revalidatePath("/kanban");
-  revalidatePath("/review");
+  revalidateTasks(["/calendar", "/review"]);
   return { success: true };
 }
 
@@ -532,9 +532,7 @@ export async function updateTaskStatus(
     });
   }
 
-  revalidatePath("/tasks");
-  revalidatePath("/calendar");
-  revalidatePath("/dashboard");
+  revalidateTasks(["/calendar"]);
   return { success: true };
 }
 
@@ -571,12 +569,8 @@ export async function deleteTask(id: string): Promise<ActionResult> {
   }
 
   await db.task.delete({ where: { id } });
-  revalidatePath("/tasks");
-  revalidatePath("/kanban");
-  revalidatePath("/projects");
-  revalidatePath("/dashboard");
-  if (existing.projectId) {
-    revalidatePath(`/projects/${existing.projectId}`);
-  }
+  const extra = ["/projects"];
+  if (existing.projectId) extra.push(`/projects/${existing.projectId}`);
+  revalidateTasks(extra);
   return { success: true };
 }

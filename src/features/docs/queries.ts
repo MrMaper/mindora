@@ -58,6 +58,8 @@ export async function getDocs(
     tagId?: string;
     /** Research line: null = inbox (no project), string = that project */
     projectId?: string | null | "NONE";
+    /** Cap list size (default 100, max 200). */
+    take?: number;
   },
 ): Promise<DocListItem[]> {
   await purgeExpiredTrash(userId);
@@ -66,6 +68,7 @@ export async function getDocs(
   const search = opts?.search?.trim();
   const trash = opts?.trash ?? false;
   const archived = trash ? undefined : (opts?.archived ?? false);
+  const take = Math.min(200, Math.max(20, opts?.take ?? 100));
 
   const docs = await db.doc.findMany({
     where: {
@@ -97,6 +100,7 @@ export async function getDocs(
     orderBy: trash
       ? [{ deletedAt: "desc" }]
       : [{ pinned: "desc" }, { updatedAt: "desc" }],
+    take,
     select: {
       id: true,
       title: true,
@@ -111,30 +115,39 @@ export async function getDocs(
       contentText: true,
       folder: { select: { name: true } },
       project: { select: { name: true } },
-      tags: { select: { tag: { select: { id: true, name: true, color: true, description: true } } } },
+      tags: {
+        select: {
+          tag: {
+            select: { id: true, name: true, color: true, description: true },
+          },
+        },
+      },
       _count: { select: { tasks: true } },
     },
   });
 
-  return docs.map(doc => ({
-    id: doc.id,
-    title: doc.title,
-    area: doc.area,
-    status: doc.status,
-    pinned: doc.pinned,
-    archived: doc.archived,
-    deletedAt: doc.deletedAt,
-    folderId: doc.folderId,
-    folderName: doc.folder?.name ?? null,
-    projectId: doc.projectId,
-    projectName: doc.project?.name ?? null,
-    updatedAt: doc.updatedAt,
-    preview: previewFromText(doc.contentText),
-    taskCount: doc._count.tasks,
-    wordCount: countWords(doc.contentText),
-    tags: mapTags(doc.tags),
-    daysIdle: daysBetween(doc.updatedAt),
-  }));
+  return docs.map(doc => {
+    const previewSource = doc.contentText.slice(0, 240);
+    return {
+      id: doc.id,
+      title: doc.title,
+      area: doc.area,
+      status: doc.status,
+      pinned: doc.pinned,
+      archived: doc.archived,
+      deletedAt: doc.deletedAt,
+      folderId: doc.folderId,
+      folderName: doc.folder?.name ?? null,
+      projectId: doc.projectId,
+      projectName: doc.project?.name ?? null,
+      updatedAt: doc.updatedAt,
+      preview: previewFromText(previewSource),
+      taskCount: doc._count.tasks,
+      wordCount: countWords(doc.contentText),
+      tags: mapTags(doc.tags),
+      daysIdle: daysBetween(doc.updatedAt),
+    };
+  });
 }
 
 export async function getDocById(

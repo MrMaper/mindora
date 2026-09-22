@@ -5,9 +5,11 @@ import { auth } from "@/auth";
 import { getBoardColumns } from "@/features/kanban/queries";
 import { getAllActiveUsers } from "@/features/users/queries";
 import { getLabels } from "@/features/labels/queries";
-import { getUserPreferences } from "@/features/settings/queries";
-import { getTranslations } from "@/i18n";
-import { ensurePersonalWorkspace } from "@/features/life/workspace";
+import { getTranslationsAsync } from "@/i18n";
+import {
+  ensurePersonalWorkspaceCached,
+  getUserPreferencesCached,
+} from "@/lib/request-cache";
 import { AREA_PROJECT_IDS } from "@/lib/life";
 import { RESEARCH_BOARD_STATUSES } from "@/features/kanban/types";
 import {
@@ -28,11 +30,11 @@ export default async function ResearchPage({
 }) {
   const session = await auth();
   if (!session?.user) redirect("/login");
-  await ensurePersonalWorkspace(session.user.id);
+  await ensurePersonalWorkspaceCached(session.user.id);
 
-  const prefs = await getUserPreferences(session.user.id);
+  const prefs = await getUserPreferencesCached(session.user.id);
   const language = prefs?.language ?? "FA";
-  const t = getTranslations(language);
+  const t = await getTranslationsAsync(language);
 
   const { project: projectParam } = await searchParams;
   const cookieStore = await cookies();

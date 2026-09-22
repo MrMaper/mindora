@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { ensurePersonalWorkspace } from "@/features/life/workspace";
+import { ensurePersonalWorkspaceCached } from "@/lib/request-cache";
 import { getCalendarTasks } from "@/features/life/queries";
 import { getAllActiveUsers } from "@/features/users/queries";
 import { getLabels } from "@/features/labels/queries";
 import { getUserProjects } from "@/features/projects/queries";
-import { ensureDeadlineReminders } from "@/features/life/reminders";
 import {
   addJalaliMonth,
   jalaliMonthBounds,
@@ -19,8 +18,7 @@ export const metadata: Metadata = { title: "تقویم" };
 export default async function CalendarPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
-  await ensurePersonalWorkspace(session.user.id);
-  await ensureDeadlineReminders(session.user.id);
+  await ensurePersonalWorkspaceCached(session.user.id);
 
   const now = jalaliOf(new Date());
   const fromMonth = addJalaliMonth(now.jy, now.jm, -1);

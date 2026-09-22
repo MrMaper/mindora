@@ -275,5 +275,13 @@ export function docInternalUrl(docId: string): string {
   return `${window.location.origin}/docs?id=${docId}`;
 }
 
-export { downloadWordDoc, downloadWordDocx } from "./export-docx";
+/** Lazy-load docx so the Word exporter stays out of the initial docs chunk. */
+export async function downloadWordDocx(title: string, html: string) {
+  const { downloadWordDocx: run } = await import("./export-docx");
+  return run(title, html);
+}
+
+export async function downloadWordDoc(title: string, html: string) {
+  return downloadWordDocx(title, html);
+}
 

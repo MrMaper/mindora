@@ -1,42 +1,36 @@
 import { redirect } from "next/navigation";
-import { auth } from "@/auth";
-import { getTranslations } from "@/i18n";
-import { getUserPreferences } from "@/features/settings/queries";
+import { getTranslationsAsync } from "@/i18n";
 import { getUnreadCount } from "@/features/notifications/queries";
 import { DirectionSync } from "@/components/DirectionSync";
 import { CommandPaletteWrapper } from "@/components/CommandPaletteWrapper";
 import { DashboardShell } from "./dashboard-shell";
 import type { NavGroup } from "./sidebar-nav";
-import { ensurePersonalWorkspace } from "@/features/life/workspace";
-import { ensureDeadlineReminders } from "@/features/life/reminders";
-import { ensureVocabReviewReminders } from "@/features/language/reminders";
 import { cookies } from "next/headers";
 import {
   RESEARCH_SCOPE_COOKIE,
   researchHrefForScope,
 } from "@/features/research/scope-cookie";
+import {
+  getSessionCached,
+  getUserPreferencesCached,
+} from "@/lib/request-cache";
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth();
+  const session = await getSessionCached();
   if (!session?.user) redirect("/login");
 
-  await ensurePersonalWorkspace(session.user.id);
-  await Promise.all([
-    ensureDeadlineReminders(session.user.id),
-    ensureVocabReviewReminders(session.user.id),
-  ]);
-
+  // Read-only layout: workspace/reminders run on dashboard (cached) + cron — not every nav.
   const [preferences, unreadCount, cookieStore] = await Promise.all([
-    getUserPreferences(session.user.id),
+    getUserPreferencesCached(session.user.id),
     getUnreadCount(session.user.id),
     cookies(),
   ]);
   const language = preferences?.language ?? "FA";
-  const t = getTranslations(language);
+  const t = await getTranslationsAsync(language);
   const researchHref = researchHrefForScope(
     cookieStore.get(RESEARCH_SCOPE_COOKIE)?.value,
   );

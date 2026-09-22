@@ -40,11 +40,10 @@ export interface ActionResult {
 const VERSION_MIN_INTERVAL_MS = 10 * 60 * 1000;
 const VERSION_MIN_WORD_DELTA = 40;
 
-function revalidateDocs(id?: string) {
+function revalidateDocs(id?: string, opts?: { research?: boolean; language?: boolean }) {
   revalidatePath("/docs");
-  revalidatePath("/research");
-  revalidatePath("/language");
-  revalidatePath("/dashboard");
+  if (opts?.research) revalidatePath("/research");
+  if (opts?.language) revalidatePath("/language");
   if (id) revalidatePath(`/docs/${id}`);
 }
 
@@ -191,7 +190,10 @@ export async function createDoc(input?: {
     select: { id: true },
   });
 
-  revalidateDocs(doc.id);
+  revalidateDocs(doc.id, {
+    research: area === "PHD",
+    language: area === "LANG",
+  });
   return { success: true, data: { id: doc.id } };
 }
 
@@ -450,7 +452,6 @@ export async function createTaskFromDoc(input: {
   });
 
   revalidateDocs(doc.id);
-  revalidatePath("/dashboard");
   revalidatePath("/tasks");
   revalidatePath("/kanban");
   return { success: true, data: { id: task.id } };
@@ -833,7 +834,6 @@ export async function openWeeklyReviewDocAction(opts?: {
   if (!doc) return { success: false, error: "ساخت سند بازبینی ناموفق بود" };
   revalidateDocs(doc.id);
   revalidatePath("/review");
-  revalidatePath("/dashboard");
   return { success: true, data: { id: doc.id } };
 }
 
@@ -847,7 +847,6 @@ export async function openDailyNoteAction(opts?: {
   });
   if (!doc) return { success: false, error: "ساخت یادداشت روزانه ناموفق بود" };
   revalidateDocs(doc.id);
-  revalidatePath("/dashboard");
   return { success: true, data: { id: doc.id } };
 }
 
@@ -1218,7 +1217,6 @@ export async function createTasksFromDocChecklist(
   }
 
   revalidateDocs(doc.id);
-  revalidatePath("/dashboard");
   revalidatePath("/tasks");
   revalidatePath("/kanban");
   return { success: true, data: { count } };

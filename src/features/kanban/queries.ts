@@ -35,6 +35,7 @@ export async function getBoardColumns(
   const tasks = await db.task.findMany({
     where,
     orderBy: [{ position: "asc" }, { createdAt: "desc" }],
+    take: filters.limit ?? 400,
     select: {
       id: true,
       title: true,

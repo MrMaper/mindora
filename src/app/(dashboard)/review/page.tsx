@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { ensurePersonalWorkspace } from "@/features/life/workspace";
+import {
+  ensurePersonalWorkspaceCached,
+  getUserPreferencesCached,
+} from "@/lib/request-cache";
 import { getWeeklyReview } from "@/features/life/queries";
-import { ensureDeadlineReminders } from "@/features/life/reminders";
 import { getAllActiveUsers } from "@/features/users/queries";
 import { getLabels } from "@/features/labels/queries";
 import { getUserProjects } from "@/features/projects/queries";
 import { ensureWeeklyReviewDoc } from "@/features/docs/weekly";
-import { getUserPreferences } from "@/features/settings/queries";
 import { ReviewCC } from "./review-cc";
 
 export const metadata: Metadata = { title: "بازبینی هفته" };
@@ -16,10 +17,9 @@ export const metadata: Metadata = { title: "بازبینی هفته" };
 export default async function ReviewPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
-  await ensurePersonalWorkspace(session.user.id);
-  await ensureDeadlineReminders(session.user.id);
+  await ensurePersonalWorkspaceCached(session.user.id);
 
-  const prefs = await getUserPreferences(session.user.id);
+  const prefs = await getUserPreferencesCached(session.user.id);
   const language = prefs?.language ?? "FA";
 
   const [data, users, labels, userProjects] = await Promise.all([

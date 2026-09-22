@@ -22,14 +22,14 @@ export interface ActionResult {
   error?: string;
 }
 
-function revalidateLife() {
+/** Only surfaces that show life tasks / habits — avoid blanket research/work-logs. */
+function revalidateLife(extra: string[] = []) {
   revalidatePath("/dashboard");
-  revalidatePath("/kanban");
   revalidatePath("/tasks");
   revalidatePath("/calendar");
+  revalidatePath("/kanban");
   revalidatePath("/review");
-  revalidatePath("/research");
-  revalidatePath("/work-logs");
+  for (const path of extra) revalidatePath(path);
 }
 
 export async function loadCalendarRange(fromIso: string, toIso: string) {

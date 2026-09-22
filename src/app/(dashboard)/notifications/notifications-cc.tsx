@@ -1,11 +1,11 @@
 "use client";
+import { useTranslation } from "@/i18n/provider";
 
 import * as React from "react";
 import { Icon } from "@/components/ui-kit/foundation/icon";
 import { Button } from "@/components/ui-kit/forms/button";
 import { EmptyState } from "@/components/ui-kit/feedback/empty-state";
 import { useNotifications } from "./use-notifications";
-import { getTranslations } from "@/i18n";
 import type { GetNotificationsResult, NotificationRow } from "@/features/notifications/types";
 import type { NotificationType, Language } from "@/types/db";
 import type { IconName } from "@/components/ui-kit/foundation/icon";
@@ -39,7 +39,7 @@ function formatTimestamp(date: Date, language: Language): string {
 
 export function NotificationsCC({ initialData, page, language }: NotificationsCCProps) {
   const n = useNotifications();
-  const t = getTranslations(language);
+  const t = useTranslation();
   const { notifications, totalPages } = initialData;
   const unreadCount = notifications.filter((item: NotificationRow) => !item.read).length;
 

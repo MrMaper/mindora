@@ -1,7 +1,6 @@
 "use client";
 
-import type { Language } from "@/types/db";
-import { getTranslations } from "@/i18n";
+import type { Translations } from "@/i18n";
 
 type Category =
   | "status"
@@ -19,8 +18,7 @@ export interface OptionWithLabel {
   label: string;
 }
 
-export function getStatusLabel(language: Language, value: string): string {
-  const t = getTranslations(language);
+export function getStatusLabel(t: Translations, value: string): string {
   const keyMap: Record<string, keyof typeof t.tasks> = {
     BACKLOG: "backlog",
     TODO: "todo",
@@ -34,8 +32,7 @@ export function getStatusLabel(language: Language, value: string): string {
   return key ? t.tasks[key] : value;
 }
 
-export function getPriorityLabel(language: Language, value: string): string {
-  const t = getTranslations(language);
+export function getPriorityLabel(t: Translations, value: string): string {
   const keyMap: Record<string, keyof typeof t.tasks> = {
     URGENT: "urgent",
     HIGH: "high",
@@ -47,8 +44,7 @@ export function getPriorityLabel(language: Language, value: string): string {
   return key ? t.tasks[key] : value;
 }
 
-export function getTypeLabel(language: Language, value: string): string {
-  const t = getTranslations(language);
+export function getTypeLabel(t: Translations, value: string): string {
   const keyMap: Record<string, keyof typeof t.tasks> = {
     TASK: "task",
     STORY: "story",
@@ -59,8 +55,7 @@ export function getTypeLabel(language: Language, value: string): string {
   return key ? t.tasks[key] : value;
 }
 
-export function getProjectStatusLabel(language: Language, value: string): string {
-  const t = getTranslations(language);
+export function getProjectStatusLabel(t: Translations, value: string): string {
   const keyMap: Record<string, keyof typeof t.projects> = {
     ACTIVE: "active",
     ARCHIVED: "archived",
@@ -70,8 +65,7 @@ export function getProjectStatusLabel(language: Language, value: string): string
   return key ? t.projects[key] : value;
 }
 
-export function getProjectRoleLabel(language: Language, value: string): string {
-  const t = getTranslations(language);
+export function getProjectRoleLabel(t: Translations, value: string): string {
   const keyMap: Record<string, keyof typeof t.projects> = {
     OWNER: "roleOwner",
     ADMIN: "roleAdmin",
@@ -82,8 +76,7 @@ export function getProjectRoleLabel(language: Language, value: string): string {
   return key ? t.projects[key] : value;
 }
 
-export function getTeamRoleLabel(language: Language, value: string): string {
-  const t = getTranslations(language);
+export function getTeamRoleLabel(t: Translations, value: string): string {
   const keyMap: Record<string, keyof typeof t.teams> = {
     ADMINISTRATOR: "roleAdministrator",
     TEAM_LEAD: "roleTeamLead",
@@ -93,8 +86,7 @@ export function getTeamRoleLabel(language: Language, value: string): string {
   return key ? t.teams[key] : value;
 }
 
-export function getTeamStatusLabel(language: Language, value: string): string {
-  const t = getTranslations(language);
+export function getTeamStatusLabel(t: Translations, value: string): string {
   const keyMap: Record<string, keyof typeof t.teams> = {
     ACTIVE: "active",
     ARCHIVED: "archived",
@@ -103,8 +95,7 @@ export function getTeamStatusLabel(language: Language, value: string): string {
   return key ? t.teams[key] : value;
 }
 
-export function getUserRoleLabel(language: Language, value: string): string {
-  const t = getTranslations(language);
+export function getUserRoleLabel(t: Translations, value: string): string {
   const keyMap: Record<string, keyof typeof t.users> = {
     ADMIN: "admin",
     MEMBER: "member",
@@ -113,8 +104,7 @@ export function getUserRoleLabel(language: Language, value: string): string {
   return key ? t.users[key] : value;
 }
 
-export function getUserStatusLabel(language: Language, value: string): string {
-  const t = getTranslations(language);
+export function getUserStatusLabel(t: Translations, value: string): string {
   const keyMap: Record<string, keyof typeof t.users> = {
     ACTIVE: "active",
     INACTIVE: "inactive",
@@ -124,40 +114,38 @@ export function getUserStatusLabel(language: Language, value: string): string {
 }
 
 export function getLabelForValue(
-  language: Language,
+  t: Translations,
   category: Category,
   value: string,
 ): string {
   switch (category) {
     case "status":
-      return getStatusLabel(language, value);
+      return getStatusLabel(t, value);
     case "priority":
-      return getPriorityLabel(language, value);
+      return getPriorityLabel(t, value);
     case "type":
-      return getTypeLabel(language, value);
+      return getTypeLabel(t, value);
     case "projectStatus":
-      return getProjectStatusLabel(language, value);
+      return getProjectStatusLabel(t, value);
     case "projectRole":
-      return getProjectRoleLabel(language, value);
+      return getProjectRoleLabel(t, value);
     case "teamRole":
-      return getTeamRoleLabel(language, value);
+      return getTeamRoleLabel(t, value);
     case "teamStatus":
-      return getTeamStatusLabel(language, value);
+      return getTeamStatusLabel(t, value);
     case "userRole":
-      return getUserRoleLabel(language, value);
+      return getUserRoleLabel(t, value);
     case "userStatus":
-      return getUserStatusLabel(language, value);
+      return getUserStatusLabel(t, value);
     default:
       return value;
   }
 }
 
 export function getAllOptionsWithLabels(
-  language: Language,
+  t: Translations,
   category: Category,
 ): OptionWithLabel[] {
-  const t = getTranslations(language);
-
   const statusMap: Record<string, keyof typeof t.tasks> = {
     BACKLOG: "backlog",
     TODO: "todo",

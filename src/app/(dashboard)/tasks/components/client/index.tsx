@@ -1,8 +1,9 @@
-"use client";
+﻿"use client";
+
+import { useTranslation } from "@/i18n/provider";
 
 import * as React from "react";
 import { useTasks } from "../hooks/use-tasks";
-import { getTranslations } from "@/i18n";
 import {
   getAllOptionsWithLabels,
   withEmptyOption,
@@ -57,7 +58,7 @@ export function TasksCC({
   currentUserRole,
 }: TasksCCProps) {
   const u = useTasks(filters);
-  const t = getTranslations(language);
+  const t = useTranslation();
 
   const { tasks, total, totalPages } = initialData;
 
@@ -83,11 +84,11 @@ export function TasksCC({
   );
 
   const statusOptions = withEmptyOption(
-    getAllOptionsWithLabels(language, "status"),
+    getAllOptionsWithLabels(t, "status"),
     t.tasks.allStatuses,
   );
   const priorityOptions = withEmptyOption(
-    getAllOptionsWithLabels(language, "priority"),
+    getAllOptionsWithLabels(t, "priority"),
     t.tasks.allPriorities,
   );
 

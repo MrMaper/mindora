@@ -1,18 +1,20 @@
 import type { Metadata } from "next";
-import { auth } from "@/auth";
-import { getUserPreferences } from "@/features/settings/queries";
+import {
+  getSessionCached,
+  getUserPreferencesCached,
+} from "@/lib/request-cache";
 import { Providers } from "@/providers/Providers";
 import { peyda, geistMono } from "@/lib/font";
+import { loadTranslations } from "@/i18n/load";
 import "./globals.css";
 
 export const metadataBase = new URL("https://mindora.app");
 
 async function getLanguage(): Promise<"EN" | "FA"> {
   try {
-    const session = await auth();
+    const session = await getSessionCached();
     if (!session?.user?.id) return "FA";
-
-    const prefs = await getUserPreferences(session.user.id);
+    const prefs = await getUserPreferencesCached(session.user.id);
     return prefs?.language ?? "FA";
   } catch {
     return "FA";
@@ -47,7 +49,6 @@ export async function generateMetadata(): Promise<Metadata> {
     authors: [{ name: "Mindora" }],
     creator: "Mindora",
     publisher: "Mindora",
-
     openGraph: {
       type: "website",
       locale: isFa ? "fa_IR" : "en_US",
@@ -64,13 +65,10 @@ export async function generateMetadata(): Promise<Metadata> {
           url: "/logo.png",
           width: 512,
           height: 512,
-          alt: isFa
-            ? "Mindora — Think. Plan. Grow"
-            : "Mindora — Think. Plan. Grow",
+          alt: "Mindora — Think. Plan. Grow",
         },
       ],
     },
-
     twitter: {
       card: "summary_large_image",
       title: isFa
@@ -81,7 +79,6 @@ export async function generateMetadata(): Promise<Metadata> {
         : "Personal life OS for tasks, research, and growth",
       images: ["/logo.png"],
     },
-
     robots: {
       index: true,
       follow: true,
@@ -93,10 +90,8 @@ export async function generateMetadata(): Promise<Metadata> {
         "max-snippet": -1,
       },
     },
-
     icons: {
       icon: [
-        { url: "/logo.png", type: "image/png" },
         { url: "/assets/favicon/favicon.ico" },
         {
           url: "/assets/favicon/favicon-32x32.png",
@@ -108,10 +103,13 @@ export async function generateMetadata(): Promise<Metadata> {
           sizes: "16x16",
           type: "image/png",
         },
+        { url: "/logo.png", type: "image/png", sizes: "any" },
       ],
-      apple: "/logo.png",
+      apple: [
+        { url: "/assets/favicon/apple-touch-icon.png", sizes: "180x180" },
+        { url: "/logo.png" },
+      ],
     },
-
     manifest: "/site.webmanifest",
   };
 }
@@ -122,6 +120,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const language = await getLanguage();
+  const translations = await loadTranslations(language);
   const dir = language === "FA" ? "rtl" : "ltr";
   const lang = language === "FA" ? "fa" : "en";
 
@@ -132,16 +131,10 @@ export default async function RootLayout({
       data-theme="light"
       className={`${peyda.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-      </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        <Providers language={language}>{children}</Providers>
+        <Providers language={language} translations={translations}>
+          {children}
+        </Providers>
       </body>
     </html>
   );

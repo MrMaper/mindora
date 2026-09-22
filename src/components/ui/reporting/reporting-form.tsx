@@ -1,7 +1,7 @@
 "use client";
+import { useTranslation } from "@/i18n/provider";
 
 import * as React from "react";
-import { getTranslations } from "@/i18n";
 import { Icon } from "@/components/ui-kit/foundation/icon";
 import { Select } from "@/components/ui-kit/forms/select";
 import { DatePicker } from "@/components/ui-kit/forms/date-picker";
@@ -32,7 +32,7 @@ export function ReportingForm({
   onDateRangeChange,
   onGenerate,
 }: ReportingFormProps) {
-  const t = getTranslations(language);
+  const t = useTranslation();
 
   const userOptions = [
     { value: "", label: t.reporting.selectUser },

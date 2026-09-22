@@ -1,9 +1,9 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { Controller } from "react-hook-form";
+import { BrandMark } from "@/components/brand-mark";
 import { Icon } from "@/components/ui-kit/foundation/icon";
 import { Input } from "@/components/ui-kit/forms/input";
 import { Button } from "@/components/ui-kit/forms/button";
@@ -20,12 +20,8 @@ export function ForgotPasswordCC() {
 
   return (
     <div className="w-full max-w-[360px] bg-card border border-border rounded-xl shadow-md p-8">
-        <div className="flex flex-col items-center justify-center gap-1 mb-6">
-          <div className="flex items-center gap-2">
-            <Image src="/logo.png" alt="Mindora" width={24} height={24} />
-            <span className="text-base font-semibold text-foreground tracking-tight">Mindora</span>
-          </div>
-          <span className="text-[10px] text-muted-foreground tracking-wide">Think. Plan. Grow</span>
+        <div className="mb-6 flex justify-center">
+          <BrandMark size="md" />
         </div>
 
       <div className="mb-5">

@@ -8,7 +8,7 @@ import { Icon } from "@/components/ui-kit/foundation/icon";
 import { useLanguage, useTranslation } from "@/i18n/provider";
 import { cn, formatNumber } from "@/lib/utils";
 import { formatJalaliShort } from "@/lib/life";
-import { scrollDocEditorToHeading } from "@/components/docs/doc-editor";
+import { scrollDocEditorToHeading } from "@/components/docs/scroll-heading";
 import type { OutlineHeading } from "@/features/docs/utils";
 import type {
   DocDetail,

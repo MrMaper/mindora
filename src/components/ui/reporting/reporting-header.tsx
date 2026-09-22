@@ -1,7 +1,7 @@
 "use client";
+import { useTranslation } from "@/i18n/provider";
 
 import * as React from "react";
-import { getTranslations } from "@/i18n";
 import type { Language } from "@/types/db";
 
 interface ReportingHeaderProps {
@@ -9,7 +9,7 @@ interface ReportingHeaderProps {
 }
 
 export function ReportingHeader({ language }: ReportingHeaderProps) {
-  const t = getTranslations(language);
+  const t = useTranslation();
 
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

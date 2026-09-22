@@ -1,4 +1,5 @@
 "use client";
+import { useTranslation } from "@/i18n/provider";
 
 import * as React from "react";
 import { Controller } from "react-hook-form";
@@ -6,7 +7,6 @@ import { Avatar } from "@/components/ui-kit/data-display/avatar";
 import { Button } from "@/components/ui-kit/forms/button";
 import { Input } from "@/components/ui-kit/forms/input";
 import { useProfile } from "./use-profile";
-import { getTranslations } from "@/i18n";
 import type { UserRow } from "@/features/users/types";
 import type { Language } from "@/types/db";
 
@@ -18,7 +18,7 @@ interface ProfileCCProps {
 export function ProfileCC({ user, language }: ProfileCCProps) {
   const avatarInputRef = React.useRef<HTMLInputElement>(null);
   const p = useProfile(user.id);
-  const t = getTranslations(language);
+  const t = useTranslation();
 
   React.useEffect(() => {
     p.profileForm.reset({ name: user.name });

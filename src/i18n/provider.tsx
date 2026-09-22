@@ -2,26 +2,37 @@
 
 import * as React from "react";
 import type { Language } from "@/types/db";
-import { getTranslations, Translations } from ".";
+import type { Translations } from "./types";
 
-export const I18nContext = React.createContext<Language>("FA");
+const I18nContext = React.createContext<{
+  language: Language;
+  t: Translations;
+} | null>(null);
 
 export function I18nProvider({
   children,
   language,
+  translations,
 }: {
   children: React.ReactNode;
   language: Language;
+  translations: Translations;
 }) {
   return (
-    <I18nContext.Provider value={language}>{children}</I18nContext.Provider>
+    <I18nContext.Provider value={{ language, t: translations }}>
+      {children}
+    </I18nContext.Provider>
   );
 }
 
 export function useLanguage(): Language {
-  return React.useContext(I18nContext);
+  const ctx = React.useContext(I18nContext);
+  if (!ctx) throw new Error("useLanguage must be used within I18nProvider");
+  return ctx.language;
 }
 
 export function useTranslation(): Translations {
-  return getTranslations(useLanguage());
+  const ctx = React.useContext(I18nContext);
+  if (!ctx) throw new Error("useTranslation must be used within I18nProvider");
+  return ctx.t;
 }

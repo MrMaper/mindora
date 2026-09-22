@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { Avatar } from "@/components/ui-kit/data-display/avatar";
@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui-kit/data-display/badge";
 import { Menu } from "@/components/ui-kit/overlays/menu";
 import { IconButton } from "@/components/ui-kit/forms/icon-button";
 import type { UserRow } from "@/features/users/types";
-import { getTranslations } from "@/i18n";
+import type { Translations } from "@/i18n";
 import { useTranslation } from "@/i18n/provider";
 
 interface UserRowProps {
@@ -62,7 +62,7 @@ function UserRoleBadge({
   t,
 }: {
   role: string;
-  t: ReturnType<typeof getTranslations>;
+  t: Translations;
 }) {
   return (
     <Badge tone={role === "ADMIN" ? "solid" : "neutral"}>
@@ -76,7 +76,7 @@ function UserStatusBadge({
   t,
 }: {
   status: string;
-  t: ReturnType<typeof getTranslations>;
+  t: Translations;
 }) {
   return (
     <Badge tone={status === "ACTIVE" ? "success" : "neutral"}>
@@ -90,7 +90,7 @@ function UserTeam({
   t,
 }: {
   teamName: string | null;
-  t: ReturnType<typeof getTranslations>;
+  t: Translations;
 }) {
   return (
     <div
@@ -112,7 +112,7 @@ function UserActions({
   onDelete,
 }: {
   user: UserRow;
-  t: ReturnType<typeof getTranslations>;
+  t: Translations;
   onEdit: (user: UserRow) => void;
   onToggleStatus: (user: UserRow) => void;
   onDelete: (user: UserRow) => void;

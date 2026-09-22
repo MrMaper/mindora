@@ -1,26 +1,27 @@
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 
-const PUBLIC_PATHS = [
-  "/login",
-  "/forgot-password",
-  "/reset-password",
-  "/assets",
-  "/api/bale/webhook",
-];
+/** Auth pages guests may open; logged-in users get redirected away. */
+const AUTH_PAGES = ["/login", "/forgot-password", "/reset-password"];
+
+/** Always reachable without a session (APIs + static). */
+const PUBLIC_PREFIXES = ["/api/bale/webhook", "/assets", "/fonts"];
 
 export default auth(req => {
   const { pathname } = req.nextUrl;
   const isLoggedIn = !!req.auth;
-  const isPublic = PUBLIC_PATHS.some(p => pathname.startsWith(p));
+  const isAuthPage = AUTH_PAGES.some(
+    p => pathname === p || pathname.startsWith(`${p}/`),
+  );
+  const isPublicPrefix = PUBLIC_PREFIXES.some(p => pathname.startsWith(p));
 
-  if (!isLoggedIn && !isPublic) {
+  if (!isLoggedIn && !isAuthPage && !isPublicPrefix) {
     const loginUrl = new URL("/login", req.nextUrl);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  if (isLoggedIn && isPublic) {
+  if (isLoggedIn && isAuthPage) {
     return NextResponse.redirect(new URL("/dashboard", req.nextUrl));
   }
 
@@ -28,5 +29,8 @@ export default auth(req => {
 });
 
 export const config = {
-  matcher: ["/((?!api/auth|_next/static|_next/image|favicon.ico).*)"],
+  // Skip auth gate for Next internals and static files (logo, favicon, fonts, …)
+  matcher: [
+    "/((?!api/auth|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?|txt|webmanifest)$).*)",
+  ],
 };

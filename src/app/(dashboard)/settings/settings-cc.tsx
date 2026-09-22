@@ -1,8 +1,9 @@
 "use client";
+import type { Translations } from "@/i18n";
+import { useTranslation } from "@/i18n/provider";
 
 import * as React from "react";
 import { useSettings } from "./use-settings";
-import { getTranslations } from "@/i18n";
 import type { Language, Theme } from "@/types/db";
 import { UserPreferencesData } from "@/features/settings/queries";
 import type { ChangePasswordInput } from "@/schemas/auth";
@@ -19,7 +20,7 @@ interface SettingsCCProps {
 
 export function SettingsCC({ currentLanguage, currentTheme, preferences }: SettingsCCProps) {
   const settings = useSettings(currentLanguage, currentTheme);
-  const t = getTranslations(settings.language);
+  const t = useTranslation();
 
   const tabs: { id: SettingsTab; label: string; icon: string }[] = [
     { id: "profile", label: t.settings.profile, icon: "user" },
@@ -133,7 +134,7 @@ function ProfileSettingsSection({
   languageSuccess,
   languageError,
 }: {
-  t: ReturnType<typeof getTranslations>;
+  t: Translations;
   language: Language;
   onLanguageChange: (lang: Language) => void;
   languagePending: boolean;
@@ -260,7 +261,7 @@ function SecuritySettingsSection({
   onPasswordChange,
   passwordForm,
 }: {
-  t: ReturnType<typeof getTranslations>;
+  t: Translations;
   passwordPending: boolean;
   passwordSuccess: boolean;
   passwordError: string | null;
@@ -477,7 +478,7 @@ function NotificationSettingsSection({
   notifyError,
   onNotifyChange,
 }: {
-  t: ReturnType<typeof getTranslations>;
+  t: Translations;
   preferences: UserPreferencesData | null;
   notifyPending: boolean;
   notifySuccess: boolean;
@@ -596,7 +597,7 @@ function AppearanceSettingsSection({
   themeError,
   onThemeChange,
 }: {
-  t: ReturnType<typeof getTranslations>;
+  t: Translations;
   theme: Theme;
   themePending: boolean;
   themeSuccess: boolean;

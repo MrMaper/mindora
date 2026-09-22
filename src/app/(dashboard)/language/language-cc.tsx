@@ -16,11 +16,7 @@ import {
   updateLangProfileAction,
 } from "@/features/language/actions";
 import { projectIdForLangCreate } from "@/features/language/active-project";
-import { LanguageVocabPanel } from "@/components/language/language-vocab-panel";
-import { LanguageSkillsPanel } from "@/components/language/language-skills-panel";
-import { LanguageListeningPanel } from "@/components/language/language-listening-panel";
-import { LanguageExamsPanel } from "@/components/language/language-exams-panel";
-import { LanguageSkillDrillPanel } from "@/components/language/language-skill-drill-panel";
+import dynamic from "next/dynamic";
 import { skillHasDrill } from "@/features/language/skill-drills";
 import {
   LANG_SKILLS,
@@ -32,6 +28,46 @@ import {
 import type { LangSkill } from "@/types/db";
 import { formatJalaliShort } from "@/lib/life";
 import { cn, formatNumber } from "@/lib/utils";
+
+const panelFallback = (
+  <div className="min-h-[12rem] animate-pulse rounded-xl border bg-muted/30" />
+);
+
+const LanguageVocabPanel = dynamic(
+  () =>
+    import("@/components/language/language-vocab-panel").then(m => ({
+      default: m.LanguageVocabPanel,
+    })),
+  { loading: () => panelFallback },
+);
+const LanguageSkillsPanel = dynamic(
+  () =>
+    import("@/components/language/language-skills-panel").then(m => ({
+      default: m.LanguageSkillsPanel,
+    })),
+  { loading: () => panelFallback },
+);
+const LanguageListeningPanel = dynamic(
+  () =>
+    import("@/components/language/language-listening-panel").then(m => ({
+      default: m.LanguageListeningPanel,
+    })),
+  { loading: () => panelFallback },
+);
+const LanguageExamsPanel = dynamic(
+  () =>
+    import("@/components/language/language-exams-panel").then(m => ({
+      default: m.LanguageExamsPanel,
+    })),
+  { loading: () => panelFallback },
+);
+const LanguageSkillDrillPanel = dynamic(
+  () =>
+    import("@/components/language/language-skill-drill-panel").then(m => ({
+      default: m.LanguageSkillDrillPanel,
+    })),
+  { loading: () => panelFallback },
+);
 
 interface LanguageCCProps {
   hub: LanguageHubData;

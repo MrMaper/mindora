@@ -911,13 +911,7 @@ export function DocEditor({
   );
 }
 
-export function scrollDocEditorToHeading(index: number) {
-  const nodes = document.querySelectorAll(
-    ".doc-editor h1, .doc-editor h2, .doc-editor h3",
-  );
-  const el = nodes[index] as HTMLElement | undefined;
-  el?.scrollIntoView({ behavior: "smooth", block: "start" });
-}
+export { scrollDocEditorToHeading } from "./scroll-heading";
 
 function ToolbarButton({
   active,

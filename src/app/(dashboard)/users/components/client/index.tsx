@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { useUsers, type UserFilters } from "../hooks/use-users";
@@ -38,12 +38,12 @@ export function UsersCC({
   const { users, total, totalPages } = initialData;
 
   const roleOptions = withEmptyOption(
-    getAllOptionsWithLabels(language, "userRole"),
+    getAllOptionsWithLabels(t, "userRole"),
     t.users.allRoles,
   );
 
   const statusOptions = withEmptyOption(
-    getAllOptionsWithLabels(language, "userStatus"),
+    getAllOptionsWithLabels(t, "userStatus"),
     t.users.allStatuses,
   );
 
