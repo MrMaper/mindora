@@ -4,7 +4,7 @@
 
 @custom-variant dark (&:is([data-theme="dark"] *));
 
-/* ─── ScrumFlow Design Tokens ──────────────────────────────────────────── */
+/* ─── Mindora Design Tokens ────────────────────────────────────────────── */
 
 :root {
   /* Gray scale — cool slate neutrals */
@@ -493,6 +493,37 @@
   .animate-collapse {
     animation: expand-up var(--duration-fast) var(--ease-in) forwards;
   }
+
+  /* Hide scrollbars while keeping scroll behavior */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  .overflow-auto,
+  .overflow-y-auto,
+  .overflow-x-auto,
+  .overflow-scroll,
+  .overflow-y-scroll,
+  .overflow-x-scroll {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .overflow-auto::-webkit-scrollbar,
+  .overflow-y-auto::-webkit-scrollbar,
+  .overflow-x-auto::-webkit-scrollbar,
+  .overflow-scroll::-webkit-scrollbar,
+  .overflow-y-scroll::-webkit-scrollbar,
+  .overflow-x-scroll::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
 }
 
 @keyframes expand-down {
@@ -536,4 +567,150 @@
     --motion-base:    0ms;
     --motion-slow:    0ms;
   }
+}
+
+/* Docs / TipTap editor */
+.doc-editor h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 0.75rem 0 0.5rem;
+}
+.doc-editor h2 {
+  font-size: 1.35rem;
+  font-weight: 650;
+  line-height: 1.35;
+  margin: 0.7rem 0 0.4rem;
+}
+.doc-editor h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0.6rem 0 0.35rem;
+}
+.doc-editor p {
+  margin: 0.35rem 0;
+}
+.doc-editor ul {
+  list-style: disc;
+  padding-inline-start: 1.4rem;
+  margin: 0.4rem 0;
+}
+.doc-editor ol {
+  list-style: decimal;
+  padding-inline-start: 1.4rem;
+  margin: 0.4rem 0;
+}
+.doc-editor blockquote {
+  border-inline-start: 3px solid var(--border);
+  padding-inline-start: 0.85rem;
+  color: var(--muted-foreground);
+  margin: 0.6rem 0;
+}
+.doc-editor pre {
+  background: var(--muted);
+  border-radius: 0.6rem;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  margin: 0.6rem 0;
+}
+.doc-editor a {
+  color: var(--primary);
+  text-decoration: underline;
+}
+.doc-editor ul[data-type="taskList"] {
+  list-style: none;
+  padding-inline-start: 0;
+  margin: 0.5rem 0;
+}
+.doc-editor ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0.25rem 0;
+}
+.doc-editor ul[data-type="taskList"] li > label {
+  flex-shrink: 0;
+  margin-top: 0.35rem;
+  display: flex;
+  align-items: center;
+}
+.doc-editor ul[data-type="taskList"] li > label input[type="checkbox"] {
+  width: 0.95rem;
+  height: 0.95rem;
+  accent-color: var(--brand-600);
+  cursor: pointer;
+}
+.doc-editor ul[data-type="taskList"] li > div {
+  flex: 1;
+  min-width: 0;
+}
+.doc-editor ul[data-type="taskList"] li[data-checked="true"] > div {
+  text-decoration: line-through;
+  opacity: 0.65;
+}
+.doc-editor img.doc-editor-image,
+.doc-editor img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 0.75rem 0;
+}
+.doc-editor table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+}
+.doc-editor th,
+.doc-editor td {
+  border: 1px solid var(--border);
+  padding: 0.4rem 0.55rem;
+  vertical-align: top;
+}
+.doc-editor th {
+  background: var(--muted);
+  font-weight: 600;
+}
+.doc-editor sup.doc-footnote {
+  color: var(--primary);
+  cursor: help;
+  font-size: 0.7em;
+  font-weight: 600;
+  padding-inline: 0.1rem;
+}
+.doc-editor hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1rem 0;
+}
+.doc-editor p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: inline-start;
+  color: var(--muted-foreground);
+  pointer-events: none;
+  height: 0;
+}
+
+/* Native <select>: custom chevron so spacing is controllable (RTL + LTR).
+   Browser-native arrows ignore padding on many platforms (esp. Windows). */
+select:not([multiple]):not([size]) {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23636e87' stroke-width='2.25' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-size: 0.9rem 0.9rem !important;
+  background-position: right 0.75rem center !important;
+  padding-inline-start: 0.65rem !important;
+  padding-inline-end: 2.1rem !important;
+}
+
+select:not([multiple]):not([size])::-ms-expand {
+  display: none;
+}
+
+html[dir="rtl"] select:not([multiple]):not([size]),
+[dir="rtl"] select:not([multiple]):not([size]) {
+  background-position: left 0.75rem center !important;
 }

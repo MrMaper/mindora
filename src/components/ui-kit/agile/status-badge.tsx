@@ -28,13 +28,13 @@ export const STATUSES: Record<
       | "solid";
   }
 > = {
-  backlog: { label: "بکلاگ", tone: "neutral" },
-  todo: { label: "کارهای انجام‌نشده", tone: "info" },
+  backlog: { label: "اینباکس", tone: "neutral" },
+  todo: { label: "این هفته", tone: "info" },
   "in-progress": { label: "در حال انجام", tone: "brand" },
-  review: { label: "مرور", tone: "warning" },
+  review: { label: "بازخورد", tone: "warning" },
   testing: { label: "تست", tone: "info" },
-  done: { label: "انجام شده", tone: "success" },
-  blocked: { label: "مسدود", tone: "danger" },
+  done: { label: "تمام", tone: "success" },
+  blocked: { label: "منتظر", tone: "danger" },
 };
 
 export interface StatusBadgeProps extends React.HTMLAttributes<HTMLSpanElement> {

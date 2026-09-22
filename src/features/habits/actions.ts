@@ -1,0 +1,245 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { auth } from "@/auth";
+import { prisma as db } from "@/lib/db";
+import {
+  addDays,
+  startOfDay,
+  startOfWeek,
+  toDateKey,
+} from "@/lib/life";
+import type { LifeArea, RecurrenceInterval } from "@/types/db";
+
+export interface ActionResult {
+  success: boolean;
+  error?: string;
+  data?: Record<string, unknown>;
+}
+
+export interface HabitItem {
+  id: string;
+  title: string;
+  area: LifeArea | null;
+  cadence: RecurrenceInterval;
+  streak: number;
+  bestStreak: number;
+  lastDoneDate: string | null;
+  doneToday: boolean;
+}
+
+function revalidateHabits() {
+  revalidatePath("/dashboard");
+  revalidatePath("/habits");
+}
+
+export async function listHabitsAction(): Promise<HabitItem[]> {
+  const session = await auth();
+  if (!session?.user) return [];
+  const todayKey = toDateKey(new Date());
+  const rows = await db.habit.findMany({
+    where: { userId: session.user.id, archivedAt: null },
+    orderBy: [{ updatedAt: "desc" }],
+    select: {
+      id: true,
+      title: true,
+      area: true,
+      cadence: true,
+      streak: true,
+      bestStreak: true,
+      lastDoneDate: true,
+      logs: {
+        where: { dateKey: todayKey },
+        select: { id: true },
+        take: 1,
+      },
+    },
+  });
+  return rows.map(h => ({
+    id: h.id,
+    title: h.title,
+    area: h.area,
+    cadence: h.cadence,
+    streak: h.streak,
+    bestStreak: h.bestStreak,
+    lastDoneDate: h.lastDoneDate,
+    doneToday: h.logs.length > 0,
+  }));
+}
+
+export interface HabitHeatDay {
+  dateKey: string;
+  count: number;
+}
+
+/** Last ~20 weeks of completion counts (all habits or one). */
+export async function getHabitHeatmapAction(input?: {
+  habitId?: string | null;
+  weeks?: number;
+}): Promise<HabitHeatDay[]> {
+  const session = await auth();
+  if (!session?.user) return [];
+
+  const weeks = Math.min(52, Math.max(8, input?.weeks ?? 20));
+  const today = startOfDay(new Date());
+  // Align grid to week start (Sat), then go back `weeks` columns
+  const endWeek = startOfWeek(today);
+  const start = addDays(endWeek, -(weeks - 1) * 7);
+  const startKey = toDateKey(start);
+  const endKey = toDateKey(today);
+
+  const habitFilter =
+    input?.habitId && input.habitId !== "all"
+      ? { habitId: input.habitId, habit: { userId: session.user.id } }
+      : {
+          habit: {
+            userId: session.user.id,
+            archivedAt: null,
+          },
+        };
+
+  const logs = await db.habitLog.findMany({
+    where: {
+      ...habitFilter,
+      dateKey: { gte: startKey, lte: endKey },
+    },
+    select: { dateKey: true },
+  });
+
+  const counts = new Map<string, number>();
+  for (const log of logs) {
+    counts.set(log.dateKey, (counts.get(log.dateKey) ?? 0) + 1);
+  }
+
+  // Full Sat-aligned grid (future days in the current week stay count 0)
+  const days: HabitHeatDay[] = [];
+  const totalDays = weeks * 7;
+  for (let i = 0; i < totalDays; i++) {
+    const d = addDays(start, i);
+    const key = toDateKey(d);
+    days.push({
+      dateKey: key,
+      count: d > today ? 0 : (counts.get(key) ?? 0),
+    });
+  }
+  return days;
+}
+
+export async function createHabitAction(input: {
+  title: string;
+  area?: LifeArea | null;
+  cadence?: RecurrenceInterval;
+}): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
+  const title = input.title.trim();
+  if (!title) return { success: false, error: "عنوان لازم است" };
+  const cadence =
+    input.cadence === "WEEKLY" || input.cadence === "DAILY"
+      ? input.cadence
+      : "DAILY";
+
+  const habit = await db.habit.create({
+    data: {
+      userId: session.user.id,
+      title,
+      area: input.area ?? null,
+      cadence,
+    },
+    select: { id: true },
+  });
+  revalidateHabits();
+  return { success: true, data: { id: habit.id } };
+}
+
+export async function archiveHabitAction(habitId: string): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
+  const habit = await db.habit.findFirst({
+    where: { id: habitId, userId: session.user.id },
+    select: { id: true },
+  });
+  if (!habit) return { success: false, error: "عادت پیدا نشد" };
+  await db.habit.update({
+    where: { id: habitId },
+    data: { archivedAt: new Date() },
+  });
+  revalidateHabits();
+  return { success: true };
+}
+
+export async function toggleHabitDoneAction(
+  habitId: string,
+): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
+
+  const habit = await db.habit.findFirst({
+    where: { id: habitId, userId: session.user.id, archivedAt: null },
+    select: {
+      id: true,
+      streak: true,
+      bestStreak: true,
+      lastDoneDate: true,
+      cadence: true,
+    },
+  });
+  if (!habit) return { success: false, error: "عادت پیدا نشد" };
+
+  const todayKey = toDateKey(new Date());
+  const existing = await db.habitLog.findUnique({
+    where: {
+      habitId_dateKey: { habitId, dateKey: todayKey },
+    },
+    select: { id: true },
+  });
+
+  if (existing) {
+    await db.habitLog.delete({ where: { id: existing.id } });
+    const lastLog = await db.habitLog.findFirst({
+      where: { habitId },
+      orderBy: { dateKey: "desc" },
+      select: { dateKey: true },
+    });
+    await db.habit.update({
+      where: { id: habitId },
+      data: {
+        streak: Math.max(0, habit.streak - 1),
+        lastDoneDate: lastLog?.dateKey ?? null,
+      },
+    });
+    revalidateHabits();
+    return { success: true, data: { done: false } };
+  }
+
+  await db.habitLog.create({
+    data: { habitId, dateKey: todayKey },
+  });
+
+  const yesterdayKey = toDateKey(addDays(new Date(), -1));
+  const weekAgoKey = toDateKey(addDays(new Date(), -7));
+  let nextStreak = 1;
+  if (habit.cadence === "WEEKLY") {
+    nextStreak =
+      habit.lastDoneDate && habit.lastDoneDate >= weekAgoKey
+        ? habit.streak + 1
+        : 1;
+  } else {
+    nextStreak =
+      habit.lastDoneDate === yesterdayKey || habit.lastDoneDate === todayKey
+        ? habit.streak + 1
+        : 1;
+  }
+  const bestStreak = Math.max(habit.bestStreak, nextStreak);
+  await db.habit.update({
+    where: { id: habitId },
+    data: {
+      streak: nextStreak,
+      bestStreak,
+      lastDoneDate: todayKey,
+    },
+  });
+
+  revalidateHabits();
+  return { success: true, data: { done: true, streak: nextStreak } };
+}

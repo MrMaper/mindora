@@ -42,7 +42,7 @@ export function Drawer({
       <ShadcnSheetContent
         side={side}
         className={cn(
-          "flex flex-col",
+          "flex flex-col min-w-0",
           wide ? "w-170 max-w-[95vw]" : "sm:max-w-sm",
           className,
         )}
@@ -50,8 +50,10 @@ export function Drawer({
         {...rest}
       >
         {header && (
-          <ShadcnSheetHeader>
-            <ShadcnSheetTitle>{header}</ShadcnSheetTitle>
+          <ShadcnSheetHeader className="min-w-0 overflow-hidden">
+            <ShadcnSheetTitle className="min-w-0 w-full block font-normal">
+              {header}
+            </ShadcnSheetTitle>
           </ShadcnSheetHeader>
         )}
         <div className="flex-1 overflow-y-auto px-4">{children}</div>

@@ -1,0 +1,139 @@
+import type { Metadata } from "next";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
+import { getBoardColumns } from "@/features/kanban/queries";
+import { getAllActiveUsers } from "@/features/users/queries";
+import { getLabels } from "@/features/labels/queries";
+import { getUserPreferences } from "@/features/settings/queries";
+import { getTranslations } from "@/i18n";
+import { ensurePersonalWorkspace } from "@/features/life/workspace";
+import { AREA_PROJECT_IDS } from "@/lib/life";
+import { RESEARCH_BOARD_STATUSES } from "@/features/kanban/types";
+import {
+  getResearchHubData,
+  listPhdResearchProjects,
+  parseResearchProjectScope,
+  resolveResearchTaskProjectIds,
+} from "@/features/research/queries";
+import { RESEARCH_SCOPE_COOKIE } from "@/features/research/scope-cookie";
+import { ResearchCC } from "./research-cc";
+
+export const metadata: Metadata = { title: "پژوهش" };
+
+export default async function ResearchPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ project?: string }>;
+}) {
+  const session = await auth();
+  if (!session?.user) redirect("/login");
+  await ensurePersonalWorkspace(session.user.id);
+
+  const prefs = await getUserPreferences(session.user.id);
+  const language = prefs?.language ?? "FA";
+  const t = getTranslations(language);
+
+  const { project: projectParam } = await searchParams;
+  const cookieStore = await cookies();
+  const cookieScope = cookieStore.get(RESEARCH_SCOPE_COOKIE)?.value;
+
+  // Prefer URL; otherwise restore last scope from cookie (avoids all→project flicker).
+  const requested = parseResearchProjectScope(
+    projectParam ?? (cookieScope && cookieScope !== "all" ? cookieScope : null),
+  );
+
+  const phdProjects = await listPhdResearchProjects(session.user.id);
+
+  const safeScope =
+    requested !== "all" &&
+    requested !== "inbox" &&
+    !phdProjects.some(p => p.id === requested)
+      ? "all"
+      : requested;
+
+  // Align URL before loading the board so the first paint matches the scope.
+  if (!projectParam && safeScope !== "all") {
+    redirect(`/research?project=${encodeURIComponent(safeScope)}`);
+  }
+
+  const boardProjectIds = await resolveResearchTaskProjectIds(
+    session.user.id,
+    safeScope,
+  );
+
+  const filterProject =
+    safeScope === "all"
+      ? ""
+      : safeScope === "inbox"
+        ? AREA_PROJECT_IDS.PHD
+        : safeScope;
+
+  const [columns, users, labels, hub] = await Promise.all([
+    getBoardColumns(
+      {
+        assigneeId: session.user.id,
+        projectIds: boardProjectIds,
+        excludeHub: false,
+      },
+      RESEARCH_BOARD_STATUSES,
+    ),
+    getAllActiveUsers(),
+    getLabels(),
+    getResearchHubData(session.user.id, safeScope),
+  ]);
+
+  const kanbanProjects = [
+    {
+      id: AREA_PROJECT_IDS.PHD,
+      name: t.life.researchProjectInbox,
+      description: null,
+      status: "ACTIVE" as const,
+      area: "PHD" as const,
+      teamId: null,
+      teamName: null,
+      memberCount: 1,
+      createdAt: new Date(0),
+    },
+    ...phdProjects.map(p => ({
+      id: p.id,
+      name: p.name,
+      description: p.description,
+      status: "ACTIVE" as const,
+      area: "PHD" as const,
+      teamId: null,
+      teamName: null,
+      memberCount: 1,
+      createdAt: new Date(0),
+    })),
+  ];
+
+  return (
+    <ResearchCC
+      hub={hub}
+      scope={safeScope}
+      phdProjects={phdProjects}
+      initialColumns={columns}
+      users={users}
+      labels={labels}
+      userProjects={kanbanProjects}
+      filters={{
+        search: "",
+        assignee: session.user.id,
+        label: "",
+        priority: "",
+        project: filterProject,
+      }}
+      currentUserId={session.user.id}
+      currentUserRole={session.user.role}
+      statuses={RESEARCH_BOARD_STATUSES}
+      columnLabels={{
+        BACKLOG: t.life.researchIdea,
+        TODO: t.life.researchReading,
+        IN_PROGRESS: t.life.researchWriting,
+        REVIEW: t.life.researchFeedback,
+        DONE: t.life.researchDone,
+      }}
+    />
+  );
+}

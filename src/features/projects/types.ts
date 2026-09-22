@@ -3,6 +3,7 @@ export interface ProjectRow {
   name: string;
   description: string | null;
   status: "ACTIVE" | "ARCHIVED" | "ON_HOLD";
+  area: "PHD" | "WORK" | "LIFE" | "LANG";
   teamId: string | null;
   teamName: string | null;
   memberCount: number;
@@ -16,11 +17,23 @@ export interface GetProjectsResult {
   totalPages: number;
 }
 
+export interface AreaHubSection {
+  area: ProjectRow["area"];
+  bucket: ProjectRow;
+  paths: ProjectRow[];
+}
+
+export interface ProjectsHubData {
+  sections: AreaHubSection[];
+  search: string;
+}
+
 export interface ProjectDetail {
   id: string;
   name: string;
   description: string | null;
   status: "ACTIVE" | "ARCHIVED" | "ON_HOLD";
+  area: "PHD" | "WORK" | "LIFE" | "LANG";
   teamId: string | null;
   teamName: string | null;
   createdAt: Date;

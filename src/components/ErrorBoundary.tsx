@@ -3,6 +3,8 @@
 import * as React from "react";
 import { getTranslations } from "@/i18n";
 import type { Language } from "@/types/db";
+import { Icon } from "@/components/ui-kit/foundation/icon";
+import { Button } from "@/components/ui-kit/forms/button";
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -14,7 +16,17 @@ interface ErrorBoundaryState {
   error: Error | null;
 }
 
-export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+function resolveLanguage(): Language {
+  if (typeof document === "undefined") return "FA";
+  const lang = document.documentElement.lang?.toLowerCase() ?? "";
+  if (lang.startsWith("en")) return "EN";
+  return "FA";
+}
+
+export class ErrorBoundary extends React.Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false, error: null };
@@ -28,84 +40,82 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     console.error("ErrorBoundary caught an error:", error, errorInfo);
   }
 
+  private handleReload = () => {
+    this.setState({ hasError: false, error: null });
+    window.location.reload();
+  };
+
+  private handleHome = () => {
+    this.setState({ hasError: false, error: null });
+    window.location.href = "/dashboard";
+  };
+
   render() {
     if (this.state.hasError) {
       if (this.props.fallback) {
         return this.props.fallback;
       }
 
-      // Get language from document
-      const language = (document.documentElement.lang === "fa" ? "FA" : "EN") as Language;
+      const language = resolveLanguage();
       const t = getTranslations(language);
+      const isRtl = language === "FA";
 
       return (
         <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            minHeight: "400px",
-            padding: "var(--space-8)",
-            textAlign: "center",
-          }}
+          className="relative flex min-h-[min(70dvh,560px)] w-full items-center justify-center overflow-hidden px-4 py-10"
+          dir={isRtl ? "rtl" : "ltr"}
+          role="alert"
         >
           <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--brand-50)_0%,_transparent_55%),radial-gradient(ellipse_at_bottom,_var(--red-tint)_0%,_transparent_50%)]"
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 opacity-[0.35]"
             style={{
-              width: 64,
-              height: 64,
-              borderRadius: "var(--radius-lg)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: "var(--red-tint)",
-              color: "var(--red-500)",
-              marginBottom: "var(--space-4)",
-              fontSize: "24px",
+              backgroundImage:
+                "radial-gradient(var(--gray-300) 0.6px, transparent 0.6px)",
+              backgroundSize: "18px 18px",
+              maskImage:
+                "radial-gradient(ellipse at center, black 20%, transparent 75%)",
             }}
-            role="img"
-            aria-label="Error"
-          >
-            ⚠
+          />
+
+          <div className="relative z-10 w-full max-w-md rounded-2xl border border-border/80 bg-card/95 p-8 text-center shadow-lg backdrop-blur-sm">
+            <div
+              className="mx-auto mb-5 flex size-14 items-center justify-center rounded-2xl bg-[var(--red-tint)] text-[var(--status-blocked)] shadow-sm ring-1 ring-[var(--status-blocked)]/15"
+              role="img"
+              aria-label={t.common.error}
+            >
+              <Icon name="alert-triangle" size={28} />
+            </div>
+
+            <h2 className="text-xl font-semibold tracking-tight text-foreground">
+              {t.common.error}
+            </h2>
+            <p className="mt-2 text-sm leading-7 text-muted-foreground">
+              {t.common.errorDescription}
+            </p>
+
+            <div className="mt-7 flex flex-col gap-2 sm:flex-row sm:justify-center">
+              <Button
+                variant="primary"
+                icon="rotate-ccw"
+                onClick={this.handleReload}
+                className="min-w-36"
+              >
+                {t.common.reloadPage}
+              </Button>
+              <Button
+                variant="subtle"
+                onClick={this.handleHome}
+                className="min-w-36"
+              >
+                {t.common.goHome}
+              </Button>
+            </div>
           </div>
-          <h2
-            style={{
-              fontSize: "var(--text-lg)",
-              fontWeight: "var(--weight-semibold)",
-              color: "var(--text-primary)",
-              marginBottom: "var(--space-2)",
-            }}
-          >
-            {t.common.error}
-          </h2>
-          <p
-            style={{
-              fontSize: "var(--text-sm)",
-              color: "var(--text-tertiary)",
-              marginBottom: "var(--space-6)",
-              maxWidth: 400,
-            }}
-          >
-            Something went wrong. Please try again or contact support if the problem persists.
-          </p>
-          <button
-            onClick={() => {
-              this.setState({ hasError: false, error: null });
-              window.location.reload();
-            }}
-            style={{
-              padding: "var(--space-2) var(--space-4)",
-              borderRadius: "var(--radius-md)",
-              border: "none",
-              background: "var(--action-primary)",
-              color: "var(--text-on-brand)",
-              fontSize: "var(--text-sm)",
-              fontWeight: "var(--weight-medium)",
-              cursor: "pointer",
-            }}
-          >
-            Reload page
-          </button>
         </div>
       );
     }

@@ -3,25 +3,33 @@
 import * as React from "react";
 import { DndContext, DragOverlay } from "@dnd-kit/core";
 import { KanbanCard } from "@/components/ui-kit/agile/kanban-card";
+import { Button } from "@/components/ui-kit/forms/button";
 import { useKanban } from "../hooks/use-kanban";
+import type { KanbanCreateDefaults } from "../hooks/use-kanban";
 import { useTranslation } from "@/i18n/provider";
 import { BoardColumn } from "../ui/board-column";
 import { KanbanFilters } from "../ui/kanban-filters";
 import { EditTaskDrawer } from "../ui/edit-task-drawer";
+import { CreateTaskDrawer } from "@/app/(dashboard)/tasks/components/ui/create-task-drawer";
 import { formatDate, isOverdue } from "../ui/sortable-kanban-card";
 import { useLanguage } from "@/i18n/provider";
 import {
   priorityToDisplay,
   STATUS_OPTIONS,
   PRIORITY_OPTIONS,
-  TYPE_OPTIONS,
 } from "@/features/tasks/types";
 import { BOARD_STATUSES } from "@/features/kanban/types";
-import type { BoardColumns } from "@/features/kanban/types";
+import type { BoardColumns, BoardStatus } from "@/features/kanban/types";
 import type { UserRow } from "@/features/users/types";
 import type { LabelRow } from "@/features/labels/types";
 import type { ProjectRow } from "@/features/projects/types";
+import type { LifeArea } from "@/types/db";
+import {
+  projectPickerLabel,
+  withCurrentProjectOption,
+} from "@/lib/project-namespace";
 import { Separator } from "@/components/ui/separator";
+import { listDocsByTaskIdsAction } from "@/features/docs/actions";
 
 interface KanbanCCProps {
   initialColumns: BoardColumns;
@@ -37,6 +45,21 @@ interface KanbanCCProps {
   };
   currentUserId: string;
   currentUserRole: string;
+  statuses?: BoardStatus[];
+  columnLabels?: Partial<Record<BoardStatus, string>>;
+  title?: string;
+  /** Where filter URL updates go (research hub stays on /research). */
+  basePath?: string;
+  /** Keep this `?project=` value when syncing filters (research scope). */
+  urlProjectParam?: string;
+  /** Pre-select project/area when creating from a hub context. */
+  createDefaults?: KanbanCreateDefaults;
+  /** Hide board project filter when the hub has its own switcher. */
+  showProjectFilter?: boolean;
+  /** Hide the whole filter bar (research hub). */
+  showFilters?: boolean;
+  /** Form preset for create/edit drawers. */
+  formPreset?: import("@/components/tasks/task-form-fields").TaskFormPreset;
 }
 
 export function KanbanCC({
@@ -47,92 +70,149 @@ export function KanbanCC({
   filters,
   currentUserId,
   currentUserRole,
+  statuses = BOARD_STATUSES,
+  columnLabels,
+  title,
+  basePath = "/kanban",
+  urlProjectParam,
+  createDefaults,
+  showProjectFilter = true,
+  showFilters = true,
+  formPreset = "life",
 }: KanbanCCProps) {
-  const k = useKanban(initialColumns, filters);
+  const k = useKanban(initialColumns, filters, {
+    basePath,
+    urlProjectParam,
+    statuses,
+  });
   const t = useTranslation();
   const language = useLanguage();
+  const [docsByTask, setDocsByTask] = React.useState<
+    Record<string, { id: string; title: string }[]>
+  >({});
+
+  React.useEffect(() => {
+    const ids = statuses.flatMap(status =>
+      (k.columns[status] ?? []).map(task => task.id),
+    );
+    if (ids.length === 0) {
+      setDocsByTask({});
+      return;
+    }
+    let cancelled = false;
+    void listDocsByTaskIdsAction(ids).then(map => {
+      if (!cancelled) setDocsByTask(map);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [k.columns, statuses]);
+
+  const lang = language === "EN" ? "EN" : "FA";
 
   const userOptions = [
     { value: "", label: t.tasks.unassigned },
     ...users.map(usr => ({ value: usr.id, label: usr.name })),
   ];
 
-  const projectOptions = [
-    { value: "", label: t.tasks.noProject },
-    ...userProjects.map(proj => ({ value: proj.id, label: proj.name })),
-  ];
+  const projectOptions = withCurrentProjectOption(
+    [
+      { value: "", label: t.tasks.noProject },
+      ...userProjects.map(proj => ({
+        value: proj.id,
+        label: projectPickerLabel(proj, lang),
+      })),
+    ],
+    k.activeTask?.projectId
+      ? {
+          id: k.activeTask.projectId,
+          name: k.activeTask.projectName ?? k.activeTask.projectId,
+        }
+      : null,
+  );
 
-  const statusFieldOptions = STATUS_OPTIONS.map(o => ({
-    value: o.value,
-    label: t.tasks[o.labelKey as keyof typeof t.tasks] as string,
-  }));
+  const statusFieldOptions = statuses.map(status => {
+    const opt = STATUS_OPTIONS.find(o => o.value === status);
+    const labelKey = opt?.labelKey ?? "backlog";
+    return {
+      value: status,
+      label:
+        columnLabels?.[status] ??
+        (t.tasks[labelKey as keyof typeof t.tasks] as string),
+    };
+  });
   const priorityFieldOptions = PRIORITY_OPTIONS.map(o => ({
-    value: o.value,
-    label: t.tasks[o.labelKey as keyof typeof t.tasks] as string,
-  }));
-  const typeFieldOptions = TYPE_OPTIONS.map(o => ({
     value: o.value,
     label: t.tasks[o.labelKey as keyof typeof t.tasks] as string,
   }));
 
   const hasActiveFilters = !!(
     filters.search ||
-    filters.assignee ||
+    (filters.assignee && filters.assignee !== currentUserId) ||
     filters.label ||
     filters.priority ||
-    filters.project
+    (showProjectFilter && filters.project)
   );
+
+  function handleOpenCreate() {
+    const defaults: KanbanCreateDefaults = {
+      projectId:
+        createDefaults?.projectId ||
+        (filters.project.includes(",") ? "" : filters.project) ||
+        undefined,
+      area: createDefaults?.area,
+      status: createDefaults?.status ?? "BACKLOG",
+    };
+    if (!defaults.area && defaults.projectId) {
+      const proj = userProjects.find(p => p.id === defaults.projectId);
+      if (proj?.area) defaults.area = proj.area as LifeArea;
+    }
+    k.openCreate(defaults);
+  }
 
   return (
     <>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: "var(--space-4)",
-        }}
-      >
-        <h1
-          style={{
-            fontSize: "var(--text-xl)",
-            fontWeight: "var(--weight-semibold)",
-            color: "var(--text-primary)",
-          }}
-        >
-          {t.board.title}
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <h1 className="text-xl font-semibold text-text-primary">
+          {title ?? t.board.title}
         </h1>
+        <Button variant="primary" icon="plus" onClick={handleOpenCreate}>
+          {t.tasks.createTaskButton}
+        </Button>
       </div>
 
-      <KanbanFilters
-        search={k.search}
-        project={k.project}
-        projectOptions={projectOptions}
-        onSearchChange={k.setSearch}
-        onSearchSubmit={k.onSearchSubmit}
-        onProjectChange={k.setProject}
-        assignee={filters.assignee}
-        label={filters.label}
-        priority={filters.priority}
-        onFilterChange={k.applyFilters}
-        users={users}
-        labels={labels}
-        priorityOptions={priorityFieldOptions}
-        hasActiveFilters={hasActiveFilters}
-        onClearFilters={() => {
-          k.setProject("");
-          k.setSearch("");
-          k.applyFilters({
-            search: "",
-            assignee: "",
-            label: "",
-            priority: "",
-            project: "",
-          });
-        }}
-      />
+      {showFilters && (
+        <KanbanFilters
+          search={k.search}
+          project={k.project}
+          projectOptions={projectOptions}
+          onSearchChange={k.setSearch}
+          onSearchSubmit={k.onSearchSubmit}
+          onProjectChange={k.setProject}
+          showProjectFilter={showProjectFilter}
+          assignee={filters.assignee}
+          label={filters.label}
+          priority={filters.priority}
+          onFilterChange={k.applyFilters}
+          users={users}
+          labels={labels}
+          priorityOptions={priorityFieldOptions}
+          hasActiveFilters={hasActiveFilters}
+          onClearFilters={() => {
+            if (showProjectFilter) k.setProject("");
+            k.setSearch("");
+            k.applyFilters({
+              search: "",
+              assignee: "",
+              label: "",
+              priority: "",
+              ...(showProjectFilter ? { project: "" } : {}),
+            });
+          }}
+        />
+      )}
 
-      {k.actionError && !k.editingTaskId && (
+      {k.actionError && k.drawerMode === "none" && (
         <div
           className="auth-card__alert auth-card__alert--error"
           style={{ marginBottom: "var(--space-3)" }}
@@ -150,18 +230,29 @@ export function KanbanCC({
         onDragOver={k.onDragOver}
         onDragEnd={k.onDragEnd}
       >
-        <div className="flex gap-3 py-4 h-full min-h-0 overflow-x-auto items-stretch">
-          {BOARD_STATUSES.map((status, index) => (
-            <>
-              <BoardColumn
-                key={status}
-                status={status}
-                tasks={k.columns[status]}
-                selectedId={k.editingTaskId}
-                onCardClick={k.openTask}
-              />
-              {index !== status.length && <Separator orientation="vertical" />}
-            </>
+        <div className="flex gap-3 py-4 h-full min-h-0 overflow-x-auto items-stretch snap-x snap-mandatory sm:snap-none -mx-1 px-1">
+          {statuses.map((status, index) => (
+            <React.Fragment key={status}>
+              <div className="snap-start shrink-0">
+                <BoardColumn
+                  status={status}
+                  tasks={k.columns[status] ?? []}
+                  selectedId={k.editingTaskId}
+                  onCardClick={k.openTask}
+                  label={columnLabels?.[status]}
+                  docsByTask={docsByTask}
+                  onDocsChange={(taskId, docs) => {
+                    setDocsByTask(prev => ({ ...prev, [taskId]: docs }));
+                  }}
+                />
+              </div>
+              {index !== statuses.length - 1 && (
+                <Separator
+                  orientation="vertical"
+                  className="hidden sm:block"
+                />
+              )}
+            </React.Fragment>
           ))}
         </div>
 
@@ -191,8 +282,28 @@ export function KanbanCC({
         </DragOverlay>
       </DndContext>
 
+      <CreateTaskDrawer
+        isOpen={k.drawerMode === "create"}
+        onClose={k.closeDrawer}
+        control={k.createForm.control}
+        setValue={k.createForm.setValue}
+        projects={userProjects}
+        labels={labels}
+        statusOptions={statusFieldOptions}
+        priorityOptions={priorityFieldOptions}
+        userOptions={userOptions}
+        selectedLabelIds={k.selectedLabelIds}
+        onLabelToggle={k.toggleLabel}
+        onSubmit={k.onCreateSubmit}
+        actionError={k.actionError}
+        isPending={k.isPending}
+        currentUserId={currentUserId}
+        currentUserRole={currentUserRole}
+        preset={formPreset}
+      />
+
       <EditTaskDrawer
-        open={!!k.editingTaskId}
+        open={k.drawerMode === "edit"}
         onClose={k.closeDrawer}
         isPending={k.isPending}
         isLoadingDetail={k.isLoadingDetail}
@@ -210,9 +321,8 @@ export function KanbanCC({
         onSubmit={k.onEditSubmit}
         statusFieldOptions={statusFieldOptions}
         priorityFieldOptions={priorityFieldOptions}
-        typeFieldOptions={typeFieldOptions}
         userOptions={userOptions}
-        projectOptions={projectOptions}
+        preset={formPreset}
       />
     </>
   );

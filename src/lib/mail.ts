@@ -22,7 +22,7 @@ export async function sendMail({ to, subject, html }: SendMailOptions): Promise<
     return;
   }
   await transporter.sendMail({
-    from: process.env.SMTP_FROM ?? "ScrumFlow <noreply@scrumflow.app>",
+    from: process.env.SMTP_FROM ?? "Mindora <noreply@mindora.app>",
     to,
     subject,
     html,
@@ -34,7 +34,7 @@ export function buildPasswordResetEmail(resetUrl: string): string {
 <div style="font-family:system-ui,sans-serif;max-width:540px;margin:0 auto;padding:40px 24px;color:#1a1f25;direction:rtl">
   <h2 style="font-size:18px;font-weight:600;margin:0 0 8px">بازنشانی رمز عبور</h2>
   <p style="font-size:14px;color:#626d7b;margin:0 0 28px;line-height:1.55">
-    برای بازنشانی رمز عبور ScrumFlow خود، روی دکمه زیر کلیک کنید.
+    برای بازنشانی رمز عبور Mindora خود، روی دکمه زیر کلیک کنید.
     این لینک در <strong>۱ ساعت</strong> منقضی می‌شود.
   </p>
   <a href="${resetUrl}"

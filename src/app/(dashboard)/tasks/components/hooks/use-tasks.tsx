@@ -22,6 +22,8 @@ import type {
   CreateLabelInput,
 } from "@/schemas/tasks";
 import type { TaskRow, TaskDetail } from "@/features/tasks/types";
+import { coerceLifeArea } from "@/lib/life";
+import { AREA_PROJECT_IDS } from "@/lib/life";
 
 type DrawerMode = "none" | "create" | "edit";
 
@@ -82,6 +84,8 @@ export function useTasks(initialFilters: TaskFilters) {
       type: "TASK",
       assignedToId: "",
       dueDate: "",
+      area: "LIFE",
+      recurrence: "NONE",
     },
   });
 
@@ -97,9 +101,15 @@ export function useTasks(initialFilters: TaskFilters) {
       status: "BACKLOG",
       priority: "NONE",
       type: "TASK",
+      projectId: "",
       assignedToId: "",
       dueDate: "",
+      area: "LIFE",
+      recurrence: "NONE",
     });
+    // Default to life bucket after reset — set explicitly via AREA id in submit if empty
+    createForm.setValue("projectId", AREA_PROJECT_IDS.LIFE);
+    createForm.setValue("area", "LIFE");
     setSelectedLabelIds([]);
     setActionError(null);
     setDrawerMode("create");
@@ -130,6 +140,8 @@ export function useTasks(initialFilters: TaskFilters) {
       projectId: detail.projectId ?? "",
       assignedToId: detail.assignedTo?.id ?? "",
       dueDate: toDateInputValue(detail.dueDate),
+      area: coerceLifeArea(detail.area),
+      recurrence: detail.recurrence ?? "NONE",
     });
   }
 
@@ -158,10 +170,12 @@ export function useTasks(initialFilters: TaskFilters) {
       fd.append("description", data.description ?? "");
       fd.append("status", data.status);
       fd.append("priority", data.priority);
-      fd.append("type", data.type);
-      fd.append("projectId", data.projectId ?? "");
+      fd.append("type", "TASK");
+      fd.append("projectId", data.projectId || AREA_PROJECT_IDS.LIFE);
       fd.append("assignedToId", data.assignedToId ?? "");
       fd.append("dueDate", data.dueDate ?? "");
+      fd.append("area", data.area || "LIFE");
+      fd.append("recurrence", data.recurrence ?? "NONE");
       fd.append("labelIds", JSON.stringify(selectedLabelIds));
       const result = await createTask(fd);
       if (!result.success) {
@@ -182,10 +196,12 @@ export function useTasks(initialFilters: TaskFilters) {
       fd.append("description", data.description ?? "");
       fd.append("status", data.status);
       fd.append("priority", data.priority);
-      fd.append("type", data.type);
+      fd.append("type", "TASK");
       fd.append("projectId", data.projectId ?? "");
       fd.append("assignedToId", data.assignedToId ?? "");
       fd.append("dueDate", data.dueDate ?? "");
+      fd.append("area", data.area ?? "LIFE");
+      fd.append("recurrence", data.recurrence ?? "NONE");
       fd.append("labelIds", JSON.stringify(selectedLabelIds));
       const result = await updateTask(editingTaskId, fd);
       if (!result.success) {

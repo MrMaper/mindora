@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mindora
 
-## Getting Started
+Personal life OS for tasks, research writing, and language practice — with Jalali calendar, Docs, and a kanban board.
 
-First, run the development server:
+**Think. Plan. Grow**
+
+## Stack
+
+- **Next.js** (App Router) + React 19
+- **Prisma** + PostgreSQL
+- **NextAuth** (credentials)
+- **TipTap** docs editor
+- Optional: **S3** attachments, **SMTP** email, **Bale** bot
+
+## Setup
 
 ```bash
+npm install
+cp .env.example .env   # if present; otherwise set DATABASE_URL and AUTH_SECRET
+npx prisma migrate deploy
+npx prisma db seed     # optional demo/admin
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Command | Purpose |
+|--------|---------|
+| `npm run dev` | Dev server |
+| `npm run build` / `start` | Production |
+| `npm run lint` | ESLint |
+| `npm test` | Unit tests (Vitest) |
+| `npm run db:migrate` | Prisma migrate (dev) |
+| `npm run db:generate` | Generate Prisma client |
 
-## Learn More
+## Product map
 
-To learn more about Next.js, take a look at the following resources:
+- **Today** — due / focus / capture / habits / Pomodoro
+- **Kanban & Tasks** — board with REVIEW/TESTING columns
+- **Calendar** — Jalali planning
+- **Docs** — writing, folders, versions, sources + PDF
+- **Research** — PhD pipeline + source library
+- **Language** — vocab SRS, listening, exams
+- **Review / Work logs** — weekly reflection
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Auth & roles
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+First admin is typically created via seed. Notification preferences (in-app, email, per-event including sprint) live under **Settings**. Mentions in task comments create `MENTION` notifications.
 
-## Deploy on Vercel
+## CI
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+GitHub Actions runs lint, `tsc`, and unit tests on push/PR to `main`/`master`.

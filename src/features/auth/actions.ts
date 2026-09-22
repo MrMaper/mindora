@@ -37,7 +37,7 @@ export async function forgotPassword(formData: FormData): Promise<ActionResult> 
 
   await sendMail({
     to: user.email,
-    subject: "بازنشانی رمز عبور ScrumFlow",
+    subject: "بازنشانی رمز عبور Mindora",
     html: buildPasswordResetEmail(resetUrl),
   });
 

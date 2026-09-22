@@ -10,6 +10,7 @@ export type {
   ActivityLog,
   PasswordResetToken,
   UserPreferences,
+  Doc,
 } from "../../prisma/generated/client";
 
 export type {
@@ -21,4 +22,11 @@ export type {
   NotificationType,
   Language,
   Theme,
+  LifeArea,
+  RecurrenceInterval,
+  DocStatus,
+  SourceReadingStatus,
+  LangSkill,
+  ExamKind,
+  MockStatus,
 } from "../../prisma/generated/enums";

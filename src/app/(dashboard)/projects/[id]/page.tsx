@@ -7,10 +7,9 @@ import {
   getProjectTasks,
   getAllUsersForInvite,
 } from "@/features/projects/queries";
-import { getUserPreferences } from "@/features/settings/queries";
 import { ProjectDetailCC } from "./components/client";
 
-export const metadata: Metadata = { title: "Project Details" };
+export const metadata: Metadata = { title: "Path details" };
 
 export default async function ProjectDetailPage({
   params,
@@ -22,17 +21,14 @@ export default async function ProjectDetailPage({
 
   const { id } = await params;
 
-  const [project, members, tasks, availableUsers, preferences] = await Promise.all([
-    getProjectById(id),
+  const [project, members, tasks, availableUsers] = await Promise.all([
+    getProjectById(id, session.user.id),
     getProjectMembers(id),
     getProjectTasks(id),
     getAllUsersForInvite(id),
-    getUserPreferences(session.user.id),
   ]);
 
   if (!project) redirect("/projects");
-
-  const language = preferences?.language ?? "FA";
 
   return (
     <ProjectDetailCC

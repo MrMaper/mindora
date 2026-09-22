@@ -142,3 +142,88 @@ export type ActivityLog = Prisma.ActivityLogModel
  * 
  */
 export type WorkLog = Prisma.WorkLogModel
+/**
+ * Model Habit
+ * 
+ */
+export type Habit = Prisma.HabitModel
+/**
+ * Model HabitLog
+ * 
+ */
+export type HabitLog = Prisma.HabitLogModel
+/**
+ * Model Doc
+ * 
+ */
+export type Doc = Prisma.DocModel
+/**
+ * Model DocFolder
+ * 
+ */
+export type DocFolder = Prisma.DocFolderModel
+/**
+ * Model DocTag
+ * 
+ */
+export type DocTag = Prisma.DocTagModel
+/**
+ * Model DocTagOnDoc
+ * 
+ */
+export type DocTagOnDoc = Prisma.DocTagOnDocModel
+/**
+ * Model DocTask
+ * 
+ */
+export type DocTask = Prisma.DocTaskModel
+/**
+ * Model DocVersion
+ * 
+ */
+export type DocVersion = Prisma.DocVersionModel
+/**
+ * Model DocSource
+ * 
+ */
+export type DocSource = Prisma.DocSourceModel
+/**
+ * Model DocQuote
+ * 
+ */
+export type DocQuote = Prisma.DocQuoteModel
+/**
+ * Model LangProfile
+ * 
+ */
+export type LangProfile = Prisma.LangProfileModel
+/**
+ * Model LangSession
+ * 
+ */
+export type LangSession = Prisma.LangSessionModel
+/**
+ * Model LangListeningClip
+ * 
+ */
+export type LangListeningClip = Prisma.LangListeningClipModel
+/**
+ * Model LangCard
+ * 
+ */
+export type LangCard = Prisma.LangCardModel
+/**
+ * Model LangVocabDay
+ * * One row per local calendar day the user reviewed any vocab card.
+ */
+export type LangVocabDay = Prisma.LangVocabDayModel
+/**
+ * Model ExamTrack
+ * 
+ */
+export type ExamTrack = Prisma.ExamTrackModel
+/**
+ * Model MockAttempt
+ * 
+ */
+export type MockAttempt = Prisma.MockAttemptModel

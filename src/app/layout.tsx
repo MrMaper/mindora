@@ -5,17 +5,17 @@ import { Providers } from "@/providers/Providers";
 import { peyda, geistMono } from "@/lib/font";
 import "./globals.css";
 
-export const metadataBase = new URL("https://scrumflow.app");
+export const metadataBase = new URL("https://mindora.app");
 
 async function getLanguage(): Promise<"EN" | "FA"> {
   try {
     const session = await auth();
-    if (!session?.user?.id) return "EN";
+    if (!session?.user?.id) return "FA";
 
     const prefs = await getUserPreferences(session.user.id);
-    return prefs?.language ?? "EN";
+    return prefs?.language ?? "FA";
   } catch {
-    return "EN";
+    return "FA";
   }
 }
 
@@ -26,47 +26,47 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: {
       default: isFa
-        ? "اسکرام‌فلو - مدیریت پروژه چابک"
-        : "ScrumFlow - Modern Agile Project Management",
-      template: isFa ? "%s | اسکرام‌فلو" : "%s | ScrumFlow",
+        ? "Mindora — فکر کن. برنامه بریز. رشد کن"
+        : "Mindora — Think. Plan. Grow",
+      template: isFa ? "%s | Mindora" : "%s | Mindora",
     },
     description: isFa
-      ? "پلتفرم مدیریت پروژه چابک برای تیم‌های توسعه نرم‌افزار - اسپرینت، بک‌لاگ، کانبان و همکاری بلادرنگ"
-      : "Modern Agile Project Management Platform for Software Teams - Sprints, Backlog, Kanban & Real-time Collaboration",
+      ? "سیستم شخصی برای کار، پژوهش، یادگیری زبان و برنامه‌ریزی روزانه — Think. Plan. Grow"
+      : "Personal life OS for tasks, research, language practice, and daily planning — Think. Plan. Grow",
     keywords: isFa
-      ? ["مدیریت پروژه", "اسپرینت", "کانبان", "بک‌لاگ", "چابک", "تیم توسعه"]
+      ? ["Mindora", "مدیریت کار", "پژوهش", "یادگیری زبان", "تقویم شمسی", "کانبان"]
       : [
-          "project management",
-          "agile",
-          "sprint",
+          "Mindora",
+          "life OS",
+          "tasks",
+          "research",
+          "language learning",
           "kanban",
-          "backlog",
-          "scrum",
-          "team collaboration",
+          "Jalali calendar",
         ],
-    authors: [{ name: "ScrumFlow Team" }],
-    creator: "ScrumFlow",
-    publisher: "ScrumFlow",
+    authors: [{ name: "Mindora" }],
+    creator: "Mindora",
+    publisher: "Mindora",
 
     openGraph: {
       type: "website",
       locale: isFa ? "fa_IR" : "en_US",
-      url: "https://scrumflow.app",
-      siteName: "ScrumFlow",
+      url: "https://mindora.app",
+      siteName: "Mindora",
       title: isFa
-        ? "اسکرام‌فلو - مدیریت پروژه چابک"
-        : "ScrumFlow - Modern Agile Project Management",
+        ? "Mindora — فکر کن. برنامه بریز. رشد کن"
+        : "Mindora — Think. Plan. Grow",
       description: isFa
-        ? "پلتفرم مدیریت پروژه چابک برای تیم‌های توسعه نرم‌افزار"
-        : "Modern Agile Project Management Platform for Software Teams",
+        ? "سیستم شخصی برای کار، پژوهش و رشد"
+        : "Personal life OS for tasks, research, and growth",
       images: [
         {
-          url: "/og-image.svg",
-          width: 1200,
-          height: 630,
+          url: "/logo.png",
+          width: 512,
+          height: 512,
           alt: isFa
-            ? "ScrumFlow - مدیریت پروژه چابک"
-            : "ScrumFlow - Modern Agile Project Management",
+            ? "Mindora — Think. Plan. Grow"
+            : "Mindora — Think. Plan. Grow",
         },
       ],
     },
@@ -74,12 +74,12 @@ export async function generateMetadata(): Promise<Metadata> {
     twitter: {
       card: "summary_large_image",
       title: isFa
-        ? "اسکرام‌فلو - مدیریت پروژه چابک"
-        : "ScrumFlow - Modern Agile Project Management",
+        ? "Mindora — فکر کن. برنامه بریز. رشد کن"
+        : "Mindora — Think. Plan. Grow",
       description: isFa
-        ? "پلتفرم مدیریت پروژه چابک برای تیم‌های توسعه نرم‌افزار"
-        : "Modern Agile Project Management Platform for Software Teams",
-      images: ["/og-image.svg"],
+        ? "سیستم شخصی برای کار، پژوهش و رشد"
+        : "Personal life OS for tasks, research, and growth",
+      images: ["/logo.png"],
     },
 
     robots: {
@@ -96,6 +96,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
     icons: {
       icon: [
+        { url: "/logo.png", type: "image/png" },
         { url: "/assets/favicon/favicon.ico" },
         {
           url: "/assets/favicon/favicon-32x32.png",
@@ -108,7 +109,7 @@ export async function generateMetadata(): Promise<Metadata> {
           type: "image/png",
         },
       ],
-      apple: "/assets/favicon/apple-touch-icon.png",
+      apple: "/logo.png",
     },
 
     manifest: "/site.webmanifest",

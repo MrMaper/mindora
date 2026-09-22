@@ -1,23 +1,20 @@
 "use client";
 
 import * as React from "react";
-import { Button } from "@/components/ui-kit/forms/button";
+import { useRouter } from "next/navigation";
 import { useTranslation } from "@/i18n/provider";
-import { inviteMember } from "@/features/projects/actions";
+import {
+  inviteMember,
+  removeMember,
+  updateMemberRole,
+} from "@/features/projects/actions";
+import { deleteTask } from "@/features/tasks/actions";
 import type {
   ProjectDetail,
   ProjectMemberRow,
   ProjectTaskRow,
 } from "@/features/projects/types";
-
-interface InviteUser {
-  id: string;
-  name: string;
-  email: string;
-  avatar: string | null;
-}
 import {
-  ProjectTaskFilters,
   getProjectTaskStatusOptions,
   getProjectTaskPriorityOptions,
   getProjectTaskAssigneeOptions,
@@ -25,7 +22,10 @@ import {
   hasActiveProjectTaskFilters,
   filterProjectTasks,
   sortProjectTasks,
+  type ProjectTaskFilters,
 } from "@/components/ui-kit/forms/project-task-filters";
+import { Dialog } from "@/components/ui-kit/overlays/dialog";
+import { Button } from "@/components/ui-kit/forms/button";
 import { ProjectHeader } from "../ui/project-header";
 import { ProjectTabs } from "../ui/project-tabs";
 import { OverviewTab } from "../ui/overview-tab";
@@ -35,6 +35,13 @@ import { MembersTab } from "../ui/members-tab";
 import { InviteMemberDrawer } from "../ui/invite-member-drawer";
 import { RemoveMemberDialog } from "../ui/remove-member-dialog";
 import { ChangeRoleDialog } from "../ui/change-role-dialog";
+
+interface InviteUser {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string | null;
+}
 
 interface ProjectDetailCCProps {
   project: ProjectDetail;
@@ -52,10 +59,11 @@ export function ProjectDetailCC({
   currentUserId,
 }: ProjectDetailCCProps) {
   const t = useTranslation();
-  const isOwner =
-    members.find(m => m.userId === currentUserId)?.role === "OWNER";
+  const router = useRouter();
+
+  const membership = members.find(m => m.userId === currentUserId);
   const isAdmin =
-    members.find(m => m.userId === currentUserId)?.role === "ADMIN" || isOwner;
+    membership?.role === "ADMIN" || membership?.role === "OWNER";
 
   const [activeTab, setActiveTab] = React.useState<
     "overview" | "tasks" | "members"
@@ -70,18 +78,28 @@ export function ProjectDetailCC({
     currentRole: string;
   } | null>(null);
   const [newRole, setNewRole] = React.useState("MEMBER");
+  const [deleteTaskTarget, setDeleteTaskTarget] =
+    React.useState<ProjectTaskRow | null>(null);
+  const [actionError, setActionError] = React.useState<string | null>(null);
+  const [invitePending, setInvitePending] = React.useState(false);
+  const [inviteError, setInviteError] = React.useState<string | null>(null);
+  const [isPending, startTransition] = React.useTransition();
 
   const [taskFilters, setTaskFilters] = React.useState<ProjectTaskFilters>(
     getProjectTaskDefaultFilters(),
   );
   const [taskSearch, setTaskSearch] = React.useState("");
 
-  const statusCounts = tasks.reduce(
-    (acc, task) => {
-      acc[task.status] = (acc[task.status] || 0) + 1;
-      return acc;
-    },
-    {} as Record<string, number>,
+  const statusCounts = React.useMemo(
+    () =>
+      tasks.reduce(
+        (acc, task) => {
+          acc[task.status] = (acc[task.status] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>,
+      ),
+    [tasks],
   );
 
   const filteredTasks = sortProjectTasks(
@@ -91,91 +109,124 @@ export function ProjectDetailCC({
   );
 
   const hasActiveTaskFilters = hasActiveProjectTaskFilters(taskFilters);
-
   const statusOptions = getProjectTaskStatusOptions(t);
   const priorityOptions = getProjectTaskPriorityOptions(t);
   const assigneeOptions = getProjectTaskAssigneeOptions(members, t);
 
-  function handleTaskSearchChange(value: string) {
-    setTaskSearch(value);
-    setTaskFilters(prev => ({ ...prev, search: value }));
+  function openTaskOnList(task?: ProjectTaskRow) {
+    const params = new URLSearchParams();
+    params.set("project", project.id);
+    if (task?.title) params.set("search", task.title);
+    router.push(`/tasks?${params.toString()}`);
   }
 
-  function handleTaskSearchSubmit(e: React.FormEvent) {
-    e.preventDefault();
-  }
-
-  function handleTaskFiltersChange(filter: Partial<ProjectTaskFilters>) {
-    setTaskFilters(prev => ({ ...prev, ...filter }));
-  }
-
-  function handleTaskClearFilters() {
-    setTaskFilters(getProjectTaskDefaultFilters());
-    setTaskSearch("");
+  function openBoardForEdit(task?: ProjectTaskRow) {
+    if (project.area === "PHD") {
+      router.push(`/research?project=${project.id}`);
+      return;
+    }
+    if (project.area === "LANG") {
+      router.push(`/language?project=${project.id}`);
+      return;
+    }
+    const params = new URLSearchParams();
+    params.set("project", project.id);
+    if (task?.title) params.set("search", task.title);
+    router.push(`/kanban?${params.toString()}`);
   }
 
   async function handleInviteMember(userId: string, role: string) {
     setInviteError(null);
     setInvitePending(true);
-
     const fd = new FormData();
     fd.append("userId", userId);
     fd.append("role", role);
-
     const result = await inviteMember(project.id, fd);
     setInvitePending(false);
-
     if (!result.success) {
-      setInviteError(result.error ?? "Failed to invite member.");
+      setInviteError(result.error ?? t.projects.memberActionFailed);
       return;
     }
-
     setMemberDrawerOpen(false);
-    // Refresh the page to show the new member
-    window.location.reload();
+    router.refresh();
   }
 
-  const [invitePending, setInvitePending] = React.useState(false);
-  const [inviteError, setInviteError] = React.useState<string | null>(null);
+  function handleRemoveConfirm() {
+    if (!removeTarget) return;
+    startTransition(async () => {
+      const result = await removeMember(removeTarget.id);
+      setRemoveTarget(null);
+      if (!result.success) {
+        setActionError(result.error ?? t.projects.memberActionFailed);
+        return;
+      }
+      router.refresh();
+    });
+  }
 
-  const handleRemoveMember = (member: ProjectMemberRow) => {
-    if (member.userId === currentUserId) return;
-    setRemoveTarget({ id: member.id, name: member.userName });
-  };
+  function handleSaveRole() {
+    if (!roleChangeTarget) return;
+    startTransition(async () => {
+      const fd = new FormData();
+      fd.append("role", newRole);
+      const result = await updateMemberRole(roleChangeTarget.id, fd);
+      setRoleChangeTarget(null);
+      setNewRole("MEMBER");
+      if (!result.success) {
+        setActionError(result.error ?? t.projects.memberActionFailed);
+        return;
+      }
+      router.refresh();
+    });
+  }
 
-  const handleChangeRole = (member: ProjectMemberRow) => {
-    if (member.userId === currentUserId) return;
-    setRoleChangeTarget({ id: member.id, currentRole: member.role });
-    setNewRole(member.role);
-  };
-
-  const handleSaveRole = () => {
-    setRoleChangeTarget(null);
-    setNewRole("MEMBER");
-  };
+  function handleDeleteTaskConfirm() {
+    if (!deleteTaskTarget) return;
+    startTransition(async () => {
+      const result = await deleteTask(deleteTaskTarget.id);
+      setDeleteTaskTarget(null);
+      if (!result.success) {
+        setActionError(result.error ?? t.common.error);
+        return;
+      }
+      router.refresh();
+    });
+  }
 
   return (
-    <div className="p-6 space-y-6">
-      {/* ── Header ── */}
+    <div className="space-y-1">
       <ProjectHeader
         project={project}
-        t={t}
-        isAdmin={isAdmin}
-        onInviteMember={() => setMemberDrawerOpen(true)}
+        isAdmin={!!isAdmin}
+        onInviteMember={() => {
+          setInviteError(null);
+          setMemberDrawerOpen(true);
+        }}
       />
 
-      {/* ── Tabs ── */}
+      {actionError ? (
+        <div
+          className="mb-4 flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg"
+          role="alert"
+        >
+          {actionError}
+        </div>
+      ) : null}
+
       <ProjectTabs
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        t={t}
         taskCount={project._count.tasks}
         memberCount={project._count.members}
       />
 
-      {/* ── Tab Content ── */}
       {activeTab === "overview" && (
-        <OverviewTab t={t} tasks={tasks} statusCounts={statusCounts} />
+        <OverviewTab
+          tasks={tasks}
+          statusCounts={statusCounts}
+          onOpenTasks={() => setActiveTab("tasks")}
+          onViewTask={task => openTaskOnList(task)}
+        />
       )}
 
       {activeTab === "tasks" && (
@@ -187,25 +238,26 @@ export function ProjectDetailCC({
             statusOptions={statusOptions}
             priorityOptions={priorityOptions}
             assigneeOptions={assigneeOptions}
-            onSearchChange={handleTaskSearchChange}
-            onSearchSubmit={handleTaskSearchSubmit}
-            onFiltersChange={handleTaskFiltersChange}
-            onClearFilters={handleTaskClearFilters}
+            onSearchChange={value => {
+              setTaskSearch(value);
+              setTaskFilters(prev => ({ ...prev, search: value }));
+            }}
+            onSearchSubmit={e => e.preventDefault()}
+            onFiltersChange={filter =>
+              setTaskFilters(prev => ({ ...prev, ...filter }))
+            }
+            onClearFilters={() => {
+              setTaskFilters(getProjectTaskDefaultFilters());
+              setTaskSearch("");
+            }}
             hasActiveFilters={hasActiveTaskFilters}
             currentUserRole={isAdmin ? "ADMIN" : "MEMBER"}
           />
           <TaskTable
             tasks={filteredTasks}
-            t={t}
-            onView={task => {
-              /* TODO: implement view navigation */
-            }}
-            onEdit={task => {
-              /* TODO: implement edit */
-            }}
-            onDelete={task => {
-              /* TODO: implement delete */
-            }}
+            onView={task => openTaskOnList(task)}
+            onEdit={task => openBoardForEdit(task)}
+            onDelete={task => setDeleteTaskTarget(task)}
             emptyMessage={t.projects.noTasks}
           />
         </>
@@ -213,17 +265,25 @@ export function ProjectDetailCC({
 
       {activeTab === "members" && (
         <MembersTab
-          t={t}
           members={members}
           currentUserId={currentUserId}
-          isAdmin={isAdmin}
-          onInviteMember={() => setMemberDrawerOpen(true)}
-          onRemoveMember={handleRemoveMember}
-          onChangeRole={handleChangeRole}
+          isAdmin={!!isAdmin}
+          onInviteMember={() => {
+            setInviteError(null);
+            setMemberDrawerOpen(true);
+          }}
+          onRemoveMember={member => {
+            if (member.userId === currentUserId) return;
+            setRemoveTarget({ id: member.id, name: member.userName });
+          }}
+          onChangeRole={member => {
+            if (member.userId === currentUserId) return;
+            setRoleChangeTarget({ id: member.id, currentRole: member.role });
+            setNewRole(member.role);
+          }}
         />
       )}
 
-      {/* ── Invite Member Drawer ── */}
       <InviteMemberDrawer
         open={memberDrawerOpen}
         onClose={() => setMemberDrawerOpen(false)}
@@ -235,18 +295,14 @@ export function ProjectDetailCC({
         error={inviteError}
       />
 
-      {/* ── Remove Member Dialog ── */}
       <RemoveMemberDialog
         open={!!removeTarget}
         onClose={() => setRemoveTarget(null)}
         t={t}
         removeTarget={removeTarget}
-        onConfirm={() => {
-          setRemoveTarget(null);
-        }}
+        onConfirm={handleRemoveConfirm}
       />
 
-      {/* ── Change Role Dialog ── */}
       <ChangeRoleDialog
         open={!!roleChangeTarget}
         onClose={() => setRoleChangeTarget(null)}
@@ -255,6 +311,36 @@ export function ProjectDetailCC({
         newRole={newRole}
         setNewRole={setNewRole}
         onSave={handleSaveRole}
+      />
+
+      <Dialog
+        open={!!deleteTaskTarget}
+        onClose={() => setDeleteTaskTarget(null)}
+        title={t.projects.deleteTask}
+        description={
+          deleteTaskTarget
+            ? `${t.projects.deleteTaskConfirmPrefix} «${deleteTaskTarget.title}» ${t.projects.deleteTaskConfirmSuffix}`
+            : ""
+        }
+        footer={
+          <>
+            <Button
+              variant="ghost"
+              onClick={() => setDeleteTaskTarget(null)}
+              disabled={isPending}
+            >
+              {t.common.cancel}
+            </Button>
+            <Button
+              variant="danger"
+              loading={isPending}
+              onClick={handleDeleteTaskConfirm}
+              disabled={!deleteTaskTarget || isPending}
+            >
+              {t.common.delete}
+            </Button>
+          </>
+        }
       />
     </div>
   );

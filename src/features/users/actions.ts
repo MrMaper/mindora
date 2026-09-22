@@ -68,7 +68,7 @@ export async function createUser(formData: FormData): Promise<ActionResult> {
   if (process.env.SMTP_HOST) {
     await sendMail({
       to: user.email,
-      subject: "حساب کاربری ScrumFlow شما",
+      subject: "حساب کاربری Mindora شما",
       html: `<p>سلام ${user.name}،</p><p>رمز عبور موقت شما: <strong>${tempPassword}</strong></p><p>لطفاً وارد شوید و رمز عبور را تغییر دهید.</p>`,
     });
   } else {

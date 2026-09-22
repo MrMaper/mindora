@@ -234,6 +234,17 @@ export type UserWhereInput = {
   projectMembers?: Prisma.ProjectMemberListRelationFilter
   preferences?: Prisma.XOR<Prisma.UserPreferencesNullableScalarRelationFilter, Prisma.UserPreferencesWhereInput> | null
   workLogs?: Prisma.WorkLogListRelationFilter
+  docs?: Prisma.DocListRelationFilter
+  docFolders?: Prisma.DocFolderListRelationFilter
+  docTags?: Prisma.DocTagListRelationFilter
+  langSessions?: Prisma.LangSessionListRelationFilter
+  langProfile?: Prisma.XOR<Prisma.LangProfileNullableScalarRelationFilter, Prisma.LangProfileWhereInput> | null
+  langCards?: Prisma.LangCardListRelationFilter
+  langVocabDays?: Prisma.LangVocabDayListRelationFilter
+  langListeningClips?: Prisma.LangListeningClipListRelationFilter
+  examTracks?: Prisma.ExamTrackListRelationFilter
+  mockAttempts?: Prisma.MockAttemptListRelationFilter
+  habits?: Prisma.HabitListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -259,6 +270,17 @@ export type UserOrderByWithRelationInput = {
   projectMembers?: Prisma.ProjectMemberOrderByRelationAggregateInput
   preferences?: Prisma.UserPreferencesOrderByWithRelationInput
   workLogs?: Prisma.WorkLogOrderByRelationAggregateInput
+  docs?: Prisma.DocOrderByRelationAggregateInput
+  docFolders?: Prisma.DocFolderOrderByRelationAggregateInput
+  docTags?: Prisma.DocTagOrderByRelationAggregateInput
+  langSessions?: Prisma.LangSessionOrderByRelationAggregateInput
+  langProfile?: Prisma.LangProfileOrderByWithRelationInput
+  langCards?: Prisma.LangCardOrderByRelationAggregateInput
+  langVocabDays?: Prisma.LangVocabDayOrderByRelationAggregateInput
+  langListeningClips?: Prisma.LangListeningClipOrderByRelationAggregateInput
+  examTracks?: Prisma.ExamTrackOrderByRelationAggregateInput
+  mockAttempts?: Prisma.MockAttemptOrderByRelationAggregateInput
+  habits?: Prisma.HabitOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -287,6 +309,17 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   projectMembers?: Prisma.ProjectMemberListRelationFilter
   preferences?: Prisma.XOR<Prisma.UserPreferencesNullableScalarRelationFilter, Prisma.UserPreferencesWhereInput> | null
   workLogs?: Prisma.WorkLogListRelationFilter
+  docs?: Prisma.DocListRelationFilter
+  docFolders?: Prisma.DocFolderListRelationFilter
+  docTags?: Prisma.DocTagListRelationFilter
+  langSessions?: Prisma.LangSessionListRelationFilter
+  langProfile?: Prisma.XOR<Prisma.LangProfileNullableScalarRelationFilter, Prisma.LangProfileWhereInput> | null
+  langCards?: Prisma.LangCardListRelationFilter
+  langVocabDays?: Prisma.LangVocabDayListRelationFilter
+  langListeningClips?: Prisma.LangListeningClipListRelationFilter
+  examTracks?: Prisma.ExamTrackListRelationFilter
+  mockAttempts?: Prisma.MockAttemptListRelationFilter
+  habits?: Prisma.HabitListRelationFilter
 }, "id" | "email" | "baleUserId">
 
 export type UserOrderByWithAggregationInput = {
@@ -344,6 +377,17 @@ export type UserCreateInput = {
   projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
   workLogs?: Prisma.WorkLogCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -369,6 +413,17 @@ export type UserUncheckedCreateInput = {
   projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
   workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderUncheckedCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagUncheckedCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileUncheckedCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -394,6 +449,17 @@ export type UserUpdateInput = {
   projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
   workLogs?: Prisma.WorkLogUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -419,6 +485,17 @@ export type UserUncheckedUpdateInput = {
   projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
   workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUncheckedUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUncheckedUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUncheckedUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -699,6 +776,160 @@ export type UserUpdateOneRequiredWithoutWorkLogsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutWorkLogsInput, Prisma.UserUpdateWithoutWorkLogsInput>, Prisma.UserUncheckedUpdateWithoutWorkLogsInput>
 }
 
+export type UserCreateNestedOneWithoutHabitsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutHabitsInput, Prisma.UserUncheckedCreateWithoutHabitsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutHabitsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutHabitsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutHabitsInput, Prisma.UserUncheckedCreateWithoutHabitsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutHabitsInput
+  upsert?: Prisma.UserUpsertWithoutHabitsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutHabitsInput, Prisma.UserUpdateWithoutHabitsInput>, Prisma.UserUncheckedUpdateWithoutHabitsInput>
+}
+
+export type UserCreateNestedOneWithoutDocsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutDocsInput, Prisma.UserUncheckedCreateWithoutDocsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutDocsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutDocsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutDocsInput, Prisma.UserUncheckedCreateWithoutDocsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutDocsInput
+  upsert?: Prisma.UserUpsertWithoutDocsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutDocsInput, Prisma.UserUpdateWithoutDocsInput>, Prisma.UserUncheckedUpdateWithoutDocsInput>
+}
+
+export type UserCreateNestedOneWithoutDocFoldersInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutDocFoldersInput, Prisma.UserUncheckedCreateWithoutDocFoldersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutDocFoldersInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutDocFoldersNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutDocFoldersInput, Prisma.UserUncheckedCreateWithoutDocFoldersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutDocFoldersInput
+  upsert?: Prisma.UserUpsertWithoutDocFoldersInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutDocFoldersInput, Prisma.UserUpdateWithoutDocFoldersInput>, Prisma.UserUncheckedUpdateWithoutDocFoldersInput>
+}
+
+export type UserCreateNestedOneWithoutDocTagsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutDocTagsInput, Prisma.UserUncheckedCreateWithoutDocTagsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutDocTagsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutDocTagsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutDocTagsInput, Prisma.UserUncheckedCreateWithoutDocTagsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutDocTagsInput
+  upsert?: Prisma.UserUpsertWithoutDocTagsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutDocTagsInput, Prisma.UserUpdateWithoutDocTagsInput>, Prisma.UserUncheckedUpdateWithoutDocTagsInput>
+}
+
+export type UserCreateNestedOneWithoutLangProfileInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutLangProfileInput, Prisma.UserUncheckedCreateWithoutLangProfileInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLangProfileInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutLangProfileNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutLangProfileInput, Prisma.UserUncheckedCreateWithoutLangProfileInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLangProfileInput
+  upsert?: Prisma.UserUpsertWithoutLangProfileInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutLangProfileInput, Prisma.UserUpdateWithoutLangProfileInput>, Prisma.UserUncheckedUpdateWithoutLangProfileInput>
+}
+
+export type UserCreateNestedOneWithoutLangSessionsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutLangSessionsInput, Prisma.UserUncheckedCreateWithoutLangSessionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLangSessionsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutLangSessionsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutLangSessionsInput, Prisma.UserUncheckedCreateWithoutLangSessionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLangSessionsInput
+  upsert?: Prisma.UserUpsertWithoutLangSessionsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutLangSessionsInput, Prisma.UserUpdateWithoutLangSessionsInput>, Prisma.UserUncheckedUpdateWithoutLangSessionsInput>
+}
+
+export type UserCreateNestedOneWithoutLangListeningClipsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutLangListeningClipsInput, Prisma.UserUncheckedCreateWithoutLangListeningClipsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLangListeningClipsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutLangListeningClipsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutLangListeningClipsInput, Prisma.UserUncheckedCreateWithoutLangListeningClipsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLangListeningClipsInput
+  upsert?: Prisma.UserUpsertWithoutLangListeningClipsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutLangListeningClipsInput, Prisma.UserUpdateWithoutLangListeningClipsInput>, Prisma.UserUncheckedUpdateWithoutLangListeningClipsInput>
+}
+
+export type UserCreateNestedOneWithoutLangCardsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutLangCardsInput, Prisma.UserUncheckedCreateWithoutLangCardsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLangCardsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutLangCardsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutLangCardsInput, Prisma.UserUncheckedCreateWithoutLangCardsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLangCardsInput
+  upsert?: Prisma.UserUpsertWithoutLangCardsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutLangCardsInput, Prisma.UserUpdateWithoutLangCardsInput>, Prisma.UserUncheckedUpdateWithoutLangCardsInput>
+}
+
+export type UserCreateNestedOneWithoutLangVocabDaysInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutLangVocabDaysInput, Prisma.UserUncheckedCreateWithoutLangVocabDaysInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLangVocabDaysInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutLangVocabDaysNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutLangVocabDaysInput, Prisma.UserUncheckedCreateWithoutLangVocabDaysInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLangVocabDaysInput
+  upsert?: Prisma.UserUpsertWithoutLangVocabDaysInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutLangVocabDaysInput, Prisma.UserUpdateWithoutLangVocabDaysInput>, Prisma.UserUncheckedUpdateWithoutLangVocabDaysInput>
+}
+
+export type UserCreateNestedOneWithoutExamTracksInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutExamTracksInput, Prisma.UserUncheckedCreateWithoutExamTracksInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutExamTracksInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutExamTracksNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutExamTracksInput, Prisma.UserUncheckedCreateWithoutExamTracksInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutExamTracksInput
+  upsert?: Prisma.UserUpsertWithoutExamTracksInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutExamTracksInput, Prisma.UserUpdateWithoutExamTracksInput>, Prisma.UserUncheckedUpdateWithoutExamTracksInput>
+}
+
+export type UserCreateNestedOneWithoutMockAttemptsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMockAttemptsInput, Prisma.UserUncheckedCreateWithoutMockAttemptsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMockAttemptsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutMockAttemptsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMockAttemptsInput, Prisma.UserUncheckedCreateWithoutMockAttemptsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMockAttemptsInput
+  upsert?: Prisma.UserUpsertWithoutMockAttemptsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMockAttemptsInput, Prisma.UserUpdateWithoutMockAttemptsInput>, Prisma.UserUncheckedUpdateWithoutMockAttemptsInput>
+}
+
 export type UserCreateWithoutAccountsInput = {
   id?: string
   name: string
@@ -721,6 +952,17 @@ export type UserCreateWithoutAccountsInput = {
   projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
   workLogs?: Prisma.WorkLogCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -745,6 +987,17 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
   workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderUncheckedCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagUncheckedCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileUncheckedCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -785,6 +1038,17 @@ export type UserUpdateWithoutAccountsInput = {
   projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
   workLogs?: Prisma.WorkLogUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -809,6 +1073,17 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
   workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUncheckedUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUncheckedUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUncheckedUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -833,6 +1108,17 @@ export type UserCreateWithoutSessionsInput = {
   projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
   workLogs?: Prisma.WorkLogCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -857,6 +1143,17 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
   workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderUncheckedCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagUncheckedCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileUncheckedCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -897,6 +1194,17 @@ export type UserUpdateWithoutSessionsInput = {
   projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
   workLogs?: Prisma.WorkLogUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -921,6 +1229,17 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
   workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUncheckedUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUncheckedUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUncheckedUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPasswordResetTokensInput = {
@@ -945,6 +1264,17 @@ export type UserCreateWithoutPasswordResetTokensInput = {
   projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
   workLogs?: Prisma.WorkLogCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
@@ -969,6 +1299,17 @@ export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
   projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
   workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderUncheckedCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagUncheckedCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileUncheckedCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPasswordResetTokensInput = {
@@ -1009,6 +1350,17 @@ export type UserUpdateWithoutPasswordResetTokensInput = {
   projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
   workLogs?: Prisma.WorkLogUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
@@ -1033,6 +1385,17 @@ export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
   projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
   workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUncheckedUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUncheckedUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUncheckedUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPreferencesInput = {
@@ -1057,6 +1420,17 @@ export type UserCreateWithoutPreferencesInput = {
   teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
   projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
   workLogs?: Prisma.WorkLogCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPreferencesInput = {
@@ -1081,6 +1455,17 @@ export type UserUncheckedCreateWithoutPreferencesInput = {
   teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
   projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
   workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderUncheckedCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagUncheckedCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileUncheckedCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPreferencesInput = {
@@ -1121,6 +1506,17 @@ export type UserUpdateWithoutPreferencesInput = {
   teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
   projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
   workLogs?: Prisma.WorkLogUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPreferencesInput = {
@@ -1145,6 +1541,17 @@ export type UserUncheckedUpdateWithoutPreferencesInput = {
   teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
   projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
   workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUncheckedUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUncheckedUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUncheckedUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutTeamMembersInput = {
@@ -1169,6 +1576,17 @@ export type UserCreateWithoutTeamMembersInput = {
   projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
   workLogs?: Prisma.WorkLogCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutTeamMembersInput = {
@@ -1193,6 +1611,17 @@ export type UserUncheckedCreateWithoutTeamMembersInput = {
   projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
   workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderUncheckedCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagUncheckedCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileUncheckedCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutTeamMembersInput = {
@@ -1233,6 +1662,17 @@ export type UserUpdateWithoutTeamMembersInput = {
   projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
   workLogs?: Prisma.WorkLogUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTeamMembersInput = {
@@ -1257,6 +1697,17 @@ export type UserUncheckedUpdateWithoutTeamMembersInput = {
   projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
   workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUncheckedUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUncheckedUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUncheckedUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutProjectMembersInput = {
@@ -1281,6 +1732,17 @@ export type UserCreateWithoutProjectMembersInput = {
   teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
   workLogs?: Prisma.WorkLogCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutProjectMembersInput = {
@@ -1305,6 +1767,17 @@ export type UserUncheckedCreateWithoutProjectMembersInput = {
   teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
   workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderUncheckedCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagUncheckedCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileUncheckedCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutProjectMembersInput = {
@@ -1345,6 +1818,17 @@ export type UserUpdateWithoutProjectMembersInput = {
   teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
   workLogs?: Prisma.WorkLogUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutProjectMembersInput = {
@@ -1369,6 +1853,17 @@ export type UserUncheckedUpdateWithoutProjectMembersInput = {
   teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
   workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUncheckedUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUncheckedUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUncheckedUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAssignedTasksInput = {
@@ -1393,6 +1888,17 @@ export type UserCreateWithoutAssignedTasksInput = {
   projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
   workLogs?: Prisma.WorkLogCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAssignedTasksInput = {
@@ -1417,6 +1923,17 @@ export type UserUncheckedCreateWithoutAssignedTasksInput = {
   projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
   workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderUncheckedCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagUncheckedCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileUncheckedCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAssignedTasksInput = {
@@ -1446,6 +1963,17 @@ export type UserCreateWithoutCreatedTasksInput = {
   projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
   workLogs?: Prisma.WorkLogCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedTasksInput = {
@@ -1470,6 +1998,17 @@ export type UserUncheckedCreateWithoutCreatedTasksInput = {
   projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
   workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderUncheckedCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagUncheckedCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileUncheckedCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedTasksInput = {
@@ -1510,6 +2049,17 @@ export type UserUpdateWithoutAssignedTasksInput = {
   projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
   workLogs?: Prisma.WorkLogUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAssignedTasksInput = {
@@ -1534,6 +2084,17 @@ export type UserUncheckedUpdateWithoutAssignedTasksInput = {
   projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
   workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUncheckedUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUncheckedUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUncheckedUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutCreatedTasksInput = {
@@ -1569,6 +2130,17 @@ export type UserUpdateWithoutCreatedTasksInput = {
   projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
   workLogs?: Prisma.WorkLogUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedTasksInput = {
@@ -1593,6 +2165,17 @@ export type UserUncheckedUpdateWithoutCreatedTasksInput = {
   projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
   workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUncheckedUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUncheckedUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUncheckedUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCommentsInput = {
@@ -1617,6 +2200,17 @@ export type UserCreateWithoutCommentsInput = {
   projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
   workLogs?: Prisma.WorkLogCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCommentsInput = {
@@ -1641,6 +2235,17 @@ export type UserUncheckedCreateWithoutCommentsInput = {
   projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
   workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderUncheckedCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagUncheckedCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileUncheckedCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCommentsInput = {
@@ -1681,6 +2286,17 @@ export type UserUpdateWithoutCommentsInput = {
   projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
   workLogs?: Prisma.WorkLogUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCommentsInput = {
@@ -1705,6 +2321,17 @@ export type UserUncheckedUpdateWithoutCommentsInput = {
   projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
   workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUncheckedUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUncheckedUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUncheckedUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutNotificationsInput = {
@@ -1729,6 +2356,17 @@ export type UserCreateWithoutNotificationsInput = {
   projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
   workLogs?: Prisma.WorkLogCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -1753,6 +2391,17 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
   workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderUncheckedCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagUncheckedCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileUncheckedCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -1793,6 +2442,17 @@ export type UserUpdateWithoutNotificationsInput = {
   projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
   workLogs?: Prisma.WorkLogUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -1817,6 +2477,17 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
   workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUncheckedUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUncheckedUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUncheckedUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutActivityLogsInput = {
@@ -1841,6 +2512,17 @@ export type UserCreateWithoutActivityLogsInput = {
   projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
   workLogs?: Prisma.WorkLogCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutActivityLogsInput = {
@@ -1865,6 +2547,17 @@ export type UserUncheckedCreateWithoutActivityLogsInput = {
   projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
   workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderUncheckedCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagUncheckedCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileUncheckedCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutActivityLogsInput = {
@@ -1905,6 +2598,17 @@ export type UserUpdateWithoutActivityLogsInput = {
   projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
   workLogs?: Prisma.WorkLogUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutActivityLogsInput = {
@@ -1929,6 +2633,17 @@ export type UserUncheckedUpdateWithoutActivityLogsInput = {
   projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
   workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUncheckedUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUncheckedUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUncheckedUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutWorkLogsInput = {
@@ -1953,6 +2668,17 @@ export type UserCreateWithoutWorkLogsInput = {
   teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
   projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
+  docs?: Prisma.DocCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutWorkLogsInput = {
@@ -1977,6 +2703,17 @@ export type UserUncheckedCreateWithoutWorkLogsInput = {
   teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
   projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderUncheckedCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagUncheckedCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileUncheckedCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutWorkLogsInput = {
@@ -2017,6 +2754,17 @@ export type UserUpdateWithoutWorkLogsInput = {
   teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
   projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
+  docs?: Prisma.DocUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutWorkLogsInput = {
@@ -2041,6 +2789,1733 @@ export type UserUncheckedUpdateWithoutWorkLogsInput = {
   teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
   projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUncheckedUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUncheckedUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUncheckedUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutHabitsInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  avatar?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  baleUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
+  comments?: Prisma.CommentCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
+  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
+  workLogs?: Prisma.WorkLogCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutHabitsInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  avatar?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  baleUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
+  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
+  workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderUncheckedCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagUncheckedCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileUncheckedCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutHabitsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutHabitsInput, Prisma.UserUncheckedCreateWithoutHabitsInput>
+}
+
+export type UserUpsertWithoutHabitsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutHabitsInput, Prisma.UserUncheckedUpdateWithoutHabitsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutHabitsInput, Prisma.UserUncheckedCreateWithoutHabitsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutHabitsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutHabitsInput, Prisma.UserUncheckedUpdateWithoutHabitsInput>
+}
+
+export type UserUpdateWithoutHabitsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
+  comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
+  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
+  workLogs?: Prisma.WorkLogUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutHabitsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
+  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
+  workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUncheckedUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUncheckedUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUncheckedUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutDocsInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  avatar?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  baleUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
+  comments?: Prisma.CommentCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
+  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
+  workLogs?: Prisma.WorkLogCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutDocsInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  avatar?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  baleUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
+  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
+  workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderUncheckedCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagUncheckedCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileUncheckedCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutDocsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutDocsInput, Prisma.UserUncheckedCreateWithoutDocsInput>
+}
+
+export type UserUpsertWithoutDocsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutDocsInput, Prisma.UserUncheckedUpdateWithoutDocsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutDocsInput, Prisma.UserUncheckedCreateWithoutDocsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutDocsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutDocsInput, Prisma.UserUncheckedUpdateWithoutDocsInput>
+}
+
+export type UserUpdateWithoutDocsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
+  comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
+  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
+  workLogs?: Prisma.WorkLogUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutDocsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
+  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
+  workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUncheckedUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUncheckedUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUncheckedUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutDocFoldersInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  avatar?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  baleUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
+  comments?: Prisma.CommentCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
+  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
+  workLogs?: Prisma.WorkLogCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutDocFoldersInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  avatar?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  baleUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
+  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
+  workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagUncheckedCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileUncheckedCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutDocFoldersInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutDocFoldersInput, Prisma.UserUncheckedCreateWithoutDocFoldersInput>
+}
+
+export type UserUpsertWithoutDocFoldersInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutDocFoldersInput, Prisma.UserUncheckedUpdateWithoutDocFoldersInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutDocFoldersInput, Prisma.UserUncheckedCreateWithoutDocFoldersInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutDocFoldersInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutDocFoldersInput, Prisma.UserUncheckedUpdateWithoutDocFoldersInput>
+}
+
+export type UserUpdateWithoutDocFoldersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
+  comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
+  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
+  workLogs?: Prisma.WorkLogUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutDocFoldersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
+  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
+  workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUncheckedUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUncheckedUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutDocTagsInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  avatar?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  baleUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
+  comments?: Prisma.CommentCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
+  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
+  workLogs?: Prisma.WorkLogCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutDocTagsInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  avatar?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  baleUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
+  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
+  workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderUncheckedCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileUncheckedCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutDocTagsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutDocTagsInput, Prisma.UserUncheckedCreateWithoutDocTagsInput>
+}
+
+export type UserUpsertWithoutDocTagsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutDocTagsInput, Prisma.UserUncheckedUpdateWithoutDocTagsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutDocTagsInput, Prisma.UserUncheckedCreateWithoutDocTagsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutDocTagsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutDocTagsInput, Prisma.UserUncheckedUpdateWithoutDocTagsInput>
+}
+
+export type UserUpdateWithoutDocTagsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
+  comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
+  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
+  workLogs?: Prisma.WorkLogUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutDocTagsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
+  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
+  workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUncheckedUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUncheckedUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutLangProfileInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  avatar?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  baleUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
+  comments?: Prisma.CommentCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
+  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
+  workLogs?: Prisma.WorkLogCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutUserInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutLangProfileInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  avatar?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  baleUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
+  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
+  workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderUncheckedCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagUncheckedCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutUserInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutLangProfileInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutLangProfileInput, Prisma.UserUncheckedCreateWithoutLangProfileInput>
+}
+
+export type UserUpsertWithoutLangProfileInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutLangProfileInput, Prisma.UserUncheckedUpdateWithoutLangProfileInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutLangProfileInput, Prisma.UserUncheckedCreateWithoutLangProfileInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutLangProfileInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutLangProfileInput, Prisma.UserUncheckedUpdateWithoutLangProfileInput>
+}
+
+export type UserUpdateWithoutLangProfileInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
+  comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
+  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
+  workLogs?: Prisma.WorkLogUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutUserNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutLangProfileInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
+  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
+  workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUncheckedUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUncheckedUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutUserNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutLangSessionsInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  avatar?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  baleUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
+  comments?: Prisma.CommentCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
+  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
+  workLogs?: Prisma.WorkLogCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutLangSessionsInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  avatar?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  baleUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
+  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
+  workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderUncheckedCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagUncheckedCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileUncheckedCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutLangSessionsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutLangSessionsInput, Prisma.UserUncheckedCreateWithoutLangSessionsInput>
+}
+
+export type UserUpsertWithoutLangSessionsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutLangSessionsInput, Prisma.UserUncheckedUpdateWithoutLangSessionsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutLangSessionsInput, Prisma.UserUncheckedCreateWithoutLangSessionsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutLangSessionsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutLangSessionsInput, Prisma.UserUncheckedUpdateWithoutLangSessionsInput>
+}
+
+export type UserUpdateWithoutLangSessionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
+  comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
+  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
+  workLogs?: Prisma.WorkLogUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutLangSessionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
+  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
+  workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUncheckedUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUncheckedUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUncheckedUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutLangListeningClipsInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  avatar?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  baleUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
+  comments?: Prisma.CommentCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
+  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
+  workLogs?: Prisma.WorkLogCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutLangListeningClipsInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  avatar?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  baleUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
+  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
+  workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderUncheckedCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagUncheckedCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileUncheckedCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutLangListeningClipsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutLangListeningClipsInput, Prisma.UserUncheckedCreateWithoutLangListeningClipsInput>
+}
+
+export type UserUpsertWithoutLangListeningClipsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutLangListeningClipsInput, Prisma.UserUncheckedUpdateWithoutLangListeningClipsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutLangListeningClipsInput, Prisma.UserUncheckedCreateWithoutLangListeningClipsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutLangListeningClipsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutLangListeningClipsInput, Prisma.UserUncheckedUpdateWithoutLangListeningClipsInput>
+}
+
+export type UserUpdateWithoutLangListeningClipsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
+  comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
+  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
+  workLogs?: Prisma.WorkLogUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutLangListeningClipsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
+  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
+  workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUncheckedUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUncheckedUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUncheckedUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutLangCardsInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  avatar?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  baleUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
+  comments?: Prisma.CommentCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
+  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
+  workLogs?: Prisma.WorkLogCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileCreateNestedOneWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutLangCardsInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  avatar?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  baleUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
+  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
+  workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderUncheckedCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagUncheckedCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileUncheckedCreateNestedOneWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutLangCardsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutLangCardsInput, Prisma.UserUncheckedCreateWithoutLangCardsInput>
+}
+
+export type UserUpsertWithoutLangCardsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutLangCardsInput, Prisma.UserUncheckedUpdateWithoutLangCardsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutLangCardsInput, Prisma.UserUncheckedCreateWithoutLangCardsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutLangCardsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutLangCardsInput, Prisma.UserUncheckedUpdateWithoutLangCardsInput>
+}
+
+export type UserUpdateWithoutLangCardsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
+  comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
+  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
+  workLogs?: Prisma.WorkLogUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUpdateOneWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutLangCardsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
+  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
+  workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUncheckedUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUncheckedUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUncheckedUpdateOneWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutLangVocabDaysInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  avatar?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  baleUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
+  comments?: Prisma.CommentCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
+  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
+  workLogs?: Prisma.WorkLogCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutLangVocabDaysInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  avatar?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  baleUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
+  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
+  workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderUncheckedCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagUncheckedCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileUncheckedCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutLangVocabDaysInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutLangVocabDaysInput, Prisma.UserUncheckedCreateWithoutLangVocabDaysInput>
+}
+
+export type UserUpsertWithoutLangVocabDaysInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutLangVocabDaysInput, Prisma.UserUncheckedUpdateWithoutLangVocabDaysInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutLangVocabDaysInput, Prisma.UserUncheckedCreateWithoutLangVocabDaysInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutLangVocabDaysInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutLangVocabDaysInput, Prisma.UserUncheckedUpdateWithoutLangVocabDaysInput>
+}
+
+export type UserUpdateWithoutLangVocabDaysInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
+  comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
+  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
+  workLogs?: Prisma.WorkLogUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutLangVocabDaysInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
+  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
+  workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUncheckedUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUncheckedUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUncheckedUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutExamTracksInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  avatar?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  baleUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
+  comments?: Prisma.CommentCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
+  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
+  workLogs?: Prisma.WorkLogCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutExamTracksInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  avatar?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  baleUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
+  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
+  workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderUncheckedCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagUncheckedCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileUncheckedCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutExamTracksInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutExamTracksInput, Prisma.UserUncheckedCreateWithoutExamTracksInput>
+}
+
+export type UserUpsertWithoutExamTracksInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutExamTracksInput, Prisma.UserUncheckedUpdateWithoutExamTracksInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutExamTracksInput, Prisma.UserUncheckedCreateWithoutExamTracksInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutExamTracksInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutExamTracksInput, Prisma.UserUncheckedUpdateWithoutExamTracksInput>
+}
+
+export type UserUpdateWithoutExamTracksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
+  comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
+  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
+  workLogs?: Prisma.WorkLogUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutExamTracksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
+  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
+  workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUncheckedUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUncheckedUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUncheckedUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutMockAttemptsInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  avatar?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  baleUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
+  comments?: Prisma.CommentCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
+  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
+  workLogs?: Prisma.WorkLogCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutMockAttemptsInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  avatar?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  baleUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
+  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
+  workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderUncheckedCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagUncheckedCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileUncheckedCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutMockAttemptsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutMockAttemptsInput, Prisma.UserUncheckedCreateWithoutMockAttemptsInput>
+}
+
+export type UserUpsertWithoutMockAttemptsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutMockAttemptsInput, Prisma.UserUncheckedUpdateWithoutMockAttemptsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutMockAttemptsInput, Prisma.UserUncheckedCreateWithoutMockAttemptsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutMockAttemptsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutMockAttemptsInput, Prisma.UserUncheckedUpdateWithoutMockAttemptsInput>
+}
+
+export type UserUpdateWithoutMockAttemptsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
+  comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
+  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
+  workLogs?: Prisma.WorkLogUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutMockAttemptsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
+  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
+  workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUncheckedUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUncheckedUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUncheckedUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -2060,6 +4535,16 @@ export type UserCountOutputType = {
   teamMembers: number
   projectMembers: number
   workLogs: number
+  docs: number
+  docFolders: number
+  docTags: number
+  langSessions: number
+  langCards: number
+  langVocabDays: number
+  langListeningClips: number
+  examTracks: number
+  mockAttempts: number
+  habits: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2074,6 +4559,16 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   teamMembers?: boolean | UserCountOutputTypeCountTeamMembersArgs
   projectMembers?: boolean | UserCountOutputTypeCountProjectMembersArgs
   workLogs?: boolean | UserCountOutputTypeCountWorkLogsArgs
+  docs?: boolean | UserCountOutputTypeCountDocsArgs
+  docFolders?: boolean | UserCountOutputTypeCountDocFoldersArgs
+  docTags?: boolean | UserCountOutputTypeCountDocTagsArgs
+  langSessions?: boolean | UserCountOutputTypeCountLangSessionsArgs
+  langCards?: boolean | UserCountOutputTypeCountLangCardsArgs
+  langVocabDays?: boolean | UserCountOutputTypeCountLangVocabDaysArgs
+  langListeningClips?: boolean | UserCountOutputTypeCountLangListeningClipsArgs
+  examTracks?: boolean | UserCountOutputTypeCountExamTracksArgs
+  mockAttempts?: boolean | UserCountOutputTypeCountMockAttemptsArgs
+  habits?: boolean | UserCountOutputTypeCountHabitsArgs
 }
 
 /**
@@ -2163,6 +4658,76 @@ export type UserCountOutputTypeCountWorkLogsArgs<ExtArgs extends runtime.Types.E
   where?: Prisma.WorkLogWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountDocsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DocWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountDocFoldersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DocFolderWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountDocTagsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DocTagWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountLangSessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LangSessionWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountLangCardsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LangCardWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountLangVocabDaysArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LangVocabDayWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountLangListeningClipsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LangListeningClipWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountExamTracksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ExamTrackWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountMockAttemptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MockAttemptWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountHabitsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.HabitWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2187,6 +4752,17 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   projectMembers?: boolean | Prisma.User$projectMembersArgs<ExtArgs>
   preferences?: boolean | Prisma.User$preferencesArgs<ExtArgs>
   workLogs?: boolean | Prisma.User$workLogsArgs<ExtArgs>
+  docs?: boolean | Prisma.User$docsArgs<ExtArgs>
+  docFolders?: boolean | Prisma.User$docFoldersArgs<ExtArgs>
+  docTags?: boolean | Prisma.User$docTagsArgs<ExtArgs>
+  langSessions?: boolean | Prisma.User$langSessionsArgs<ExtArgs>
+  langProfile?: boolean | Prisma.User$langProfileArgs<ExtArgs>
+  langCards?: boolean | Prisma.User$langCardsArgs<ExtArgs>
+  langVocabDays?: boolean | Prisma.User$langVocabDaysArgs<ExtArgs>
+  langListeningClips?: boolean | Prisma.User$langListeningClipsArgs<ExtArgs>
+  examTracks?: boolean | Prisma.User$examTracksArgs<ExtArgs>
+  mockAttempts?: boolean | Prisma.User$mockAttemptsArgs<ExtArgs>
+  habits?: boolean | Prisma.User$habitsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -2243,6 +4819,17 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   projectMembers?: boolean | Prisma.User$projectMembersArgs<ExtArgs>
   preferences?: boolean | Prisma.User$preferencesArgs<ExtArgs>
   workLogs?: boolean | Prisma.User$workLogsArgs<ExtArgs>
+  docs?: boolean | Prisma.User$docsArgs<ExtArgs>
+  docFolders?: boolean | Prisma.User$docFoldersArgs<ExtArgs>
+  docTags?: boolean | Prisma.User$docTagsArgs<ExtArgs>
+  langSessions?: boolean | Prisma.User$langSessionsArgs<ExtArgs>
+  langProfile?: boolean | Prisma.User$langProfileArgs<ExtArgs>
+  langCards?: boolean | Prisma.User$langCardsArgs<ExtArgs>
+  langVocabDays?: boolean | Prisma.User$langVocabDaysArgs<ExtArgs>
+  langListeningClips?: boolean | Prisma.User$langListeningClipsArgs<ExtArgs>
+  examTracks?: boolean | Prisma.User$examTracksArgs<ExtArgs>
+  mockAttempts?: boolean | Prisma.User$mockAttemptsArgs<ExtArgs>
+  habits?: boolean | Prisma.User$habitsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -2263,6 +4850,17 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     projectMembers: Prisma.$ProjectMemberPayload<ExtArgs>[]
     preferences: Prisma.$UserPreferencesPayload<ExtArgs> | null
     workLogs: Prisma.$WorkLogPayload<ExtArgs>[]
+    docs: Prisma.$DocPayload<ExtArgs>[]
+    docFolders: Prisma.$DocFolderPayload<ExtArgs>[]
+    docTags: Prisma.$DocTagPayload<ExtArgs>[]
+    langSessions: Prisma.$LangSessionPayload<ExtArgs>[]
+    langProfile: Prisma.$LangProfilePayload<ExtArgs> | null
+    langCards: Prisma.$LangCardPayload<ExtArgs>[]
+    langVocabDays: Prisma.$LangVocabDayPayload<ExtArgs>[]
+    langListeningClips: Prisma.$LangListeningClipPayload<ExtArgs>[]
+    examTracks: Prisma.$ExamTrackPayload<ExtArgs>[]
+    mockAttempts: Prisma.$MockAttemptPayload<ExtArgs>[]
+    habits: Prisma.$HabitPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2681,6 +5279,17 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   projectMembers<T extends Prisma.User$projectMembersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$projectMembersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   preferences<T extends Prisma.User$preferencesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$preferencesArgs<ExtArgs>>): Prisma.Prisma__UserPreferencesClient<runtime.Types.Result.GetResult<Prisma.$UserPreferencesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   workLogs<T extends Prisma.User$workLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$workLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  docs<T extends Prisma.User$docsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$docsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DocPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  docFolders<T extends Prisma.User$docFoldersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$docFoldersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DocFolderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  docTags<T extends Prisma.User$docTagsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$docTagsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DocTagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  langSessions<T extends Prisma.User$langSessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$langSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LangSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  langProfile<T extends Prisma.User$langProfileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$langProfileArgs<ExtArgs>>): Prisma.Prisma__LangProfileClient<runtime.Types.Result.GetResult<Prisma.$LangProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  langCards<T extends Prisma.User$langCardsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$langCardsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LangCardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  langVocabDays<T extends Prisma.User$langVocabDaysArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$langVocabDaysArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LangVocabDayPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  langListeningClips<T extends Prisma.User$langListeningClipsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$langListeningClipsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LangListeningClipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  examTracks<T extends Prisma.User$examTracksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$examTracksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExamTrackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  mockAttempts<T extends Prisma.User$mockAttemptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$mockAttemptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MockAttemptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  habits<T extends Prisma.User$habitsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$habitsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$HabitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3393,6 +6002,265 @@ export type User$workLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.WorkLogScalarFieldEnum | Prisma.WorkLogScalarFieldEnum[]
+}
+
+/**
+ * User.docs
+ */
+export type User$docsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Doc
+   */
+  select?: Prisma.DocSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Doc
+   */
+  omit?: Prisma.DocOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DocInclude<ExtArgs> | null
+  where?: Prisma.DocWhereInput
+  orderBy?: Prisma.DocOrderByWithRelationInput | Prisma.DocOrderByWithRelationInput[]
+  cursor?: Prisma.DocWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DocScalarFieldEnum | Prisma.DocScalarFieldEnum[]
+}
+
+/**
+ * User.docFolders
+ */
+export type User$docFoldersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DocFolder
+   */
+  select?: Prisma.DocFolderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DocFolder
+   */
+  omit?: Prisma.DocFolderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DocFolderInclude<ExtArgs> | null
+  where?: Prisma.DocFolderWhereInput
+  orderBy?: Prisma.DocFolderOrderByWithRelationInput | Prisma.DocFolderOrderByWithRelationInput[]
+  cursor?: Prisma.DocFolderWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DocFolderScalarFieldEnum | Prisma.DocFolderScalarFieldEnum[]
+}
+
+/**
+ * User.docTags
+ */
+export type User$docTagsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DocTag
+   */
+  select?: Prisma.DocTagSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DocTag
+   */
+  omit?: Prisma.DocTagOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DocTagInclude<ExtArgs> | null
+  where?: Prisma.DocTagWhereInput
+  orderBy?: Prisma.DocTagOrderByWithRelationInput | Prisma.DocTagOrderByWithRelationInput[]
+  cursor?: Prisma.DocTagWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DocTagScalarFieldEnum | Prisma.DocTagScalarFieldEnum[]
+}
+
+/**
+ * User.langSessions
+ */
+export type User$langSessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LangSession
+   */
+  select?: Prisma.LangSessionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LangSession
+   */
+  omit?: Prisma.LangSessionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LangSessionInclude<ExtArgs> | null
+  where?: Prisma.LangSessionWhereInput
+  orderBy?: Prisma.LangSessionOrderByWithRelationInput | Prisma.LangSessionOrderByWithRelationInput[]
+  cursor?: Prisma.LangSessionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LangSessionScalarFieldEnum | Prisma.LangSessionScalarFieldEnum[]
+}
+
+/**
+ * User.langProfile
+ */
+export type User$langProfileArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LangProfile
+   */
+  select?: Prisma.LangProfileSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LangProfile
+   */
+  omit?: Prisma.LangProfileOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LangProfileInclude<ExtArgs> | null
+  where?: Prisma.LangProfileWhereInput
+}
+
+/**
+ * User.langCards
+ */
+export type User$langCardsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LangCard
+   */
+  select?: Prisma.LangCardSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LangCard
+   */
+  omit?: Prisma.LangCardOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LangCardInclude<ExtArgs> | null
+  where?: Prisma.LangCardWhereInput
+  orderBy?: Prisma.LangCardOrderByWithRelationInput | Prisma.LangCardOrderByWithRelationInput[]
+  cursor?: Prisma.LangCardWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LangCardScalarFieldEnum | Prisma.LangCardScalarFieldEnum[]
+}
+
+/**
+ * User.langVocabDays
+ */
+export type User$langVocabDaysArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LangVocabDay
+   */
+  select?: Prisma.LangVocabDaySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LangVocabDay
+   */
+  omit?: Prisma.LangVocabDayOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LangVocabDayInclude<ExtArgs> | null
+  where?: Prisma.LangVocabDayWhereInput
+  orderBy?: Prisma.LangVocabDayOrderByWithRelationInput | Prisma.LangVocabDayOrderByWithRelationInput[]
+  cursor?: Prisma.LangVocabDayWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LangVocabDayScalarFieldEnum | Prisma.LangVocabDayScalarFieldEnum[]
+}
+
+/**
+ * User.langListeningClips
+ */
+export type User$langListeningClipsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LangListeningClip
+   */
+  select?: Prisma.LangListeningClipSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LangListeningClip
+   */
+  omit?: Prisma.LangListeningClipOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LangListeningClipInclude<ExtArgs> | null
+  where?: Prisma.LangListeningClipWhereInput
+  orderBy?: Prisma.LangListeningClipOrderByWithRelationInput | Prisma.LangListeningClipOrderByWithRelationInput[]
+  cursor?: Prisma.LangListeningClipWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LangListeningClipScalarFieldEnum | Prisma.LangListeningClipScalarFieldEnum[]
+}
+
+/**
+ * User.examTracks
+ */
+export type User$examTracksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ExamTrack
+   */
+  select?: Prisma.ExamTrackSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ExamTrack
+   */
+  omit?: Prisma.ExamTrackOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ExamTrackInclude<ExtArgs> | null
+  where?: Prisma.ExamTrackWhereInput
+  orderBy?: Prisma.ExamTrackOrderByWithRelationInput | Prisma.ExamTrackOrderByWithRelationInput[]
+  cursor?: Prisma.ExamTrackWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ExamTrackScalarFieldEnum | Prisma.ExamTrackScalarFieldEnum[]
+}
+
+/**
+ * User.mockAttempts
+ */
+export type User$mockAttemptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MockAttempt
+   */
+  select?: Prisma.MockAttemptSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MockAttempt
+   */
+  omit?: Prisma.MockAttemptOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MockAttemptInclude<ExtArgs> | null
+  where?: Prisma.MockAttemptWhereInput
+  orderBy?: Prisma.MockAttemptOrderByWithRelationInput | Prisma.MockAttemptOrderByWithRelationInput[]
+  cursor?: Prisma.MockAttemptWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MockAttemptScalarFieldEnum | Prisma.MockAttemptScalarFieldEnum[]
+}
+
+/**
+ * User.habits
+ */
+export type User$habitsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Habit
+   */
+  select?: Prisma.HabitSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Habit
+   */
+  omit?: Prisma.HabitOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.HabitInclude<ExtArgs> | null
+  where?: Prisma.HabitWhereInput
+  orderBy?: Prisma.HabitOrderByWithRelationInput | Prisma.HabitOrderByWithRelationInput[]
+  cursor?: Prisma.HabitWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.HabitScalarFieldEnum | Prisma.HabitScalarFieldEnum[]
 }
 
 /**

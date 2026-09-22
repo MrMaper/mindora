@@ -29,6 +29,7 @@ interface KanbanFiltersProps {
   priorityOptions: { value: string; label: string }[];
   hasActiveFilters: boolean;
   onClearFilters: () => void;
+  showProjectFilter?: boolean;
 }
 
 export function KanbanFilters({
@@ -47,6 +48,7 @@ export function KanbanFilters({
   priorityOptions,
   hasActiveFilters,
   onClearFilters,
+  showProjectFilter = true,
 }: KanbanFiltersProps) {
   const t = useTranslation();
 
@@ -64,30 +66,30 @@ export function KanbanFilters({
   ];
 
   return (
-    <div className="mb-4 flex flex-wrap gap-2 justify-between items-end">
-      <div className="flex gap-2 items-center w-fit">
-        <form
-          onSubmit={onSearchSubmit}
-          className="flex gap-1 w-full max-w-60 items-end"
-        >
-          <Input
-            label={t.board.searchButton}
-            placeholder={t.board.search}
-            icon="search"
-            value={search}
-            onChange={e => onSearchChange(e.target.value)}
-            className="w-full bg-bg-surface"
-            button={
-              <Button
-                variant="primary"
-                size="sm"
-                iconRight="search"
-                onClick={onSearchSubmit}
-              />
-            }
-          />
-        </form>
+    <div className="mb-4 flex flex-wrap items-end gap-2">
+      <form
+        onSubmit={onSearchSubmit}
+        className="flex gap-1 w-full max-w-60 items-end"
+      >
+        <Input
+          label={t.board.searchButton}
+          placeholder={t.board.search}
+          icon="search"
+          value={search}
+          onChange={e => onSearchChange(e.target.value)}
+          className="w-full bg-bg-surface"
+          button={
+            <Button
+              variant="primary"
+              size="sm"
+              iconRight="search"
+              onClick={onSearchSubmit}
+            />
+          }
+        />
+      </form>
 
+      {showProjectFilter && (
         <div className="w-48">
           <Select
             label={t.board.project}
@@ -96,30 +98,30 @@ export function KanbanFilters({
             options={projectOptions}
           />
         </div>
-        <div className="w-40">
-          <Select
-            label={t.board.assignee}
-            value={assignee}
-            onChange={value => onFilterChange({ assignee: value })}
-            options={userOptions}
-          />
-        </div>
-        <div className="w-40">
-          <Select
-            label={t.board.labels}
-            value={label}
-            onChange={value => onFilterChange({ label: value })}
-            options={labelOptions}
-          />
-        </div>
-        <div className="w-40">
-          <Select
-            label={t.board.priority}
-            value={priority}
-            onChange={value => onFilterChange({ priority: value })}
-            options={allPriorityOptions}
-          />
-        </div>
+      )}
+      <div className="w-40">
+        <Select
+          label={t.board.assignee}
+          value={assignee}
+          onChange={value => onFilterChange({ assignee: value })}
+          options={userOptions}
+        />
+      </div>
+      <div className="w-40">
+        <Select
+          label={t.board.labels}
+          value={label}
+          onChange={value => onFilterChange({ label: value })}
+          options={labelOptions}
+        />
+      </div>
+      <div className="w-40">
+        <Select
+          label={t.board.priority}
+          value={priority}
+          onChange={value => onFilterChange({ priority: value })}
+          options={allPriorityOptions}
+        />
       </div>
 
       {hasActiveFilters && (

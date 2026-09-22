@@ -6,23 +6,21 @@ import { useTranslation } from "@/i18n/provider";
 import { Drawer } from "@/components/ui-kit/overlays/drawer";
 import { Button } from "@/components/ui-kit/forms/button";
 import { Input } from "@/components/ui-kit/forms/input";
-
-interface ProjectFormValues {
-  name: string;
-  teamId?: string;
-  description?: string;
-}
+import { Select } from "@/components/ui-kit/forms/select";
+import type { CreateProjectInput } from "@/schemas/projects";
+import type { LifeArea } from "@/types/db";
 
 interface CreateProjectDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   form: {
-    control: Control<ProjectFormValues>;
+    control: Control<CreateProjectInput>;
     isPending: boolean;
   };
   onSubmit: () => void;
   actionError: string | null;
   isPending: boolean;
+  areaOptions: { value: LifeArea; label: string }[];
 }
 
 export function CreateProjectDrawer({
@@ -32,6 +30,7 @@ export function CreateProjectDrawer({
   onSubmit,
   actionError,
   isPending,
+  areaOptions,
 }: CreateProjectDrawerProps) {
   const t = useTranslation();
 
@@ -41,7 +40,7 @@ export function CreateProjectDrawer({
       onClose={onClose}
       header={
         <span className="text-sm font-semibold text-foreground">
-          {t.projects.createProject}
+          {t.projects.newPath}
         </span>
       }
       footer={
@@ -64,6 +63,22 @@ export function CreateProjectDrawer({
             {actionError}
           </div>
         )}
+        <Controller
+          name="area"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Select
+              value={field.value}
+              onChange={field.onChange}
+              label={t.projects.selectArea}
+              options={areaOptions.map(o => ({
+                value: o.value,
+                label: o.label,
+              }))}
+              error={fieldState.error?.message}
+            />
+          )}
+        />
         <Controller
           name="name"
           control={form.control}

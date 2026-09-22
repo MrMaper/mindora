@@ -5,7 +5,7 @@ import { getTranslations } from "@/i18n";
 import type { Language } from "@/types/db";
 import { Icon } from "@/components/ui-kit/foundation/icon";
 
-const STORAGE_KEY = "scrumflow-auth-language";
+const STORAGE_KEY = "mindora-auth-language";
 const defaultLanguage: Language = "FA";
 
 const AuthLanguageContext = React.createContext<{

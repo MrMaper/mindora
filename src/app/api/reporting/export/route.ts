@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 import { prisma as db } from "@/lib/db";
 import ExcelJS from "exceljs";
 import { toJalaali } from "jalaali-js";
@@ -84,6 +85,11 @@ function generateDateRange(startDate: Date, endDate: Date): Date[] {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { userId, dateFrom, dateTo } = await request.json();
 
     if (!userId || !dateFrom || !dateTo) {
@@ -91,6 +97,11 @@ export async function POST(request: NextRequest) {
         { error: "User ID, dateFrom, and dateTo are required" },
         { status: 400 },
       );
+    }
+
+    const isAdmin = session.user.role === "ADMIN";
+    if (!isAdmin && userId !== session.user.id) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const startDate = new Date(dateFrom);
@@ -125,7 +136,7 @@ export async function POST(request: NextRequest) {
     const allDates = generateDateRange(startDate, endDate);
 
     const workbook = new ExcelJS.Workbook();
-    workbook.creator = "ScrumFlow";
+    workbook.creator = "Mindora";
 
     const worksheet = workbook.addWorksheet("گزارش ساعات کاری", {
       views: [{ rightToLeft: true }],

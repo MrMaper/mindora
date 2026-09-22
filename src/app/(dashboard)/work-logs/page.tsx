@@ -42,7 +42,7 @@ export default async function WorkLogsPage({
 
   const [users, userProjects, preferences] = await Promise.all([
     getAllActiveUsers(),
-    getUserProjects(session.user.id),
+    getUserProjects(session.user.id, "life"),
     getUserPreferences(session.user.id),
   ]);
 

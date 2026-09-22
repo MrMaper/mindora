@@ -53,6 +53,29 @@ export async function createComment(taskId: string, formData: FormData): Promise
   });
   if (!task) return { success: false, error: "تسک یافت نشد" };
 
+  const mentionIds = new Set<string>();
+  for (const raw of formData.getAll("mentions")) {
+    const value = String(raw);
+    const sep = value.lastIndexOf(":");
+    if (sep <= 0) continue;
+    const userId = value.slice(sep + 1).trim();
+    if (userId && userId !== session.user.id) mentionIds.add(userId);
+  }
+  // Also parse @Name patterns against known users if no explicit mention map
+  if (mentionIds.size === 0) {
+    const atMatches = parsed.data.body.match(/@([\p{L}\p{N}_\-.\u0600-\u06FF]+)/gu);
+    if (atMatches?.length) {
+      const names = [...new Set(atMatches.map(m => m.slice(1)))];
+      const users = await db.user.findMany({
+        where: { name: { in: names } },
+        select: { id: true },
+      });
+      for (const u of users) {
+        if (u.id !== session.user.id) mentionIds.add(u.id);
+      }
+    }
+  }
+
   await db.comment.create({
     data: { taskId, userId: session.user.id, body: parsed.data.body },
   });
@@ -63,8 +86,22 @@ export async function createComment(taskId: string, formData: FormData): Promise
     performedBy: session.user.id,
   });
 
-  const recipients = new Set([task.assignedToId, task.createdById].filter(Boolean) as string[]);
+  for (const userId of mentionIds) {
+    await notify({
+      userId,
+      type: "MENTION",
+      title: `منشن در «${task.title}»`,
+      body: parsed.data.body.slice(0, 140),
+      data: { taskId },
+    });
+  }
+
+  const recipients = new Set(
+    [task.assignedToId, task.createdById].filter(Boolean) as string[],
+  );
   recipients.delete(session.user.id);
+  for (const userId of mentionIds) recipients.delete(userId);
+
   for (const userId of recipients) {
     await notify({
       userId,
@@ -74,6 +111,14 @@ export async function createComment(taskId: string, formData: FormData): Promise
       data: { taskId },
     });
 
+    await sendBaleCommentNotification(userId, {
+      id: taskId,
+      title: task.title,
+      commentBody: parsed.data.body,
+    });
+  }
+
+  for (const userId of mentionIds) {
     await sendBaleCommentNotification(userId, {
       id: taskId,
       title: task.title,

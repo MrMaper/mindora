@@ -4,10 +4,15 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createProjectSchema, updateProjectSchema } from "@/schemas/projects";
+import {
+  createProjectSchema,
+  updateProjectSchema,
+  updateAreaBucketSchema,
+} from "@/schemas/projects";
 import {
   createProject,
   updateProject,
+  updateAreaBucket,
   archiveProject,
   unarchiveProject,
   deleteProject,
@@ -15,23 +20,28 @@ import {
 import type {
   CreateProjectInput,
   UpdateProjectInput,
+  UpdateAreaBucketInput,
 } from "@/schemas/projects";
 import type { ProjectRow } from "@/features/projects/types";
+import type { LifeArea } from "@/types/db";
 import { DrawerMode } from "@/components/ui-kit/global/error";
+
+export type ProjectsDrawerMode = DrawerMode | "edit-area";
 
 export function useProjects(initialSearch: string) {
   const router = useRouter();
 
-  const [drawerMode, setDrawerMode] = React.useState<DrawerMode>("none");
+  const [drawerMode, setDrawerMode] =
+    React.useState<ProjectsDrawerMode>("none");
   const [editingProject, setEditingProject] = React.useState<ProjectRow | null>(
     null,
   );
+  const [editingArea, setEditingArea] = React.useState<LifeArea | null>(null);
   const [deleteTarget, setDeleteTarget] = React.useState<ProjectRow | null>(
     null,
   );
   const [actionError, setActionError] = React.useState<string | null>(null);
   const [isPending, startTransition] = React.useTransition();
-
   const [search, setSearch] = React.useState(initialSearch);
 
   const editForm = useForm<UpdateProjectInput>({
@@ -41,11 +51,26 @@ export function useProjects(initialSearch: string) {
 
   const createForm = useForm<CreateProjectInput>({
     resolver: zodResolver(createProjectSchema),
-    defaultValues: { name: "", description: "", teamId: "" },
+    defaultValues: {
+      name: "",
+      description: "",
+      teamId: "",
+      area: "LIFE",
+    },
   });
 
-  function openCreate() {
-    createForm.reset({ name: "", description: "", teamId: "" });
+  const areaForm = useForm<UpdateAreaBucketInput>({
+    resolver: zodResolver(updateAreaBucketSchema),
+    defaultValues: { area: "LIFE", name: "", description: "" },
+  });
+
+  function openCreate(area?: LifeArea) {
+    createForm.reset({
+      name: "",
+      description: "",
+      teamId: "",
+      area: area ?? "LIFE",
+    });
     setActionError(null);
     setDrawerMode("create");
   }
@@ -60,9 +85,22 @@ export function useProjects(initialSearch: string) {
     setDrawerMode("edit");
   }
 
+  function openEditArea(bucket: ProjectRow) {
+    areaForm.reset({
+      area: bucket.area,
+      name: bucket.name,
+      description: bucket.description ?? "",
+    });
+    setEditingArea(bucket.area);
+    setEditingProject(bucket);
+    setActionError(null);
+    setDrawerMode("edit-area");
+  }
+
   function closeDrawer() {
     setDrawerMode("none");
     setEditingProject(null);
+    setEditingArea(null);
     setActionError(null);
   }
 
@@ -73,9 +111,10 @@ export function useProjects(initialSearch: string) {
       fd.append("name", data.name);
       fd.append("description", data.description ?? "");
       fd.append("teamId", data.teamId ?? "");
+      fd.append("area", data.area);
       const result = await createProject(fd);
       if (!result.success) {
-        setActionError(result.error ?? "Failed to create project.");
+        setActionError(result.error ?? "Failed to create path.");
         return;
       }
       closeDrawer();
@@ -92,7 +131,24 @@ export function useProjects(initialSearch: string) {
       fd.append("description", data.description ?? "");
       const result = await updateProject(editingProject.id, fd);
       if (!result.success) {
-        setActionError(result.error ?? "Failed to update project.");
+        setActionError(result.error ?? "Failed to update path.");
+        return;
+      }
+      closeDrawer();
+      router.refresh();
+    });
+  });
+
+  const onAreaSubmit = areaForm.handleSubmit(data => {
+    setActionError(null);
+    startTransition(async () => {
+      const fd = new FormData();
+      fd.append("area", data.area);
+      fd.append("name", data.name);
+      fd.append("description", data.description ?? "");
+      const result = await updateAreaBucket(fd);
+      if (!result.success) {
+        setActionError(result.error ?? "Failed to update area.");
         return;
       }
       closeDrawer();
@@ -102,11 +158,12 @@ export function useProjects(initialSearch: string) {
 
   function onArchive(project: ProjectRow) {
     startTransition(async () => {
-      const result = project.status === "ARCHIVED"
-        ? await unarchiveProject(project.id)
-        : await archiveProject(project.id);
+      const result =
+        project.status === "ARCHIVED"
+          ? await unarchiveProject(project.id)
+          : await archiveProject(project.id);
       if (!result.success)
-        setActionError(result.error ?? "Failed to archive project.");
+        setActionError(result.error ?? "Failed to archive path.");
       else router.refresh();
     });
   }
@@ -117,7 +174,7 @@ export function useProjects(initialSearch: string) {
       const result = await deleteProject(deleteTarget.id);
       setDeleteTarget(null);
       if (!result.success)
-        setActionError(result.error ?? "Failed to delete project.");
+        setActionError(result.error ?? "Failed to delete path.");
       else router.refresh();
     });
   };
@@ -126,7 +183,6 @@ export function useProjects(initialSearch: string) {
     e.preventDefault();
     const params = new URLSearchParams();
     if (search) params.set("search", search);
-    params.set("page", "1");
     router.push(`/projects?${params.toString()}`);
   }
 
@@ -137,6 +193,7 @@ export function useProjects(initialSearch: string) {
   return {
     drawerMode,
     editingProject,
+    editingArea,
     deleteTarget,
     setDeleteTarget,
     actionError,
@@ -146,11 +203,14 @@ export function useProjects(initialSearch: string) {
     setSearch,
     createForm,
     editForm,
+    areaForm,
     openCreate,
     openEdit,
+    openEditArea,
     closeDrawer,
     onCreateSubmit,
     onEditSubmit,
+    onAreaSubmit,
     onArchive,
     onDeleteConfirm,
     onSearchSubmit,

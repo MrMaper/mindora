@@ -2,113 +2,168 @@
 
 import * as React from "react";
 import { Badge } from "@/components/ui-kit/data-display/badge";
-import { Icon } from "@/components/ui-kit/foundation/icon";
-import type { Translations } from "@/i18n";
-
-interface StatusStatCardProps {
-  status: string;
-  count: number;
-  label: string;
-  tone: "neutral" | "info" | "warning" | "success" | "danger";
-}
-
-export function StatusStatCard({ status, count, label, tone }: StatusStatCardProps) {
-  return (
-    <div className="bg-card border border-border rounded-xl p-4">
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-xs font-semibold uppercase tracking-wide text-tertiary">{label}</span>
-        <Badge tone={tone} className="text-xs">
-          {status}
-        </Badge>
-      </div>
-      <div className="text-3xl font-bold text-foreground">{count}</div>
-    </div>
-  );
-}
-
-interface ProgressBarProps {
-  label: string;
-  count: number;
-  total: number;
-  tone: "neutral" | "info" | "warning" | "success" | "danger";
-}
-
-export function ProgressBar({ label, count, total, tone }: ProgressBarProps) {
-  const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
-  const colorMap: Record<string, string> = {
-    success: "var(--color-success)",
-    warning: "var(--color-warning)",
-    info: "var(--color-info)",
-    neutral: "var(--color-neutral)",
-    danger: "var(--color-danger)",
-  };
-
-  return (
-    <div className="flex items-center gap-3">
-      <Badge tone={tone} className="w-24 text-xs">
-        {label}
-      </Badge>
-      <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-        <div
-          className="h-full rounded-full transition-all"
-          style={{ width: `${percentage}%`, backgroundColor: colorMap[tone] }}
-        />
-      </div>
-      <span className="text-sm font-medium text-muted-foreground w-10 text-right">{percentage}%</span>
-    </div>
-  );
-}
+import { useTranslation } from "@/i18n/provider";
+import type { ProjectTaskRow } from "@/features/projects/types";
 
 interface OverviewTabProps {
-  t: Translations;
-  tasks: any[];
+  tasks: ProjectTaskRow[];
   statusCounts: Record<string, number>;
+  onOpenTasks: () => void;
+  onViewTask: (task: ProjectTaskRow) => void;
 }
 
-export function OverviewTab({ t, tasks, statusCounts }: OverviewTabProps) {
-  const statusConfig = [
-    { status: "BACKLOG", tone: "neutral" as const, label: t.tasks.backlog },
-    { status: "TODO", tone: "info" as const, label: t.tasks.todo },
-    { status: "IN_PROGRESS", tone: "warning" as const, label: t.tasks.inProgress },
-    { status: "REVIEW", tone: "warning" as const, label: t.tasks.review },
-    { status: "TESTING", tone: "info" as const, label: t.tasks.testing },
-    { status: "DONE", tone: "success" as const, label: t.tasks.done },
-    { status: "BLOCKED", tone: "danger" as const, label: t.tasks.blocked },
-  ];
+const STATUS_ROWS: {
+  status: string;
+  tone: "neutral" | "info" | "warning" | "success" | "danger";
+  labelKey:
+    | "backlog"
+    | "todo"
+    | "inProgress"
+    | "review"
+    | "testing"
+    | "done"
+    | "blocked";
+}[] = [
+  { status: "BACKLOG", tone: "neutral", labelKey: "backlog" },
+  { status: "TODO", tone: "info", labelKey: "todo" },
+  { status: "IN_PROGRESS", tone: "warning", labelKey: "inProgress" },
+  { status: "REVIEW", tone: "info", labelKey: "review" },
+  { status: "TESTING", tone: "info", labelKey: "testing" },
+  { status: "DONE", tone: "success", labelKey: "done" },
+  { status: "BLOCKED", tone: "danger", labelKey: "blocked" },
+];
 
-  const progressConfig = [
-    { status: "DONE", label: t.tasks.done, tone: "success" as const },
-    { status: "IN_PROGRESS", label: t.tasks.inProgress, tone: "warning" as const },
-    { status: "REVIEW", label: t.tasks.review, tone: "info" as const },
-    { status: "TODO", label: t.tasks.todo, tone: "neutral" as const },
+function startOfToday() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+export function OverviewTab({
+  tasks,
+  statusCounts,
+  onOpenTasks,
+  onViewTask,
+}: OverviewTabProps) {
+  const t = useTranslation();
+  const total = tasks.length;
+  const done = statusCounts.DONE ?? 0;
+  const open = total - done;
+  const overdue = tasks.filter(task => {
+    if (!task.dueDate || task.status === "DONE") return false;
+    return new Date(task.dueDate).getTime() < startOfToday().getTime();
+  }).length;
+  const completion = total > 0 ? Math.round((done / total) * 100) : 0;
+  const recent = tasks.slice(0, 8);
+
+  const stats = [
+    { label: t.projects.totalTasks, value: total },
+    { label: t.projects.openTasksCount, value: open },
+    { label: t.projects.doneTasks, value: done },
+    { label: t.projects.overdueTasks, value: overdue },
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {statusConfig.map((item) => (
-          <StatusStatCard
-            key={item.status}
-            status={item.status}
-            count={statusCounts[item.status] || 0}
-            label={item.label}
-            tone={item.tone}
-          />
+    <div className="flex flex-col gap-4">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {stats.map(stat => (
+          <div
+            key={stat.label}
+            className="bg-bg-surface border border-border-default rounded-lg px-4 py-3"
+          >
+            <div className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {stat.label}
+            </div>
+            <div className="text-2xl font-semibold text-foreground mt-1">
+              {stat.value}
+            </div>
+          </div>
         ))}
       </div>
 
-      <div className="bg-card border border-border rounded-xl p-6">
-        <h3 className="text-lg font-semibold mb-4">{t.projects.progress}</h3>
-        <div className="space-y-4">
-          {progressConfig.map((item) => (
-            <ProgressBar
-              key={item.status}
-              label={item.label}
-              count={statusCounts[item.status] || 0}
-              total={tasks.length || 1}
-              tone={item.tone}
-            />
-          ))}
+      <div className="bg-bg-surface border border-border-default rounded-lg p-4">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-foreground">
+            {t.projects.completion}
+          </h3>
+          <span className="text-sm text-muted-foreground">{completion}%</span>
+        </div>
+        <div className="h-2 rounded-full bg-bg-sunken overflow-hidden">
+          <div
+            className="h-full rounded-full bg-primary transition-all"
+            style={{ width: `${completion}%` }}
+          />
+        </div>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="bg-bg-surface border border-border-default rounded-lg overflow-hidden">
+          <div className="px-4 py-3 border-b border-border-subtle bg-bg-sunken">
+            <h3 className="text-sm font-semibold">{t.projects.statusBreakdown}</h3>
+          </div>
+          <ul className="divide-y divide-border-subtle">
+            {STATUS_ROWS.map(row => {
+              const count = statusCounts[row.status] ?? 0;
+              return (
+                <li
+                  key={row.status}
+                  className="flex items-center justify-between gap-3 px-4 py-2.5"
+                >
+                  <span className="text-sm text-foreground">
+                    {t.projects[row.labelKey]}
+                  </span>
+                  <Badge tone={count > 0 ? row.tone : "neutral"}>{count}</Badge>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+
+        <div className="bg-bg-surface border border-border-default rounded-lg overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border-subtle bg-bg-sunken">
+            <h3 className="text-sm font-semibold">{t.projects.recentTasks}</h3>
+            <button
+              type="button"
+              onClick={onOpenTasks}
+              className="text-xs text-primary hover:underline"
+            >
+              {t.projects.tasks}
+            </button>
+          </div>
+          {recent.length === 0 ? (
+            <div className="px-4 py-8 text-center text-sm text-muted-foreground">
+              {t.projects.noRecentTasks}
+            </div>
+          ) : (
+            <ul className="divide-y divide-border-subtle">
+              {recent.map(task => (
+                <li key={task.id}>
+                  <button
+                    type="button"
+                    onClick={() => onViewTask(task)}
+                    className="w-full text-start px-4 py-2.5 hover:bg-bg-hover transition-colors"
+                  >
+                    <div className="text-sm font-medium text-foreground truncate">
+                      {task.title}
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-xs text-muted-foreground">
+                        {t.projects[
+                          STATUS_ROWS.find(r => r.status === task.status)
+                            ?.labelKey ?? "todo"
+                        ]}
+                      </span>
+                      {task.assignee ? (
+                        <span className="text-xs text-muted-foreground truncate">
+                          · {task.assignee.name}
+                        </span>
+                      ) : null}
+                    </div>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </div>

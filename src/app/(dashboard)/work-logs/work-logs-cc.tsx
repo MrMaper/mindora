@@ -12,6 +12,7 @@ import type { UserRow } from "@/features/users/types";
 import type { ProjectRow } from "@/features/projects/types";
 import type { Language } from "@/types/db";
 import type { WorkLogSummary } from "@/features/work-logs/types";
+import { projectPickerLabel } from "@/lib/project-namespace";
 import { Icon } from "@/components/ui-kit/foundation/icon";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui-kit/data-display/badge";
@@ -57,7 +58,10 @@ export function WorkLogsCC({
 
   const projectOptions = [
     { value: "", label: t.workLogs.allProjects },
-    ...userProjects.map(p => ({ value: p.id, label: p.name })),
+    ...userProjects.map(p => ({
+      value: p.id,
+      label: projectPickerLabel(p, language === "EN" ? "EN" : "FA"),
+    })),
   ];
 
   const hasActiveFilters = !!(

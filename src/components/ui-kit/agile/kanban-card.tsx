@@ -115,7 +115,7 @@ export function KanbanCard({
           </span>
         )}
         {attachments > 0 && (
-          <span className="flex items-center gap-1.5 text-[10px] text-muted-muted-foreground">
+          <span className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
             <Icon name="paperclip" size={12} />
             {attachments}
           </span>

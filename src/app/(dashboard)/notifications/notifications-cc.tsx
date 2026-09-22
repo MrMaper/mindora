@@ -25,6 +25,7 @@ const TYPE_ICON: Record<NotificationType, IconName> = {
   SPRINT_ENDED: "flag",
   DEADLINE_APPROACHING: "clock",
   STATUS_CHANGED: "circle-dot",
+  VOCAB_REVIEW_DUE: "language",
 };
 
 function formatTimestamp(date: Date, language: Language): string {
@@ -66,10 +67,31 @@ export function NotificationsCC({ initialData, page, language }: NotificationsCC
         <EmptyState icon="bell" title={t.notifications.noNotifications} />
       ) : (
         <div style={{ background: "var(--bg-surface)", border: "1px solid var(--border-default)", borderRadius: "var(--radius-card)", overflow: "hidden" }}>
-          {notifications.map(item => (
+          {notifications.map(item => {
+            const data = item.data as { href?: string; taskId?: string } | null;
+            const href =
+              data?.href ??
+              (data?.taskId
+                ? `/tasks?search=${encodeURIComponent(item.title.replace(/^[^:]+:\s*/, ""))}`
+                : null);
+
+            return (
             <div
               key={item.id}
-              onClick={() => !item.read && n.onMarkAsRead(item.id)}
+              role={href ? "link" : undefined}
+              tabIndex={href ? 0 : undefined}
+              onClick={() => {
+                if (!item.read) n.onMarkAsRead(item.id);
+                if (href) window.location.href = href;
+              }}
+              onKeyDown={e => {
+                if (!href) return;
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  if (!item.read) n.onMarkAsRead(item.id);
+                  window.location.href = href;
+                }
+              }}
               style={{
                 display: "flex",
                 alignItems: "flex-start",
@@ -77,7 +99,7 @@ export function NotificationsCC({ initialData, page, language }: NotificationsCC
                 padding: "var(--space-3) var(--space-4)",
                 borderBottom: "1px solid var(--border-subtle)",
                 background: item.read ? "transparent" : "var(--bg-selected)",
-                cursor: item.read ? "default" : "pointer",
+                cursor: href || !item.read ? "pointer" : "default",
               }}
             >
               <span
@@ -112,7 +134,8 @@ export function NotificationsCC({ initialData, page, language }: NotificationsCC
                 <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--action-primary)", flex: "none", marginTop: 4 }} />
               )}
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
 

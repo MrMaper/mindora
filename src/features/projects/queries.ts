@@ -1,4 +1,12 @@
 import { prisma as db } from "@/lib/db";
+import type { LifeArea } from "@/types/db";
+import { LIFE_AREAS, AREA_PROJECT_IDS } from "@/lib/life";
+import {
+  isAreaBucketId,
+  projectWhereForScope,
+  type ProjectListScope,
+} from "@/lib/project-namespace";
+import { ensurePersonalWorkspace } from "@/features/life/workspace";
 import type {
   GetProjectsResult,
   ProjectRow,
@@ -6,41 +14,142 @@ import type {
   ProjectMemberRow,
   ProjectTaskRow,
   ProjectActivityRow,
+  ProjectsHubData,
+  AreaHubSection,
 } from "./types";
 
 const PAGE_SIZE = 15;
 
+const projectListSelect = {
+  id: true,
+  name: true,
+  description: true,
+  status: true,
+  area: true,
+  teamId: true,
+  team: { select: { name: true } },
+  _count: { select: { members: true } },
+  createdAt: true,
+} as const;
+
+function toProjectRow(p: {
+  id: string;
+  name: string;
+  description: string | null;
+  status: ProjectRow["status"];
+  area: LifeArea;
+  teamId: string | null;
+  team: { name: string } | null;
+  _count: { members: number };
+  createdAt: Date;
+}): ProjectRow {
+  return {
+    id: p.id,
+    name: p.name,
+    description: p.description,
+    status: p.status,
+    area: p.area,
+    teamId: p.teamId,
+    teamName: p.team?.name ?? null,
+    memberCount: p._count.members,
+    createdAt: p.createdAt,
+  };
+}
+
+/** /projects hub: all areas with buckets + named paths for the user. */
+export async function getProjectsHub(
+  userId: string,
+  search = "",
+): Promise<ProjectsHubData> {
+  await ensurePersonalWorkspace(userId);
+
+  const projects = await db.project.findMany({
+    where: {
+      status: { not: "ARCHIVED" },
+      members: { some: { userId } },
+    },
+    select: projectListSelect,
+    orderBy: { name: "asc" },
+  });
+
+  const rows = projects.map(toProjectRow);
+  const q = search.trim().toLowerCase();
+
+  const sections: AreaHubSection[] = LIFE_AREAS.map(area => {
+    const list = rows.filter(p => p.area === area);
+    const bucketId = AREA_PROJECT_IDS[area];
+    const bucket =
+      list.find(p => p.id === bucketId) ??
+      ({
+        id: bucketId,
+        name: area,
+        description: null,
+        status: "ACTIVE" as const,
+        area,
+        teamId: null,
+        teamName: null,
+        memberCount: 1,
+        createdAt: new Date(0),
+      } satisfies ProjectRow);
+
+    let paths = list
+      .filter(p => !isAreaBucketId(p.id))
+      .sort((a, b) => a.name.localeCompare(b.name, "fa"));
+
+    if (q) {
+      const bucketHit =
+        bucket.name.toLowerCase().includes(q) ||
+        (bucket.description ?? "").toLowerCase().includes(q);
+      if (!bucketHit) {
+        paths = paths.filter(
+          p =>
+            p.name.toLowerCase().includes(q) ||
+            (p.description ?? "").toLowerCase().includes(q),
+        );
+      }
+    }
+
+    return { area, bucket, paths };
+  }).filter(section => {
+    if (!q) return true;
+    const bucketHit =
+      section.bucket.name.toLowerCase().includes(q) ||
+      (section.bucket.description ?? "").toLowerCase().includes(q);
+    return bucketHit || section.paths.length > 0;
+  });
+
+  return { sections, search };
+}
+
+/**
+ * @deprecated Prefer getProjectsHub for the projects page.
+ * Kept for any callers expecting paginated WORK/LIFE paths.
+ */
 export async function getProjects(
   search = "",
   page = 1,
   userId?: string,
 ): Promise<GetProjectsResult> {
   const skip = (page - 1) * PAGE_SIZE;
-  const where: Record<string, unknown> = search
-    ? {
-        name: { contains: search, mode: "insensitive" as const },
-      }
-    : {};
+  const where: Record<string, unknown> = {
+    area: { in: ["WORK", "LIFE"] },
+    id: {
+      notIn: ["area-phd", "area-work", "area-life", "area-lang"],
+    },
+  };
+
+  if (search) {
+    where.name = { contains: search, mode: "insensitive" as const };
+  }
 
   if (userId) {
-    where.members = {
-      some: { userId },
-    };
+    where.members = { some: { userId } };
   }
 
   const [projects, total] = await Promise.all([
     db.project.findMany({
       where,
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        status: true,
-        teamId: true,
-        team: { select: { name: true } },
-        _count: { select: { members: true } },
-        createdAt: true,
-      },
+      select: projectListSelect,
       orderBy: { createdAt: "desc" },
       skip,
       take: PAGE_SIZE,
@@ -49,65 +158,73 @@ export async function getProjects(
   ]);
 
   return {
-    projects: projects.map(p => ({
-      id: p.id,
-      name: p.name,
-      description: p.description,
-      status: p.status,
-      teamId: p.teamId,
-      teamName: p.team?.name ?? null,
-      memberCount: p._count.members,
-      createdAt: p.createdAt,
-    })),
+    projects: projects.map(toProjectRow),
     total,
     page,
     totalPages: Math.max(1, Math.ceil(total / PAGE_SIZE)),
   };
 }
 
-export async function getUserProjects(userId: string): Promise<ProjectRow[]> {
+/**
+ * Projects the current user can pick on a given surface.
+ * Default `life` = area buckets + named work/life projects.
+ */
+export async function getUserProjects(
+  userId: string,
+  scope: ProjectListScope = "life",
+): Promise<ProjectRow[]> {
   const memberships = await db.projectMember.findMany({
-    where: { userId },
-    select: {
+    where: {
+      userId,
       project: {
-        select: {
-          id: true,
-          name: true,
-          description: true,
-          status: true,
-          teamId: true,
-          team: { select: { name: true } },
-          _count: { select: { members: true } },
-          createdAt: true,
-        },
+        status: { not: "ARCHIVED" },
+        ...projectWhereForScope(scope),
       },
+    },
+    select: {
+      project: { select: projectListSelect },
     },
   });
 
-  return memberships
-    .filter(m => m.project.status !== "ARCHIVED")
-    .map(m => ({
-      id: m.project.id,
-      name: m.project.name,
-      description: m.project.description,
-      status: m.project.status,
-      teamId: m.project.teamId,
-      teamName: m.project.team?.name ?? null,
-      memberCount: m.project._count.members,
-      createdAt: m.project.createdAt,
-    }));
+  const rows = memberships.map(m => toProjectRow(m.project));
+  const bucketOrder: Record<string, number> = {
+    [AREA_PROJECT_IDS.PHD]: 0,
+    [AREA_PROJECT_IDS.WORK]: 1,
+    [AREA_PROJECT_IDS.LIFE]: 2,
+    [AREA_PROJECT_IDS.LANG]: 3,
+  };
+
+  rows.sort((a, b) => {
+    const aBucket = bucketOrder[a.id];
+    const bBucket = bucketOrder[b.id];
+    const aIsBucket = aBucket !== undefined;
+    const bIsBucket = bBucket !== undefined;
+    if (aIsBucket && bIsBucket) return aBucket - bBucket;
+    if (aIsBucket) return -1;
+    if (bIsBucket) return 1;
+    return a.name.localeCompare(b.name, "fa");
+  });
+
+  return rows;
 }
 
 export async function getProjectById(
   id: string,
+  userId?: string,
 ): Promise<ProjectDetail | null> {
-  const project = await db.project.findUnique({
-    where: { id },
+  const project = await db.project.findFirst({
+    where: {
+      id,
+      ...(userId
+        ? { members: { some: { userId } } }
+        : {}),
+    },
     select: {
       id: true,
       name: true,
       description: true,
       status: true,
+      area: true,
       teamId: true,
       team: { select: { name: true } },
       createdAt: true,
@@ -133,6 +250,7 @@ export async function getProjectById(
     name: project.name,
     description: project.description,
     status: project.status,
+    area: project.area,
     teamId: project.teamId ?? null,
     teamName: project.team?.name ?? null,
     createdAt: project.createdAt,
@@ -180,7 +298,9 @@ export async function getProjectMembers(
   }));
 }
 
-export async function getProjectMemberUserOptions(projectId: string): Promise<{ value: string; label: string }[]> {
+export async function getProjectMemberUserOptions(
+  projectId: string,
+): Promise<{ value: string; label: string }[]> {
   const members = await db.projectMember.findMany({
     where: { projectId },
     select: {
@@ -247,7 +367,11 @@ export async function getProjectTasks(
   return tasks.map(t => ({
     ...t,
     assignee: t.assignedTo
-      ? { id: t.assignedTo.id, name: t.assignedTo.name, avatar: t.assignedTo.avatar }
+      ? {
+          id: t.assignedTo.id,
+          name: t.assignedTo.name,
+          avatar: t.assignedTo.avatar,
+        }
       : null,
   }));
 }

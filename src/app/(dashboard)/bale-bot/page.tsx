@@ -1,6 +1,7 @@
-import * as React from "react";
+import { requireAdmin } from "@/lib/require-role";
 import { BaleBotTester } from "./client";
 
-export default function BaleBotPage() {
+export default async function BaleBotPage() {
+  await requireAdmin();
   return <BaleBotTester />;
 }

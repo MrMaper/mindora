@@ -57,6 +57,7 @@ export default async function TasksPage({
       priority: (priority || undefined) as TaskPriority | undefined,
       assigneeId: effectiveAssignee,
       projectIds,
+      excludeHub: false,
       sort: sort as "title" | "priority" | "status" | "dueDate" | "createdAt",
       order: order as "asc" | "desc",
       page: Math.max(1, Number(page)),
@@ -64,7 +65,7 @@ export default async function TasksPage({
     getAllActiveUsers(),
     getLabels(),
     getUserPreferences(session.user.id),
-    getUserProjects(session.user.id),
+    getUserProjects(session.user.id, "assignable"),
   ]);
 
   const language = preferences?.language ?? "FA";

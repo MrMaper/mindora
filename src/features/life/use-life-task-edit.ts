@@ -1,0 +1,134 @@
+"use client";
+
+import * as React from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { updateTaskSchema } from "@/schemas/tasks";
+import { updateTask, getTaskDetailAction } from "@/features/tasks/actions";
+import { AREA_PROJECT_IDS, coerceLifeArea } from "@/lib/life";
+import type { UpdateTaskInput } from "@/schemas/tasks";
+import type { TaskRow, TaskDetail } from "@/features/tasks/types";
+import type { LifeArea } from "@/types/db";
+
+function toDateInputValue(date: Date | null): string {
+  if (!date) return "";
+  return new Date(date).toISOString().slice(0, 10);
+}
+
+function resolveArea(task: TaskRow | TaskDetail): LifeArea {
+  return coerceLifeArea(task.area);
+}
+
+export function useLifeTaskEdit() {
+  const router = useRouter();
+
+  const [editingTaskId, setEditingTaskId] = React.useState<string | null>(null);
+  const [activeTask, setActiveTask] = React.useState<TaskDetail | null>(null);
+  const [isLoadingDetail, setIsLoadingDetail] = React.useState(false);
+  const [actionError, setActionError] = React.useState<string | null>(null);
+  const [isPending, startTransition] = React.useTransition();
+  const [selectedLabelIds, setSelectedLabelIds] = React.useState<string[]>([]);
+
+  const editForm = useForm<UpdateTaskInput>({
+    resolver: zodResolver(updateTaskSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      status: "BACKLOG",
+      priority: "NONE",
+      type: "TASK",
+      projectId: "",
+      assignedToId: "",
+      dueDate: "",
+      area: "LIFE",
+      recurrence: "NONE",
+    },
+  }) as import("react-hook-form").UseFormReturn<UpdateTaskInput>;
+
+  async function openTask(task: TaskRow) {
+    setEditingTaskId(task.id);
+    setActiveTask(null);
+    setActionError(null);
+    setIsLoadingDetail(true);
+
+    const detail = await getTaskDetailAction(task.id);
+    setIsLoadingDetail(false);
+    if (!detail) {
+      setActionError("Failed to load task.");
+      return;
+    }
+
+    const area = resolveArea(detail);
+    setActiveTask(detail);
+    setSelectedLabelIds(detail.labels.map(l => l.id));
+    editForm.reset({
+      title: detail.title,
+      description: detail.description ?? "",
+      status: detail.status,
+      priority: detail.priority,
+      type: detail.type,
+      projectId: detail.projectId ?? AREA_PROJECT_IDS[area],
+      assignedToId: detail.assignedTo?.id ?? "",
+      dueDate: toDateInputValue(detail.dueDate),
+      area,
+      recurrence: detail.recurrence ?? "NONE",
+    });
+  }
+
+  function closeDrawer() {
+    setEditingTaskId(null);
+    setActiveTask(null);
+    setActionError(null);
+    setSelectedLabelIds([]);
+  }
+
+  function toggleLabel(labelId: string) {
+    setSelectedLabelIds(prev =>
+      prev.includes(labelId)
+        ? prev.filter(id => id !== labelId)
+        : [...prev, labelId],
+    );
+  }
+
+  const onEditSubmit = editForm.handleSubmit(data => {
+    if (!editingTaskId) return;
+    setActionError(null);
+    startTransition(async () => {
+      const area = (data.area ?? "LIFE") as LifeArea;
+      const fd = new FormData();
+      fd.append("title", data.title);
+      fd.append("description", data.description ?? "");
+      fd.append("status", data.status);
+      fd.append("priority", data.priority);
+      fd.append("type", "TASK");
+      fd.append("projectId", data.projectId || AREA_PROJECT_IDS[area]);
+      fd.append("assignedToId", data.assignedToId ?? "");
+      fd.append("dueDate", data.dueDate ?? "");
+      fd.append("area", area);
+      fd.append("recurrence", data.recurrence ?? "NONE");
+      fd.append("labelIds", JSON.stringify(selectedLabelIds));
+      const result = await updateTask(editingTaskId, fd);
+      if (!result.success) {
+        setActionError(result.error ?? "Failed to update task.");
+        return;
+      }
+      closeDrawer();
+      router.refresh();
+    });
+  });
+
+  return {
+    editingTaskId,
+    activeTask,
+    isLoadingDetail,
+    actionError,
+    isPending,
+    editForm,
+    selectedLabelIds,
+    toggleLabel,
+    openTask,
+    closeDrawer,
+    onEditSubmit,
+  };
+}

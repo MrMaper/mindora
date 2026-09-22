@@ -485,6 +485,9 @@ function NotificationSettingsSection({
   onNotifyChange: (field: keyof UpdatePreferencesInput, value: boolean) => void;
 }) {
   const notifyPrefs = [
+    { key: "notifications", label: t.settings.masterNotifications },
+    { key: "emailNotifs", label: t.settings.emailNotifs },
+    { key: "soundNotifs", label: t.settings.soundNotifs },
     { key: "notifyTaskAssigned", label: t.settings.notifyTaskAssigned },
     { key: "notifyTaskUpdated", label: t.settings.notifyTaskUpdated },
     { key: "notifyTaskCommented", label: t.settings.notifyTaskCommented },
@@ -538,7 +541,12 @@ function NotificationSettingsSection({
             </span>
             <input
               type="checkbox"
-              checked={preferences?.[pref.key as keyof Pick<UserPreferencesData, 'notifyTaskAssigned' | 'notifyTaskUpdated' | 'notifyTaskCommented' | 'notifyMention' | 'notifySprintStarted' | 'notifySprintEnded' | 'notifyDeadlineApproaching' | 'notifyStatusChanged'>] ?? true}
+              checked={
+                (preferences?.[
+                  pref.key as keyof UserPreferencesData
+                ] as boolean | undefined) ??
+                (pref.key === "soundNotifs" ? false : true)
+              }
               onChange={(e) => onNotifyChange(pref.key, e.target.checked)}
               disabled={notifyPending}
               style={{

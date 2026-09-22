@@ -67,3 +67,30 @@ export async function uploadAttachment(file: File, taskId: string): Promise<stri
 
   return `${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET}/${key}`;
 }
+
+export async function uploadDocSourceFile(
+  file: File,
+  sourceId: string,
+): Promise<string | null> {
+  const client = getClient();
+  if (!client) {
+    console.log("[storage:dev] S3 not configured — source file upload skipped.");
+    return null;
+  }
+
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+  const key = `doc-sources/${sourceId}/${Date.now()}-${safeName}`;
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  await client.send(
+    new PutObjectCommand({
+      Bucket: process.env.S3_BUCKET!,
+      Key: key,
+      Body: buffer,
+      ContentType: file.type || "application/pdf",
+      ACL: "public-read",
+    }),
+  );
+
+  return `${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET}/${key}`;
+}

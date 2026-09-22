@@ -43,14 +43,14 @@ async function sendWelcomeMessage(
   userId: number,
   username?: string,
 ): Promise<void> {
-  const message = `🤖 *به ربات اسکرام‌فلو خوش آمدید!*
+  const message = `🤖 *به ربات Mindora خوش آمدید!*
 
 سلام${username ? ` @${username}` : ""}! 👋
 
-برای دریافت اعلان‌های وظایف، ابتدا باید حساب اسکرام‌فلو خود را به این ربات متصل کنید.
+برای دریافت اعلان‌های وظایف، ابتدا باید حساب Mindora خود را به این ربات متصل کنید.
 
 *نحوه اتصال حساب:*
-1. ایمیل حساب اسکرام‌فلو خود را با دستور \`/email your@email.com\` ارسال کنید.
+1. ایمیل حساب Mindora خود را با دستور \`/email your@email.com\` ارسال کنید.
 2. یا از دستور \`/link your@email.com\` استفاده کنید.
 
 *دستورات موجود:*
@@ -64,10 +64,10 @@ async function sendWelcomeMessage(
 }
 
 async function sendHelpMessage(chatId: number): Promise<void> {
-  const message = `📋 *دستورات ربات اسکرام‌فلو*
+  const message = `📋 *دستورات ربات Mindora*
 
 *اتصال حساب:*
-• \`/email your@email.com\` - اتصال حساب اسکرام‌فلو
+• \`/email your@email.com\` - اتصال حساب Mindora
 • \`/link your@email.com\` - مشابه دستور /email
 • \`/unlink\` - قطع اتصال حساب
 
@@ -99,7 +99,7 @@ async function sendStatusMessage(
 
 *نام:* ${user.name}
 *ایمیل:* ${user.email}
-*شناسه اسکرام‌فلو:* \`${user.id}\``;
+*شناسه Mindora:* \`${user.id}\``;
 
     await sendMessage({
       chat_id: chatId,
@@ -109,7 +109,7 @@ async function sendStatusMessage(
   } else {
     const message = `❌ *حساب متصل نیست*
 
-حساب شما در بله (شناسه: \`${baleUserId}\`) به هیچ حساب اسکرام‌فلو متصل نشده است.
+حساب شما در بله (شناسه: \`${baleUserId}\`) به هیچ حساب Mindora متصل نشده است.
 
 برای اتصال حساب، از دستور \`/email your@email.com\` استفاده کنید.`;
 
@@ -153,7 +153,7 @@ async function handleEmailCommand(
       chat_id: chatId,
       text: `✅ *حساب با موفقیت متصل شد!*
 
-حساب بله شما به ایمیل \`${email}\` در اسکرام‌فلو متصل شد.
+حساب بله شما به ایمیل \`${email}\` در Mindora متصل شد.
 
 اعلان‌های زیر را دریافت خواهید کرد:
 • 📋 اختصاص وظیفه جدید
@@ -170,8 +170,8 @@ async function handleEmailCommand(
 ${result.error}
 
 لطفاً موارد زیر را بررسی کنید:
-• ایمیل واردشده با ایمیل حساب اسکرام‌فلو مطابقت داشته باشد.
-• به حساب اسکرام‌فلو دسترسی داشته باشید.`,
+• ایمیل واردشده با ایمیل حساب Mindora مطابقت داشته باشد.
+• به حساب Mindora دسترسی داشته باشید.`,
       parse_mode: "Markdown",
     });
   }
@@ -202,13 +202,13 @@ async function handleUnlinkCommand(
 
     await sendMessage({
       chat_id: chatId,
-      text: "✅ *اتصال حساب قطع شد*\n\nاز این پس اعلان‌های اسکرام‌فلو را دریافت نخواهید کرد.\n\nبرای اتصال مجدد، از دستور `/email your@email.com` استفاده کنید.",
+      text: "✅ *اتصال حساب قطع شد*\n\nاز این پس اعلان‌های Mindora را دریافت نخواهید کرد.\n\nبرای اتصال مجدد، از دستور `/email your@email.com` استفاده کنید.",
       parse_mode: "Markdown",
     });
   } else {
     await sendMessage({
       chat_id: chatId,
-      text: "ℹ️ حساب شما در حال حاضر به اسکرام‌فلو متصل نیست.",
+      text: "ℹ️ حساب شما در حال حاضر به Mindora متصل نیست.",
       parse_mode: "Markdown",
     });
   }
@@ -229,7 +229,7 @@ async function handleCallbackQuery(
 
 *شناسه وظیفه:* \`${taskId}\`
 
-[مشاهده وظیفه در اسکرام‌فلو](${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/tasks/${taskId})`;
+[مشاهده وظیفه در Mindora](${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/tasks/${taskId})`;
 
     await sendMessage({
       chat_id: chatId,

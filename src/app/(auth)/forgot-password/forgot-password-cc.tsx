@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { Controller } from "react-hook-form";
 import { Icon } from "@/components/ui-kit/foundation/icon";
@@ -19,12 +20,13 @@ export function ForgotPasswordCC() {
 
   return (
     <div className="w-full max-w-[360px] bg-card border border-border rounded-xl shadow-md p-8">
-      <div className="flex items-center justify-center gap-2 mb-6">
-        <span className="flex items-center justify-center size-7 bg-primary rounded-lg text-primary-foreground flex-shrink-0">
-          <Icon name="zap" size={14} strokeWidth={2.5} />
-        </span>
-        <span className="text-base font-semibold text-foreground tracking-tight">ScrumFlow</span>
-      </div>
+        <div className="flex flex-col items-center justify-center gap-1 mb-6">
+          <div className="flex items-center gap-2">
+            <Image src="/logo.png" alt="Mindora" width={24} height={24} />
+            <span className="text-base font-semibold text-foreground tracking-tight">Mindora</span>
+          </div>
+          <span className="text-[10px] text-muted-foreground tracking-wide">Think. Plan. Grow</span>
+        </div>
 
       <div className="mb-5">
         <div className="text-lg font-semibold text-foreground mb-1">{t.auth.forgotPasswordTitle}</div>

@@ -43,12 +43,15 @@ export function WorkLogDrawer({
       onClose={onClose}
       wide
       header={
-        <div className="flex items-center justify-between w-full">
-          <span className="text-sm font-semibold text-text-primary truncate pr-4">
+        <div className="flex w-full min-w-0 items-center gap-2">
+          <span
+            className="min-w-0 flex-1 truncate text-sm font-semibold text-text-primary"
+            title={`${t.workLogs} - ${taskTitle}`}
+          >
             {t.workLogs} - {taskTitle}
           </span>
-          <div className="flex items-center gap-2">
-            <div className="text-xs text-text-secondary bg-primary/10 px-2 py-1 rounded-full">
+          <div className="flex shrink-0 items-center gap-2">
+            <div className="whitespace-nowrap text-xs text-text-secondary bg-primary/10 px-2 py-1 rounded-full">
               {t.totalHours}: {totalHours.toFixed(2)}h
             </div>
             <Button

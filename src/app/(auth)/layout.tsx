@@ -4,7 +4,7 @@ import { AuthLanguageProvider, AuthLanguageSwitch } from "./auth-language";
 export const metadata: Metadata = {
   title: {
     default: "ورود",
-    template: "%s | ScrumFlow",
+    template: "%s | Mindora",
   },
 };
 

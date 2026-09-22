@@ -16,21 +16,31 @@ export function BoardColumn({
   tasks,
   selectedId,
   onCardClick,
+  label: labelOverride,
+  docsByTask = {},
+  onDocsChange,
 }: {
   status: BoardStatus;
   tasks: TaskRow[];
   selectedId: string | null;
   onCardClick: (task: TaskRow) => void;
+  label?: string;
+  docsByTask?: Record<string, { id: string; title: string }[]>;
+  onDocsChange?: (
+    taskId: string,
+    docs: { id: string; title: string }[],
+  ) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: status });
   const t = useTranslation();
   const display = statusToDisplay(status);
   const labelKey =
     STATUS_OPTIONS.find(o => o.value === status)?.labelKey ?? "backlog";
-  const label = t.tasks[labelKey as keyof typeof t.tasks] as string;
+  const label =
+    labelOverride ?? (t.tasks[labelKey as keyof typeof t.tasks] as string);
 
   return (
-    <div className="w-70 flex-none flex flex-col max-h-full">
+    <div className="w-[min(17.5rem,78vw)] sm:w-70 flex-none flex flex-col max-h-full">
       <div className="flex items-center gap-2 px-1 py-2.5 flex-nowrap">
         <span
           className="size-2.5 rounded-full flex-none"
@@ -57,6 +67,8 @@ export function BoardColumn({
               task={task}
               selected={selectedId === task.id}
               onClick={() => onCardClick(task)}
+              linkedDocs={docsByTask[task.id] ?? []}
+              onDocsChange={onDocsChange}
             />
           ))}
         </SortableContext>

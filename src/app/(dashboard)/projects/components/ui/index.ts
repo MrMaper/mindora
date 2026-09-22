@@ -4,4 +4,6 @@ export { ProjectsTable } from "./projects-table";
 export { Pagination } from "./pagination";
 export { CreateProjectDrawer } from "./create-project-drawer";
 export { EditProjectDrawer } from "./edit-project-drawer";
+export { EditAreaDrawer } from "./edit-area-drawer";
+export { AreaSection } from "./area-section";
 export { DeleteConfirmationDialog } from "./delete-confirmation-dialog";

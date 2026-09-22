@@ -3,7 +3,17 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma as db } from "@/lib/db";
-import { createProjectSchema, updateProjectSchema, archiveProjectSchema, deleteProjectSchema } from "@/schemas/projects";
+import {
+  createProjectSchema,
+  updateProjectSchema,
+  updateAreaBucketSchema,
+  archiveProjectSchema,
+  deleteProjectSchema,
+} from "@/schemas/projects";
+import { AREA_PROJECT_IDS } from "@/lib/life";
+import { isAreaBucketId } from "@/lib/project-namespace";
+import { ensurePersonalWorkspace } from "@/features/life/workspace";
+import type { LifeArea } from "@/types/db";
 
 export interface ActionResult {
   success: boolean;
@@ -39,46 +49,90 @@ async function requireProjectOwner(projectId: string, userId: string) {
   return true;
 }
 
-// ─── Create project ────────────────────────────────────────────────────────
+// ─── Create path (named project under an area) ───────────────────────────────
 
 export async function createProject(formData: FormData): Promise<ActionResult> {
   const session = await requireAuth();
-  if (!session) return { success: false, error: "Unauthorized" };
-
-  // Only admins can create projects
-  if (session.user.role !== "ADMIN") {
-    return { success: false, error: "Only admins can create projects" };
-  }
+  if (!session?.user) return { success: false, error: "Unauthorized" };
 
   const parsed = createProjectSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0]?.message };
   }
 
-  // Get default organization
+  const { name, description, teamId, area } = parsed.data;
+
+  // Never create a project with a reserved area-bucket id
+  const reserved = new Set<string>(Object.values(AREA_PROJECT_IDS));
+  if (reserved.has(name) || isAreaBucketId(name)) {
+    return { success: false, error: "Invalid project name" };
+  }
+
+  await ensurePersonalWorkspace(session.user.id);
+
   const org = await db.organization.findFirst();
   if (!org) return { success: false, error: "Organization not found" };
 
   const project = await db.project.create({
     data: {
-      name: parsed.data.name,
-      description: parsed.data.description,
+      name: name.trim(),
+      description: description?.trim() || null,
       status: "ACTIVE",
+      area,
       members: {
         create: {
           userId: session.user.id,
           role: "OWNER",
         },
       },
-      ...(parsed.data.teamId && { teamId: parsed.data.teamId }),
+      ...(teamId ? { teamId } : {}),
     },
   });
 
   revalidatePath("/projects");
+  if (area === "PHD") revalidatePath("/research");
+  if (area === "LANG") revalidatePath("/language");
   return { success: true, data: { projectId: project.id } };
 }
 
-// ─── Update project ────────────────────────────────────────────────────────
+// ─── Update area bucket (name + description only) ────────────────────────────
+
+export async function updateAreaBucket(formData: FormData): Promise<ActionResult> {
+  const session = await requireAuth();
+  if (!session?.user) return { success: false, error: "Unauthorized" };
+
+  const parsed = updateAreaBucketSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message };
+  }
+
+  const { area, name, description } = parsed.data;
+  const bucketId = AREA_PROJECT_IDS[area as LifeArea];
+
+  await ensurePersonalWorkspace(session.user.id);
+
+  const isAdmin = await requireProjectAdmin(bucketId, session.user.id);
+  if (!isAdmin) {
+    return { success: false, error: "Only area owners can edit this area" };
+  }
+
+  await db.project.update({
+    where: { id: bucketId },
+    data: {
+      name: name.trim(),
+      description: description?.trim() || null,
+    },
+  });
+
+  revalidatePath("/projects");
+  revalidatePath(`/projects/${bucketId}`);
+  revalidatePath("/tasks");
+  revalidatePath("/kanban");
+  revalidatePath("/dashboard");
+  return { success: true };
+}
+
+// ─── Update named path ───────────────────────────────────────────────────────
 
 export async function updateProject(
   id: string,
@@ -86,6 +140,13 @@ export async function updateProject(
 ): Promise<ActionResult> {
   const session = await requireAuth();
   if (!session) return { success: false, error: "غیرمجاز" };
+
+  if (isAreaBucketId(id)) {
+    return {
+      success: false,
+      error: "Area buckets must be edited via updateAreaBucket",
+    };
+  }
 
   const isAdmin = await requireProjectAdmin(id, session.user.id);
   if (!isAdmin) return { success: false, error: "تنها مدیران پروژه می‌توانند این پروژه را به‌روزرسانی کنند" };
@@ -115,6 +176,10 @@ export async function archiveProject(id: string): Promise<ActionResult> {
   const session = await requireAuth();
   if (!session) return { success: false, error: "غیرمجاز" };
 
+  if (isAreaBucketId(id)) {
+    return { success: false, error: "Area buckets cannot be archived" };
+  }
+
   const isAdmin = await requireProjectAdmin(id, session.user.id);
   if (!isAdmin) return { success: false, error: "تنها مدیران پروژه می‌توانند این پروژه را بایگانی کنند" };
 
@@ -138,6 +203,10 @@ export async function archiveProject(id: string): Promise<ActionResult> {
 export async function unarchiveProject(id: string): Promise<ActionResult> {
   const session = await requireAuth();
   if (!session) return { success: false, error: "غیرمجاز" };
+
+  if (isAreaBucketId(id)) {
+    return { success: false, error: "Area buckets cannot be archived" };
+  }
 
   const isAdmin = await requireProjectAdmin(id, session.user.id);
   if (!isAdmin) return { success: false, error: "تنها مدیران پروژه می‌توانند این پروژه را بازگردانند" };
@@ -163,6 +232,10 @@ export async function deleteProject(id: string): Promise<ActionResult> {
   const session = await requireAuth();
   if (!session) return { success: false, error: "غیرمجاز" };
 
+  if (isAreaBucketId(id)) {
+    return { success: false, error: "Area buckets cannot be deleted" };
+  }
+
   const isOwner = await requireProjectOwner(id, session.user.id);
   if (!isOwner) return { success: false, error: "تنها مالک پروژه می‌تواند این پروژه را حذف کند" };
 
@@ -171,7 +244,6 @@ export async function deleteProject(id: string): Promise<ActionResult> {
     return { success: false, error: parsed.error.issues[0]?.message };
   }
 
-  // Guard: check for active tasks
   const activeTasks = await db.task.count({
     where: { projectId: id, status: { not: "DONE" } },
   });
@@ -199,7 +271,6 @@ export async function inviteMember(
 
   const { userId, role } = Object.fromEntries(formData) as { userId: string; role: string };
 
-  // Check user is not already a member
   const existing = await db.projectMember.findUnique({
     where: { projectId_userId: { projectId, userId } },
   });
@@ -211,6 +282,7 @@ export async function inviteMember(
     data: { projectId, userId, role: role as "OWNER" | "ADMIN" | "MEMBER" | "VIEWER" },
   });
 
+  revalidatePath("/projects");
   revalidatePath(`/projects/${projectId}`);
   return { success: true };
 }
@@ -232,11 +304,9 @@ export async function updateMemberRole(
   });
   if (!member) return { success: false, error: "عضو یافت نشد" };
 
-  // Only OWNER can change roles
   const isOwner = await requireProjectOwner(member.projectId, session.user.id);
   if (!isOwner) return { success: false, error: "تنها مالک پروژه می‌تواند نقش اعضا را تغییر دهد" };
 
-  // Guard: prevent changing the last OWNER's role
   if (member.role === "OWNER") {
     const ownerCount = await db.projectMember.count({
       where: { projectId: member.projectId, role: "OWNER" },
@@ -251,6 +321,7 @@ export async function updateMemberRole(
     data: { role: role as "OWNER" | "ADMIN" | "MEMBER" | "VIEWER" },
   });
 
+  revalidatePath("/projects");
   revalidatePath(`/projects/${member.projectId}`);
   return { success: true };
 }
@@ -267,11 +338,9 @@ export async function removeMember(memberId: string): Promise<ActionResult> {
   });
   if (!member) return { success: false, error: "عضو یافت نشد" };
 
-  // Caller must be ADMIN or OWNER
   const isAdmin = await requireProjectAdmin(member.projectId, session.user.id);
   if (!isAdmin) return { success: false, error: "شما مجوز حذف اعضا را ندارید" };
 
-  // Guard: prevent removing the last OWNER
   if (member.role === "OWNER") {
     const ownerCount = await db.projectMember.count({
       where: { projectId: member.projectId, role: "OWNER" },
@@ -281,13 +350,13 @@ export async function removeMember(memberId: string): Promise<ActionResult> {
     }
   }
 
-  // Cannot remove yourself
   if (member.userId === session.user.id) {
     return { success: false, error: "شما نمی‌توانید خود را از پروژه حذف کنید" };
   }
 
   await db.projectMember.delete({ where: { id: memberId } });
 
+  revalidatePath("/projects");
   revalidatePath(`/projects/${member.projectId}`);
   return { success: true };
 }

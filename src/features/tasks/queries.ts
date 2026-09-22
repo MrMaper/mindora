@@ -1,4 +1,5 @@
 import { prisma as db } from "@/lib/db";
+import { taskWhereExcludeHub } from "@/lib/project-namespace";
 import type {
   GetTasksParams,
   GetTasksResult,
@@ -24,7 +25,11 @@ export function toTaskRow(task: {
   assignedTo: { id: string; name: string; avatar: string | null } | null;
   labels: { label: { id: string; name: string; color: string } }[];
   projectId: string | null;
-  project: { name: string } | null;
+  project: { name: string; area?: "PHD" | "WORK" | "LIFE" | "LANG" } | null;
+  area?: "PHD" | "WORK" | "LIFE" | "LANG" | null;
+  recurrence?: "NONE" | "DAILY" | "WEEKLY" | "MONTHLY";
+  recurrenceSeriesId?: string | null;
+  recurrenceEndsAt?: Date | null;
 }): TaskRow {
   return {
     id: task.id,
@@ -41,6 +46,10 @@ export function toTaskRow(task: {
     labels: task.labels.map(l => l.label),
     projectId: task.projectId,
     projectName: task.project?.name ?? null,
+    area: task.area ?? task.project?.area ?? null,
+    recurrence: task.recurrence ?? "NONE",
+    recurrenceSeriesId: task.recurrenceSeriesId ?? null,
+    recurrenceEndsAt: task.recurrenceEndsAt ?? null,
   };
 }
 
@@ -49,6 +58,7 @@ export async function getTasks(
 ): Promise<GetTasksResult> {
   const page = Math.max(1, params.page ?? 1);
   const skip = (page - 1) * PAGE_SIZE;
+  const excludeHub = params.excludeHub !== false;
 
   const where = {
     ...(params.search
@@ -60,12 +70,10 @@ export async function getTasks(
     ...(params.projectIds && params.projectIds.length > 0
       ? { projectId: { in: params.projectIds } }
       : {}),
-    // Exclude archived projects
-    project: { isNot: { status: "ARCHIVED" as const } },
-    // Exclude orphaned tasks (projectId set but project deleted)
+    ...(excludeHub ? taskWhereExcludeHub() : {}),
     OR: [
-      { projectId: null }, // Tasks without a project
-      { project: { isNot: null } }, // Tasks with a valid project
+      { projectId: null },
+      { project: { status: { not: "ARCHIVED" as const } } },
     ],
   };
 
@@ -101,7 +109,11 @@ export async function getTasks(
         createdAt: true,
         updatedAt: true,
         projectId: true,
-        project: { select: { name: true } },
+        area: true,
+        recurrence: true,
+        recurrenceSeriesId: true,
+        recurrenceEndsAt: true,
+        project: { select: { name: true, area: true } },
         createdBy: { select: userRefSelect },
         assignedTo: { select: userRefSelect },
         labels: {
@@ -135,7 +147,11 @@ export async function getTaskById(id: string): Promise<TaskDetail | null> {
       createdAt: true,
       updatedAt: true,
       projectId: true,
-      project: { select: { name: true } },
+      area: true,
+      recurrence: true,
+      recurrenceSeriesId: true,
+      recurrenceEndsAt: true,
+      project: { select: { name: true, area: true } },
       createdBy: { select: userRefSelect },
       assignedTo: { select: userRefSelect },
       labels: {

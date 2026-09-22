@@ -1,80 +1,84 @@
 "use client";
 
 import * as React from "react";
-import { Pagination } from "@/components/ui-kit/tables/pagination";
 import { useProjects } from "../hooks/use-projects";
-import type { GetProjectsResult, ProjectRow } from "@/features/projects/types";
+import type { ProjectsHubData } from "@/features/projects/types";
 import { useTranslation } from "@/i18n/provider";
-
 import { PageHeader } from "../ui/page-header";
-import { SearchFilter } from "../ui/search-filters";
-import { ProjectsTable } from "../ui/projects-table";
+import { AreaSection } from "../ui/area-section";
 import { CreateProjectDrawer } from "../ui/create-project-drawer";
 import { EditProjectDrawer } from "../ui/edit-project-drawer";
+import { EditAreaDrawer } from "../ui/edit-area-drawer";
 import { DeleteConfirmationDialog } from "../ui/delete-confirmation-dialog";
 import { GlobalError } from "@/components/ui-kit/global";
 
 interface ProjectsCCProps {
-  initialData: GetProjectsResult;
+  initialData: ProjectsHubData;
   search: string;
-  page: number;
-  currentUserRole: string;
 }
 
-export function ProjectsCC({ initialData, search, page, currentUserRole }: ProjectsCCProps) {
+export function ProjectsCC({ initialData, search }: ProjectsCCProps) {
   const u = useProjects(search);
   const t = useTranslation();
 
-  const { projects, total, totalPages } = initialData;
+  const pathCount = initialData.sections.reduce(
+    (n, s) => n + s.paths.length,
+    0,
+  );
 
-  const mappedProjects: ProjectRow[] = projects.map(p => ({
-    id: p.id,
-    name: p.name,
-    description: p.description,
-    teamName: p.teamName,
-    status: p.status === "ON_HOLD" ? "ARCHIVED" : p.status,
-    teamId: p.teamId,
-    memberCount: p.memberCount,
-    createdAt: p.createdAt,
+  const areaOptions = initialData.sections.map(s => ({
+    value: s.area,
+    label: s.bucket.name,
   }));
-
-  const canCreateProject = currentUserRole === "ADMIN";
 
   return (
     <>
-      <PageHeader total={total} onCreate={canCreateProject ? u.openCreate : undefined} />
-
-      <SearchFilter
+      <PageHeader
+        pathCount={pathCount}
         search={u.search}
         onSearchChange={u.setSearch}
         onSearchSubmit={u.onSearchSubmit}
+        onCreate={() => u.openCreate()}
       />
 
-      <GlobalError error={u.actionError} drawerMode={u.drawerMode} />
-
-      <ProjectsTable
-        projects={mappedProjects}
-        onView={u.onView}
-        onEdit={u.openEdit}
-        onArchive={u.onArchive}
-        onDelete={u.setDeleteTarget}
+      <GlobalError
+        error={u.actionError}
+        drawerMode={u.drawerMode === "edit-area" ? "edit" : u.drawerMode}
       />
 
-      <Pagination page={page} totalPages={totalPages} filters={{ search }} />
-
-      {canCreateProject && (
-        <CreateProjectDrawer
-          isOpen={u.drawerMode === "create"}
-          onClose={u.closeDrawer}
-          form={{
-            control: u.createForm.control,
-            isPending: u.isPending,
-          }}
-          onSubmit={u.onCreateSubmit}
-          actionError={u.actionError}
-          isPending={u.isPending}
-        />
+      {initialData.sections.length === 0 ? (
+        <div className="bg-bg-surface border border-border-default rounded-lg p-10 text-center text-sm text-muted-foreground">
+          {t.projects.noResults}
+        </div>
+      ) : (
+        <div className="flex flex-col gap-4">
+          {initialData.sections.map(section => (
+            <AreaSection
+              key={section.area}
+              section={section}
+              onEditArea={u.openEditArea}
+              onAddPath={u.openCreate}
+              onView={u.onView}
+              onEditPath={u.openEdit}
+              onArchive={u.onArchive}
+              onDelete={u.setDeleteTarget}
+            />
+          ))}
+        </div>
       )}
+
+      <CreateProjectDrawer
+        isOpen={u.drawerMode === "create"}
+        onClose={u.closeDrawer}
+        form={{
+          control: u.createForm.control,
+          isPending: u.isPending,
+        }}
+        onSubmit={u.onCreateSubmit}
+        actionError={u.actionError}
+        isPending={u.isPending}
+        areaOptions={areaOptions}
+      />
 
       <EditProjectDrawer
         isOpen={u.drawerMode === "edit"}
@@ -85,10 +89,26 @@ export function ProjectsCC({ initialData, search, page, currentUserRole }: Proje
         }}
         editingProject={
           u.editingProject
-            ? { name: u.editingProject.name, memberCount: 0 }
+            ? {
+                name: u.editingProject.name,
+                memberCount: u.editingProject.memberCount,
+              }
             : null
         }
         onSubmit={u.onEditSubmit}
+        actionError={u.actionError}
+        isPending={u.isPending}
+      />
+
+      <EditAreaDrawer
+        isOpen={u.drawerMode === "edit-area"}
+        onClose={u.closeDrawer}
+        form={{
+          control: u.areaForm.control,
+          isPending: u.isPending,
+        }}
+        areaName={u.editingProject?.name ?? null}
+        onSubmit={u.onAreaSubmit}
         actionError={u.actionError}
         isPending={u.isPending}
       />

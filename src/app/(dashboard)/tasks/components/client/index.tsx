@@ -12,6 +12,7 @@ import type { UserRow } from "@/features/users/types";
 import type { LabelRow } from "@/features/labels/types";
 import type { Language } from "@/types/db";
 import type { ProjectRow } from "@/features/projects/types";
+import { withCurrentProjectOption, projectPickerLabel } from "@/lib/project-namespace";
 
 // UI components
 import { PageHeader } from "../ui/page-header";
@@ -65,10 +66,21 @@ export function TasksCC({
     ...users.map(usr => ({ value: usr.id, label: usr.name })),
   ];
 
-  const projectOptions = [
-    { value: "", label: t.tasks.noProject },
-    ...userProjects.map(proj => ({ value: proj.id, label: proj.name })),
-  ];
+  const projectOptions = withCurrentProjectOption(
+    [
+      { value: "", label: t.tasks.noProject },
+      ...userProjects.map(proj => ({
+        value: proj.id,
+        label: projectPickerLabel(proj, language === "EN" ? "EN" : "FA"),
+      })),
+    ],
+    u.activeTask?.projectId
+      ? {
+          id: u.activeTask.projectId,
+          name: u.activeTask.projectName ?? u.activeTask.projectId,
+        }
+      : null,
+  );
 
   const statusOptions = withEmptyOption(
     getAllOptionsWithLabels(language, "status"),
@@ -77,10 +89,6 @@ export function TasksCC({
   const priorityOptions = withEmptyOption(
     getAllOptionsWithLabels(language, "priority"),
     t.tasks.allPriorities,
-  );
-  const typeOptions = withEmptyOption(
-    getAllOptionsWithLabels(language, "type"),
-    t.tasks.type,
   );
 
   const hasActiveFilters = !!(
@@ -162,17 +170,13 @@ export function TasksCC({
       <CreateTaskDrawer
         isOpen={u.drawerMode === "create"}
         onClose={u.closeDrawer}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        form={{ ...u.createForm, isPending: u.isPending } as any}
-        t={t.tasks}
-        users={users}
+        control={u.createForm.control}
+        setValue={u.createForm.setValue}
         projects={userProjects}
         labels={labels}
-        statusOptions={statusOptions}
-        priorityOptions={priorityOptions}
-        typeOptions={typeOptions}
+        statusOptions={statusOptions.filter(o => o.value !== "")}
+        priorityOptions={priorityOptions.filter(o => o.value !== "")}
         userOptions={userOptions}
-        projectOptions={projectOptions}
         selectedLabelIds={u.selectedLabelIds}
         onLabelToggle={u.toggleLabel}
         onSubmit={u.onCreateSubmit}
@@ -180,25 +184,23 @@ export function TasksCC({
         isPending={u.isPending}
         currentUserId={currentUserId}
         currentUserRole={currentUserRole}
+        preset="life"
       />
 
-      {/* ── Edit task drawer ────────────────────────────────────────__ */}
+      {/* ── Edit task drawer ────────────────────────────────────────── */}
       <EditTaskDrawer
         isOpen={u.drawerMode === "edit"}
         onClose={u.closeDrawer}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        form={{ ...u.editForm, isPending: u.isPending } as any}
-        t={t}
+        control={u.editForm.control}
+        setValue={u.editForm.setValue}
         users={users}
         projects={userProjects}
         labels={labels}
         activeTask={u.activeTask}
         isLoadingDetail={u.isLoadingDetail}
-        statusOptions={statusOptions}
-        priorityOptions={priorityOptions}
-        typeOptions={typeOptions}
+        statusOptions={statusOptions.filter(o => o.value !== "")}
+        priorityOptions={priorityOptions.filter(o => o.value !== "")}
         userOptions={userOptions}
-        projectOptions={projectOptions}
         selectedLabelIds={u.selectedLabelIds}
         onLabelToggle={u.toggleLabel}
         onSubmit={u.onEditSubmit}
@@ -206,6 +208,7 @@ export function TasksCC({
         isPending={u.isPending}
         currentUserId={currentUserId}
         currentUserRole={currentUserRole}
+        preset="life"
       />
 
       {/* ── Label management dialog ─────────────────────────────────── */}

@@ -75,7 +75,24 @@ export const ModelName = {
   ChecklistItem: 'ChecklistItem',
   Notification: 'Notification',
   ActivityLog: 'ActivityLog',
-  WorkLog: 'WorkLog'
+  WorkLog: 'WorkLog',
+  Habit: 'Habit',
+  HabitLog: 'HabitLog',
+  Doc: 'Doc',
+  DocFolder: 'DocFolder',
+  DocTag: 'DocTag',
+  DocTagOnDoc: 'DocTagOnDoc',
+  DocTask: 'DocTask',
+  DocVersion: 'DocVersion',
+  DocSource: 'DocSource',
+  DocQuote: 'DocQuote',
+  LangProfile: 'LangProfile',
+  LangSession: 'LangSession',
+  LangListeningClip: 'LangListeningClip',
+  LangCard: 'LangCard',
+  LangVocabDay: 'LangVocabDay',
+  ExamTrack: 'ExamTrack',
+  MockAttempt: 'MockAttempt'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -174,6 +191,9 @@ export const UserPreferencesScalarFieldEnum = {
   notifySprintEnded: 'notifySprintEnded',
   notifyDeadlineApproaching: 'notifyDeadlineApproaching',
   notifyStatusChanged: 'notifyStatusChanged',
+  todayFocusDate: 'todayFocusDate',
+  todayFocusIds: 'todayFocusIds',
+  onboardingCompletedAt: 'onboardingCompletedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -243,6 +263,7 @@ export const ProjectScalarFieldEnum = {
   name: 'name',
   description: 'description',
   status: 'status',
+  area: 'area',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -290,6 +311,10 @@ export const TaskScalarFieldEnum = {
   estimate: 'estimate',
   dueDate: 'dueDate',
   position: 'position',
+  area: 'area',
+  recurrence: 'recurrence',
+  recurrenceSeriesId: 'recurrenceSeriesId',
+  recurrenceEndsAt: 'recurrenceEndsAt',
   createdById: 'createdById',
   assignedToId: 'assignedToId',
   createdAt: 'createdAt',
@@ -400,6 +425,263 @@ export const WorkLogScalarFieldEnum = {
 export type WorkLogScalarFieldEnum = (typeof WorkLogScalarFieldEnum)[keyof typeof WorkLogScalarFieldEnum]
 
 
+export const HabitScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  title: 'title',
+  area: 'area',
+  cadence: 'cadence',
+  streak: 'streak',
+  bestStreak: 'bestStreak',
+  lastDoneDate: 'lastDoneDate',
+  archivedAt: 'archivedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type HabitScalarFieldEnum = (typeof HabitScalarFieldEnum)[keyof typeof HabitScalarFieldEnum]
+
+
+export const HabitLogScalarFieldEnum = {
+  id: 'id',
+  habitId: 'habitId',
+  dateKey: 'dateKey',
+  createdAt: 'createdAt'
+} as const
+
+export type HabitLogScalarFieldEnum = (typeof HabitLogScalarFieldEnum)[keyof typeof HabitLogScalarFieldEnum]
+
+
+export const DocScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  content: 'content',
+  contentText: 'contentText',
+  area: 'area',
+  status: 'status',
+  wordGoal: 'wordGoal',
+  templateKey: 'templateKey',
+  systemKey: 'systemKey',
+  pinned: 'pinned',
+  archived: 'archived',
+  deletedAt: 'deletedAt',
+  folderId: 'folderId',
+  projectId: 'projectId',
+  userId: 'userId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DocScalarFieldEnum = (typeof DocScalarFieldEnum)[keyof typeof DocScalarFieldEnum]
+
+
+export const DocFolderScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  area: 'area',
+  userId: 'userId',
+  parentId: 'parentId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DocFolderScalarFieldEnum = (typeof DocFolderScalarFieldEnum)[keyof typeof DocFolderScalarFieldEnum]
+
+
+export const DocTagScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  color: 'color',
+  userId: 'userId',
+  createdAt: 'createdAt'
+} as const
+
+export type DocTagScalarFieldEnum = (typeof DocTagScalarFieldEnum)[keyof typeof DocTagScalarFieldEnum]
+
+
+export const DocTagOnDocScalarFieldEnum = {
+  docId: 'docId',
+  tagId: 'tagId'
+} as const
+
+export type DocTagOnDocScalarFieldEnum = (typeof DocTagOnDocScalarFieldEnum)[keyof typeof DocTagOnDocScalarFieldEnum]
+
+
+export const DocTaskScalarFieldEnum = {
+  docId: 'docId',
+  taskId: 'taskId'
+} as const
+
+export type DocTaskScalarFieldEnum = (typeof DocTaskScalarFieldEnum)[keyof typeof DocTaskScalarFieldEnum]
+
+
+export const DocVersionScalarFieldEnum = {
+  id: 'id',
+  docId: 'docId',
+  title: 'title',
+  content: 'content',
+  contentText: 'contentText',
+  note: 'note',
+  createdAt: 'createdAt'
+} as const
+
+export type DocVersionScalarFieldEnum = (typeof DocVersionScalarFieldEnum)[keyof typeof DocVersionScalarFieldEnum]
+
+
+export const DocSourceScalarFieldEnum = {
+  id: 'id',
+  docId: 'docId',
+  title: 'title',
+  authors: 'authors',
+  url: 'url',
+  year: 'year',
+  doi: 'doi',
+  notes: 'notes',
+  fileUrl: 'fileUrl',
+  fileName: 'fileName',
+  readingStatus: 'readingStatus',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DocSourceScalarFieldEnum = (typeof DocSourceScalarFieldEnum)[keyof typeof DocSourceScalarFieldEnum]
+
+
+export const DocQuoteScalarFieldEnum = {
+  id: 'id',
+  docId: 'docId',
+  sourceId: 'sourceId',
+  text: 'text',
+  note: 'note',
+  createdAt: 'createdAt'
+} as const
+
+export type DocQuoteScalarFieldEnum = (typeof DocQuoteScalarFieldEnum)[keyof typeof DocQuoteScalarFieldEnum]
+
+
+export const LangProfileScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  targetExam: 'targetExam',
+  targetScore: 'targetScore',
+  examDate: 'examDate',
+  weeklyGoalMin: 'weeklyGoalMin',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LangProfileScalarFieldEnum = (typeof LangProfileScalarFieldEnum)[keyof typeof LangProfileScalarFieldEnum]
+
+
+export const LangSessionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  projectId: 'projectId',
+  skill: 'skill',
+  minutes: 'minutes',
+  note: 'note',
+  practicedAt: 'practicedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type LangSessionScalarFieldEnum = (typeof LangSessionScalarFieldEnum)[keyof typeof LangSessionScalarFieldEnum]
+
+
+export const LangListeningClipScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  projectId: 'projectId',
+  title: 'title',
+  sourceType: 'sourceType',
+  sourceRef: 'sourceRef',
+  level: 'level',
+  transcript: 'transcript',
+  notes: 'notes',
+  starterKey: 'starterKey',
+  lastPlayedAt: 'lastPlayedAt',
+  playCount: 'playCount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LangListeningClipScalarFieldEnum = (typeof LangListeningClipScalarFieldEnum)[keyof typeof LangListeningClipScalarFieldEnum]
+
+
+export const LangCardScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  projectId: 'projectId',
+  front: 'front',
+  back: 'back',
+  example: 'example',
+  tags: 'tags',
+  deckKey: 'deckKey',
+  lesson: 'lesson',
+  box: 'box',
+  learningStep: 'learningStep',
+  intervalDays: 'intervalDays',
+  nextReviewAt: 'nextReviewAt',
+  lastReviewedAt: 'lastReviewedAt',
+  reviewCount: 'reviewCount',
+  lapses: 'lapses',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LangCardScalarFieldEnum = (typeof LangCardScalarFieldEnum)[keyof typeof LangCardScalarFieldEnum]
+
+
+export const LangVocabDayScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  day: 'day',
+  reviews: 'reviews',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LangVocabDayScalarFieldEnum = (typeof LangVocabDayScalarFieldEnum)[keyof typeof LangVocabDayScalarFieldEnum]
+
+
+export const ExamTrackScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  projectId: 'projectId',
+  kind: 'kind',
+  name: 'name',
+  targetScore: 'targetScore',
+  examDate: 'examDate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ExamTrackScalarFieldEnum = (typeof ExamTrackScalarFieldEnum)[keyof typeof ExamTrackScalarFieldEnum]
+
+
+export const MockAttemptScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  trackId: 'trackId',
+  projectId: 'projectId',
+  kind: 'kind',
+  status: 'status',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt',
+  durationSec: 'durationSec',
+  totalCorrect: 'totalCorrect',
+  totalQuestions: 'totalQuestions',
+  percent: 'percent',
+  sections: 'sections',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MockAttemptScalarFieldEnum = (typeof MockAttemptScalarFieldEnum)[keyof typeof MockAttemptScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -414,6 +696,13 @@ export const NullableJsonNullValueInput = {
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {

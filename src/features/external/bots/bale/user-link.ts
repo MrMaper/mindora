@@ -7,7 +7,7 @@ export async function linkBaleUser(baleUserId: number, email: string): Promise<{
   });
 
   if (!user) {
-    return { success: false, error: "User with this email not found in ScrumFlow" };
+    return { success: false, error: "User with this email not found in Mindora" };
   }
 
   await db.user.update({

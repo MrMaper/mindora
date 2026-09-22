@@ -1,28 +1,34 @@
 import { prisma as db } from "@/lib/db";
 import { toTaskRow } from "@/features/tasks/queries";
+import { taskWhereExcludeHub } from "@/lib/project-namespace";
 import { BOARD_STATUSES } from "./types";
 import type { BoardColumns, BoardFilters, BoardStatus } from "./types";
 
 const userRefSelect = { id: true, name: true, avatar: true } as const;
 
-export async function getBoardColumns(filters: BoardFilters): Promise<BoardColumns> {
+export async function getBoardColumns(
+  filters: BoardFilters,
+  statuses: BoardStatus[] = BOARD_STATUSES,
+): Promise<BoardColumns> {
+  const excludeHub = filters.excludeHub !== false;
+
   const where = {
-    status: { in: BOARD_STATUSES },
+    status: { in: statuses },
     ...(filters.search
       ? { title: { contains: filters.search, mode: "insensitive" as const } }
       : {}),
     ...(filters.assigneeId ? { assignedToId: filters.assigneeId } : {}),
     ...(filters.priority ? { priority: filters.priority } : {}),
-    ...(filters.labelId ? { labels: { some: { labelId: filters.labelId } } } : {}),
+    ...(filters.labelId
+      ? { labels: { some: { labelId: filters.labelId } } }
+      : {}),
     ...(filters.projectIds && filters.projectIds.length > 0
       ? { projectId: { in: filters.projectIds } }
       : {}),
-    // Exclude archived projects
-    project: { isNot: { status: "ARCHIVED" as const } },
-    // Exclude orphaned tasks (projectId set but project deleted)
+    ...(excludeHub ? taskWhereExcludeHub() : {}),
     OR: [
       { projectId: null },
-      { project: { isNot: null } },
+      { project: { status: { not: "ARCHIVED" as const } } },
     ],
   };
 
@@ -40,14 +46,20 @@ export async function getBoardColumns(filters: BoardFilters): Promise<BoardColum
       createdAt: true,
       updatedAt: true,
       projectId: true,
-      project: { select: { name: true } },
+      area: true,
+      recurrence: true,
+      project: { select: { name: true, area: true } },
       createdBy: { select: userRefSelect },
       assignedTo: { select: userRefSelect },
-      labels: { select: { label: { select: { id: true, name: true, color: true } } } },
+      labels: {
+        select: { label: { select: { id: true, name: true, color: true } } },
+      },
     },
   });
 
-  const columns = Object.fromEntries(BOARD_STATUSES.map(s => [s, []])) as unknown as BoardColumns;
+  const columns = Object.fromEntries(
+    statuses.map(s => [s, []]),
+  ) as unknown as BoardColumns;
   for (const task of tasks) {
     columns[task.status as BoardStatus].push(toTaskRow(task));
   }

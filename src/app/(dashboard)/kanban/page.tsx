@@ -26,8 +26,6 @@ export default async function KanbanPage({
   const session = await auth();
   if (!session?.user) redirect("/login");
 
-  const isAdmin = session.user.role === "ADMIN";
-
   const {
     search = "",
     assignee = "",
@@ -36,9 +34,7 @@ export default async function KanbanPage({
     project = "",
   } = await searchParams;
 
-  const effectiveAssignee = isAdmin ? (assignee || undefined) : session.user.id;
-
-  // Parse project IDs (comma-separated for multi-select)
+  const effectiveAssignee = session.user.id;
   const projectIds = project ? project.split(",").filter(Boolean) : undefined;
 
   const [columns, users, labels, userProjects] = await Promise.all([
@@ -48,10 +44,11 @@ export default async function KanbanPage({
       labelId: label || undefined,
       priority: (priority || undefined) as TaskPriority | undefined,
       projectIds,
+      excludeHub: false,
     }),
     getAllActiveUsers(),
     getLabels(),
-    getUserProjects(session.user.id),
+    getUserProjects(session.user.id, "assignable"),
   ]);
 
   return (

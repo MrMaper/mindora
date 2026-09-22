@@ -32,12 +32,15 @@ export interface SelectProps {
   style?: React.CSSProperties;
 }
 
+/** Base UI forbids Item value=""; map empty option/value through this sentinel. */
+const EMPTY = "__empty__";
+
 export function Select({
   label,
   hint,
   error,
   required = false,
-  options,
+  options = [],
   placeholder,
   id,
   className = "",
@@ -54,14 +57,25 @@ export function Select({
 
   const handleChange = (val: string | string[] | null) => {
     const newValue = Array.isArray(val) ? val[0] : val;
-    onChange?.(newValue ?? "");
+    if (newValue == null || newValue === EMPTY) {
+      onChange?.("");
+      return;
+    }
+    onChange?.(newValue);
   };
 
-  const selectedOption = options.find(o => o.value === value);
+  const selectedOption = options.find(o => o.value === (value ?? ""));
   const displayValue = selectedOption?.label ?? placeholder ?? "";
 
   const errorMessage: string | undefined =
     typeof error === "string" ? error : error?.message;
+
+  const rootValue = (value ?? "") === "" ? EMPTY : (value as string);
+  const knownValues = new Set(
+    options.map(o => (o.value === "" ? EMPTY : o.value)),
+  );
+  knownValues.add(EMPTY);
+  const safeRootValue = knownValues.has(rootValue) ? rootValue : EMPTY;
 
   return (
     <div className={cn("w-full", wrapperClassName)} style={style}>
@@ -76,14 +90,14 @@ export function Select({
         </ShadcnLabel>
       )}
       <ShadcnSelect
-        value={value ?? ""}
+        value={safeRootValue}
         onValueChange={handleChange}
         disabled={disabled}
       >
         <ShadcnSelectTrigger
           id={fieldId}
           className={cn(
-            "px-3 border-border hover:border-gray-400 hover:dark:border-gray-600 focus-visible:border-ring h-8!",
+            "ps-3 pe-2.5 border-border hover:border-gray-400 hover:dark:border-gray-600 focus-visible:border-ring h-8!",
             errorMessage &&
               "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/30",
             className,
@@ -96,13 +110,17 @@ export function Select({
           </ShadcnSelectValue>
         </ShadcnSelectTrigger>
         <ShadcnSelectContent className="w-full">
-          {placeholder && (
-            <ShadcnSelectItem value="" disabled>
-              {placeholder}
+          {/* Always provide EMPTY item so rootValue="" mapping never points at a missing item */}
+          {!options.some(o => o.value === "") && (
+            <ShadcnSelectItem value={EMPTY} disabled className="hidden">
+              {placeholder ?? "—"}
             </ShadcnSelectItem>
           )}
           {options.map(o => (
-            <ShadcnSelectItem key={o.value} value={o.value}>
+            <ShadcnSelectItem
+              key={o.value === "" ? EMPTY : o.value}
+              value={o.value === "" ? EMPTY : o.value}
+            >
               {o.label}
             </ShadcnSelectItem>
           ))}

@@ -13,6 +13,9 @@ export interface ActionResult {
 export interface UpdatePreferencesInput {
   language?: Language;
   theme?: Theme;
+  emailNotifs?: boolean;
+  notifications?: boolean;
+  soundNotifs?: boolean;
   notifyTaskAssigned?: boolean;
   notifyTaskUpdated?: boolean;
   notifyTaskCommented?: boolean;
@@ -29,10 +32,12 @@ export async function updateUserPreferences(
   try {
     const session = await requireAuth();
 
-    // Build update object with only provided fields
-    const updateData: Partial<UserPreferencesData> = {};
+    const updateData: Record<string, unknown> = {};
     if (input.language !== undefined) updateData.language = input.language;
     if (input.theme !== undefined) updateData.theme = input.theme;
+    if (input.emailNotifs !== undefined) updateData.emailNotifs = input.emailNotifs;
+    if (input.notifications !== undefined) updateData.notifications = input.notifications;
+    if (input.soundNotifs !== undefined) updateData.soundNotifs = input.soundNotifs;
     if (input.notifyTaskAssigned !== undefined) updateData.notifyTaskAssigned = input.notifyTaskAssigned;
     if (input.notifyTaskUpdated !== undefined) updateData.notifyTaskUpdated = input.notifyTaskUpdated;
     if (input.notifyTaskCommented !== undefined) updateData.notifyTaskCommented = input.notifyTaskCommented;
@@ -42,13 +47,15 @@ export async function updateUserPreferences(
     if (input.notifyDeadlineApproaching !== undefined) updateData.notifyDeadlineApproaching = input.notifyDeadlineApproaching;
     if (input.notifyStatusChanged !== undefined) updateData.notifyStatusChanged = input.notifyStatusChanged;
 
-    // Upsert user preferences
     await db.userPreferences.upsert({
       where: { userId: session.user.id },
       create: {
         userId: session.user.id,
         language: input.language ?? "FA",
         theme: input.theme ?? "SYSTEM",
+        emailNotifs: input.emailNotifs ?? true,
+        notifications: input.notifications ?? true,
+        soundNotifs: input.soundNotifs ?? false,
         notifyTaskAssigned: input.notifyTaskAssigned ?? true,
         notifyTaskUpdated: input.notifyTaskUpdated ?? true,
         notifyTaskCommented: input.notifyTaskCommented ?? true,
@@ -71,7 +78,6 @@ export async function updateUserPreferences(
   }
 }
 
-// Keep the old function for backward compatibility
 export async function updateLanguagePreference(
   language: Language,
 ): Promise<ActionResult> {

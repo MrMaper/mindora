@@ -1,11 +1,14 @@
 import { prisma as db } from "@/lib/db";
-import type { Language, Theme, UserPreferences } from "@/types/db";
+import type { Language, Theme } from "@/types/db";
 
 export interface UserPreferencesData {
   id: string;
   userId: string;
   language: Language;
   theme: Theme;
+  emailNotifs: boolean;
+  notifications: boolean;
+  soundNotifs: boolean;
   notifyTaskAssigned: boolean;
   notifyTaskUpdated: boolean;
   notifyTaskCommented: boolean;
@@ -14,6 +17,7 @@ export interface UserPreferencesData {
   notifySprintEnded: boolean;
   notifyDeadlineApproaching: boolean;
   notifyStatusChanged: boolean;
+  onboardingCompletedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -21,6 +25,7 @@ export interface UserPreferencesData {
 export async function getUserPreferences(
   userId: string,
 ): Promise<UserPreferencesData | null> {
+  if (!userId) return null;
   const prefs = await db.userPreferences.findUnique({
     where: { userId },
     select: {
@@ -28,6 +33,9 @@ export async function getUserPreferences(
       userId: true,
       language: true,
       theme: true,
+      emailNotifs: true,
+      notifications: true,
+      soundNotifs: true,
       notifyTaskAssigned: true,
       notifyTaskUpdated: true,
       notifyTaskCommented: true,
@@ -36,6 +44,7 @@ export async function getUserPreferences(
       notifySprintEnded: true,
       notifyDeadlineApproaching: true,
       notifyStatusChanged: true,
+      onboardingCompletedAt: true,
       createdAt: true,
       updatedAt: true,
     },

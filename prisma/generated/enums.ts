@@ -95,7 +95,8 @@ export const NotificationType = {
   SPRINT_STARTED: 'SPRINT_STARTED',
   SPRINT_ENDED: 'SPRINT_ENDED',
   DEADLINE_APPROACHING: 'DEADLINE_APPROACHING',
-  STATUS_CHANGED: 'STATUS_CHANGED'
+  STATUS_CHANGED: 'STATUS_CHANGED',
+  VOCAB_REVIEW_DUE: 'VOCAB_REVIEW_DUE'
 } as const
 
 export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]
@@ -116,3 +117,84 @@ export const Theme = {
 } as const
 
 export type Theme = (typeof Theme)[keyof typeof Theme]
+
+
+export const LifeArea = {
+  PHD: 'PHD',
+  WORK: 'WORK',
+  LIFE: 'LIFE',
+  LANG: 'LANG'
+} as const
+
+export type LifeArea = (typeof LifeArea)[keyof typeof LifeArea]
+
+
+export const RecurrenceInterval = {
+  NONE: 'NONE',
+  DAILY: 'DAILY',
+  WEEKLY: 'WEEKLY',
+  MONTHLY: 'MONTHLY'
+} as const
+
+export type RecurrenceInterval = (typeof RecurrenceInterval)[keyof typeof RecurrenceInterval]
+
+
+export const DocStatus = {
+  IDEA: 'IDEA',
+  DRAFTING: 'DRAFTING',
+  REVIEW: 'REVIEW',
+  READY: 'READY'
+} as const
+
+export type DocStatus = (typeof DocStatus)[keyof typeof DocStatus]
+
+
+export const SourceReadingStatus = {
+  TO_READ: 'TO_READ',
+  READING: 'READING',
+  DONE: 'DONE'
+} as const
+
+export type SourceReadingStatus = (typeof SourceReadingStatus)[keyof typeof SourceReadingStatus]
+
+
+export const LangSkill = {
+  LISTENING: 'LISTENING',
+  READING: 'READING',
+  WRITING: 'WRITING',
+  SPEAKING: 'SPEAKING',
+  GRAMMAR: 'GRAMMAR',
+  VOCAB: 'VOCAB',
+  PRONUNCIATION: 'PRONUNCIATION'
+} as const
+
+export type LangSkill = (typeof LangSkill)[keyof typeof LangSkill]
+
+
+export const ListeningSource = {
+  YOUTUBE: 'YOUTUBE',
+  AUDIO: 'AUDIO'
+} as const
+
+export type ListeningSource = (typeof ListeningSource)[keyof typeof ListeningSource]
+
+
+export const ExamKind = {
+  MSRT: 'MSRT',
+  IELTS: 'IELTS',
+  TOEFL: 'TOEFL',
+  TOLIMO: 'TOLIMO',
+  EPT: 'EPT',
+  CUSTOM: 'CUSTOM'
+} as const
+
+export type ExamKind = (typeof ExamKind)[keyof typeof ExamKind]
+
+
+export const MockStatus = {
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED',
+  ABANDONED: 'ABANDONED'
+} as const
+
+export type MockStatus = (typeof MockStatus)[keyof typeof MockStatus]

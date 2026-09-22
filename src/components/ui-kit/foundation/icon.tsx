@@ -64,6 +64,8 @@ import {
   FileText,
   Download,
   Info,
+  Menu,
+  Volume2,
 } from "lucide-react";
 
 const UsersConnected = (props: React.SVGAttributes<SVGSVGElement>) => (
@@ -152,7 +154,9 @@ export type IconName =
   | "send"
   | "file-text"
   | "download"
-  | "info";
+  | "info"
+  | "menu"
+  | "volume";
 
 const iconMap: Record<
   IconName,
@@ -223,6 +227,8 @@ const iconMap: Record<
   "file-text": FileText,
   download: Download,
   info: Info,
+  menu: Menu,
+  volume: Volume2,
 };
 
 export interface IconProps extends Omit<
@@ -244,7 +250,7 @@ export function Icon({
 }: IconProps): React.JSX.Element | null {
   const LucideIcon = iconMap[name];
   if (!LucideIcon) {
-    console.warn(`[ScrumFlow] Unknown icon: "${name}"`);
+    console.warn(`[Mindora] Unknown icon: "${name}"`);
     return null;
   }
   return (

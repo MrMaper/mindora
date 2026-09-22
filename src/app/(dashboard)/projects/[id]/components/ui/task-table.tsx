@@ -5,143 +5,190 @@ import { Avatar } from "@/components/ui-kit/data-display/avatar";
 import { Badge } from "@/components/ui-kit/data-display/badge";
 import { Menu } from "@/components/ui-kit/overlays/menu";
 import { IconButton } from "@/components/ui-kit/forms/icon-button";
-import { Icon, type IconName } from "@/components/ui-kit/foundation/icon";
-import type { Translations } from "@/i18n";
+import { useTranslation } from "@/i18n/provider";
 import type { ProjectTaskRow } from "@/features/projects/types";
 
 interface TaskTableProps {
   tasks: ProjectTaskRow[];
-  t: Translations;
   onView: (task: ProjectTaskRow) => void;
   onEdit: (task: ProjectTaskRow) => void;
   onDelete: (task: ProjectTaskRow) => void;
   emptyMessage: string;
 }
 
-const STATUS_TONE: Record<string, "neutral" | "info" | "warning" | "success" | "danger"> = {
+const STATUS_TONE: Record<
+  string,
+  "neutral" | "info" | "warning" | "success" | "danger"
+> = {
   BACKLOG: "neutral",
   TODO: "info",
   IN_PROGRESS: "warning",
-  REVIEW: "warning",
+  REVIEW: "info",
   TESTING: "info",
   DONE: "success",
   BLOCKED: "danger",
 };
 
-const PRIORITY_ICON: Record<string, IconName> = {
-  URGENT: "alert-triangle",
-  HIGH: "arrow-up",
-  MEDIUM: "circle",
-  LOW: "arrow-down",
-  NONE: "circle",
+const STATUS_LABEL_KEY: Record<
+  string,
+  | "backlog"
+  | "todo"
+  | "inProgress"
+  | "review"
+  | "testing"
+  | "done"
+  | "blocked"
+> = {
+  BACKLOG: "backlog",
+  TODO: "todo",
+  IN_PROGRESS: "inProgress",
+  REVIEW: "review",
+  TESTING: "testing",
+  DONE: "done",
+  BLOCKED: "blocked",
 };
 
-const TYPE_ICON: Record<string, IconName> = {
-  TASK: "circle-check",
-  STORY: "git-branch",
-  BUG: "alert-triangle",
-  EPIC: "target",
+const PRIORITY_LABEL_KEY: Record<
+  string,
+  "urgent" | "high" | "medium" | "low" | "none"
+> = {
+  URGENT: "urgent",
+  HIGH: "high",
+  MEDIUM: "medium",
+  LOW: "low",
+  NONE: "none",
 };
 
-export function TaskTable({ tasks, t, onView, onEdit, onDelete, emptyMessage }: TaskTableProps) {
-  return (
-    <div className="bg-card border border-border rounded-xl overflow-hidden">
-      <div className="grid grid-cols-[1fr_100px_100px_120px_40px] gap-3 px-4 h-9 items-center border-b border-border-muted bg-muted/50">
-        {[
-          { key: "title", label: t.tasks.title || "Title" },
-          { key: "status", label: t.tasks.status || "Status" },
-          { key: "priority", label: t.tasks.priority || "Priority" },
-          { key: "assignee", label: t.tasks.assignee || "Assignee" },
-          { key: "actions", label: "" },
-        ].map((col) => (
-          <span
-            key={col.key}
-            className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"
-          >
-            {col.label}
-          </span>
-        ))}
-      </div>
-
-      {tasks.length === 0 ? (
-        <div className="py-12 text-center text-muted-foreground">{emptyMessage}</div>
-      ) : (
-        <div className="divide-y divide-border-muted">
-          {tasks.map((task) => (
-            <TaskRow key={task.id} task={task} t={t} onView={onView} onEdit={onEdit} onDelete={onDelete} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function TaskRow({
-  task,
-  t,
+export function TaskTable({
+  tasks,
   onView,
   onEdit,
   onDelete,
-}: {
-  task: ProjectTaskRow;
-  t: Translations;
-  onView: (task: ProjectTaskRow) => void;
-  onEdit: (task: ProjectTaskRow) => void;
-  onDelete: (task: ProjectTaskRow) => void;
-}) {
-  const priorityIcon = PRIORITY_ICON[task.priority] || "circle";
-  const typeIcon = TYPE_ICON[task.type] || "circle-check";
+  emptyMessage,
+}: TaskTableProps) {
+  const t = useTranslation();
 
   return (
-    <div
-      className="grid grid-cols-[1fr_100px_100px_120px_40px] gap-3 px-4 h-[var(--row-height)] items-center border-b border-border-muted last:border-0 cursor-pointer hover:bg-accent/50"
-      onClick={() => onView(task)}
-    >
-      <div className="flex items-center gap-3 min-w-0">
-        <Icon name={typeIcon} size={14} className="text-muted-foreground" />
-        <div className="min-w-0">
-          <div className="text-sm font-medium text-foreground truncate">{task.title}</div>
-          <div className="text-xs text-muted-foreground truncate">{task.id.slice(-6).toUpperCase()}</div>
+    <div className="bg-bg-surface border border-border-default rounded-lg overflow-hidden">
+      <div className="grid grid-cols-[minmax(0,1fr)_7rem_6rem_8rem_2.5rem] gap-3 px-4 h-9 items-center border-b border-border-subtle bg-bg-sunken">
+        <span className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
+          {t.tasks.taskTitle}
+        </span>
+        <span className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
+          {t.tasks.status}
+        </span>
+        <span className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
+          {t.tasks.priority}
+        </span>
+        <span className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
+          {t.tasks.assignee}
+        </span>
+        <span />
+      </div>
+
+      {tasks.length === 0 ? (
+        <div className="py-10 text-center text-sm text-muted-foreground">
+          {emptyMessage}
         </div>
-      </div>
+      ) : (
+        tasks.map(task => {
+          const statusKey = STATUS_LABEL_KEY[task.status] ?? "todo";
+          const priorityKey = PRIORITY_LABEL_KEY[task.priority] ?? "none";
+          return (
+            <div
+              key={task.id}
+              role="button"
+              tabIndex={0}
+              className="grid grid-cols-[minmax(0,1fr)_7rem_6rem_8rem_2.5rem] gap-3 px-4 min-h-13 items-center border-b border-border-subtle last:border-b-0 cursor-pointer hover:bg-bg-hover"
+              onClick={() => onView(task)}
+              onKeyDown={e => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onView(task);
+                }
+              }}
+            >
+              <div className="min-w-0">
+                <div className="text-sm font-medium text-foreground truncate">
+                  {task.title}
+                </div>
+                {task.description ? (
+                  <div className="text-xs text-muted-foreground truncate mt-0.5">
+                    {task.description}
+                  </div>
+                ) : null}
+              </div>
 
-      <Badge tone={STATUS_TONE[task.status] || "neutral"} className="w-full text-center text-[11px]">
-        {t.tasks[task.status.toLowerCase() as keyof typeof t.tasks] || task.status}
-      </Badge>
+              <Badge tone={STATUS_TONE[task.status] ?? "neutral"}>
+                {t.projects[statusKey]}
+              </Badge>
 
-      <div className="flex items-center justify-center gap-1">
-        <Icon name={priorityIcon} size={12} className="text-muted-foreground" />
-        <span className="text-xs text-muted-foreground capitalize">{task.priority.toLowerCase()}</span>
-      </div>
+              <span className="text-xs text-muted-foreground truncate">
+                {t.projects[priorityKey]}
+              </span>
 
-      <div className="flex items-center gap-2 min-w-0">
-        {task.assignee ? (
-          <>
-            <Avatar name={task.assignee.name} src={task.assignee.avatar ?? undefined} size="sm" />
-            <span className="text-xs text-muted-foreground truncate">{task.assignee.name}</span>
-          </>
-        ) : (
-          <span className="text-xs text-muted-foreground">{t.tasks.unassigned || "Unassigned"}</span>
-        )}
-      </div>
+              <div className="flex items-center gap-2 min-w-0">
+                {task.assignee ? (
+                  <>
+                    <Avatar
+                      name={task.assignee.name}
+                      src={task.assignee.avatar ?? undefined}
+                      size="sm"
+                    />
+                    <span className="text-xs text-muted-foreground truncate">
+                      {task.assignee.name}
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-xs text-muted-foreground">
+                    {t.tasks.unassigned}
+                  </span>
+                )}
+              </div>
 
-      <Menu
-        trigger={
-          <IconButton icon="more-horizontal" aria-label={t.tasks.taskActionsLabel || "Actions"} size="sm" />
-        }
-        align="end"
-        items={[
-          {
-            label: t.tasks.view || "View",
-            icon: "eye",
-            onClick: () => { onView(task); },
-          },
-          { divider: true },
-          { label: t.common.edit || "Edit", icon: "pencil", onClick: () => { onEdit(task); } },
-          { divider: true },
-          { label: t.common.delete || "Delete", icon: "trash", danger: true, onClick: () => { onDelete(task); } },
-        ]}
-      />
+              <Menu
+                trigger={
+                  <IconButton
+                    icon="more-horizontal"
+                    aria-label={t.common.actions}
+                    size="sm"
+                    onClick={e => e.stopPropagation()}
+                  />
+                }
+                align="end"
+                items={[
+                  {
+                    label: t.projects.view,
+                    icon: "eye",
+                    onClick: e => {
+                      e.stopPropagation();
+                      onView(task);
+                    },
+                  },
+                  {
+                    label: t.common.edit,
+                    icon: "pencil",
+                    onClick: e => {
+                      e.stopPropagation();
+                      onEdit(task);
+                    },
+                  },
+                  { divider: true },
+                  {
+                    label: t.common.delete,
+                    icon: "trash",
+                    danger: true,
+                    onClick: e => {
+                      e.stopPropagation();
+                      onDelete(task);
+                    },
+                  },
+                ]}
+              />
+            </div>
+          );
+        })
+      )}
     </div>
   );
 }

@@ -29,6 +29,10 @@ export interface TaskRow {
   labels: TaskLabelRef[];
   projectId: string | null;
   projectName: string | null;
+  area?: "PHD" | "WORK" | "LIFE" | "LANG" | null;
+  recurrence?: "NONE" | "DAILY" | "WEEKLY" | "MONTHLY";
+  recurrenceSeriesId?: string | null;
+  recurrenceEndsAt?: Date | null;
 }
 
 export interface TaskActivityEntry {
@@ -51,6 +55,8 @@ export interface GetTasksParams {
   priority?: TaskPriority;
   assigneeId?: string;
   projectIds?: string[];
+  /** Default true: hide research/language hub tasks on /tasks. */
+  excludeHub?: boolean;
   sort?: "title" | "priority" | "status" | "dueDate" | "createdAt";
   order?: "asc" | "desc";
   page?: number;

@@ -30,6 +30,7 @@ export type ProjectMinAggregateOutputType = {
   name: string | null
   description: string | null
   status: $Enums.ProjectStatus | null
+  area: $Enums.LifeArea | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -40,6 +41,7 @@ export type ProjectMaxAggregateOutputType = {
   name: string | null
   description: string | null
   status: $Enums.ProjectStatus | null
+  area: $Enums.LifeArea | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -50,6 +52,7 @@ export type ProjectCountAggregateOutputType = {
   name: number
   description: number
   status: number
+  area: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -62,6 +65,7 @@ export type ProjectMinAggregateInputType = {
   name?: true
   description?: true
   status?: true
+  area?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -72,6 +76,7 @@ export type ProjectMaxAggregateInputType = {
   name?: true
   description?: true
   status?: true
+  area?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -82,6 +87,7 @@ export type ProjectCountAggregateInputType = {
   name?: true
   description?: true
   status?: true
+  area?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -165,6 +171,7 @@ export type ProjectGroupByOutputType = {
   name: string
   description: string | null
   status: $Enums.ProjectStatus
+  area: $Enums.LifeArea
   createdAt: Date
   updatedAt: Date
   _count: ProjectCountAggregateOutputType | null
@@ -196,12 +203,19 @@ export type ProjectWhereInput = {
   name?: Prisma.StringFilter<"Project"> | string
   description?: Prisma.StringNullableFilter<"Project"> | string | null
   status?: Prisma.EnumProjectStatusFilter<"Project"> | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFilter<"Project"> | $Enums.LifeArea
   createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   team?: Prisma.XOR<Prisma.TeamNullableScalarRelationFilter, Prisma.TeamWhereInput> | null
   sprints?: Prisma.SprintListRelationFilter
   tasks?: Prisma.TaskListRelationFilter
   members?: Prisma.ProjectMemberListRelationFilter
+  docs?: Prisma.DocListRelationFilter
+  langSessions?: Prisma.LangSessionListRelationFilter
+  langCards?: Prisma.LangCardListRelationFilter
+  langListeningClips?: Prisma.LangListeningClipListRelationFilter
+  examTracks?: Prisma.ExamTrackListRelationFilter
+  mockAttempts?: Prisma.MockAttemptListRelationFilter
 }
 
 export type ProjectOrderByWithRelationInput = {
@@ -210,12 +224,19 @@ export type ProjectOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  area?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   team?: Prisma.TeamOrderByWithRelationInput
   sprints?: Prisma.SprintOrderByRelationAggregateInput
   tasks?: Prisma.TaskOrderByRelationAggregateInput
   members?: Prisma.ProjectMemberOrderByRelationAggregateInput
+  docs?: Prisma.DocOrderByRelationAggregateInput
+  langSessions?: Prisma.LangSessionOrderByRelationAggregateInput
+  langCards?: Prisma.LangCardOrderByRelationAggregateInput
+  langListeningClips?: Prisma.LangListeningClipOrderByRelationAggregateInput
+  examTracks?: Prisma.ExamTrackOrderByRelationAggregateInput
+  mockAttempts?: Prisma.MockAttemptOrderByRelationAggregateInput
 }
 
 export type ProjectWhereUniqueInput = Prisma.AtLeast<{
@@ -227,12 +248,19 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"Project"> | string
   description?: Prisma.StringNullableFilter<"Project"> | string | null
   status?: Prisma.EnumProjectStatusFilter<"Project"> | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFilter<"Project"> | $Enums.LifeArea
   createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   team?: Prisma.XOR<Prisma.TeamNullableScalarRelationFilter, Prisma.TeamWhereInput> | null
   sprints?: Prisma.SprintListRelationFilter
   tasks?: Prisma.TaskListRelationFilter
   members?: Prisma.ProjectMemberListRelationFilter
+  docs?: Prisma.DocListRelationFilter
+  langSessions?: Prisma.LangSessionListRelationFilter
+  langCards?: Prisma.LangCardListRelationFilter
+  langListeningClips?: Prisma.LangListeningClipListRelationFilter
+  examTracks?: Prisma.ExamTrackListRelationFilter
+  mockAttempts?: Prisma.MockAttemptListRelationFilter
 }, "id">
 
 export type ProjectOrderByWithAggregationInput = {
@@ -241,6 +269,7 @@ export type ProjectOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  area?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ProjectCountOrderByAggregateInput
@@ -257,6 +286,7 @@ export type ProjectScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"Project"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   status?: Prisma.EnumProjectStatusWithAggregatesFilter<"Project"> | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaWithAggregatesFilter<"Project"> | $Enums.LifeArea
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Project"> | Date | string
 }
@@ -266,12 +296,19 @@ export type ProjectCreateInput = {
   name: string
   description?: string | null
   status?: $Enums.ProjectStatus
+  area?: $Enums.LifeArea
   createdAt?: Date | string
   updatedAt?: Date | string
   team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
   sprints?: Prisma.SprintCreateNestedManyWithoutProjectInput
   tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
+  docs?: Prisma.DocCreateNestedManyWithoutProjectInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutProjectInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutProjectInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutProjectInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutProjectInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateInput = {
@@ -280,11 +317,18 @@ export type ProjectUncheckedCreateInput = {
   name: string
   description?: string | null
   status?: $Enums.ProjectStatus
+  area?: $Enums.LifeArea
   createdAt?: Date | string
   updatedAt?: Date | string
   sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutProjectInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutProjectInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutProjectInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutProjectInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutProjectInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUpdateInput = {
@@ -292,12 +336,19 @@ export type ProjectUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
   sprints?: Prisma.SprintUpdateManyWithoutProjectNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
+  docs?: Prisma.DocUpdateManyWithoutProjectNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutProjectNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutProjectNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutProjectNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutProjectNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateInput = {
@@ -306,11 +357,18 @@ export type ProjectUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutProjectNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutProjectNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutProjectNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutProjectNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutProjectNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateManyInput = {
@@ -319,6 +377,7 @@ export type ProjectCreateManyInput = {
   name: string
   description?: string | null
   status?: $Enums.ProjectStatus
+  area?: $Enums.LifeArea
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -328,6 +387,7 @@ export type ProjectUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -338,6 +398,7 @@ export type ProjectUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -358,6 +419,7 @@ export type ProjectCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  area?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -368,6 +430,7 @@ export type ProjectMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  area?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -378,6 +441,7 @@ export type ProjectMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  area?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -438,6 +502,10 @@ export type EnumProjectStatusFieldUpdateOperationsInput = {
   set?: $Enums.ProjectStatus
 }
 
+export type EnumLifeAreaFieldUpdateOperationsInput = {
+  set?: $Enums.LifeArea
+}
+
 export type ProjectCreateNestedOneWithoutMembersInput = {
   create?: Prisma.XOR<Prisma.ProjectCreateWithoutMembersInput, Prisma.ProjectUncheckedCreateWithoutMembersInput>
   connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutMembersInput
@@ -482,16 +550,119 @@ export type ProjectUpdateOneWithoutTasksNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutTasksInput, Prisma.ProjectUpdateWithoutTasksInput>, Prisma.ProjectUncheckedUpdateWithoutTasksInput>
 }
 
+export type ProjectCreateNestedOneWithoutDocsInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutDocsInput, Prisma.ProjectUncheckedCreateWithoutDocsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutDocsInput
+  connect?: Prisma.ProjectWhereUniqueInput
+}
+
+export type ProjectUpdateOneWithoutDocsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutDocsInput, Prisma.ProjectUncheckedCreateWithoutDocsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutDocsInput
+  upsert?: Prisma.ProjectUpsertWithoutDocsInput
+  disconnect?: Prisma.ProjectWhereInput | boolean
+  delete?: Prisma.ProjectWhereInput | boolean
+  connect?: Prisma.ProjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutDocsInput, Prisma.ProjectUpdateWithoutDocsInput>, Prisma.ProjectUncheckedUpdateWithoutDocsInput>
+}
+
+export type ProjectCreateNestedOneWithoutLangSessionsInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutLangSessionsInput, Prisma.ProjectUncheckedCreateWithoutLangSessionsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutLangSessionsInput
+  connect?: Prisma.ProjectWhereUniqueInput
+}
+
+export type ProjectUpdateOneWithoutLangSessionsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutLangSessionsInput, Prisma.ProjectUncheckedCreateWithoutLangSessionsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutLangSessionsInput
+  upsert?: Prisma.ProjectUpsertWithoutLangSessionsInput
+  disconnect?: Prisma.ProjectWhereInput | boolean
+  delete?: Prisma.ProjectWhereInput | boolean
+  connect?: Prisma.ProjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutLangSessionsInput, Prisma.ProjectUpdateWithoutLangSessionsInput>, Prisma.ProjectUncheckedUpdateWithoutLangSessionsInput>
+}
+
+export type ProjectCreateNestedOneWithoutLangListeningClipsInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutLangListeningClipsInput, Prisma.ProjectUncheckedCreateWithoutLangListeningClipsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutLangListeningClipsInput
+  connect?: Prisma.ProjectWhereUniqueInput
+}
+
+export type ProjectUpdateOneWithoutLangListeningClipsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutLangListeningClipsInput, Prisma.ProjectUncheckedCreateWithoutLangListeningClipsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutLangListeningClipsInput
+  upsert?: Prisma.ProjectUpsertWithoutLangListeningClipsInput
+  disconnect?: Prisma.ProjectWhereInput | boolean
+  delete?: Prisma.ProjectWhereInput | boolean
+  connect?: Prisma.ProjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutLangListeningClipsInput, Prisma.ProjectUpdateWithoutLangListeningClipsInput>, Prisma.ProjectUncheckedUpdateWithoutLangListeningClipsInput>
+}
+
+export type ProjectCreateNestedOneWithoutLangCardsInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutLangCardsInput, Prisma.ProjectUncheckedCreateWithoutLangCardsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutLangCardsInput
+  connect?: Prisma.ProjectWhereUniqueInput
+}
+
+export type ProjectUpdateOneWithoutLangCardsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutLangCardsInput, Prisma.ProjectUncheckedCreateWithoutLangCardsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutLangCardsInput
+  upsert?: Prisma.ProjectUpsertWithoutLangCardsInput
+  disconnect?: Prisma.ProjectWhereInput | boolean
+  delete?: Prisma.ProjectWhereInput | boolean
+  connect?: Prisma.ProjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutLangCardsInput, Prisma.ProjectUpdateWithoutLangCardsInput>, Prisma.ProjectUncheckedUpdateWithoutLangCardsInput>
+}
+
+export type ProjectCreateNestedOneWithoutExamTracksInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutExamTracksInput, Prisma.ProjectUncheckedCreateWithoutExamTracksInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutExamTracksInput
+  connect?: Prisma.ProjectWhereUniqueInput
+}
+
+export type ProjectUpdateOneWithoutExamTracksNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutExamTracksInput, Prisma.ProjectUncheckedCreateWithoutExamTracksInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutExamTracksInput
+  upsert?: Prisma.ProjectUpsertWithoutExamTracksInput
+  disconnect?: Prisma.ProjectWhereInput | boolean
+  delete?: Prisma.ProjectWhereInput | boolean
+  connect?: Prisma.ProjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutExamTracksInput, Prisma.ProjectUpdateWithoutExamTracksInput>, Prisma.ProjectUncheckedUpdateWithoutExamTracksInput>
+}
+
+export type ProjectCreateNestedOneWithoutMockAttemptsInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutMockAttemptsInput, Prisma.ProjectUncheckedCreateWithoutMockAttemptsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutMockAttemptsInput
+  connect?: Prisma.ProjectWhereUniqueInput
+}
+
+export type ProjectUpdateOneWithoutMockAttemptsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutMockAttemptsInput, Prisma.ProjectUncheckedCreateWithoutMockAttemptsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutMockAttemptsInput
+  upsert?: Prisma.ProjectUpsertWithoutMockAttemptsInput
+  disconnect?: Prisma.ProjectWhereInput | boolean
+  delete?: Prisma.ProjectWhereInput | boolean
+  connect?: Prisma.ProjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutMockAttemptsInput, Prisma.ProjectUpdateWithoutMockAttemptsInput>, Prisma.ProjectUncheckedUpdateWithoutMockAttemptsInput>
+}
+
 export type ProjectCreateWithoutTeamInput = {
   id?: string
   name: string
   description?: string | null
   status?: $Enums.ProjectStatus
+  area?: $Enums.LifeArea
   createdAt?: Date | string
   updatedAt?: Date | string
   sprints?: Prisma.SprintCreateNestedManyWithoutProjectInput
   tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
+  docs?: Prisma.DocCreateNestedManyWithoutProjectInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutProjectInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutProjectInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutProjectInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutProjectInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutTeamInput = {
@@ -499,11 +670,18 @@ export type ProjectUncheckedCreateWithoutTeamInput = {
   name: string
   description?: string | null
   status?: $Enums.ProjectStatus
+  area?: $Enums.LifeArea
   createdAt?: Date | string
   updatedAt?: Date | string
   sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutProjectInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutProjectInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutProjectInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutProjectInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutProjectInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutTeamInput = {
@@ -541,6 +719,7 @@ export type ProjectScalarWhereInput = {
   name?: Prisma.StringFilter<"Project"> | string
   description?: Prisma.StringNullableFilter<"Project"> | string | null
   status?: Prisma.EnumProjectStatusFilter<"Project"> | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFilter<"Project"> | $Enums.LifeArea
   createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
 }
@@ -550,11 +729,18 @@ export type ProjectCreateWithoutMembersInput = {
   name: string
   description?: string | null
   status?: $Enums.ProjectStatus
+  area?: $Enums.LifeArea
   createdAt?: Date | string
   updatedAt?: Date | string
   team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
   sprints?: Prisma.SprintCreateNestedManyWithoutProjectInput
   tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
+  docs?: Prisma.DocCreateNestedManyWithoutProjectInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutProjectInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutProjectInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutProjectInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutProjectInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutMembersInput = {
@@ -563,10 +749,17 @@ export type ProjectUncheckedCreateWithoutMembersInput = {
   name: string
   description?: string | null
   status?: $Enums.ProjectStatus
+  area?: $Enums.LifeArea
   createdAt?: Date | string
   updatedAt?: Date | string
   sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutProjectInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutProjectInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutProjectInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutProjectInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutProjectInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutMembersInput = {
@@ -590,11 +783,18 @@ export type ProjectUpdateWithoutMembersInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
   sprints?: Prisma.SprintUpdateManyWithoutProjectNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
+  docs?: Prisma.DocUpdateManyWithoutProjectNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutProjectNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutProjectNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutProjectNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutProjectNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutMembersInput = {
@@ -603,10 +803,17 @@ export type ProjectUncheckedUpdateWithoutMembersInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutProjectNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutProjectNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutProjectNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutProjectNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutProjectNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutSprintsInput = {
@@ -614,11 +821,18 @@ export type ProjectCreateWithoutSprintsInput = {
   name: string
   description?: string | null
   status?: $Enums.ProjectStatus
+  area?: $Enums.LifeArea
   createdAt?: Date | string
   updatedAt?: Date | string
   team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
   tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
+  docs?: Prisma.DocCreateNestedManyWithoutProjectInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutProjectInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutProjectInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutProjectInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutProjectInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutSprintsInput = {
@@ -627,10 +841,17 @@ export type ProjectUncheckedCreateWithoutSprintsInput = {
   name: string
   description?: string | null
   status?: $Enums.ProjectStatus
+  area?: $Enums.LifeArea
   createdAt?: Date | string
   updatedAt?: Date | string
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutProjectInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutProjectInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutProjectInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutProjectInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutProjectInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutSprintsInput = {
@@ -654,11 +875,18 @@ export type ProjectUpdateWithoutSprintsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
+  docs?: Prisma.DocUpdateManyWithoutProjectNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutProjectNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutProjectNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutProjectNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutProjectNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutSprintsInput = {
@@ -667,10 +895,17 @@ export type ProjectUncheckedUpdateWithoutSprintsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutProjectNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutProjectNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutProjectNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutProjectNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutProjectNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutTasksInput = {
@@ -678,11 +913,18 @@ export type ProjectCreateWithoutTasksInput = {
   name: string
   description?: string | null
   status?: $Enums.ProjectStatus
+  area?: $Enums.LifeArea
   createdAt?: Date | string
   updatedAt?: Date | string
   team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
   sprints?: Prisma.SprintCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
+  docs?: Prisma.DocCreateNestedManyWithoutProjectInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutProjectInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutProjectInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutProjectInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutProjectInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutTasksInput = {
@@ -691,10 +933,17 @@ export type ProjectUncheckedCreateWithoutTasksInput = {
   name: string
   description?: string | null
   status?: $Enums.ProjectStatus
+  area?: $Enums.LifeArea
   createdAt?: Date | string
   updatedAt?: Date | string
   sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutProjectInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutProjectInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutProjectInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutProjectInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutProjectInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutTasksInput = {
@@ -718,11 +967,18 @@ export type ProjectUpdateWithoutTasksInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
   sprints?: Prisma.SprintUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
+  docs?: Prisma.DocUpdateManyWithoutProjectNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutProjectNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutProjectNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutProjectNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutProjectNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutTasksInput = {
@@ -731,10 +987,569 @@ export type ProjectUncheckedUpdateWithoutTasksInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutProjectNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutProjectNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutProjectNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutProjectNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutProjectNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectCreateWithoutDocsInput = {
+  id?: string
+  name: string
+  description?: string | null
+  status?: $Enums.ProjectStatus
+  area?: $Enums.LifeArea
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
+  sprints?: Prisma.SprintCreateNestedManyWithoutProjectInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
+  members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutProjectInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutProjectInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutProjectInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutProjectInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectUncheckedCreateWithoutDocsInput = {
+  id?: string
+  teamId?: string | null
+  name: string
+  description?: string | null
+  status?: $Enums.ProjectStatus
+  area?: $Enums.LifeArea
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
+  members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutProjectInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutProjectInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutProjectInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutProjectInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectCreateOrConnectWithoutDocsInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutDocsInput, Prisma.ProjectUncheckedCreateWithoutDocsInput>
+}
+
+export type ProjectUpsertWithoutDocsInput = {
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutDocsInput, Prisma.ProjectUncheckedUpdateWithoutDocsInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutDocsInput, Prisma.ProjectUncheckedCreateWithoutDocsInput>
+  where?: Prisma.ProjectWhereInput
+}
+
+export type ProjectUpdateToOneWithWhereWithoutDocsInput = {
+  where?: Prisma.ProjectWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutDocsInput, Prisma.ProjectUncheckedUpdateWithoutDocsInput>
+}
+
+export type ProjectUpdateWithoutDocsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
+  sprints?: Prisma.SprintUpdateManyWithoutProjectNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
+  members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutProjectNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutProjectNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutProjectNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutProjectNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutDocsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
+  members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutProjectNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutProjectNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutProjectNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutProjectNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectCreateWithoutLangSessionsInput = {
+  id?: string
+  name: string
+  description?: string | null
+  status?: $Enums.ProjectStatus
+  area?: $Enums.LifeArea
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
+  sprints?: Prisma.SprintCreateNestedManyWithoutProjectInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
+  members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
+  docs?: Prisma.DocCreateNestedManyWithoutProjectInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutProjectInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutProjectInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutProjectInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectUncheckedCreateWithoutLangSessionsInput = {
+  id?: string
+  teamId?: string | null
+  name: string
+  description?: string | null
+  status?: $Enums.ProjectStatus
+  area?: $Enums.LifeArea
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
+  members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutProjectInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutProjectInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutProjectInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutProjectInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectCreateOrConnectWithoutLangSessionsInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutLangSessionsInput, Prisma.ProjectUncheckedCreateWithoutLangSessionsInput>
+}
+
+export type ProjectUpsertWithoutLangSessionsInput = {
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutLangSessionsInput, Prisma.ProjectUncheckedUpdateWithoutLangSessionsInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutLangSessionsInput, Prisma.ProjectUncheckedCreateWithoutLangSessionsInput>
+  where?: Prisma.ProjectWhereInput
+}
+
+export type ProjectUpdateToOneWithWhereWithoutLangSessionsInput = {
+  where?: Prisma.ProjectWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutLangSessionsInput, Prisma.ProjectUncheckedUpdateWithoutLangSessionsInput>
+}
+
+export type ProjectUpdateWithoutLangSessionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
+  sprints?: Prisma.SprintUpdateManyWithoutProjectNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
+  members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
+  docs?: Prisma.DocUpdateManyWithoutProjectNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutProjectNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutProjectNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutProjectNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutLangSessionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
+  members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutProjectNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutProjectNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutProjectNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutProjectNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectCreateWithoutLangListeningClipsInput = {
+  id?: string
+  name: string
+  description?: string | null
+  status?: $Enums.ProjectStatus
+  area?: $Enums.LifeArea
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
+  sprints?: Prisma.SprintCreateNestedManyWithoutProjectInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
+  members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
+  docs?: Prisma.DocCreateNestedManyWithoutProjectInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutProjectInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutProjectInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutProjectInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectUncheckedCreateWithoutLangListeningClipsInput = {
+  id?: string
+  teamId?: string | null
+  name: string
+  description?: string | null
+  status?: $Enums.ProjectStatus
+  area?: $Enums.LifeArea
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
+  members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutProjectInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutProjectInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutProjectInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutProjectInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectCreateOrConnectWithoutLangListeningClipsInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutLangListeningClipsInput, Prisma.ProjectUncheckedCreateWithoutLangListeningClipsInput>
+}
+
+export type ProjectUpsertWithoutLangListeningClipsInput = {
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutLangListeningClipsInput, Prisma.ProjectUncheckedUpdateWithoutLangListeningClipsInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutLangListeningClipsInput, Prisma.ProjectUncheckedCreateWithoutLangListeningClipsInput>
+  where?: Prisma.ProjectWhereInput
+}
+
+export type ProjectUpdateToOneWithWhereWithoutLangListeningClipsInput = {
+  where?: Prisma.ProjectWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutLangListeningClipsInput, Prisma.ProjectUncheckedUpdateWithoutLangListeningClipsInput>
+}
+
+export type ProjectUpdateWithoutLangListeningClipsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
+  sprints?: Prisma.SprintUpdateManyWithoutProjectNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
+  members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
+  docs?: Prisma.DocUpdateManyWithoutProjectNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutProjectNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutProjectNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutProjectNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutLangListeningClipsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
+  members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutProjectNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutProjectNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutProjectNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutProjectNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectCreateWithoutLangCardsInput = {
+  id?: string
+  name: string
+  description?: string | null
+  status?: $Enums.ProjectStatus
+  area?: $Enums.LifeArea
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
+  sprints?: Prisma.SprintCreateNestedManyWithoutProjectInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
+  members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
+  docs?: Prisma.DocCreateNestedManyWithoutProjectInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutProjectInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutProjectInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutProjectInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectUncheckedCreateWithoutLangCardsInput = {
+  id?: string
+  teamId?: string | null
+  name: string
+  description?: string | null
+  status?: $Enums.ProjectStatus
+  area?: $Enums.LifeArea
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
+  members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutProjectInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutProjectInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutProjectInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutProjectInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectCreateOrConnectWithoutLangCardsInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutLangCardsInput, Prisma.ProjectUncheckedCreateWithoutLangCardsInput>
+}
+
+export type ProjectUpsertWithoutLangCardsInput = {
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutLangCardsInput, Prisma.ProjectUncheckedUpdateWithoutLangCardsInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutLangCardsInput, Prisma.ProjectUncheckedCreateWithoutLangCardsInput>
+  where?: Prisma.ProjectWhereInput
+}
+
+export type ProjectUpdateToOneWithWhereWithoutLangCardsInput = {
+  where?: Prisma.ProjectWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutLangCardsInput, Prisma.ProjectUncheckedUpdateWithoutLangCardsInput>
+}
+
+export type ProjectUpdateWithoutLangCardsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
+  sprints?: Prisma.SprintUpdateManyWithoutProjectNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
+  members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
+  docs?: Prisma.DocUpdateManyWithoutProjectNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutProjectNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutProjectNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutProjectNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutLangCardsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
+  members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutProjectNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutProjectNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutProjectNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutProjectNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectCreateWithoutExamTracksInput = {
+  id?: string
+  name: string
+  description?: string | null
+  status?: $Enums.ProjectStatus
+  area?: $Enums.LifeArea
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
+  sprints?: Prisma.SprintCreateNestedManyWithoutProjectInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
+  members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
+  docs?: Prisma.DocCreateNestedManyWithoutProjectInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutProjectInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutProjectInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutProjectInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectUncheckedCreateWithoutExamTracksInput = {
+  id?: string
+  teamId?: string | null
+  name: string
+  description?: string | null
+  status?: $Enums.ProjectStatus
+  area?: $Enums.LifeArea
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
+  members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutProjectInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutProjectInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutProjectInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutProjectInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectCreateOrConnectWithoutExamTracksInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutExamTracksInput, Prisma.ProjectUncheckedCreateWithoutExamTracksInput>
+}
+
+export type ProjectUpsertWithoutExamTracksInput = {
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutExamTracksInput, Prisma.ProjectUncheckedUpdateWithoutExamTracksInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutExamTracksInput, Prisma.ProjectUncheckedCreateWithoutExamTracksInput>
+  where?: Prisma.ProjectWhereInput
+}
+
+export type ProjectUpdateToOneWithWhereWithoutExamTracksInput = {
+  where?: Prisma.ProjectWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutExamTracksInput, Prisma.ProjectUncheckedUpdateWithoutExamTracksInput>
+}
+
+export type ProjectUpdateWithoutExamTracksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
+  sprints?: Prisma.SprintUpdateManyWithoutProjectNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
+  members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
+  docs?: Prisma.DocUpdateManyWithoutProjectNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutProjectNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutProjectNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutProjectNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutExamTracksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
+  members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutProjectNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutProjectNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutProjectNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutProjectNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectCreateWithoutMockAttemptsInput = {
+  id?: string
+  name: string
+  description?: string | null
+  status?: $Enums.ProjectStatus
+  area?: $Enums.LifeArea
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
+  sprints?: Prisma.SprintCreateNestedManyWithoutProjectInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
+  members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
+  docs?: Prisma.DocCreateNestedManyWithoutProjectInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutProjectInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutProjectInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutProjectInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectUncheckedCreateWithoutMockAttemptsInput = {
+  id?: string
+  teamId?: string | null
+  name: string
+  description?: string | null
+  status?: $Enums.ProjectStatus
+  area?: $Enums.LifeArea
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
+  members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutProjectInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutProjectInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutProjectInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutProjectInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectCreateOrConnectWithoutMockAttemptsInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutMockAttemptsInput, Prisma.ProjectUncheckedCreateWithoutMockAttemptsInput>
+}
+
+export type ProjectUpsertWithoutMockAttemptsInput = {
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutMockAttemptsInput, Prisma.ProjectUncheckedUpdateWithoutMockAttemptsInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutMockAttemptsInput, Prisma.ProjectUncheckedCreateWithoutMockAttemptsInput>
+  where?: Prisma.ProjectWhereInput
+}
+
+export type ProjectUpdateToOneWithWhereWithoutMockAttemptsInput = {
+  where?: Prisma.ProjectWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutMockAttemptsInput, Prisma.ProjectUncheckedUpdateWithoutMockAttemptsInput>
+}
+
+export type ProjectUpdateWithoutMockAttemptsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
+  sprints?: Prisma.SprintUpdateManyWithoutProjectNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
+  members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
+  docs?: Prisma.DocUpdateManyWithoutProjectNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutProjectNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutProjectNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutProjectNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutMockAttemptsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
+  members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutProjectNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutProjectNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutProjectNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutProjectNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateManyTeamInput = {
@@ -742,6 +1557,7 @@ export type ProjectCreateManyTeamInput = {
   name: string
   description?: string | null
   status?: $Enums.ProjectStatus
+  area?: $Enums.LifeArea
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -751,11 +1567,18 @@ export type ProjectUpdateWithoutTeamInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sprints?: Prisma.SprintUpdateManyWithoutProjectNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
+  docs?: Prisma.DocUpdateManyWithoutProjectNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutProjectNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutProjectNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutProjectNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutProjectNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutTeamInput = {
@@ -763,11 +1586,18 @@ export type ProjectUncheckedUpdateWithoutTeamInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutProjectNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutProjectNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutProjectNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutProjectNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutProjectNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateManyWithoutTeamInput = {
@@ -775,6 +1605,7 @@ export type ProjectUncheckedUpdateManyWithoutTeamInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -788,12 +1619,24 @@ export type ProjectCountOutputType = {
   sprints: number
   tasks: number
   members: number
+  docs: number
+  langSessions: number
+  langCards: number
+  langListeningClips: number
+  examTracks: number
+  mockAttempts: number
 }
 
 export type ProjectCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sprints?: boolean | ProjectCountOutputTypeCountSprintsArgs
   tasks?: boolean | ProjectCountOutputTypeCountTasksArgs
   members?: boolean | ProjectCountOutputTypeCountMembersArgs
+  docs?: boolean | ProjectCountOutputTypeCountDocsArgs
+  langSessions?: boolean | ProjectCountOutputTypeCountLangSessionsArgs
+  langCards?: boolean | ProjectCountOutputTypeCountLangCardsArgs
+  langListeningClips?: boolean | ProjectCountOutputTypeCountLangListeningClipsArgs
+  examTracks?: boolean | ProjectCountOutputTypeCountExamTracksArgs
+  mockAttempts?: boolean | ProjectCountOutputTypeCountMockAttemptsArgs
 }
 
 /**
@@ -827,6 +1670,48 @@ export type ProjectCountOutputTypeCountMembersArgs<ExtArgs extends runtime.Types
   where?: Prisma.ProjectMemberWhereInput
 }
 
+/**
+ * ProjectCountOutputType without action
+ */
+export type ProjectCountOutputTypeCountDocsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DocWhereInput
+}
+
+/**
+ * ProjectCountOutputType without action
+ */
+export type ProjectCountOutputTypeCountLangSessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LangSessionWhereInput
+}
+
+/**
+ * ProjectCountOutputType without action
+ */
+export type ProjectCountOutputTypeCountLangCardsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LangCardWhereInput
+}
+
+/**
+ * ProjectCountOutputType without action
+ */
+export type ProjectCountOutputTypeCountLangListeningClipsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LangListeningClipWhereInput
+}
+
+/**
+ * ProjectCountOutputType without action
+ */
+export type ProjectCountOutputTypeCountExamTracksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ExamTrackWhereInput
+}
+
+/**
+ * ProjectCountOutputType without action
+ */
+export type ProjectCountOutputTypeCountMockAttemptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MockAttemptWhereInput
+}
+
 
 export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -834,12 +1719,19 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   name?: boolean
   description?: boolean
   status?: boolean
+  area?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   team?: boolean | Prisma.Project$teamArgs<ExtArgs>
   sprints?: boolean | Prisma.Project$sprintsArgs<ExtArgs>
   tasks?: boolean | Prisma.Project$tasksArgs<ExtArgs>
   members?: boolean | Prisma.Project$membersArgs<ExtArgs>
+  docs?: boolean | Prisma.Project$docsArgs<ExtArgs>
+  langSessions?: boolean | Prisma.Project$langSessionsArgs<ExtArgs>
+  langCards?: boolean | Prisma.Project$langCardsArgs<ExtArgs>
+  langListeningClips?: boolean | Prisma.Project$langListeningClipsArgs<ExtArgs>
+  examTracks?: boolean | Prisma.Project$examTracksArgs<ExtArgs>
+  mockAttempts?: boolean | Prisma.Project$mockAttemptsArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["project"]>
 
@@ -849,6 +1741,7 @@ export type ProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   name?: boolean
   description?: boolean
   status?: boolean
+  area?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   team?: boolean | Prisma.Project$teamArgs<ExtArgs>
@@ -860,6 +1753,7 @@ export type ProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   name?: boolean
   description?: boolean
   status?: boolean
+  area?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   team?: boolean | Prisma.Project$teamArgs<ExtArgs>
@@ -871,16 +1765,23 @@ export type ProjectSelectScalar = {
   name?: boolean
   description?: boolean
   status?: boolean
+  area?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "teamId" | "name" | "description" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
+export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "teamId" | "name" | "description" | "status" | "area" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
 export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   team?: boolean | Prisma.Project$teamArgs<ExtArgs>
   sprints?: boolean | Prisma.Project$sprintsArgs<ExtArgs>
   tasks?: boolean | Prisma.Project$tasksArgs<ExtArgs>
   members?: boolean | Prisma.Project$membersArgs<ExtArgs>
+  docs?: boolean | Prisma.Project$docsArgs<ExtArgs>
+  langSessions?: boolean | Prisma.Project$langSessionsArgs<ExtArgs>
+  langCards?: boolean | Prisma.Project$langCardsArgs<ExtArgs>
+  langListeningClips?: boolean | Prisma.Project$langListeningClipsArgs<ExtArgs>
+  examTracks?: boolean | Prisma.Project$examTracksArgs<ExtArgs>
+  mockAttempts?: boolean | Prisma.Project$mockAttemptsArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProjectIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -897,6 +1798,12 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     sprints: Prisma.$SprintPayload<ExtArgs>[]
     tasks: Prisma.$TaskPayload<ExtArgs>[]
     members: Prisma.$ProjectMemberPayload<ExtArgs>[]
+    docs: Prisma.$DocPayload<ExtArgs>[]
+    langSessions: Prisma.$LangSessionPayload<ExtArgs>[]
+    langCards: Prisma.$LangCardPayload<ExtArgs>[]
+    langListeningClips: Prisma.$LangListeningClipPayload<ExtArgs>[]
+    examTracks: Prisma.$ExamTrackPayload<ExtArgs>[]
+    mockAttempts: Prisma.$MockAttemptPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -904,6 +1811,7 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     name: string
     description: string | null
     status: $Enums.ProjectStatus
+    area: $Enums.LifeArea
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["project"]>
@@ -1304,6 +2212,12 @@ export interface Prisma__ProjectClient<T, Null = never, ExtArgs extends runtime.
   sprints<T extends Prisma.Project$sprintsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$sprintsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SprintPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   tasks<T extends Prisma.Project$tasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$tasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   members<T extends Prisma.Project$membersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$membersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  docs<T extends Prisma.Project$docsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$docsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DocPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  langSessions<T extends Prisma.Project$langSessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$langSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LangSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  langCards<T extends Prisma.Project$langCardsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$langCardsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LangCardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  langListeningClips<T extends Prisma.Project$langListeningClipsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$langListeningClipsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LangListeningClipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  examTracks<T extends Prisma.Project$examTracksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$examTracksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExamTrackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  mockAttempts<T extends Prisma.Project$mockAttemptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$mockAttemptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MockAttemptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1338,6 +2252,7 @@ export interface ProjectFieldRefs {
   readonly name: Prisma.FieldRef<"Project", 'String'>
   readonly description: Prisma.FieldRef<"Project", 'String'>
   readonly status: Prisma.FieldRef<"Project", 'ProjectStatus'>
+  readonly area: Prisma.FieldRef<"Project", 'LifeArea'>
   readonly createdAt: Prisma.FieldRef<"Project", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Project", 'DateTime'>
 }
@@ -1829,6 +2744,150 @@ export type Project$membersArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.ProjectMemberScalarFieldEnum | Prisma.ProjectMemberScalarFieldEnum[]
+}
+
+/**
+ * Project.docs
+ */
+export type Project$docsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Doc
+   */
+  select?: Prisma.DocSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Doc
+   */
+  omit?: Prisma.DocOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DocInclude<ExtArgs> | null
+  where?: Prisma.DocWhereInput
+  orderBy?: Prisma.DocOrderByWithRelationInput | Prisma.DocOrderByWithRelationInput[]
+  cursor?: Prisma.DocWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DocScalarFieldEnum | Prisma.DocScalarFieldEnum[]
+}
+
+/**
+ * Project.langSessions
+ */
+export type Project$langSessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LangSession
+   */
+  select?: Prisma.LangSessionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LangSession
+   */
+  omit?: Prisma.LangSessionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LangSessionInclude<ExtArgs> | null
+  where?: Prisma.LangSessionWhereInput
+  orderBy?: Prisma.LangSessionOrderByWithRelationInput | Prisma.LangSessionOrderByWithRelationInput[]
+  cursor?: Prisma.LangSessionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LangSessionScalarFieldEnum | Prisma.LangSessionScalarFieldEnum[]
+}
+
+/**
+ * Project.langCards
+ */
+export type Project$langCardsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LangCard
+   */
+  select?: Prisma.LangCardSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LangCard
+   */
+  omit?: Prisma.LangCardOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LangCardInclude<ExtArgs> | null
+  where?: Prisma.LangCardWhereInput
+  orderBy?: Prisma.LangCardOrderByWithRelationInput | Prisma.LangCardOrderByWithRelationInput[]
+  cursor?: Prisma.LangCardWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LangCardScalarFieldEnum | Prisma.LangCardScalarFieldEnum[]
+}
+
+/**
+ * Project.langListeningClips
+ */
+export type Project$langListeningClipsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LangListeningClip
+   */
+  select?: Prisma.LangListeningClipSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LangListeningClip
+   */
+  omit?: Prisma.LangListeningClipOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LangListeningClipInclude<ExtArgs> | null
+  where?: Prisma.LangListeningClipWhereInput
+  orderBy?: Prisma.LangListeningClipOrderByWithRelationInput | Prisma.LangListeningClipOrderByWithRelationInput[]
+  cursor?: Prisma.LangListeningClipWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LangListeningClipScalarFieldEnum | Prisma.LangListeningClipScalarFieldEnum[]
+}
+
+/**
+ * Project.examTracks
+ */
+export type Project$examTracksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ExamTrack
+   */
+  select?: Prisma.ExamTrackSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ExamTrack
+   */
+  omit?: Prisma.ExamTrackOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ExamTrackInclude<ExtArgs> | null
+  where?: Prisma.ExamTrackWhereInput
+  orderBy?: Prisma.ExamTrackOrderByWithRelationInput | Prisma.ExamTrackOrderByWithRelationInput[]
+  cursor?: Prisma.ExamTrackWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ExamTrackScalarFieldEnum | Prisma.ExamTrackScalarFieldEnum[]
+}
+
+/**
+ * Project.mockAttempts
+ */
+export type Project$mockAttemptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MockAttempt
+   */
+  select?: Prisma.MockAttemptSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MockAttempt
+   */
+  omit?: Prisma.MockAttemptOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MockAttemptInclude<ExtArgs> | null
+  where?: Prisma.MockAttemptWhereInput
+  orderBy?: Prisma.MockAttemptOrderByWithRelationInput | Prisma.MockAttemptOrderByWithRelationInput[]
+  cursor?: Prisma.MockAttemptWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MockAttemptScalarFieldEnum | Prisma.MockAttemptScalarFieldEnum[]
 }
 
 /**

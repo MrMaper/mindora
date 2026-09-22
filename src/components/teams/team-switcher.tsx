@@ -31,7 +31,7 @@ export function TeamSwitcher({
 
   const handleChange = (teamId: string) => {
     onTeamChange(teamId);
-    const STORAGE_KEY = `scrumflow-current-team-${teamId}`;
+    const STORAGE_KEY = `mindora-current-team-${teamId}`;
     localStorage.setItem(STORAGE_KEY, teamId);
 
     if (pathname.startsWith("/teams/")) {

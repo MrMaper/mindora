@@ -21,19 +21,15 @@ export function LoginCC() {
 
   return (
     <div className="w-full max-w-90 bg-card border border-border rounded-xl shadow-md p-8">
-      <div className="flex items-center justify-center gap-2 mb-6">
-        <Image
-          src="/assets/images/logo-new.png"
-          alt="sf-logo"
-          width={24}
-          height={24}
-        />
-
-        {/* <span className="flex items-center justify-center size-7 bg-primary rounded-lg text-primary-foreground shrink-0">
-          <Icon name="zap" size={14} strokeWidth={2.5} />
-        </span> */}
-        <span className="text-base font-semibold text-foreground tracking-tight">
-          ScrumFlow
+      <div className="flex flex-col items-center justify-center gap-1 mb-6">
+        <div className="flex items-center gap-2">
+          <Image src="/logo.png" alt="Mindora" width={28} height={28} />
+          <span className="text-base font-semibold text-foreground tracking-tight">
+            Mindora
+          </span>
+        </div>
+        <span className="text-xs text-muted-foreground tracking-wide">
+          Think. Plan. Grow
         </span>
       </div>
 

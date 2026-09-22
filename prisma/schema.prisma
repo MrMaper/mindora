@@ -30,6 +30,17 @@ model User {
   projectMembers      ProjectMember[]
   preferences         UserPreferences?
   workLogs            WorkLog[]
+  docs                Doc[]
+  docFolders          DocFolder[]
+  docTags             DocTag[]
+  langSessions        LangSession[]
+  langProfile         LangProfile?
+  langCards           LangCard[]
+  langVocabDays       LangVocabDay[]
+  langListeningClips  LangListeningClip[]
+  examTracks          ExamTrack[]
+  mockAttempts        MockAttempt[]
+  habits              Habit[]
 
   @@map("users")
 }
@@ -99,6 +110,11 @@ model UserPreferences {
   notifySprintEnded         Boolean  @default(true)
   notifyDeadlineApproaching Boolean  @default(true)
   notifyStatusChanged       Boolean  @default(true)
+  /// YYYY-MM-DD for which todayFocusIds apply
+  todayFocusDate            String?
+  todayFocusIds             String[] @default([])
+  /// When set, first-run onboarding tour is complete
+  onboardingCompletedAt     DateTime?
   createdAt                 DateTime @default(now())
   updatedAt                 DateTime @updatedAt
 
@@ -178,12 +194,19 @@ model Project {
   name        String
   description String?
   status      ProjectStatus   @default(ACTIVE)
+  area        LifeArea        @default(LIFE)
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
   team        Team?           @relation(fields: [teamId], references: [id], onDelete: SetNull)
   sprints     Sprint[]
   tasks       Task[]
   members     ProjectMember[]
+  docs        Doc[]
+  langSessions LangSession[]
+  langCards   LangCard[]
+  langListeningClips LangListeningClip[]
+  examTracks  ExamTrack[]
+  mockAttempts MockAttempt[]
 
   @@map("projects")
 }
@@ -231,6 +254,12 @@ model Task {
   estimate     Int?
   dueDate      DateTime?
   position     Int          @default(0)
+  area         LifeArea?
+  recurrence   RecurrenceInterval @default(NONE)
+  /// Shared id across spawned occurrences of the same series
+  recurrenceSeriesId String?
+  /// Stop spawning after this date (inclusive of last due)
+  recurrenceEndsAt   DateTime?
   createdById  String
   assignedToId String?
   createdAt    DateTime     @default(now())
@@ -247,7 +276,9 @@ model Task {
   project      Project?     @relation(fields: [projectId], references: [id])
   sprint       Sprint?      @relation(fields: [sprintId], references: [id])
   team         Team?        @relation(fields: [teamId], references: [id])
+  docs         DocTask[]
 
+  @@index([recurrenceSeriesId])
   @@map("tasks")
 }
 
@@ -420,6 +451,7 @@ enum NotificationType {
   SPRINT_ENDED
   DEADLINE_APPROACHING
   STATUS_CHANGED
+  VOCAB_REVIEW_DUE
 }
 
 enum Language {
@@ -431,4 +463,382 @@ enum Theme {
   LIGHT
   DARK
   SYSTEM
+}
+
+enum LifeArea {
+  PHD
+  WORK
+  LIFE
+  LANG
+}
+
+enum RecurrenceInterval {
+  NONE
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+model Habit {
+  id           String             @id @default(cuid())
+  userId       String
+  title        String
+  area         LifeArea?
+  /// Habits use DAILY (or WEEKLY); NONE means paused
+  cadence      RecurrenceInterval @default(DAILY)
+  streak       Int                @default(0)
+  bestStreak   Int                @default(0)
+  lastDoneDate String?
+  archivedAt   DateTime?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  logs         HabitLog[]
+
+  @@index([userId, archivedAt])
+  @@map("habits")
+}
+
+model HabitLog {
+  id        String   @id @default(cuid())
+  habitId   String
+  dateKey   String
+  createdAt DateTime @default(now())
+  habit     Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  @@unique([habitId, dateKey])
+  @@index([habitId])
+  @@map("habit_logs")
+}
+
+model Doc {
+  id          String     @id @default(cuid())
+  title       String     @default("بدون عنوان")
+  content     String     @default("") @db.Text
+  contentText String     @default("") @db.Text
+  area        LifeArea   @default(LIFE)
+  status      DocStatus  @default(DRAFTING)
+  wordGoal    Int?
+  templateKey String?
+  systemKey   String?
+  pinned      Boolean    @default(false)
+  archived    Boolean    @default(false)
+  deletedAt   DateTime?
+  folderId    String?
+  projectId   String?
+  userId      String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  folder      DocFolder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  project     Project?   @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  tasks       DocTask[]
+  versions    DocVersion[]
+  sources     DocSource[]
+  quotes      DocQuote[]
+  tags        DocTagOnDoc[]
+
+  @@unique([userId, systemKey])
+  @@index([userId, updatedAt])
+  @@index([userId, area])
+  @@index([userId, deletedAt])
+  @@index([userId, projectId])
+  @@index([folderId])
+  @@map("docs")
+}
+
+model DocFolder {
+  id          String      @id @default(cuid())
+  name        String
+  description String?     @db.Text
+  area        LifeArea?
+  userId      String
+  parentId    String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent      DocFolder?  @relation("DocFolderTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children    DocFolder[] @relation("DocFolderTree")
+  docs        Doc[]
+
+  @@index([userId])
+  @@map("doc_folders")
+}
+
+model DocTag {
+  id          String        @id @default(cuid())
+  name        String
+  description String?       @db.Text
+  color       String        @default("#636e87")
+  userId      String
+  createdAt   DateTime      @default(now())
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  docs        DocTagOnDoc[]
+
+  @@unique([userId, name])
+  @@index([userId])
+  @@map("doc_tags")
+}
+
+model DocTagOnDoc {
+  docId String
+  tagId String
+  doc   Doc    @relation(fields: [docId], references: [id], onDelete: Cascade)
+  tag   DocTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([docId, tagId])
+  @@map("doc_tags_on_docs")
+}
+
+model DocTask {
+  docId  String
+  taskId String
+  doc    Doc  @relation(fields: [docId], references: [id], onDelete: Cascade)
+  task   Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@id([docId, taskId])
+  @@index([taskId])
+  @@map("doc_tasks")
+}
+
+model DocVersion {
+  id          String   @id @default(cuid())
+  docId       String
+  title       String
+  content     String   @db.Text
+  contentText String   @db.Text
+  note        String?
+  createdAt   DateTime @default(now())
+  doc         Doc      @relation(fields: [docId], references: [id], onDelete: Cascade)
+
+  @@index([docId, createdAt])
+  @@map("doc_versions")
+}
+
+model DocSource {
+  id            String              @id @default(cuid())
+  docId         String
+  title         String
+  authors       String?
+  url           String?
+  year          String?
+  doi           String?
+  notes         String?             @db.Text
+  /// PDF or other file stored via S3 (optional)
+  fileUrl       String?
+  fileName      String?
+  readingStatus SourceReadingStatus @default(TO_READ)
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  doc           Doc                 @relation(fields: [docId], references: [id], onDelete: Cascade)
+  quotes        DocQuote[]
+
+  @@index([docId])
+  @@index([readingStatus])
+  @@map("doc_sources")
+}
+
+model DocQuote {
+  id        String     @id @default(cuid())
+  docId     String
+  sourceId  String?
+  text      String     @db.Text
+  note      String?
+  createdAt DateTime   @default(now())
+  doc       Doc        @relation(fields: [docId], references: [id], onDelete: Cascade)
+  source    DocSource? @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+
+  @@index([docId])
+  @@map("doc_quotes")
+}
+
+enum DocStatus {
+  IDEA
+  DRAFTING
+  REVIEW
+  READY
+}
+
+enum SourceReadingStatus {
+  TO_READ
+  READING
+  DONE
+}
+
+enum LangSkill {
+  LISTENING
+  READING
+  WRITING
+  SPEAKING
+  GRAMMAR
+  VOCAB
+  PRONUNCIATION
+}
+
+model LangProfile {
+  id          String    @id @default(cuid())
+  userId      String    @unique
+  targetExam  String?
+  targetScore String?
+  examDate    DateTime?
+  weeklyGoalMin Int     @default(210)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("lang_profiles")
+}
+
+model LangSession {
+  id          String    @id @default(cuid())
+  userId      String
+  projectId   String?
+  skill       LangSkill
+  minutes     Int
+  note        String?   @db.Text
+  practicedAt DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project     Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  @@index([userId, practicedAt])
+  @@index([userId, skill])
+  @@index([projectId])
+  @@map("lang_sessions")
+}
+
+enum ListeningSource {
+  YOUTUBE
+  AUDIO
+}
+
+model LangListeningClip {
+  id          String          @id @default(cuid())
+  userId      String
+  projectId   String?
+  title       String
+  sourceType  ListeningSource
+  /// YouTube id or direct audio URL
+  sourceRef   String
+  level       String?
+  transcript  String?         @db.Text
+  notes       String?         @db.Text
+  /// Built-in catalog key when installed from starters
+  starterKey  String?
+  lastPlayedAt DateTime?
+  playCount   Int             @default(0)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project     Project?        @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  @@index([userId, updatedAt])
+  @@index([userId, starterKey])
+  @@index([projectId])
+  @@map("lang_listening_clips")
+}
+
+model LangCard {
+  id             String    @id @default(cuid())
+  userId         String
+  projectId      String?
+  front          String
+  back           String    @db.Text
+  example        String?   @db.Text
+  tags           String?
+  deckKey        String?
+  lesson         Int?
+  box            Int       @default(0)
+  /// null = graduated; 0..n = learning step index
+  learningStep   Int?      @default(0)
+  intervalDays   Int       @default(0)
+  nextReviewAt   DateTime  @default(now())
+  lastReviewedAt DateTime?
+  reviewCount    Int       @default(0)
+  lapses         Int       @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project        Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  @@index([userId, nextReviewAt])
+  @@index([userId, projectId])
+  @@index([userId, deckKey, lesson])
+  @@map("lang_cards")
+}
+
+/** One row per local calendar day the user reviewed any vocab card. */
+model LangVocabDay {
+  id        String   @id @default(cuid())
+  userId    String
+  /// Start of local day (UTC-stored midnight of that local day).
+  day       DateTime
+  reviews   Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, day])
+  @@index([userId, day])
+  @@map("lang_vocab_days")
+}
+
+enum ExamKind {
+  MSRT
+  IELTS
+  TOEFL
+  TOLIMO
+  EPT
+  CUSTOM
+}
+
+enum MockStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}
+
+model ExamTrack {
+  id          String        @id @default(cuid())
+  userId      String
+  projectId   String?
+  kind        ExamKind      @default(MSRT)
+  name        String
+  targetScore String?
+  examDate    DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project     Project?      @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  mocks       MockAttempt[]
+
+  @@index([userId, kind])
+  @@index([userId, projectId])
+  @@map("exam_tracks")
+}
+
+model MockAttempt {
+  id          String     @id @default(cuid())
+  userId      String
+  trackId     String
+  projectId   String?
+  kind        ExamKind
+  status      MockStatus @default(IN_PROGRESS)
+  startedAt   DateTime   @default(now())
+  finishedAt  DateTime?
+  durationSec Int?
+  totalCorrect Int?
+  totalQuestions Int?
+  percent     Float?
+  sections    Json       @default("[]")
+  note        String?    @db.Text
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  track       ExamTrack  @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  project     Project?   @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  @@index([userId, startedAt])
+  @@index([trackId, startedAt])
+  @@map("mock_attempts")
 }

@@ -5,7 +5,12 @@ import { auth } from "@/auth";
 import { prisma as db } from "@/lib/db";
 import { createTaskSchema, updateTaskSchema } from "@/schemas/tasks";
 import { getTaskById } from "./queries";
+import { ensurePersonalWorkspace, projectIdForArea } from "@/features/life/workspace";
+import { spawnNextIfRecurring, newRecurrenceSeriesId } from "@/features/life/recurrence";
+import { updateRecurrenceSeries } from "@/features/life/recurrence";
+import { parseLocalDate } from "@/lib/life";
 import { notify } from "@/lib/notify";
+import type { LifeArea, RecurrenceInterval } from "@/types/db";
 import {
   sendBaleTaskNotification,
   sendBaleAssignmentNotification,
@@ -64,15 +69,20 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
     return { success: false, error: parsed.error.issues[0]?.message };
   }
 
-  // Get user's first team (default team)
-  const membership = await db.teamMember.findFirst({
-    where: { userId: session.user.id },
-    select: { teamId: true },
-  });
-  if (!membership) return { success: false, error: "کاربر عضو هیچ تیمی نیست" };
+  const { teamId } = await ensurePersonalWorkspace(session.user.id);
 
-  // Validate project access if projectId is provided
-  const projectId = parsed.data.projectId || null;
+  let projectId = parsed.data.projectId || null;
+  const rawArea = parsed.data.area;
+  let area: LifeArea | null =
+    rawArea === "PHD" ||
+    rawArea === "WORK" ||
+    rawArea === "LIFE" ||
+    rawArea === "LANG"
+      ? rawArea
+      : null;
+  if (!projectId && area) {
+    projectId = projectIdForArea(area);
+  }
   if (projectId) {
     const projectMember = await db.projectMember.findUnique({
       where: { projectId_userId: { projectId, userId: session.user.id } },
@@ -80,9 +90,31 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
     if (!projectMember) {
       return { success: false, error: "شما به این پروژه دسترسی ندارید" };
     }
+    if (!area) {
+      const project = await db.project.findUnique({
+        where: { id: projectId },
+        select: { area: true },
+      });
+      area = (project?.area as LifeArea | null) ?? null;
+    }
   }
 
+  const rawRecurrence = parsed.data.recurrence;
+  const recurrence: RecurrenceInterval =
+    rawRecurrence === "DAILY" ||
+    rawRecurrence === "WEEKLY" ||
+    rawRecurrence === "MONTHLY" ||
+    rawRecurrence === "NONE"
+      ? rawRecurrence
+      : "NONE";
+
   const labelIds = parseLabelIds(parsed.data.labelIds);
+  const seriesId = recurrence !== "NONE" ? newRecurrenceSeriesId() : null;
+  let endsAt: Date | null = null;
+  if (parsed.data.recurrenceEndsAt && /^\d{4}-\d{2}-\d{2}$/.test(parsed.data.recurrenceEndsAt)) {
+    const [y, m, d] = parsed.data.recurrenceEndsAt.split("-").map(Number);
+    endsAt = new Date(y, m - 1, d, 23, 59, 59, 999);
+  }
 
   const task = await db.task.create({
     data: {
@@ -91,11 +123,15 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
       status: parsed.data.status,
       priority: parsed.data.priority,
       type: parsed.data.type,
-      assignedToId: parsed.data.assignedToId || null,
+      assignedToId: parsed.data.assignedToId || session.user.id,
       dueDate: parsed.data.dueDate ? new Date(parsed.data.dueDate) : null,
       projectId,
+      area,
+      recurrence,
+      recurrenceSeriesId: seriesId,
+      recurrenceEndsAt: recurrence !== "NONE" ? endsAt : null,
       createdById: session.user.id,
-      teamId: membership.teamId,
+      teamId,
       labels: { create: labelIds.map(labelId => ({ labelId })) },
     },
   });
@@ -142,6 +178,9 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
   });
 
   revalidatePath("/tasks");
+  revalidatePath("/dashboard");
+  revalidatePath("/kanban");
+  revalidatePath("/calendar");
   return { success: true, data: { id: task.id } };
 }
 
@@ -170,13 +209,26 @@ export async function updateTask(
       assignedToId: true,
       dueDate: true,
       projectId: true,
+      area: true,
+      recurrence: true,
+      recurrenceSeriesId: true,
+      recurrenceEndsAt: true,
       labels: { select: { labelId: true } },
     },
   });
   if (!existing) return { success: false, error: "تسک یافت نشد" };
 
   // Validate project access if projectId is provided
-  const projectId = parsed.data.projectId || null;
+  let projectId = parsed.data.projectId || null;
+  const nextArea = (parsed.data.area ?? existing.area ?? null) as LifeArea | null;
+  const nextRecurrence = (parsed.data.recurrence ??
+    existing.recurrence ??
+    "NONE") as RecurrenceInterval;
+
+  if (nextArea) {
+    projectId = projectIdForArea(nextArea);
+  }
+
   if (projectId && projectId !== existing.projectId) {
     const projectMember = await db.projectMember.findUnique({
       where: { projectId_userId: { projectId, userId: session.user.id } },
@@ -198,9 +250,27 @@ export async function updateTask(
 
   const labelIds = parseLabelIds(parsed.data.labelIds);
   const nextDueDate = parsed.data.dueDate
-    ? new Date(parsed.data.dueDate)
+    ? parseLocalDate(parsed.data.dueDate)
     : null;
   const nextAssignedToId = parsed.data.assignedToId || null;
+
+  const applySeries =
+    parsed.data.applyRecurrenceToSeries === "1" ||
+    parsed.data.applyRecurrenceToSeries === "true";
+
+  const endsAtRaw = parsed.data.recurrenceEndsAt?.trim() || "";
+  const recurrenceChanged =
+    nextRecurrence !== existing.recurrence ||
+    endsAtRaw.length > 0 ||
+    applySeries;
+
+  if (recurrenceChanged) {
+    await updateRecurrenceSeries(id, session.user.id, {
+      recurrence: nextRecurrence,
+      recurrenceEndsAt: endsAtRaw || null,
+      applyToSeries: applySeries,
+    });
+  }
 
   await db.task.update({
     where: { id },
@@ -213,12 +283,19 @@ export async function updateTask(
       assignedToId: nextAssignedToId,
       dueDate: nextDueDate,
       projectId,
+      area: nextArea,
       labels: {
         deleteMany: {},
         create: labelIds.map(labelId => ({ labelId })),
       },
     },
   });
+
+  const becameDone =
+    existing.status !== "DONE" && parsed.data.status === "DONE";
+  if (becameDone) {
+    await spawnNextIfRecurring(id, session.user.id);
+  }
 
   const assigneeChanged = (existing.assignedToId ?? null) !== nextAssignedToId;
   const statusChanged = existing.status !== parsed.data.status;
@@ -390,6 +467,10 @@ export async function updateTask(
   }
 
   revalidatePath("/tasks");
+  revalidatePath("/calendar");
+  revalidatePath("/dashboard");
+  revalidatePath("/kanban");
+  revalidatePath("/review");
   return { success: true };
 }
 
@@ -429,6 +510,10 @@ export async function updateTaskStatus(
       newValue: { status },
     });
 
+    if (status === "DONE" && existing.status !== "DONE") {
+      await spawnNextIfRecurring(id, session.user.id);
+    }
+
     if (existing.assignedToId && existing.assignedToId !== session.user.id) {
       await notify({
         userId: existing.assignedToId,
@@ -448,6 +533,8 @@ export async function updateTaskStatus(
   }
 
   revalidatePath("/tasks");
+  revalidatePath("/calendar");
+  revalidatePath("/dashboard");
   return { success: true };
 }
 
@@ -469,7 +556,7 @@ export async function deleteTask(id: string): Promise<ActionResult> {
 
   const existing = await db.task.findUnique({
     where: { id },
-    select: { id: true, assignedToId: true },
+    select: { id: true, assignedToId: true, projectId: true },
   });
   if (!existing) return { success: false, error: "تسک یافت نشد" };
 
@@ -485,5 +572,11 @@ export async function deleteTask(id: string): Promise<ActionResult> {
 
   await db.task.delete({ where: { id } });
   revalidatePath("/tasks");
+  revalidatePath("/kanban");
+  revalidatePath("/projects");
+  revalidatePath("/dashboard");
+  if (existing.projectId) {
+    revalidatePath(`/projects/${existing.projectId}`);
+  }
   return { success: true };
 }

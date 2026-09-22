@@ -5,6 +5,7 @@ import { auth } from "@/auth";
 import { prisma as db } from "@/lib/db";
 import { notify } from "@/lib/notify";
 import type { BoardStatus } from "./types";
+import { spawnNextIfRecurring } from "@/features/life/recurrence";
 
 export interface ActionResult {
   success: boolean;
@@ -67,6 +68,10 @@ export async function moveTask(params: {
       newValue: { status: params.toStatus },
     });
 
+    if (params.toStatus === "DONE") {
+      await spawnNextIfRecurring(params.taskId, session.user.id);
+    }
+
     if (existing.assignedToId && existing.assignedToId !== session.user.id) {
       await notify({
         userId: existing.assignedToId,
@@ -79,5 +84,9 @@ export async function moveTask(params: {
 
   revalidatePath("/kanban");
   revalidatePath("/tasks");
+  revalidatePath("/dashboard");
+  revalidatePath("/research");
+  revalidatePath("/review");
+  revalidatePath("/calendar");
   return { success: true };
 }

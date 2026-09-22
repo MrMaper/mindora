@@ -59,7 +59,38 @@ export async function deleteAttachment(attachmentId: string): Promise<ActionResu
   const session = await auth();
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
-  await db.attachment.delete({ where: { id: attachmentId } });
+  const attachment = await db.attachment.findFirst({
+    where: { id: attachmentId },
+    select: {
+      id: true,
+      taskId: true,
+      filename: true,
+      task: {
+        select: {
+          assignedToId: true,
+          createdById: true,
+        },
+      },
+    },
+  });
+  if (!attachment) return { success: false, error: "پیوست پیدا نشد" };
+
+  const uid = session.user.id;
+  const isAdmin = session.user.role === "ADMIN";
+  const ownsTask =
+    attachment.task.assignedToId === uid ||
+    attachment.task.createdById === uid;
+  if (!isAdmin && !ownsTask) {
+    return { success: false, error: "اجازه حذف این پیوست را نداری" };
+  }
+
+  await db.attachment.delete({ where: { id: attachment.id } });
+  await logActivity({
+    entityId: attachment.taskId,
+    action: "attachment_removed",
+    performedBy: uid,
+    newValue: { filename: attachment.filename },
+  });
   revalidatePath("/tasks");
   revalidatePath("/kanban");
   return { success: true };
