@@ -11,34 +11,13 @@ concurrency:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    # Runs on the VPS itself — GitHub cloud cannot SSH inbound to this host.
+    runs-on: [self-hosted, mindora]
     steps:
-      - name: Deploy to VPS over SSH
-        env:
-          VPS_HOST: ${{ secrets.VPS_HOST }}
-          VPS_USER: ${{ secrets.VPS_USER }}
-          VPS_SSH_KEY_B64: ${{ secrets.VPS_SSH_KEY_B64 }}
+      - name: Pull and rebuild
         run: |
           set -euo pipefail
-          test -n "$VPS_HOST"
-          test -n "$VPS_USER"
-          test -n "$VPS_SSH_KEY_B64"
-
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          printf '%s' "$VPS_SSH_KEY_B64" | base64 -d > ~/.ssh/mindora_deploy
-          chmod 600 ~/.ssh/mindora_deploy
-          ssh-keygen -y -f ~/.ssh/mindora_deploy >/dev/null
-
-          ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
-
-          ssh -i ~/.ssh/mindora_deploy \
-            -o IdentitiesOnly=yes \
-            -o StrictHostKeyChecking=accept-new \
-            -o BatchMode=yes \
-            "${VPS_USER}@${VPS_HOST}" bash -s <<'REMOTE'
-          set -euo pipefail
-          cd ~/mindora
+          cd "$HOME/mindora"
           test -f .env
           git fetch origin main
           git clean -fdx -e .env
@@ -46,4 +25,3 @@ jobs:
           git reset --hard origin/main
           docker compose up -d --build
           docker compose ps
-          REMOTE
