@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { SessionProvider } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -17,6 +18,12 @@ interface ProvidersProps {
   translations: Translations;
 }
 
+/** Remount boundary on route change so a prior page error cannot block the next page. */
+function RouteErrorBoundary({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  return <ErrorBoundary key={pathname}>{children}</ErrorBoundary>;
+}
+
 export function Providers({
   children,
   language,
@@ -28,7 +35,7 @@ export function Providers({
     <I18nProvider language={language} translations={translations}>
       <SessionProvider>
         <TooltipProvider>
-          <ErrorBoundary>{children}</ErrorBoundary>
+          <RouteErrorBoundary>{children}</RouteErrorBoundary>
           <Toaster position={toastPosition} richColors style={peyda.style} />
         </TooltipProvider>
       </SessionProvider>

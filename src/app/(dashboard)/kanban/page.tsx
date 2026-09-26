@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getBoardColumns } from "@/features/kanban/queries";
-import { getAllActiveUsers } from "@/features/users/queries";
+import { getAssignableUsers } from "@/features/users/queries";
 import { getLabels } from "@/features/labels/queries";
 import { getUserProjects } from "@/features/projects/queries";
 import { KanbanCC } from "./components/client";
@@ -48,7 +48,7 @@ export default async function KanbanPage({
       projectIds,
       excludeHub: false,
     }),
-    getAllActiveUsers(),
+    getAssignableUsers(session.user.id),
     getLabels(),
     getUserProjects(session.user.id, "assignable"),
   ]);

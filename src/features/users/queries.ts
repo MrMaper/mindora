@@ -82,6 +82,17 @@ export async function getUsers(
   };
 }
 
+/**
+ * People a signed-in member may see in assignee/person pickers.
+ * Personal Life OS: only the viewer themselves — never other members.
+ */
+export async function getAssignableUsers(viewerId: string): Promise<UserRow[]> {
+  const user = await getUserById(viewerId);
+  if (!user || user.status !== "ACTIVE") return [];
+  return [user];
+}
+
+/** @deprecated Prefer getAssignableUsers — kept for rare admin tooling only. */
 export async function getAllActiveUsers(): Promise<UserRow[]> {
   const users = await db.user.findMany({
     where: { status: "ACTIVE", role: "MEMBER" },

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getPersonalDashboard } from "@/features/life/queries";
-import { getAllActiveUsers } from "@/features/users/queries";
+import { getAssignableUsers } from "@/features/users/queries";
 import { getLabels } from "@/features/labels/queries";
 import { getUserProjects } from "@/features/projects/queries";
 import { listHabitsAction } from "@/features/habits/actions";
@@ -33,7 +33,7 @@ export default async function DashboardPage() {
 
   const [data, users, labels, userProjects, habits, prefs] = await Promise.all([
     getPersonalDashboard(session.user.id),
-    getAllActiveUsers(),
+    getAssignableUsers(session.user.id),
     getLabels(),
     getUserProjects(session.user.id, "life"),
     flags.habits

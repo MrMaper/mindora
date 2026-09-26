@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getBoardColumns } from "@/features/kanban/queries";
-import { getAllActiveUsers } from "@/features/users/queries";
+import { getAssignableUsers } from "@/features/users/queries";
 import { getLabels } from "@/features/labels/queries";
 import { getTranslationsAsync } from "@/i18n";
 import {
@@ -84,7 +84,7 @@ export default async function ResearchPage({
       },
       RESEARCH_BOARD_STATUSES,
     ),
-    getAllActiveUsers(),
+    getAssignableUsers(session.user.id),
     getLabels(),
     getResearchHubData(session.user.id, safeScope),
   ]);

@@ -190,23 +190,8 @@ export async function getAvailableRoles(): Promise<RoleRow[]> {
 }
 
 export async function getAllUsersForInvite(
-  teamId: string,
+  _teamId: string,
 ): Promise<AvailableUserRow[]> {
-  const existingMemberIds = await db.teamMember.findMany({
-    where: { teamId },
-    select: { userId: true },
-  });
-
-  const userIds = existingMemberIds.map(m => m.userId);
-
-  const users = await db.user.findMany({
-    where: {
-      status: "ACTIVE",
-      id: { notIn: userIds },
-    },
-    select: { id: true, name: true, email: true, avatar: true },
-    orderBy: { name: "asc" },
-  });
-
-  return users;
+  // Personal Life OS: no cross-user team invites.
+  return [];
 }

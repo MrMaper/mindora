@@ -40,25 +40,28 @@ export function ReportingForm({
   ];
 
   const canGenerate = selectedUserId && dateRange?.from && dateRange?.to;
+  const showUserPicker = users.length > 1;
 
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col sm:flex-row items-end gap-3">
-        <div className="flex-1 sm:w-48">
-          <Select
-            label={t.reporting.user}
-            options={userOptions}
-            value={selectedUserId}
-            onChange={onUserChange}
-            placeholder={t.reporting.selectUser}
-            required
-            error={
-              !selectedUserId && error === t.reporting.noUserSelected
-                ? t.reporting.noUserSelected
-                : undefined
-            }
-          />
-        </div>
+        {showUserPicker && (
+          <div className="flex-1 sm:w-48">
+            <Select
+              label={t.reporting.user}
+              options={userOptions}
+              value={selectedUserId}
+              onChange={onUserChange}
+              placeholder={t.reporting.selectUser}
+              required
+              error={
+                !selectedUserId && error === t.reporting.noUserSelected
+                  ? t.reporting.noUserSelected
+                  : undefined
+              }
+            />
+          </div>
+        )}
 
         <div className="flex-1 sm:w-72">
           <DatePicker

@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { ensurePersonalWorkspaceCached } from "@/lib/request-cache";
 import { getCalendarTasks } from "@/features/life/queries";
-import { getAllActiveUsers } from "@/features/users/queries";
+import { getAssignableUsers } from "@/features/users/queries";
 import { getLabels } from "@/features/labels/queries";
 import { getUserProjects } from "@/features/projects/queries";
 import {
@@ -30,7 +30,7 @@ export default async function CalendarPage() {
 
   const [tasks, users, labels, userProjects] = await Promise.all([
     getCalendarTasks(session.user.id, from, to),
-    getAllActiveUsers(),
+    getAssignableUsers(session.user.id),
     getLabels(),
     getUserProjects(session.user.id, "life"),
   ]);

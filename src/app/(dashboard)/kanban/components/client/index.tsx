@@ -197,6 +197,7 @@ export function KanbanCC({
           users={users}
           labels={labels}
           priorityOptions={priorityFieldOptions}
+          showAssigneeFilter={currentUserRole === "ADMIN"}
           hasActiveFilters={hasActiveFilters}
           onClearFilters={() => {
             if (showProjectFilter) k.setProject("");

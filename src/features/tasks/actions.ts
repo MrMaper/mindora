@@ -124,6 +124,12 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
     endsAt = new Date(y, m - 1, d, 23, 59, 59, 999);
   }
 
+  // Personal OS: members can only assign tasks to themselves.
+  const isAdmin = session.user.role === "ADMIN";
+  const assignedToId = isAdmin
+    ? parsed.data.assignedToId || session.user.id
+    : session.user.id;
+
   const task = await db.task.create({
     data: {
       title: parsed.data.title,
@@ -131,7 +137,7 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
       status: parsed.data.status,
       priority: parsed.data.priority,
       type: parsed.data.type,
-      assignedToId: parsed.data.assignedToId || session.user.id,
+      assignedToId,
       dueDate: parsed.data.dueDate ? new Date(parsed.data.dueDate) : null,
       projectId,
       area,
@@ -259,7 +265,10 @@ export async function updateTask(
   const nextDueDate = parsed.data.dueDate
     ? parseLocalDate(parsed.data.dueDate)
     : null;
-  const nextAssignedToId = parsed.data.assignedToId || null;
+  // Personal OS: members cannot reassign tasks to other users.
+  const nextAssignedToId = isAdmin
+    ? parsed.data.assignedToId || null
+    : session.user.id;
 
   const applySeries =
     parsed.data.applyRecurrenceToSeries === "1" ||

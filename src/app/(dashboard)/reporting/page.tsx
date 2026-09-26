@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { getUserPreferences } from "@/features/settings/queries";
-import { getAllActiveUsers } from "@/features/users/queries";
+import { getAssignableUsers } from "@/features/users/queries";
 import { ReportingCC } from "./reporting-cc";
 import { SelectProvider } from "@/components/ui-kit/forms/common";
 
@@ -15,7 +15,7 @@ export default async function ReportingPage() {
   if (!session?.user) redirect("/login");
 
   const [users, preferences] = await Promise.all([
-    getAllActiveUsers(),
+    getAssignableUsers(session.user.id),
     getUserPreferences(session.user.id),
   ]);
 
@@ -23,7 +23,11 @@ export default async function ReportingPage() {
 
   return (
     <SelectProvider language={language}>
-      <ReportingCC users={users} language={language} />
+      <ReportingCC
+        users={users}
+        language={language}
+        currentUserId={session.user.id}
+      />
     </SelectProvider>
   );
 }

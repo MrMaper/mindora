@@ -267,7 +267,7 @@ export function ProjectDetailCC({
         <MembersTab
           members={members}
           currentUserId={currentUserId}
-          isAdmin={!!isAdmin}
+          isAdmin={!!isAdmin && availableUsers.length > 0}
           onInviteMember={() => {
             setInviteError(null);
             setMemberDrawerOpen(true);

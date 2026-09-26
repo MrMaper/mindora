@@ -30,6 +30,8 @@ interface KanbanFiltersProps {
   hasActiveFilters: boolean;
   onClearFilters: () => void;
   showProjectFilter?: boolean;
+  /** Personal OS: hide person filter when members cannot see other users. */
+  showAssigneeFilter?: boolean;
 }
 
 export function KanbanFilters({
@@ -49,6 +51,7 @@ export function KanbanFilters({
   hasActiveFilters,
   onClearFilters,
   showProjectFilter = true,
+  showAssigneeFilter = true,
 }: KanbanFiltersProps) {
   const t = useTranslation();
 
@@ -99,14 +102,16 @@ export function KanbanFilters({
           />
         </div>
       )}
-      <div className="w-40">
-        <Select
-          label={t.board.assignee}
-          value={assignee}
-          onChange={value => onFilterChange({ assignee: value })}
-          options={userOptions}
-        />
-      </div>
+      {showAssigneeFilter && (
+        <div className="w-40">
+          <Select
+            label={t.board.assignee}
+            value={assignee}
+            onChange={value => onFilterChange({ assignee: value })}
+            options={userOptions}
+          />
+        </div>
+      )}
       <div className="w-40">
         <Select
           label={t.board.labels}

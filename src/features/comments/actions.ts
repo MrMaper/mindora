@@ -59,20 +59,13 @@ export async function createComment(taskId: string, formData: FormData): Promise
     const sep = value.lastIndexOf(":");
     if (sep <= 0) continue;
     const userId = value.slice(sep + 1).trim();
-    if (userId && userId !== session.user.id) mentionIds.add(userId);
-  }
-  // Also parse @Name patterns against known users if no explicit mention map
-  if (mentionIds.size === 0) {
-    const atMatches = parsed.data.body.match(/@([\p{L}\p{N}_\-.\u0600-\u06FF]+)/gu);
-    if (atMatches?.length) {
-      const names = [...new Set(atMatches.map(m => m.slice(1)))];
-      const users = await db.user.findMany({
-        where: { name: { in: names } },
-        select: { id: true },
-      });
-      for (const u of users) {
-        if (u.id !== session.user.id) mentionIds.add(u.id);
-      }
+    // Only allow mentioning people already on this task (no cross-user discovery).
+    if (
+      userId &&
+      userId !== session.user.id &&
+      (userId === task.assignedToId || userId === task.createdById)
+    ) {
+      mentionIds.add(userId);
     }
   }
 

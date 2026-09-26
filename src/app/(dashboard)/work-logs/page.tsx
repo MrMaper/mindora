@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { getUserPreferences } from "@/features/settings/queries";
-import { getAllActiveUsers } from "@/features/users/queries";
+import { getAssignableUsers } from "@/features/users/queries";
 import { getUserProjects } from "@/features/projects/queries";
 import { getWorkLogSummary } from "@/features/work-logs/queries";
 import { WorkLogsCC } from "./work-logs-cc";
@@ -43,7 +43,7 @@ export default async function WorkLogsPage({
   const effectiveUserId = isAdmin ? (userId || undefined) : session.user.id;
 
   const [users, userProjects, preferences] = await Promise.all([
-    getAllActiveUsers(),
+    getAssignableUsers(session.user.id),
     getUserProjects(session.user.id, "life"),
     getUserPreferences(session.user.id),
   ]);

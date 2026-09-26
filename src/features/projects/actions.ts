@@ -259,31 +259,17 @@ export async function deleteProject(id: string): Promise<ActionResult> {
 // ─── Member: invite ────────────────────────────────────────────────────────
 
 export async function inviteMember(
-  projectId: string,
-  formData: FormData
+  _projectId: string,
+  _formData: FormData
 ): Promise<ActionResult> {
   const session = await requireAuth();
   if (!session) return { success: false, error: "غیرمجاز" };
 
-  const isAdmin = await requireProjectAdmin(projectId, session.user.id);
-  if (!isAdmin) return { success: false, error: "شما مجوز دعوت عضو ندارید" };
-
-  const { userId, role } = Object.fromEntries(formData) as { userId: string; role: string };
-
-  const existing = await db.projectMember.findUnique({
-    where: { projectId_userId: { projectId, userId } },
-  });
-  if (existing) {
-    return { success: false, error: "کاربر قبلاً عضو این پروژه است" };
-  }
-
-  await db.projectMember.create({
-    data: { projectId, userId, role: role as "OWNER" | "ADMIN" | "MEMBER" | "VIEWER" },
-  });
-
-  revalidatePath("/projects");
-  revalidatePath(`/projects/${projectId}`);
-  return { success: true };
+  // Personal Life OS: workspaces are private — no cross-user project invites.
+  return {
+    success: false,
+    error: "دعوت عضو در فضای شخصی غیرفعال است",
+  };
 }
 
 // ─── Member: update role ───────────────────────────────────────────────────

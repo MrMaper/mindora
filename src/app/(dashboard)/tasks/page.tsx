@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { getTasks } from "@/features/tasks/queries";
-import { getAllActiveUsers } from "@/features/users/queries";
+import { getAssignableUsers } from "@/features/users/queries";
 import { getLabels } from "@/features/labels/queries";
 import { getUserPreferences } from "@/features/settings/queries";
 import { getUserProjects } from "@/features/projects/queries";
@@ -64,7 +64,7 @@ export default async function TasksPage({
       order: order as "asc" | "desc",
       page: Math.max(1, Number(page)),
     }),
-    getAllActiveUsers(),
+    getAssignableUsers(session.user.id),
     getLabels(),
     getUserPreferences(session.user.id),
     getUserProjects(session.user.id, "assignable"),

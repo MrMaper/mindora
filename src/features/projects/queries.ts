@@ -324,24 +324,14 @@ export async function getAvailableRoles() {
   ];
 }
 
-export async function getAllUsersForInvite(projectId: string) {
-  const existingMemberIds = await db.projectMember.findMany({
-    where: { projectId },
-    select: { userId: true },
-  });
-
-  const userIds = existingMemberIds.map(m => m.userId);
-
-  const users = await db.user.findMany({
-    where: {
-      status: "ACTIVE",
-      id: { notIn: userIds },
-    },
-    select: { id: true, name: true, email: true, avatar: true },
-    orderBy: { name: "asc" },
-  });
-
-  return users;
+/** Person-centric OS: members never invite other users onto projects. */
+export async function getAllUsersForInvite(_projectId: string) {
+  return [] as {
+    id: string;
+    name: string;
+    email: string;
+    avatar: string | null;
+  }[];
 }
 
 export async function getProjectTasks(

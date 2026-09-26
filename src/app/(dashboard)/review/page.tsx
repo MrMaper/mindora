@@ -7,7 +7,7 @@ import {
   getUserPreferencesCached,
 } from "@/lib/request-cache";
 import { getWeeklyReview } from "@/features/life/queries";
-import { getAllActiveUsers } from "@/features/users/queries";
+import { getAssignableUsers } from "@/features/users/queries";
 import { getLabels } from "@/features/labels/queries";
 import { getUserProjects } from "@/features/projects/queries";
 import { ensureWeeklyReviewDoc } from "@/features/docs/weekly";
@@ -26,7 +26,7 @@ export default async function ReviewPage() {
 
   const [data, users, labels, userProjects] = await Promise.all([
     getWeeklyReview(session.user.id),
-    getAllActiveUsers(),
+    getAssignableUsers(session.user.id),
     getLabels(),
     getUserProjects(session.user.id, "life"),
   ]);

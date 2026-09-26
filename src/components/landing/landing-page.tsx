@@ -3,102 +3,152 @@ import { BrandLogo } from "@/components/brand-logo";
 
 export function LandingPage() {
   return (
-    <div className="landing" dir="rtl" lang="fa">
-      <header className="landing__top">
-        <Link href="/" className="landing__brand-lockup" aria-label="Mindora">
-          <BrandLogo size={36} className="landing__logo" />
-          <span className="landing__brand-name">Mindora</span>
+    <div className="ml" dir="rtl" lang="fa">
+      <header className="ml__nav">
+        <Link href="/" className="ml__logo" aria-label="Mindora">
+          <BrandLogo size={34} />
+          <span>Mindora</span>
         </Link>
-        <Link href="/login" className="landing__nav-link">
+        <Link href="/login" className="ml__nav-btn">
           ورود
         </Link>
       </header>
 
-      <section className="landing__hero" aria-label="معرفی">
+      {/* Calm-style photographic cover */}
+      <section className="ml__hero">
         <div
-          className="landing__hero-media"
-          style={{ backgroundImage: "url(/landing-hero.jpg)" }}
-          role="img"
-          aria-label="میز کار آرام در نور صبح"
+          className="ml__hero-bg"
+          style={{ backgroundImage: "url(/landing-hero.png)" }}
         />
-        <div className="landing__hero-veil" />
-
-        <div className="landing__hero-copy">
-          <p className="landing__wordmark landing__anim landing__anim--1">
-            Mindora
-          </p>
-          <h1 className="landing__headline landing__anim landing__anim--2">
-            فکر کن. برنامه بریز. رشد کن.
+        <div className="ml__hero-shade" />
+        <div className="ml__hero-content">
+          <p className="ml__wordmark ml__fade ml__fade--1">Mindora</p>
+          <h1 className="ml__headline ml__fade ml__fade--2">
+            فکر کن.
+            <br />
+            برنامه بریز.
+            <br />
+            رشد کن.
           </h1>
-          <p className="landing__lede landing__anim landing__anim--3">
-            سیستم شخصی برای کار، پژوهش، زبان و روزمرگی — با تقویم شمسی.
+          <p className="ml__sub ml__fade ml__fade--3">
+            سیستم شخصی زندگی — برای یک نفر، نه یک تیم.
           </p>
-          <div className="landing__cta landing__anim landing__anim--4">
-            <Link href="/login" className="landing__btn landing__btn--primary">
-              ورود به Mindora
-            </Link>
-            <a href="#spaces" className="landing__btn landing__btn--ghost">
-              فضاها را ببین
-            </a>
-          </div>
+          <Link
+            href="/login"
+            className="ml__btn ml__btn--light ml__fade ml__fade--4"
+          >
+            ورود به مایندورا
+          </Link>
         </div>
       </section>
 
-      <section id="spaces" className="landing__section">
-        <h2 className="landing__section-title">یک سیستم. چند فضای زندگی.</h2>
-        <p className="landing__section-lede">
-          هر حوزه جای خودش را دارد — بدون سروصدای تیمی.
-        </p>
-        <ul className="landing__spaces">
-          <li>
-            <span className="landing__space-name">دکتری</span>
-            <span className="landing__space-desc">
-              پایپ‌لاین پژوهش، منابع و نوشتن
-            </span>
-          </li>
-          <li>
-            <span className="landing__space-name">کار</span>
-            <span className="landing__space-desc">
-              تسک، بورد و ثبت ساعت
-            </span>
-          </li>
-          <li>
-            <span className="landing__space-name">زبان</span>
-            <span className="landing__space-desc">
-              واژگان، شنیدار و آمادگی آزمون
-            </span>
-          </li>
-          <li>
-            <span className="landing__space-name">زندگی</span>
-            <span className="landing__space-desc">
-              عادت‌ها، خانه و امور روز
-            </span>
-          </li>
-        </ul>
+      {/* Arc-style: product is the proof */}
+      <section className="ml__proof" id="product">
+        <div className="ml__proof-copy">
+          <p className="ml__eyebrow">امروز</p>
+          <h2>هر صبح از اینجا شروع می‌شود</h2>
+          <p>
+            تمرکز روز، هفتهٔ جلالی و کارهای باز — در یک نگاه آرام، فقط برای تو.
+          </p>
+        </div>
+        <div className="ml__proof-frame">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/landing-shot-today.png"
+            alt="داشبورد امروز مایندورا"
+            width={1600}
+            height={900}
+            decoding="async"
+          />
+        </div>
       </section>
 
-      <section className="landing__section landing__section--tight">
-        <h2 className="landing__section-title">از امروز تا هفته، در یک نگاه</h2>
-        <p className="landing__section-lede">
-          داشبورد امروز، تقویم جلالی، و بازبینی هفتگی — تا بدانی چه مانده و چه
-          جلو می‌رود.
+      {/* Zigzag features — product photography */}
+      <section className="ml__features">
+        <article className="ml__feat">
+          <div className="ml__feat-text">
+            <p className="ml__eyebrow">بورد</p>
+            <h2>کار را ببین، نه فقط لیست کن</h2>
+            <p>
+              ستون‌ها، اولویت و جریان کار — بدون سروصدای تیمی و منشن‌های بی‌پایان.
+            </p>
+          </div>
+          <div className="ml__feat-media">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/landing-shot-board.png"
+              alt="بورد کانبان مایندورا"
+              width={1280}
+              height={720}
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        </article>
+
+        <article className="ml__feat ml__feat--flip">
+          <div className="ml__feat-text">
+            <p className="ml__eyebrow">زبان</p>
+            <h2>یادگیری که کنار زندگی می‌نشیند</h2>
+            <p>
+              واژگان و شنیدار در همان فضایی که پژوهش و کار روزانه‌ات هست — نه یک
+              اپ جدا.
+            </p>
+          </div>
+          <div className="ml__feat-media">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/landing-shot-lang.png"
+              alt="یادگیری زبان در مایندورا"
+              width={1280}
+              height={720}
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        </article>
+      </section>
+
+      {/* Short space strip — typographic, not cards */}
+      <section className="ml__strip" aria-label="فضاها">
+        <p>
+          <strong>دکتری</strong>
+          <span>پژوهش و نوشتن</span>
+        </p>
+        <p>
+          <strong>کار</strong>
+          <span>بورد و ساعت</span>
+        </p>
+        <p>
+          <strong>زبان</strong>
+          <span>واژه و شنیدار</span>
+        </p>
+        <p>
+          <strong>زندگی</strong>
+          <span>عادت و روزمرگی</span>
         </p>
       </section>
 
-      <section className="landing__close">
-        <p className="landing__close-brand">Mindora</p>
-        <p className="landing__close-line">فضای شخصی‌ات را روشن کن.</p>
-        <Link href="/login" className="landing__btn landing__btn--primary">
-          شروع کن
+      <section className="ml__close">
+        <p className="ml__close-brand">Mindora</p>
+        <p className="ml__close-line">ذهنت را جمع کن. روزت را هم.</p>
+        <Link href="/login" className="ml__btn ml__btn--dark">
+          ورود به مایندورا
         </Link>
       </section>
 
-      <footer className="landing__foot">
-        <span>Think. Plan. Grow</span>
-        <span className="landing__foot-sep" aria-hidden>
-          ·
-        </span>
-        <span>mindoraos.ir</span>
+      <footer className="ml__foot">
+        <p>
+          ساخته‌شده توسط{" "}
+          <a
+            href="https://mrmaper.ir"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            MrMaper
+          </a>
+        </p>
+        <p className="ml__foot-meta">mindoraos.ir</p>
       </footer>
     </div>
   );

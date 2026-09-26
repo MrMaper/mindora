@@ -15,12 +15,19 @@ import {
 interface ReportingCCProps {
   users: UserRow[];
   language: Language;
+  currentUserId: string;
 }
 
-export function ReportingCC({ users, language }: ReportingCCProps) {
+export function ReportingCC({
+  users,
+  language,
+  currentUserId,
+}: ReportingCCProps) {
   const t = useTranslation();
 
-  const [selectedUserId, setSelectedUserId] = React.useState<string>("");
+  const [selectedUserId, setSelectedUserId] = React.useState<string>(
+    () => users.find(u => u.id === currentUserId)?.id ?? users[0]?.id ?? "",
+  );
   const [dateRange, setDateRange] = React.useState<{
     from: Date | null;
     to: Date | null;
