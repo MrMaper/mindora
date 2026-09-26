@@ -1,0 +1,19 @@
+---
+description: Do not implement deferred roadmap items (vocab-from-papers AI, etc.) unless explicitly asked
+alwaysApply: true
+---
+
+# Deferred features — do not implement yet
+
+The following are documented in `docs/ROADMAP.md` and must **not** be built until the user explicitly asks:
+
+- **Vocab from papers + AI** (Phases A–D): term extraction from docs/PDF → LangCards, LLM glosses, `AI_API_KEY`, etc.
+- Treat other items listed under “Other known later items” in that file the same way unless the user prioritizes them.
+
+When the user mentions these topics:
+
+1. Point them to `docs/ROADMAP.md`
+2. Ask which phase/provider they want
+3. Only then implement
+
+Do not start Phase A/B “proactively” during unrelated work (e.g. deploy, perf, bugfixes).

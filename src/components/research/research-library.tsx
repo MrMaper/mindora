@@ -24,6 +24,7 @@ import type { DocListItem } from "@/features/docs/types";
 import type { SourceReadingStatus } from "@/types/db";
 import { cn } from "@/lib/utils";
 import { projectIdForCreate } from "@/features/research/active-project";
+import { PdfAnnotatorDialog } from "@/components/docs/pdf-annotator-dialog";
 
 const READING: SourceReadingStatus[] = ["TO_READ", "READING", "DONE"];
 
@@ -51,6 +52,9 @@ export function ResearchLibraryPanel({
   const [quoteFor, setQuoteFor] = React.useState<string | null>(null);
   const [quoteText, setQuoteText] = React.useState("");
   const [quoteNote, setQuoteNote] = React.useState("");
+  const [annotating, setAnnotating] = React.useState<ResearchSourceItem | null>(
+    null,
+  );
   const fileInputRefs = React.useRef<Record<string, HTMLInputElement | null>>(
     {},
   );
@@ -481,6 +485,14 @@ export function ResearchLibraryPanel({
                   </Button>
                   {s.fileUrl && (
                     <>
+                      <Button
+                        size="sm"
+                        variant="subtle"
+                        disabled={pending}
+                        onClick={() => setAnnotating(s)}
+                      >
+                        {t.life.annotateInApp}
+                      </Button>
                       <a
                         href={s.fileUrl}
                         target="_blank"
@@ -585,6 +597,50 @@ export function ResearchLibraryPanel({
           </ul>
         )}
       </section>
+
+      {annotating?.fileUrl && (
+        <PdfAnnotatorDialog
+          open
+          fileUrl={annotating.fileUrl}
+          sourceTitle={annotating.title}
+          labels={{
+            title: t.life.pdfAnnotatorTitle,
+            loading: t.life.pdfAnnotatorLoading,
+            loadError: t.life.pdfAnnotatorError,
+            pageOf: t.life.pdfAnnotatorPageOf,
+            prevPage: t.life.pdfAnnotatorPrev,
+            nextPage: t.life.pdfAnnotatorNext,
+            openExternal: t.life.pdfAnnotatorOpenExternal,
+            selectionHint: t.life.pdfAnnotatorHint,
+            saveQuote: t.life.saveQuote,
+            quoteNote: t.docs.quoteNote,
+            pageNote: t.life.pdfAnnotatorPageNote,
+            cancel: t.common.cancel,
+            saved: t.life.annotateQuoteSaved,
+            close: t.life.pdfAnnotatorClose,
+          }}
+          onClose={() => setAnnotating(null)}
+          onSaveQuote={async ({ text, note }) => {
+            const result = await annotateSourceQuoteAction({
+              sourceId: annotating.id,
+              text,
+              note,
+            });
+            if (!result.success) {
+              window.alert(result.error ?? "Error");
+              throw new Error(result.error ?? "save failed");
+            }
+            setSources(prev =>
+              prev.map(s =>
+                s.id === annotating.id
+                  ? { ...s, quoteCount: s.quoteCount + 1 }
+                  : s,
+              ),
+            );
+            router.refresh();
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -9,6 +9,7 @@ import { useLanguage, useTranslation } from "@/i18n/provider";
 import { cn, formatNumber } from "@/lib/utils";
 import { formatJalaliShort } from "@/lib/life";
 import { scrollDocEditorToHeading } from "@/components/docs/scroll-heading";
+import { PdfAnnotatorDialog } from "@/components/docs/pdf-annotator-dialog";
 import type { OutlineHeading } from "@/features/docs/utils";
 import type {
   DocDetail,
@@ -167,6 +168,18 @@ export function DocSidePanel({
               replacePdf: t.docs.replacePdf,
               openPdf: t.docs.openPdf,
               removePdf: t.docs.removePdf,
+              annotateInApp: t.docs.annotateInApp,
+              pdfAnnotatorTitle: t.docs.pdfAnnotatorTitle,
+              pdfAnnotatorLoading: t.docs.pdfAnnotatorLoading,
+              pdfAnnotatorError: t.docs.pdfAnnotatorError,
+              pdfAnnotatorPageOf: t.docs.pdfAnnotatorPageOf,
+              pdfAnnotatorPrev: t.docs.pdfAnnotatorPrev,
+              pdfAnnotatorNext: t.docs.pdfAnnotatorNext,
+              pdfAnnotatorOpenExternal: t.docs.pdfAnnotatorOpenExternal,
+              pdfAnnotatorHint: t.docs.pdfAnnotatorHint,
+              pdfAnnotatorPageNote: t.docs.pdfAnnotatorPageNote,
+              pdfAnnotatorClose: t.docs.pdfAnnotatorClose,
+              pdfAnnotatorSaved: t.life.annotateQuoteSaved,
               quotes: t.docs.quotes,
               addQuote: t.docs.addQuote,
               saveQuote: t.docs.saveQuote,
@@ -384,6 +397,18 @@ function SourcesTab({
     replacePdf: string;
     openPdf: string;
     removePdf: string;
+    annotateInApp: string;
+    pdfAnnotatorTitle: string;
+    pdfAnnotatorLoading: string;
+    pdfAnnotatorError: string;
+    pdfAnnotatorPageOf: string;
+    pdfAnnotatorPrev: string;
+    pdfAnnotatorNext: string;
+    pdfAnnotatorOpenExternal: string;
+    pdfAnnotatorHint: string;
+    pdfAnnotatorPageNote: string;
+    pdfAnnotatorClose: string;
+    pdfAnnotatorSaved: string;
     quotes: string;
     addQuote: string;
     saveQuote: string;
@@ -452,6 +477,9 @@ function SourcesTab({
   const [quoteNote, setQuoteNote] = React.useState("");
   const [quoteSourceId, setQuoteSourceId] = React.useState("");
   const [busy, setBusy] = React.useState(false);
+  const [annotating, setAnnotating] = React.useState<DocSourceItem | null>(
+    null,
+  );
   const fileInputRefs = React.useRef<Record<string, HTMLInputElement | null>>(
     {},
   );
@@ -637,14 +665,23 @@ function SourcesTab({
                     </a>
                   )}
                   {s.fileUrl && (
-                    <a
-                      href={s.fileUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-[11px] text-primary truncate block mt-0.5"
-                    >
-                      {s.fileName || labels.openPdf}
-                    </a>
+                    <div className="flex flex-wrap items-center gap-2 mt-0.5">
+                      <button
+                        type="button"
+                        className="text-[11px] text-primary hover:underline"
+                        onClick={() => setAnnotating(s)}
+                      >
+                        {labels.annotateInApp}
+                      </button>
+                      <a
+                        href={s.fileUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[11px] text-muted-foreground hover:underline truncate max-w-[10rem]"
+                      >
+                        {s.fileName || labels.openPdf}
+                      </a>
+                    </div>
                   )}
                 </div>
                 <IconButton
@@ -796,6 +833,38 @@ function SourcesTab({
           </ul>
         )}
       </div>
+
+      {annotating?.fileUrl && (
+        <PdfAnnotatorDialog
+          open
+          fileUrl={annotating.fileUrl}
+          sourceTitle={annotating.title}
+          labels={{
+            title: labels.pdfAnnotatorTitle,
+            loading: labels.pdfAnnotatorLoading,
+            loadError: labels.pdfAnnotatorError,
+            pageOf: labels.pdfAnnotatorPageOf,
+            prevPage: labels.pdfAnnotatorPrev,
+            nextPage: labels.pdfAnnotatorNext,
+            openExternal: labels.pdfAnnotatorOpenExternal,
+            selectionHint: labels.pdfAnnotatorHint,
+            saveQuote: labels.saveQuote,
+            quoteNote: labels.quoteNote,
+            pageNote: labels.pdfAnnotatorPageNote,
+            cancel: labels.cancel,
+            saved: labels.pdfAnnotatorSaved,
+            close: labels.pdfAnnotatorClose,
+          }}
+          onClose={() => setAnnotating(null)}
+          onSaveQuote={async ({ text, note }) => {
+            await onAddQuote({
+              text,
+              note,
+              sourceId: annotating.id,
+            });
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -159,7 +159,12 @@ src/features/      # Domain actions & queries
 src/components/    # UI (docs, language, life, …)
 prisma/            # Schema, migrations, seed
 public/            # Static assets (logo, favicons)
+docs/              # Product notes & deferred roadmap
 ```
+
+## Deferred work
+
+Planned but **not** started yet (including vocab-from-papers + AI): see [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## License
 
