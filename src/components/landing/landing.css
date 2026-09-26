@@ -1,0 +1,344 @@
+/* Mindora marketing landing — atmosphere: mist ink, not purple glow */
+
+.landing {
+  --landing-ink: #161c2a;
+  --landing-ink-soft: #3a4558;
+  --landing-mist: #e8eef4;
+  --landing-fog: #d5dee8;
+  --landing-accent: #3340a3;
+  --landing-accent-hover: #28348a;
+  --landing-paper: #f4f6f9;
+  --landing-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  min-height: 100dvh;
+  background: var(--landing-paper);
+  color: var(--landing-ink);
+  font-family: var(--font-peyda), ui-sans-serif, sans-serif;
+  overflow-x: clip;
+}
+
+/* ── Top bar (minimal; brand still lives in hero) ── */
+.landing__top {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem clamp(1.25rem, 4vw, 2.5rem);
+}
+
+.landing__brand-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  text-decoration: none;
+  color: #f7f8fb;
+}
+
+.landing__brand-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.landing__nav-link {
+  color: #f7f8fb;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  opacity: 0.9;
+  transition: opacity 160ms var(--landing-ease);
+}
+
+.landing__nav-link:hover {
+  opacity: 1;
+}
+
+/* ── Hero: one full-bleed composition ── */
+.landing__hero {
+  position: relative;
+  min-height: 100dvh;
+  display: grid;
+  align-items: end;
+  isolation: isolate;
+}
+
+.landing__hero-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  transform: scale(1.06);
+  animation: landing-drift 28s var(--landing-ease) infinite alternate;
+}
+
+.landing__hero-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(
+      180deg,
+      rgb(17 24 39 / 0.35) 0%,
+      rgb(17 24 39 / 0.15) 38%,
+      rgb(17 24 39 / 0.72) 100%
+    ),
+    linear-gradient(
+      90deg,
+      rgb(17 24 39 / 0.45) 0%,
+      transparent 55%
+    );
+}
+
+.landing__hero-copy {
+  position: relative;
+  z-index: 2;
+  width: min(40rem, 100%);
+  padding: clamp(2rem, 6vh, 4rem) clamp(1.25rem, 4vw, 2.5rem)
+    clamp(3rem, 8vh, 5rem);
+}
+
+.landing__wordmark {
+  margin: 0 0 0.75rem;
+  font-size: clamp(2.75rem, 8vw, 4.75rem);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  color: #f8fafc;
+  text-shadow: 0 2px 24px rgb(0 0 0 / 0.25);
+}
+
+.landing__headline {
+  margin: 0 0 0.85rem;
+  font-size: clamp(1.35rem, 3.2vw, 1.85rem);
+  font-weight: 500;
+  line-height: 1.45;
+  color: #eef2f7;
+  max-width: 22ch;
+}
+
+.landing__lede {
+  margin: 0 0 1.75rem;
+  font-size: clamp(0.95rem, 2vw, 1.1rem);
+  line-height: 1.7;
+  color: rgb(238 242 247 / 0.82);
+  max-width: 34ch;
+}
+
+.landing__cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.landing__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0 1.25rem;
+  border-radius: 0.45rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    background-color 160ms var(--landing-ease),
+    color 160ms var(--landing-ease),
+    border-color 160ms var(--landing-ease),
+    transform 160ms var(--landing-ease);
+}
+
+.landing__btn:hover {
+  transform: translateY(-1px);
+}
+
+.landing__btn--primary {
+  background: #f8fafc;
+  color: var(--landing-ink);
+  border: 1px solid transparent;
+}
+
+.landing__btn--primary:hover {
+  background: #ffffff;
+}
+
+.landing__btn--ghost {
+  background: transparent;
+  color: #f8fafc;
+  border: 1px solid rgb(248 250 252 / 0.45);
+}
+
+.landing__btn--ghost:hover {
+  border-color: rgb(248 250 252 / 0.8);
+  background: rgb(248 250 252 / 0.08);
+}
+
+/* ── Entrance motion ── */
+.landing__anim {
+  animation: landing-rise 700ms var(--landing-ease) both;
+}
+
+.landing__anim--1 {
+  animation-delay: 80ms;
+}
+.landing__anim--2 {
+  animation-delay: 180ms;
+}
+.landing__anim--3 {
+  animation-delay: 280ms;
+}
+.landing__anim--4 {
+  animation-delay: 380ms;
+}
+
+@keyframes landing-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes landing-drift {
+  from {
+    transform: scale(1.06) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.12) translate3d(-1.5%, -1%, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing__hero-media {
+    animation: none;
+    transform: scale(1.04);
+  }
+  .landing__anim {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .landing__btn:hover {
+    transform: none;
+  }
+}
+
+/* ── Content sections ── */
+.landing__section {
+  padding: clamp(3.5rem, 10vh, 6rem) clamp(1.25rem, 4vw, 2.5rem);
+  max-width: 56rem;
+  margin-inline: auto;
+}
+
+.landing__section--tight {
+  padding-top: 0;
+}
+
+.landing__section-title {
+  margin: 0 0 0.65rem;
+  font-size: clamp(1.45rem, 3vw, 1.85rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--landing-ink);
+}
+
+.landing__section-lede {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: var(--landing-ink-soft);
+  max-width: 36ch;
+}
+
+.landing__spaces {
+  list-style: none;
+  margin: 2.25rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--landing-fog);
+}
+
+.landing__spaces li {
+  display: grid;
+  grid-template-columns: minmax(5rem, 7rem) 1fr;
+  gap: 1rem;
+  align-items: baseline;
+  padding: 1.15rem 0;
+  border-bottom: 1px solid var(--landing-fog);
+}
+
+.landing__space-name {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--landing-accent);
+}
+
+.landing__space-desc {
+  font-size: 0.98rem;
+  color: var(--landing-ink-soft);
+  line-height: 1.5;
+}
+
+/* ── Closing band ── */
+.landing__close {
+  margin: 0 clamp(1.25rem, 4vw, 2.5rem) clamp(2rem, 5vh, 3rem);
+  padding: clamp(2.5rem, 6vw, 3.5rem);
+  border-radius: 0.75rem;
+  background:
+    radial-gradient(120% 80% at 100% 0%, #c5d0e0 0%, transparent 55%),
+    linear-gradient(145deg, #1e2535 0%, #2a3348 100%);
+  color: #f1f4f8;
+  text-align: center;
+}
+
+.landing__close-brand {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.landing__close-line {
+  margin: 0 0 1.5rem;
+  font-size: 1.05rem;
+  opacity: 0.85;
+}
+
+.landing__close .landing__btn--primary {
+  background: #f8fafc;
+  color: var(--landing-ink);
+}
+
+.landing__foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0 1.25rem 2.5rem;
+  font-size: 0.8rem;
+  color: var(--landing-ink-soft);
+  letter-spacing: 0.04em;
+}
+
+.landing__foot-sep {
+  opacity: 0.5;
+}
+
+@media (max-width: 640px) {
+  .landing__spaces li {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+
+  .landing__hero-copy {
+    padding-bottom: 2.5rem;
+  }
+}
