@@ -66,14 +66,13 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-### Default seed accounts
+### Default seed account
 
 | Role | Email | Password |
 |------|--------|----------|
-| Admin | `admin@mindora.app` | `Admin@1234` |
-| Superadmin | `superadmin@mindora.app` | `SuperAdmin@1234` |
+| System admin | `admin@mindora.app` | `Admin@1234` |
 
-Override via `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` (and superadmin equivalents) if needed. **Change these in production.**
+Override via `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` if needed. **Change these in production** (Profile → Change password). There is only one system admin; members are created from the Users page with per-user module toggles.
 
 ## Environment variables
 

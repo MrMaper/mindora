@@ -10,7 +10,6 @@ export interface UserFilters {
   search: string;
   role: string;
   status: string;
-  teamId: string;
 }
 
 interface SearchFiltersProps {
@@ -18,7 +17,6 @@ interface SearchFiltersProps {
   filters: Partial<UserFilters>;
   roleOptions: { value: string; label: string }[];
   statusOptions: { value: string; label: string }[];
-  teamOptions: { value: string; label: string }[];
   onSearchChange: (value: string) => void;
   onSearchSubmit: (e: React.FormEvent) => void;
   onFiltersChange: (filter: Partial<UserFilters>) => void;
@@ -31,7 +29,6 @@ export function SearchFilters({
   filters,
   roleOptions,
   statusOptions,
-  teamOptions,
   onSearchChange,
   onSearchSubmit,
   onFiltersChange,
@@ -42,7 +39,7 @@ export function SearchFilters({
 
   return (
     <div className="mb-4 flex flex-wrap gap-2 justify-between items-end">
-      <div className="flex gap-2 items-center w-fit">
+      <div className="flex gap-2 items-center w-fit flex-wrap">
         <form
           onSubmit={onSearchSubmit}
           className="flex gap-1 w-full max-w-60 items-end"
@@ -83,26 +80,12 @@ export function SearchFilters({
           />
         </div>
 
-        <div className="w-40">
-          <Select
-            label={t.users.team}
-            value={filters.teamId}
-            onChange={value => onFiltersChange({ teamId: value })}
-            options={teamOptions}
-          />
-        </div>
+        {hasActiveFilters && (
+          <Button variant="ghost" size="sm" onClick={onClearFilters}>
+            {t.users.clearFilters}
+          </Button>
+        )}
       </div>
-
-      {hasActiveFilters && (
-        <Button
-          variant="ghost"
-          icon="x"
-          onClick={onClearFilters}
-          className="text-red-500! hover:bg-red-50 dark:hover:bg-red-950/20"
-        >
-          {t.users.clearFilters}
-        </Button>
-      )}
     </div>
   );
 }

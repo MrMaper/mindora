@@ -10,9 +10,14 @@ import {
   updateUser,
   toggleUserStatus,
   deleteUser,
+  resetUserPassword,
 } from "@/features/users/actions";
 import type { CreateUserInput, UpdateUserInput } from "@/schemas/users";
 import type { UserRow } from "@/features/users/types";
+import {
+  DEFAULT_MODULE_FLAGS,
+  type ModuleFlags,
+} from "@/lib/modules";
 
 type DrawerMode = "none" | "create" | "edit";
 
@@ -20,7 +25,6 @@ export interface UserFilters {
   search: string;
   role: string;
   status: string;
-  teamId: string;
   sort: string;
   order: string;
 }
@@ -35,7 +39,14 @@ export function useUsers(initialSearch: string) {
   const [createdPassword, setCreatedPassword] = React.useState<string | null>(
     null,
   );
+  const [resetPassword, setResetPassword] = React.useState<string | null>(null);
   const [isPending, startTransition] = React.useTransition();
+  const [createModules, setCreateModules] = React.useState<ModuleFlags>({
+    ...DEFAULT_MODULE_FLAGS,
+  });
+  const [editModules, setEditModules] = React.useState<ModuleFlags>({
+    ...DEFAULT_MODULE_FLAGS,
+  });
 
   const [search, setSearch] = React.useState(initialSearch);
 
@@ -43,14 +54,13 @@ export function useUsers(initialSearch: string) {
     search: initialSearch,
     role: "",
     status: "",
-    teamId: "",
     sort: "createdAt",
     order: "desc",
   });
 
   const createForm = useForm<CreateUserInput>({
     resolver: zodResolver(createUserSchema),
-    defaultValues: { name: "", email: "", role: "MEMBER" },
+    defaultValues: { name: "", email: "", role: "MEMBER", password: "" },
   });
 
   const editForm = useForm<UpdateUserInput>({
@@ -59,7 +69,8 @@ export function useUsers(initialSearch: string) {
   });
 
   function openCreate() {
-    createForm.reset({ name: "", email: "", role: "MEMBER" });
+    createForm.reset({ name: "", email: "", role: "MEMBER", password: "" });
+    setCreateModules({ ...DEFAULT_MODULE_FLAGS });
     setActionError(null);
     setCreatedPassword(null);
     setDrawerMode("create");
@@ -67,8 +78,10 @@ export function useUsers(initialSearch: string) {
 
   function openEdit(user: UserRow) {
     editForm.reset({ name: user.name, role: user.role });
+    setEditModules({ ...user.enabledModules });
     setEditingUser(user);
     setActionError(null);
+    setResetPassword(null);
     setDrawerMode("edit");
   }
 
@@ -77,6 +90,13 @@ export function useUsers(initialSearch: string) {
     setEditingUser(null);
     setActionError(null);
     setCreatedPassword(null);
+    setResetPassword(null);
+  }
+
+  function appendModules(fd: FormData, flags: ModuleFlags) {
+    for (const [k, v] of Object.entries(flags)) {
+      fd.append(`module_${k}`, v ? "true" : "false");
+    }
   }
 
   const onCreateSubmit = createForm.handleSubmit(data => {
@@ -85,7 +105,9 @@ export function useUsers(initialSearch: string) {
       const fd = new FormData();
       fd.append("name", data.name);
       fd.append("email", data.email);
-      fd.append("role", data.role);
+      fd.append("role", "MEMBER");
+      if (data.password) fd.append("password", data.password);
+      appendModules(fd, createModules);
       const result = await createUser(fd);
       if (!result.success) {
         setActionError(result.error ?? "Failed to create user.");
@@ -102,7 +124,8 @@ export function useUsers(initialSearch: string) {
     startTransition(async () => {
       const fd = new FormData();
       fd.append("name", data.name);
-      fd.append("role", data.role);
+      fd.append("role", editingUser.role === "ADMIN" ? "ADMIN" : "MEMBER");
+      if (editingUser.role !== "ADMIN") appendModules(fd, editModules);
       const result = await updateUser(editingUser.id, fd);
       if (!result.success) {
         setActionError(result.error ?? "Failed to update user.");
@@ -119,6 +142,18 @@ export function useUsers(initialSearch: string) {
       if (!result.success)
         setActionError(result.error ?? "Failed to update status.");
       else router.refresh();
+    });
+  }
+
+  function onResetPassword() {
+    if (!editingUser) return;
+    startTransition(async () => {
+      const result = await resetUserPassword(editingUser.id);
+      if (!result.success) {
+        setActionError(result.error ?? "Failed to reset password.");
+        return;
+      }
+      setResetPassword((result.data?.tempPassword as string) ?? null);
     });
   }
 
@@ -139,12 +174,11 @@ export function useUsers(initialSearch: string) {
   }
 
   function applyFilters(next: Partial<UserFilters>) {
-    const merged = { search, ...next };
+    const merged = { ...filters, search, ...next };
     const params = new URLSearchParams();
-    if (merged.search) params.set("search", search);
+    if (merged.search) params.set("search", merged.search);
     if (merged.role) params.set("role", merged.role);
     if (merged.status) params.set("status", merged.status);
-    if (merged.teamId) params.set("teamId", merged.teamId);
     if (merged.sort) params.set("sort", merged.sort);
     if (merged.order) params.set("order", merged.order);
     params.set("page", "1");
@@ -158,21 +192,17 @@ export function useUsers(initialSearch: string) {
     if (newFilters.search) params.set("search", newFilters.search);
     if (newFilters.role) params.set("role", newFilters.role);
     if (newFilters.status) params.set("status", newFilters.status);
-    if (newFilters.teamId) params.set("teamId", newFilters.teamId);
     params.set("page", "1");
     router.push(`/users?${params.toString()}`);
   }
 
   function onClearFilters() {
-    const params = new URLSearchParams();
-    params.set("page", "1");
-    router.push(`/users?${params.toString()}`);
+    router.push(`/users?page=1`);
     setSearch("");
     setFilters({
       search: "",
       role: "",
       status: "",
-      teamId: "",
       sort: "createdAt",
       order: "desc",
     });
@@ -186,19 +216,24 @@ export function useUsers(initialSearch: string) {
     actionError,
     setActionError,
     createdPassword,
+    resetPassword,
     isPending,
     search,
     setSearch,
     filters,
-    setFilters,
     createForm,
     editForm,
+    createModules,
+    setCreateModules,
+    editModules,
+    setEditModules,
     openCreate,
     openEdit,
     closeDrawer,
     onCreateSubmit,
     onEditSubmit,
     onToggleStatus,
+    onResetPassword,
     onDeleteConfirm,
     onSearchSubmit,
     applyFilters,

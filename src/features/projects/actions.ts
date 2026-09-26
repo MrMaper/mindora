@@ -10,7 +10,7 @@ import {
   archiveProjectSchema,
   deleteProjectSchema,
 } from "@/schemas/projects";
-import { AREA_PROJECT_IDS } from "@/lib/life";
+import { personalAreaProjectId } from "@/lib/area-projects";
 import { isAreaBucketId } from "@/lib/project-namespace";
 import { ensurePersonalWorkspace } from "@/features/life/workspace";
 import type { LifeArea } from "@/types/db";
@@ -63,8 +63,7 @@ export async function createProject(formData: FormData): Promise<ActionResult> {
   const { name, description, teamId, area } = parsed.data;
 
   // Never create a project with a reserved area-bucket id
-  const reserved = new Set<string>(Object.values(AREA_PROJECT_IDS));
-  if (reserved.has(name) || isAreaBucketId(name)) {
+  if (isAreaBucketId(name)) {
     return { success: false, error: "Invalid project name" };
   }
 
@@ -107,7 +106,7 @@ export async function updateAreaBucket(formData: FormData): Promise<ActionResult
   }
 
   const { area, name, description } = parsed.data;
-  const bucketId = AREA_PROJECT_IDS[area as LifeArea];
+  const bucketId = personalAreaProjectId(session.user.id, area as LifeArea);
 
   await ensurePersonalWorkspace(session.user.id);
 

@@ -1,3 +1,4 @@
+import { requireModule } from "@/lib/require-role";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -10,7 +11,7 @@ import {
   ensurePersonalWorkspaceCached,
   getUserPreferencesCached,
 } from "@/lib/request-cache";
-import { AREA_PROJECT_IDS } from "@/lib/life";
+import { personalAreaProjectId } from "@/lib/life";
 import { RESEARCH_BOARD_STATUSES } from "@/features/kanban/types";
 import {
   getResearchHubData,
@@ -25,9 +26,10 @@ export const metadata: Metadata = { title: "پژوهش" };
 
 export default async function ResearchPage({
   searchParams,
-}: {
+}:  {
   searchParams: Promise<{ project?: string }>;
 }) {
+  await requireModule("research");
   const session = await auth();
   if (!session?.user) redirect("/login");
   await ensurePersonalWorkspaceCached(session.user.id);
@@ -64,11 +66,13 @@ export default async function ResearchPage({
     safeScope,
   );
 
+  const phdInbox = personalAreaProjectId(session.user.id, "PHD");
+
   const filterProject =
     safeScope === "all"
       ? ""
       : safeScope === "inbox"
-        ? AREA_PROJECT_IDS.PHD
+        ? phdInbox
         : safeScope;
 
   const [columns, users, labels, hub] = await Promise.all([
@@ -87,7 +91,7 @@ export default async function ResearchPage({
 
   const kanbanProjects = [
     {
-      id: AREA_PROJECT_IDS.PHD,
+      id: phdInbox,
       name: t.life.researchProjectInbox,
       description: null,
       status: "ACTIVE" as const,

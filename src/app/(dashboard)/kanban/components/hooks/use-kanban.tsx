@@ -24,7 +24,8 @@ import type { BoardColumns, BoardStatus } from "@/features/kanban/types";
 import type { CreateTaskInput, UpdateTaskInput } from "@/schemas/tasks";
 import type { TaskRow, TaskDetail } from "@/features/tasks/types";
 import type { LifeArea } from "@/types/db";
-import { AREA_PROJECT_IDS, coerceLifeArea } from "@/lib/life";
+import { coerceLifeArea } from "@/lib/life";
+import { useAreaBuckets } from "@/components/area-buckets-provider";
 
 interface KanbanFilters {
   search: string;
@@ -56,6 +57,7 @@ export function useKanban(
   },
 ) {
   const router = useRouter();
+  const areaIds = useAreaBuckets();
   const basePath = options?.basePath ?? "/kanban";
   const urlProjectParam = options?.urlProjectParam;
   const boardStatuses = options?.statuses ?? BOARD_STATUSES;
@@ -235,7 +237,7 @@ export function useKanban(
     const projectId =
       defaults.projectId ??
       createDefaults.projectId ??
-      AREA_PROJECT_IDS[area];
+      areaIds[area];
     const status = defaults.status ?? createDefaults.status ?? "BACKLOG";
     setCreateDefaults({ projectId, area, status });
     createForm.reset({
@@ -286,7 +288,7 @@ export function useKanban(
       fd.append("type", "TASK");
       fd.append(
         "projectId",
-        data.projectId || AREA_PROJECT_IDS[coerceLifeArea(data.area)],
+        data.projectId || areaIds[coerceLifeArea(data.area)],
       );
       fd.append("assignedToId", data.assignedToId ?? "");
       fd.append("dueDate", data.dueDate ?? "");

@@ -1,29 +1,8 @@
-import type { Metadata } from "next";
-import { requireAdmin } from "@/lib/require-role";
-import { getTeams } from "@/features/teams/queries";
-import { getUserPreferences } from "@/features/settings/queries";
-import { TeamsCC } from "./components/client";
+import { redirect } from "next/navigation";
+import { getSessionCached } from "@/lib/request-cache";
 
-export const metadata: Metadata = { title: "Teams" };
-
-export default async function TeamsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ search?: string; status?: string; page?: string }>;
-}) {
-  const session = await requireAdmin();
-  const { search = "", status = "", page = "1" } = await searchParams;
-  const data = await getTeams(search, status, Math.max(1, Number(page)));
-
-  const preferences = await getUserPreferences(session.user.id);
-  const language = preferences?.language ?? "FA";
-
-  return (
-    <TeamsCC
-      initialData={data}
-      search={search}
-      page={Math.max(1, Number(page))}
-      language={language}
-    />
-  );
+/** Teams are retired in the person-centric model. */
+export default async function TeamsRedirectPage() {
+  const session = await getSessionCached();
+  redirect(session?.user?.role === "ADMIN" ? "/users" : "/dashboard");
 }

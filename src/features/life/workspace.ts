@@ -1,18 +1,33 @@
 import { prisma as db } from "@/lib/db";
-import { AREA_META, AREA_PROJECT_IDS, LIFE_AREAS } from "@/lib/life";
+import { AREA_META, LIFE_AREAS } from "@/lib/life";
+import {
+  personalAreaProjectId,
+  areaProjectIdsForUser,
+} from "@/lib/area-projects";
 import type { LifeArea } from "@/types/db";
 
+/**
+ * Ensure the member has a private workspace: one personal team + four area
+ * bucket projects that only this user owns. No shared area-* buckets.
+ */
 export async function ensurePersonalWorkspace(userId: string) {
+  const teamId = `personal-${userId}`;
+
   const existing = await db.teamMember.findUnique({
-    where: { teamId_userId: { teamId: "personal-life", userId } },
+    where: { teamId_userId: { teamId, userId } },
     select: { teamId: true },
   });
-  if (existing) return { teamId: existing.teamId };
+
+  if (existing) {
+    // Still ensure all area buckets exist (idempotent).
+    await ensureAreaBuckets(userId, teamId);
+    return { teamId, areaIds: areaProjectIdsForUser(userId) };
+  }
 
   const org =
     (await db.organization.findFirst()) ??
     (await db.organization.create({
-      data: { id: "default-org", name: "زندگی من", ownerId: userId },
+      data: { id: "default-org", name: "Mindora", ownerId: userId },
     }));
 
   const role = await db.role.upsert({
@@ -21,25 +36,30 @@ export async function ensurePersonalWorkspace(userId: string) {
     update: {},
   });
 
-  const team = await db.team.upsert({
-    where: { id: "personal-life" },
+  await db.team.upsert({
+    where: { id: teamId },
     create: {
-      id: "personal-life",
-      name: "زندگی من",
-      description: "فضای شخصی",
+      id: teamId,
+      name: "فضای شخصی",
+      description: "Workspace خصوصی کاربر",
       organizationId: org.id,
     },
     update: {},
   });
 
   await db.teamMember.upsert({
-    where: { teamId_userId: { teamId: team.id, userId } },
-    create: { teamId: team.id, userId, roleId: role.id },
+    where: { teamId_userId: { teamId, userId } },
+    create: { teamId, userId, roleId: role.id },
     update: {},
   });
 
+  await ensureAreaBuckets(userId, teamId);
+  return { teamId, areaIds: areaProjectIdsForUser(userId) };
+}
+
+async function ensureAreaBuckets(userId: string, teamId: string) {
   for (const area of LIFE_AREAS) {
-    const id = AREA_PROJECT_IDS[area];
+    const id = personalAreaProjectId(userId, area);
     const meta = AREA_META[area];
     await db.project.upsert({
       where: { id },
@@ -49,23 +69,19 @@ export async function ensurePersonalWorkspace(userId: string) {
         description: meta.descriptionFa,
         status: "ACTIVE",
         area,
-        teamId: team.id,
+        teamId,
         members: { create: { userId, role: "OWNER" } },
       },
-      // Do not overwrite name/description — users edit those on /projects
-      update: { area, teamId: team.id },
+      update: { area, teamId },
     });
-
     await db.projectMember.upsert({
       where: { projectId_userId: { projectId: id, userId } },
       create: { projectId: id, userId, role: "OWNER" },
       update: {},
     });
   }
-
-  return { teamId: team.id };
 }
 
-export function projectIdForArea(area: LifeArea): string {
-  return AREA_PROJECT_IDS[area];
+export function projectIdForArea(userId: string, area: LifeArea): string {
+  return personalAreaProjectId(userId, area);
 }

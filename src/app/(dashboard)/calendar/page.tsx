@@ -1,3 +1,4 @@
+import { requireModule } from "@/lib/require-role";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
@@ -16,6 +17,7 @@ import { CalendarCC } from "./calendar-cc";
 export const metadata: Metadata = { title: "تقویم" };
 
 export default async function CalendarPage() {
+  await requireModule("calendar");
   const session = await auth();
   if (!session?.user) redirect("/login");
   await ensurePersonalWorkspaceCached(session.user.id);

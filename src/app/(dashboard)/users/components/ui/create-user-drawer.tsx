@@ -4,18 +4,21 @@ import * as React from "react";
 import { Controller } from "react-hook-form";
 import { Button } from "@/components/ui-kit/forms/button";
 import { Input } from "@/components/ui-kit/forms/input";
-import { Select } from "@/components/ui-kit/forms/select";
 import { Drawer } from "@/components/ui-kit/overlays/drawer";
 import type { Translations } from "@/i18n";
-import type { CreateUserInput, UpdateUserInput } from "@/schemas/users";
+import type { CreateUserInput } from "@/schemas/users";
 import type { UseFormReturn } from "react-hook-form";
+import type { ModuleFlags } from "@/lib/modules";
+import { ModuleToggles } from "./module-toggles";
 
 interface CreateUserDrawerProps {
   open: boolean;
   onClose: () => void;
   t: Translations;
-  teams: { id: string; name: string }[];
+  language: "FA" | "EN";
   createForm: UseFormReturn<CreateUserInput>;
+  modules: ModuleFlags;
+  onModulesChange: (next: ModuleFlags) => void;
   actionError: string | null;
   isPending: boolean;
   createdPassword: string | null;
@@ -26,31 +29,51 @@ export function CreateUserDrawer({
   open,
   onClose,
   t,
-  teams,
+  language,
   createForm,
+  modules,
+  onModulesChange,
   actionError,
   isPending,
   createdPassword,
   onCreateSubmit,
 }: CreateUserDrawerProps) {
   return (
-    <Drawer open={open} onClose={onClose} header={<span className="text-sm font-semibold text-foreground">{t.users.createUser}</span>} footer={
-      <div className="flex gap-2 ml-auto">
-        <Button variant="ghost" onClick={onClose} disabled={isPending}>
-          {t.common.cancel}
-        </Button>
-        <Button variant="primary" loading={isPending} onClick={onCreateSubmit}>
+    <Drawer
+      open={open}
+      onClose={onClose}
+      header={
+        <span className="text-sm font-semibold text-foreground">
           {t.users.createUser}
-        </Button>
-      </div>
-    }>
+        </span>
+      }
+      footer={
+        createdPassword ? (
+          <Button variant="primary" onClick={onClose}>
+            {t.users.done}
+          </Button>
+        ) : (
+          <div className="flex gap-2 ml-auto">
+            <Button variant="ghost" onClick={onClose} disabled={isPending}>
+              {t.common.cancel}
+            </Button>
+            <Button variant="primary" loading={isPending} onClick={onCreateSubmit}>
+              {t.users.createUser}
+            </Button>
+          </div>
+        )
+      }
+    >
       <div className="p-4 flex flex-col gap-4">
         {createdPassword ? (
-          <CreatedPasswordView t={t} createdPassword={createdPassword} onDone={onClose} />
+          <CreatedPasswordView t={t} createdPassword={createdPassword} />
         ) : (
           <>
             {actionError && (
-              <div className="flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg" role="alert">
+              <div
+                className="flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg"
+                role="alert"
+              >
                 {actionError}
               </div>
             )}
@@ -74,40 +97,37 @@ export function CreateUserDrawer({
                   {...field}
                   label={t.users.email}
                   type="email"
-                  placeholder="jane@company.com"
+                  placeholder="user@example.com"
                   error={fieldState.error?.message}
                 />
               )}
             />
             <Controller
-              name="role"
+              name="password"
               control={createForm.control}
               render={({ field, fieldState }) => (
-                <Select
+                <Input
                   {...field}
-                  label={t.users.role}
-                  options={[
-                    { value: "MEMBER", label: t.users.member },
-                    { value: "ADMIN", label: t.users.admin },
-                  ]}
+                  value={field.value ?? ""}
+                  label={
+                    language === "FA"
+                      ? "رمز موقت (اختیاری)"
+                      : "Temp password (optional)"
+                  }
+                  type="text"
+                  placeholder={
+                    language === "FA"
+                      ? "خالی = تولید خودکار"
+                      : "Empty = auto-generate"
+                  }
                   error={fieldState.error?.message}
                 />
               )}
             />
-            <Controller
-              name="teamId"
-              control={createForm.control}
-              render={({ field, fieldState }) => (
-                <Select
-                  {...field}
-                  label={t.users.team}
-                  options={[
-                    { value: "", label: t.users.noTeam },
-                    ...teams.map((tm) => ({ value: tm.id, label: tm.name })),
-                  ]}
-                  error={fieldState.error?.message}
-                />
-              )}
+            <ModuleToggles
+              value={modules}
+              onChange={onModulesChange}
+              language={language}
             />
           </>
         )}
@@ -119,25 +139,20 @@ export function CreateUserDrawer({
 function CreatedPasswordView({
   t,
   createdPassword,
-  onDone,
 }: {
   t: Translations;
   createdPassword: string;
-  onDone: () => void;
 }) {
   return (
-    <div>
-      <div className="mb-4 flex items-center gap-2 p-3 text-sm text-success bg-success/10 border border-success/20 rounded-lg" role="status">
-        {t.users.userCreated}
+    <div className="flex flex-col gap-3">
+      <p className="text-sm text-foreground">{t.users.userCreated}</p>
+      <div className="rounded-lg border bg-muted/40 px-3 py-2">
+        <p className="text-xs text-muted-foreground">{t.users.temporaryPassword}</p>
+        <p className="mt-1 font-mono text-sm font-semibold select-all">
+          {createdPassword}
+        </p>
       </div>
-      <div className="bg-muted border border-border rounded-md p-3">
-        <div className="mb-1 text-xs text-muted-foreground">{t.users.temporaryPassword}</div>
-        <code className="font-mono text-sm text-foreground font-semibold">{createdPassword}</code>
-        <p className="mt-2 text-xs text-muted-foreground">{t.users.sharePassword}</p>
-        <Button variant="secondary" className="mt-4" onClick={onDone}>
-          {t.users.done}
-        </Button>
-      </div>
+      <p className="text-xs text-muted-foreground">{t.users.sharePassword}</p>
     </div>
   );
 }

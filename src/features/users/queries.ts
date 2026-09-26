@@ -1,20 +1,43 @@
 import { prisma as db } from "@/lib/db";
+import { parseModuleFlags } from "@/lib/modules";
 import type { GetUsersResult, UserRow } from "./types";
 
 const PAGE_SIZE = 15;
+
+function mapUser(u: {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string | null;
+  role: UserRow["role"];
+  status: UserRow["status"];
+  createdAt: Date;
+  enabledModules: unknown;
+}): UserRow {
+  return {
+    id: u.id,
+    name: u.name,
+    email: u.email,
+    avatar: u.avatar,
+    role: u.role,
+    status: u.status,
+    createdAt: u.createdAt,
+    enabledModules: parseModuleFlags(u.enabledModules),
+  };
+}
 
 export async function getUsers(
   search = "",
   page = 1,
   role = "",
   status = "",
-  teamId = "",
+  _teamId = "",
   sort = "createdAt",
   order = "desc",
 ): Promise<GetUsersResult> {
   const skip = (page - 1) * PAGE_SIZE;
 
-  const where: Record<string, any> = {};
+  const where: Record<string, unknown> = {};
 
   if (search) {
     where.OR = [
@@ -23,21 +46,8 @@ export async function getUsers(
     ];
   }
 
-  if (role) {
-    where.role = role;
-  }
-
-  if (status) {
-    where.status = status;
-  }
-
-  if (teamId) {
-    where.teamMembers = {
-      some: {
-        teamId: teamId,
-      },
-    };
-  }
+  if (role) where.role = role;
+  if (status) where.status = status;
 
   const orderBy: Record<string, "asc" | "desc"> = {};
   const validSortFields = ["createdAt", "name", "email", "role", "status"];
@@ -55,11 +65,7 @@ export async function getUsers(
         role: true,
         status: true,
         createdAt: true,
-        teamMembers: {
-          select: {
-            team: { select: { id: true, name: true } },
-          },
-        },
+        enabledModules: true,
       },
       orderBy,
       skip,
@@ -69,17 +75,7 @@ export async function getUsers(
   ]);
 
   return {
-    users: users.map(u => ({
-      id: u.id,
-      name: u.name,
-      email: u.email,
-      avatar: u.avatar,
-      role: u.role,
-      status: u.status,
-      createdAt: u.createdAt,
-      teamId: u.teamMembers[0]?.team.id ?? null,
-      teamName: u.teamMembers[0]?.team.name ?? null,
-    })) as UserRow[],
+    users: users.map(mapUser),
     total,
     page,
     totalPages: Math.max(1, Math.ceil(total / PAGE_SIZE)),
@@ -88,7 +84,7 @@ export async function getUsers(
 
 export async function getAllActiveUsers(): Promise<UserRow[]> {
   const users = await db.user.findMany({
-    where: { status: "ACTIVE" },
+    where: { status: "ACTIVE", role: "MEMBER" },
     select: {
       id: true,
       name: true,
@@ -97,25 +93,11 @@ export async function getAllActiveUsers(): Promise<UserRow[]> {
       role: true,
       status: true,
       createdAt: true,
-      teamMembers: {
-        select: {
-          team: { select: { id: true, name: true } },
-        },
-      },
+      enabledModules: true,
     },
     orderBy: { name: "asc" },
   });
-  return users.map(u => ({
-    id: u.id,
-    name: u.name,
-    email: u.email,
-    avatar: u.avatar,
-    role: u.role,
-    status: u.status,
-    createdAt: u.createdAt,
-    teamId: u.teamMembers[0]?.team.id ?? null,
-    teamName: u.teamMembers[0]?.team.name ?? null,
-  })) as UserRow[];
+  return users.map(mapUser);
 }
 
 export async function getUserById(id: string): Promise<UserRow | null> {
@@ -129,23 +111,9 @@ export async function getUserById(id: string): Promise<UserRow | null> {
       role: true,
       status: true,
       createdAt: true,
-      teamMembers: {
-        select: {
-          team: { select: { id: true, name: true } },
-        },
-      },
+      enabledModules: true,
     },
   });
   if (!user) return null;
-  return {
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    avatar: user.avatar,
-    role: user.role,
-    status: user.status,
-    createdAt: user.createdAt,
-    teamId: user.teamMembers[0]?.team.id ?? null,
-    teamName: user.teamMembers[0]?.team.name ?? null,
-  } as UserRow;
+  return mapUser(user);
 }

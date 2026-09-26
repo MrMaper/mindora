@@ -1,3 +1,4 @@
+import { requireModule } from "@/lib/require-role";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
@@ -15,6 +16,7 @@ import { ReviewCC } from "./review-cc";
 export const metadata: Metadata = { title: "بازبینی هفته" };
 
 export default async function ReviewPage() {
+  await requireModule("review");
   const session = await auth();
   if (!session?.user) redirect("/login");
   await ensurePersonalWorkspaceCached(session.user.id);

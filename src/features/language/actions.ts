@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma as db } from "@/lib/db";
-import { AREA_PROJECT_IDS } from "@/lib/life";
+import { isUserAreaBucket } from "@/lib/life";
 import type { LangSkill } from "@/types/db";
 import { Prisma } from "../../../prisma/generated/client";
 import { createDoc } from "@/features/docs/actions";
@@ -44,7 +44,7 @@ async function assertLangProjectMember(
   projectId: string,
   userId: string,
 ): Promise<boolean> {
-  if (projectId === AREA_PROJECT_IDS.LANG) return true;
+  if (isUserAreaBucket(projectId, userId, "LANG")) return true;
   const row = await db.projectMember.findFirst({
     where: {
       projectId,
@@ -118,8 +118,9 @@ export async function logLangSessionAction(input: {
       session.user.id,
     );
     if (!ok) return { success: false, error: "مسیر زبان پیدا نشد" };
-    projectId =
-      input.projectId === AREA_PROJECT_IDS.LANG ? null : input.projectId;
+    projectId = isUserAreaBucket(input.projectId, session.user.id, "LANG")
+      ? null
+      : input.projectId;
   }
 
   const practicedAt = input.practicedAt
@@ -240,7 +241,7 @@ export async function createLangDocAction(input?: {
   if (projectId) {
     const ok = await assertLangProjectMember(projectId, session.user.id);
     if (!ok) return { success: false, error: "مسیر زبان پیدا نشد" };
-    if (projectId === AREA_PROJECT_IDS.LANG) projectId = null;
+    if (isUserAreaBucket(projectId, session.user.id, "LANG")) projectId = null;
   }
 
   const result = await createDoc({
@@ -261,7 +262,7 @@ async function resolveLangProjectId(
   userId: string,
 ): Promise<{ ok: true; projectId: string | null | undefined } | { ok: false; error: string }> {
   if (projectId === undefined) return { ok: true, projectId: undefined };
-  if (projectId === null || projectId === AREA_PROJECT_IDS.LANG) {
+  if (projectId === null || isUserAreaBucket(projectId, userId, "LANG")) {
     return { ok: true, projectId: null };
   }
   const ok = await assertLangProjectMember(projectId, userId);
@@ -991,8 +992,9 @@ export async function createListeningClipAction(input: {
       session.user.id,
     );
     if (!ok) return { success: false, error: "مسیر زبان پیدا نشد" };
-    projectId =
-      input.projectId === AREA_PROJECT_IDS.LANG ? null : input.projectId;
+    projectId = isUserAreaBucket(input.projectId, session.user.id, "LANG")
+      ? null
+      : input.projectId;
   }
 
   const row = await db.langListeningClip.create({
@@ -1026,8 +1028,9 @@ export async function installListeningStartersAction(input?: {
       session.user.id,
     );
     if (!ok) return { success: false, error: "مسیر زبان پیدا نشد" };
-    projectId =
-      input.projectId === AREA_PROJECT_IDS.LANG ? null : input.projectId;
+    projectId = isUserAreaBucket(input.projectId, session.user.id, "LANG")
+      ? null
+      : input.projectId;
   }
 
   const existing = await db.langListeningClip.findMany({

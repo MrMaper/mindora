@@ -52,7 +52,7 @@ export async function quickCapture(input: {
 
   const { teamId } = await ensurePersonalWorkspace(session.user.id);
   const area = input.area ?? "LIFE";
-  const projectId = projectIdForArea(area);
+  const projectId = projectIdForArea(session.user.id, area);
 
   const recurrence = input.recurrence ?? "NONE";
   await db.task.create({

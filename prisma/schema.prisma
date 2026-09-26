@@ -15,6 +15,9 @@ model User {
   avatar              String?
   role                UserRole             @default(MEMBER)
   status              UserStatus           @default(ACTIVE)
+  /// Toggleable product modules for MEMBER accounts (ADMIN ignores; management-only).
+  /// Shape: { tasks, docs, research, language, habits, projects, workLogs, reporting }
+  enabledModules      Json                 @default("{}")
   baleUserId          String?              @unique
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt

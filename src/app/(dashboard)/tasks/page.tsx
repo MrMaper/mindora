@@ -1,3 +1,4 @@
+import { requireModule } from "@/lib/require-role";
 import type { Metadata } from "next";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
@@ -25,9 +26,10 @@ interface TasksSearchParams {
 
 export default async function TasksPage({
   searchParams,
-}: {
+}:  {
   searchParams: Promise<TasksSearchParams>;
 }) {
+  await requireModule("tasks");
   const session = await auth();
   if (!session?.user) redirect("/login");
 

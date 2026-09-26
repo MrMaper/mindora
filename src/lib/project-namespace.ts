@@ -1,19 +1,14 @@
 import type { LifeArea } from "@/types/db";
-import { AREA_META, AREA_PROJECT_IDS } from "@/lib/life";
+import { AREA_META } from "@/lib/life";
+import {
+  isAreaBucketId,
+  allLegacyBucketIds,
+  personalAreaProjectId,
+  lifeAreaFromBucketId,
+} from "@/lib/area-projects";
 
-/** How a Project row is used in the product. */
 export type ProjectKind = "bucket" | "path" | "workspace";
 
-/**
- * Which projects a surface may list / assign.
- *
- * - workspace: named WORK/LIFE projects only → `/projects` admin list
- * - life: 4 area buckets + named WORK/LIFE → calendar / general board pickers
- * - research: area-phd + PHD paths → research hub
- * - language: area-lang + LANG paths → language hub
- * - assignable: life + research paths + language paths → `/tasks` create/edit
- * - all: no filter
- */
 export type ProjectListScope =
   | "workspace"
   | "life"
@@ -25,11 +20,7 @@ export type ProjectListScope =
 export const HUB_AREAS: LifeArea[] = ["PHD", "LANG"];
 export const WORKSPACE_AREAS: LifeArea[] = ["WORK", "LIFE"];
 
-const BUCKET_IDS = new Set<string>(Object.values(AREA_PROJECT_IDS));
-
-export function isAreaBucketId(id: string | null | undefined): boolean {
-  return !!id && BUCKET_IDS.has(id);
-}
+export { isAreaBucketId, personalAreaProjectId, lifeAreaFromBucketId };
 
 export function projectKind(project: {
   id: string;
@@ -45,11 +36,6 @@ export function isHubArea(area: LifeArea | string | null | undefined): boolean {
   return area === "PHD" || area === "LANG";
 }
 
-/**
- * Display label for pickers.
- * Area buckets use the stored `project.name` (editable on /projects);
- * falls back to AREA_META only when name is missing/blank.
- */
 export function projectPickerLabel(
   project: { id: string; name: string; area?: LifeArea | string | null },
   language: "FA" | "EN" = "FA",
@@ -64,7 +50,7 @@ export function projectPickerLabel(
   return project.name;
 }
 
-/** Prisma `where` fragment: projects visible for a list scope. */
+/** Prisma `where` fragment: projects visible for a list scope (membership applied by caller). */
 export function projectWhereForScope(
   scope: ProjectListScope,
 ): Record<string, unknown> {
@@ -78,23 +64,31 @@ export function projectWhereForScope(
     return { area: "LANG" };
   }
 
+  const legacy = allLegacyBucketIds();
+
   if (scope === "workspace") {
     return {
       area: { in: WORKSPACE_AREAS },
-      id: { notIn: [...BUCKET_IDS] },
+      AND: [
+        { id: { notIn: legacy } },
+        { NOT: { id: { startsWith: "area-work-" } } },
+        { NOT: { id: { startsWith: "area-life-" } } },
+        { NOT: { id: { startsWith: "area-phd-" } } },
+        { NOT: { id: { startsWith: "area-lang-" } } },
+      ],
     };
   }
 
   if (scope === "life") {
     return {
       OR: [
-        { id: { in: [...BUCKET_IDS] } },
-        { area: { in: WORKSPACE_AREAS }, id: { notIn: [...BUCKET_IDS] } },
+        { id: { in: legacy } },
+        { id: { startsWith: "area-" } },
+        { area: { in: WORKSPACE_AREAS } },
       ],
     };
   }
 
-  // assignable: everything the user can put a task on
   if (scope === "assignable") {
     return {};
   }
@@ -102,10 +96,6 @@ export function projectWhereForScope(
   return {};
 }
 
-/**
- * Tasks that belong on general board / calendar / dashboard
- * (hide research + language hub work — those live in their hubs).
- */
 export function taskWhereExcludeHub(): Record<string, unknown> {
   return {
     NOT: {
@@ -117,7 +107,6 @@ export function taskWhereExcludeHub(): Record<string, unknown> {
   };
 }
 
-/** Ensure the task's current project stays selectable when editing. */
 export function withCurrentProjectOption(
   options: { value: string; label: string }[],
   current?: { id: string; name: string } | null,

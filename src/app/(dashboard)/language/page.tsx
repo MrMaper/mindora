@@ -1,3 +1,4 @@
+import { requireModule } from "@/lib/require-role";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
@@ -37,9 +38,10 @@ function parseTab(raw: string | undefined): LanguageTab {
 
 export default async function LanguagePage({
   searchParams,
-}: {
+}:  {
   searchParams: Promise<{ project?: string; tab?: string }>;
 }) {
+  await requireModule("language");
   const session = await auth();
   if (!session?.user) redirect("/login");
   await ensurePersonalWorkspaceCached(session.user.id);

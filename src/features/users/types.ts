@@ -1,4 +1,5 @@
 import type { UserRole, UserStatus } from "@/types/db";
+import type { ModuleFlags } from "@/lib/modules";
 
 export interface UserRow {
   id: string;
@@ -8,8 +9,7 @@ export interface UserRow {
   role: UserRole;
   status: UserStatus;
   createdAt: Date;
-  teamId: string | null;
-  teamName: string | null;
+  enabledModules: ModuleFlags;
 }
 
 export interface GetUsersResult {

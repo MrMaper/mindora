@@ -11,6 +11,7 @@ import {
   getSessionCached,
   getUserPreferencesCached,
 } from "@/lib/request-cache";
+import { requireModule } from "@/lib/require-role";
 import { DashboardCC } from "./dashboard-cc";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -23,8 +24,10 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function DashboardPage() {
   const session = await getSessionCached();
   if (!session?.user) redirect("/login");
+  if (session.user.role === "ADMIN") redirect("/users");
 
-  // Once per request tree (not every sidebar click): bootstrap + daily reminders
+  const { flags } = await requireModule("dashboard");
+
   await ensurePersonalWorkspaceCached(session.user.id);
   await ensureDailyRemindersCached(session.user.id);
 
@@ -33,7 +36,9 @@ export default async function DashboardPage() {
     getAllActiveUsers(),
     getLabels(),
     getUserProjects(session.user.id, "life"),
-    listHabitsAction(),
+    flags.habits
+      ? listHabitsAction()
+      : Promise.resolve([] as Awaited<ReturnType<typeof listHabitsAction>>),
     getUserPreferencesCached(session.user.id),
   ]);
 
@@ -53,7 +58,7 @@ export default async function DashboardPage() {
       doneThisWeek={data.doneThisWeek}
       todayKey={data.todayKey}
       attention={data.attention}
-      habits={habits}
+      habits={flags.habits ? habits : []}
       showOnboarding={!prefs?.onboardingCompletedAt}
       users={users}
       labels={labels}

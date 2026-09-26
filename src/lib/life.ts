@@ -1,12 +1,16 @@
 import type { LifeArea, RecurrenceInterval } from "@/types/db";
 import { toJalaali, toGregorian, jalaaliMonthLength } from "jalaali-js";
 
-export const AREA_PROJECT_IDS = {
-  PHD: "area-phd",
-  WORK: "area-work",
-  LIFE: "area-life",
-  LANG: "area-lang",
-} as const;
+export {
+  AREA_PROJECT_IDS,
+  LEGACY_AREA_PROJECT_IDS,
+  personalAreaProjectId,
+  areaProjectIdsForUser,
+  isAreaBucketId,
+  isUserAreaBucket,
+  areaBucketIdsToExclude,
+  lifeAreaFromBucketId,
+} from "@/lib/area-projects";
 
 export const LIFE_AREAS: LifeArea[] = ["PHD", "WORK", "LIFE", "LANG"];
 

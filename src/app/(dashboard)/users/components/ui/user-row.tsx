@@ -25,11 +25,11 @@ export function UserRow({
   const t = useTranslation();
 
   return (
-    <div className="grid grid-cols-[1fr_120px_100px_120px_40px] gap-3 px-4 h-(--row-height) items-center border-b border-border-muted">
+    <div className="grid grid-cols-[1fr_100px_90px_1fr_40px] gap-3 px-4 h-(--row-height) items-center border-b border-border-muted">
       <UserIdentity user={user} />
       <UserRoleBadge role={user.role} t={t} />
       <UserStatusBadge status={user.status} t={t} />
-      <UserTeam teamName={user.teamName} t={t} />
+      <UserModules user={user} />
       <UserActions
         user={user}
         t={t}
@@ -85,22 +85,25 @@ function UserStatusBadge({
   );
 }
 
-function UserTeam({
-  teamName,
-  t,
-}: {
-  teamName: string | null;
-  t: Translations;
-}) {
+function UserModules({ user }: { user: UserRow }) {
+  if (user.role === "ADMIN") {
+    return (
+      <span className="text-xs text-muted-foreground truncate">مدیریت</span>
+    );
+  }
+  const on = Object.entries(user.enabledModules)
+    .filter(([, v]) => v)
+    .map(([k]) => k);
+  const label =
+    on.length === 0
+      ? "—"
+      : on.length <= 3
+        ? on.join("، ")
+        : `${on.length} ماژول`;
   return (
-    <div
-      className="text-sm"
-      style={{
-        color: teamName ? "var(--text-secondary)" : "var(--text-tertiary)",
-      }}
-    >
-      {teamName ?? t.users.noTeam}
-    </div>
+    <span className="text-xs text-muted-foreground truncate" title={on.join(", ")}>
+      {label}
+    </span>
   );
 }
 
@@ -117,6 +120,28 @@ function UserActions({
   onToggleStatus: (user: UserRow) => void;
   onDelete: (user: UserRow) => void;
 }) {
+  const isAdmin = user.role === "ADMIN";
+  const items = [
+    { label: t.common.edit, icon: "pencil" as const, onClick: () => onEdit(user) },
+    ...(isAdmin
+      ? []
+      : [
+          {
+            label:
+              user.status === "ACTIVE" ? t.users.deactivate : t.users.activate,
+            icon: (user.status === "ACTIVE" ? "x" : "check") as "x" | "check",
+            onClick: () => onToggleStatus(user),
+          },
+          { divider: true as const },
+          {
+            label: t.common.delete,
+            icon: "trash" as const,
+            danger: true as const,
+            onClick: () => onDelete(user),
+          },
+        ]),
+  ];
+
   return (
     <Menu
       trigger={
@@ -127,22 +152,7 @@ function UserActions({
         />
       }
       align="end"
-      items={[
-        { label: t.common.edit, icon: "pencil", onClick: () => onEdit(user) },
-        {
-          label:
-            user.status === "ACTIVE" ? t.users.deactivate : t.users.activate,
-          icon: user.status === "ACTIVE" ? "x" : "check",
-          onClick: () => onToggleStatus(user),
-        },
-        { divider: true },
-        {
-          label: t.common.delete,
-          icon: "trash",
-          danger: true,
-          onClick: () => onDelete(user),
-        },
-      ]}
+      items={items}
     />
   );
 }

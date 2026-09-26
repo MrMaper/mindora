@@ -53,11 +53,11 @@ export function UserTable({
 
 function TableHeader({ t }: { t: Translations }) {
   return (
-    <div className="grid grid-cols-[1fr_120px_100px_120px_40px] gap-3 px-4 h-9 items-center border-b border-border-muted bg-muted/50">
-      {[t.users.name, t.users.role, t.users.status, t.users.team, ""].map(h => (
+    <div className="grid grid-cols-[1fr_100px_90px_1fr_40px] gap-3 px-4 h-9 items-center border-b border-border-muted bg-muted/50">
+      {[t.users.name, t.users.role, t.users.status, "ماژول‌ها", ""].map(h => (
         <span
-          key={h}
-          className="font-semibold uppercase tracking-wider text-muted-foreground"
+          key={h || "actions"}
+          className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"
         >
           {h}
         </span>
@@ -75,8 +75,20 @@ interface UserRowProps {
 }
 
 function UserRow({ user, t, onEdit, onToggleStatus, onDelete }: UserRowProps) {
+  const moduleLabel =
+    user.role === "ADMIN"
+      ? "مدیریت"
+      : (() => {
+          const on = Object.entries(user.enabledModules)
+            .filter(([, v]) => v)
+            .map(([k]) => k);
+          if (on.length === 0) return "—";
+          if (on.length <= 3) return on.join("، ");
+          return `${on.length} ماژول`;
+        })();
+
   return (
-    <div className="grid grid-cols-[1fr_120px_100px_120px_40px] gap-3 px-4 h-(--row-height) items-center border-b border-border-muted last:border-0 min-h-13">
+    <div className="grid grid-cols-[1fr_100px_90px_1fr_40px] gap-3 px-4 h-(--row-height) items-center border-b border-border-muted last:border-0 min-h-13">
       <div className="flex items-center gap-2 min-w-0">
         <Avatar name={user.name} src={user.avatar ?? undefined} size="sm" />
         <div className="min-w-0">
@@ -97,8 +109,8 @@ function UserRow({ user, t, onEdit, onToggleStatus, onDelete }: UserRowProps) {
         {user.status === "ACTIVE" ? t.users.active : t.users.inactive}
       </Badge>
 
-      <div className="text-sm text-secondary-foreground">
-        {user.teamName ?? t.users.noTeam}
+      <div className="text-xs text-muted-foreground truncate" title={moduleLabel}>
+        {moduleLabel}
       </div>
 
       <Menu
@@ -112,19 +124,25 @@ function UserRow({ user, t, onEdit, onToggleStatus, onDelete }: UserRowProps) {
         align="end"
         items={[
           { label: t.common.edit, icon: "pencil", onClick: () => onEdit(user) },
-          {
-            label:
-              user.status === "ACTIVE" ? t.users.deactivate : t.users.activate,
-            icon: user.status === "ACTIVE" ? "x" : "check",
-            onClick: () => onToggleStatus(user),
-          },
-          { divider: true },
-          {
-            label: t.common.delete,
-            icon: "trash",
-            danger: true,
-            onClick: () => onDelete(user),
-          },
+          ...(user.role === "ADMIN"
+            ? []
+            : [
+                {
+                  label:
+                    user.status === "ACTIVE"
+                      ? t.users.deactivate
+                      : t.users.activate,
+                  icon: (user.status === "ACTIVE" ? "x" : "check") as "x" | "check",
+                  onClick: () => onToggleStatus(user),
+                },
+                { divider: true as const },
+                {
+                  label: t.common.delete,
+                  icon: "trash" as const,
+                  danger: true,
+                  onClick: () => onDelete(user),
+                },
+              ]),
         ]}
       />
     </div>

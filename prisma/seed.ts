@@ -14,13 +14,8 @@ async function seed() {
 
   const adminEmail = process.env.SEED_ADMIN_EMAIL ?? "admin@mindora.app";
   const adminPassword = process.env.SEED_ADMIN_PASSWORD ?? "Admin@1234";
-  const superadminEmail =
-    process.env.SEED_SUPERADMIN_EMAIL ?? "superadmin@mindora.app";
-  const superadminPassword =
-    process.env.SEED_SUPERADMIN_PASSWORD ?? "SuperAdmin@1234";
 
   const adminHashedPassword = await bcrypt.hash(adminPassword, 12);
-  const superadminHashedPassword = await bcrypt.hash(superadminPassword, 12);
 
   const adminUser = await db.user.upsert({
     where: { email: adminEmail },
@@ -30,41 +25,26 @@ async function seed() {
       password: adminHashedPassword,
       role: "ADMIN",
       status: "ACTIVE",
-    },
-    update: {},
-  });
-
-  await db.user.upsert({
-    where: { email: superadminEmail },
-    create: {
-      name: "Super Admin",
-      email: superadminEmail,
-      password: superadminHashedPassword,
-      role: "ADMIN",
-      status: "ACTIVE",
+      enabledModules: {},
     },
     update: {},
   });
 
   console.log(`  ✓ Admin user — ${adminEmail} / ${adminPassword}`);
-  console.log(
-    `  ✓ Superadmin user — ${superadminEmail} / ${superadminPassword}`,
-  );
+  console.log("  ✓ (single system admin — no second admin seeded)");
 
-  // Create default organization
   const defaultOrg = await db.organization.upsert({
     where: { id: "default-org" },
     create: {
       id: "default-org",
       name: "Default Organization",
-      ownerId: adminEmail,
+      ownerId: adminUser.id,
     },
     update: {},
   });
 
   console.log(`  ✓ Default organization: ${defaultOrg.name}`);
 
-  // Create default permissions
   const permissionKeys = [
     "team:manage",
     "team:delete",
@@ -91,7 +71,6 @@ async function seed() {
     permissions.push(perm);
   }
 
-  // Create default team roles
   const adminRole = await db.role.upsert({
     where: { name: "ADMINISTRATOR" },
     create: { name: "ADMINISTRATOR" },
@@ -110,20 +89,21 @@ async function seed() {
     update: {},
   });
 
-  // Connect permissions to team roles
-  const allPermIds = permissions.map((p) => p.id);
+  const allPermIds = permissions.map(p => p.id);
   const leadPermIds = permissions
-    .filter((p) => p.key !== "team:delete" && p.key !== "member:role")
-    .map((p) => p.id);
+    .filter(p => p.key !== "team:delete" && p.key !== "member:role")
+    .map(p => p.id);
   const memberPermIds = permissions
     .filter(
-      (p) =>
-        p.key === "task:create" || p.key === "task:view" || p.key === "report:view",
+      p =>
+        p.key === "task:create" ||
+        p.key === "task:view" ||
+        p.key === "report:view",
     )
-    .map((p) => p.id);
+    .map(p => p.id);
 
   await Promise.all(
-    allPermIds.map((permissionId) =>
+    allPermIds.map(permissionId =>
       db.rolePermission.upsert({
         where: { roleId_permissionId: { roleId: adminRole.id, permissionId } },
         create: { roleId: adminRole.id, permissionId },
@@ -133,7 +113,7 @@ async function seed() {
   );
 
   await Promise.all(
-    leadPermIds.map((permissionId) =>
+    leadPermIds.map(permissionId =>
       db.rolePermission.upsert({
         where: { roleId_permissionId: { roleId: leadRole.id, permissionId } },
         create: { roleId: leadRole.id, permissionId },
@@ -143,9 +123,11 @@ async function seed() {
   );
 
   await Promise.all(
-    memberPermIds.map((permissionId) =>
+    memberPermIds.map(permissionId =>
       db.rolePermission.upsert({
-        where: { roleId_permissionId: { roleId: memberRole.id, permissionId } },
+        where: {
+          roleId_permissionId: { roleId: memberRole.id, permissionId },
+        },
         create: { roleId: memberRole.id, permissionId },
         update: {},
       }),
@@ -156,223 +138,9 @@ async function seed() {
     `  ✓ Roles created: ${adminRole.name}, ${leadRole.name}, ${memberRole.name}`,
   );
 
-  // Create default project
-  const defaultProject = await db.project.upsert({
-    where: { id: "default-project" },
-    create: {
-      id: "default-project",
-      name: "Default Project",
-      description: "Default project for all users",
-      status: "ACTIVE",
-      members: {
-        create: {
-          userId: adminUser.id,
-          role: "OWNER",
-        },
-      },
-    },
-    update: {},
-  });
+  // Admin is management-only — no personal workspace / shared area buckets.
+  // MEMBER workspaces are created on user create via ensurePersonalWorkspace().
 
-  console.log(`  ✓ Default project: ${defaultProject.name}`);
-
-  const personalTeam = await db.team.upsert({
-    where: { id: "personal-life" },
-    create: {
-      id: "personal-life",
-      name: "زندگی من",
-      description: "فضای شخصی",
-      organizationId: defaultOrg.id,
-    },
-    update: {},
-  });
-
-  await db.teamMember.upsert({
-    where: { teamId_userId: { teamId: personalTeam.id, userId: adminUser.id } },
-    create: {
-      teamId: personalTeam.id,
-      userId: adminUser.id,
-      roleId: memberRole.id,
-    },
-    update: {},
-  });
-
-  const areaProjects = [
-    {
-      id: "area-phd",
-      name: "دکتری",
-      description: "تحصیل، پژوهش و نوشتن",
-      area: "PHD" as const,
-    },
-    {
-      id: "area-work",
-      name: "کار",
-      description: "کارها و پروژه‌های شغلی",
-      area: "WORK" as const,
-    },
-    {
-      id: "area-life",
-      name: "زندگی",
-      description: "خانه، سلامت و امور شخصی",
-      area: "LIFE" as const,
-    },
-  ];
-
-  for (const area of areaProjects) {
-    await db.project.upsert({
-      where: { id: area.id },
-      create: {
-        id: area.id,
-        name: area.name,
-        description: area.description,
-        status: "ACTIVE",
-        area: area.area,
-        teamId: personalTeam.id,
-        members: { create: { userId: adminUser.id, role: "OWNER" } },
-      },
-      update: { area: area.area, name: area.name },
-    });
-    await db.projectMember.upsert({
-      where: {
-        projectId_userId: { projectId: area.id, userId: adminUser.id },
-      },
-      create: { projectId: area.id, userId: adminUser.id, role: "OWNER" },
-      update: {},
-    });
-  }
-  console.log("  ✓ Life areas: دکتری، کار، زندگی");
-
-  const existingPersonalTasks = await db.task.count({
-    where: { projectId: { in: ["area-phd", "area-work", "area-life"] } },
-  });
-  if (existingPersonalTasks === 0) {
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
-    const inThreeDays = new Date(today);
-    inThreeDays.setDate(today.getDate() + 3);
-
-    await db.task.createMany({
-      data: [
-        {
-          title: "مرور مقاله مرتبط با موضوع رساله",
-          status: "TODO",
-          priority: "HIGH",
-          type: "TASK",
-          area: "PHD",
-          projectId: "area-phd",
-          teamId: personalTeam.id,
-          createdById: adminUser.id,
-          assignedToId: adminUser.id,
-          dueDate: today,
-        },
-        {
-          title: "نوشتن پیش‌نویس بخش مقدمه",
-          status: "IN_PROGRESS",
-          priority: "HIGH",
-          type: "TASK",
-          area: "PHD",
-          projectId: "area-phd",
-          teamId: personalTeam.id,
-          createdById: adminUser.id,
-          assignedToId: adminUser.id,
-          dueDate: inThreeDays,
-        },
-        {
-          title: "ایده: مقایسه روش‌های ارزیابی کیفیت داده",
-          status: "BACKLOG",
-          priority: "MEDIUM",
-          type: "TASK",
-          area: "PHD",
-          projectId: "area-phd",
-          teamId: personalTeam.id,
-          createdById: adminUser.id,
-          assignedToId: adminUser.id,
-        },
-        {
-          title: "پیگیری تسک شغلی باز",
-          status: "BLOCKED",
-          priority: "MEDIUM",
-          type: "TASK",
-          area: "WORK",
-          projectId: "area-work",
-          teamId: personalTeam.id,
-          createdById: adminUser.id,
-          assignedToId: adminUser.id,
-          dueDate: today,
-        },
-        {
-          title: "رزرو وقت دندانپزشکی",
-          status: "TODO",
-          priority: "LOW",
-          type: "TASK",
-          area: "LIFE",
-          projectId: "area-life",
-          teamId: personalTeam.id,
-          createdById: adminUser.id,
-          assignedToId: adminUser.id,
-          dueDate: yesterday,
-          recurrence: "MONTHLY",
-        },
-      ],
-    });
-    console.log("  ✓ Sample personal tasks");
-  }
-
-  const existingDocs = await db.doc.count({ where: { userId: adminUser.id } });
-  if (existingDocs === 0) {
-    const introTask = await db.task.findFirst({
-      where: {
-        createdById: adminUser.id,
-        title: "نوشتن پیش‌نویس بخش مقدمه",
-      },
-      select: { id: true },
-    });
-
-    const thesisDoc = await db.doc.create({
-      data: {
-        title: "پیش‌نویس مقدمه رساله",
-        area: "PHD",
-        pinned: true,
-        userId: adminUser.id,
-        content:
-          "<h2>مقدمه</h2><p>اینجا می‌توانی پیش‌نویس فصل یا ایده‌های پژوهش را بنویسی و به تسک‌ها وصل کنی.</p><ul><li>بیان مسئله</li><li>اهمیت موضوع</li><li>سوالات پژوهش</li></ul>",
-        contentText:
-          "مقدمه اینجا می‌توانی پیش‌نویس فصل یا ایده‌های پژوهش را بنویسی و به تسک‌ها وصل کنی. بیان مسئله اهمیت موضوع سوالات پژوهش",
-      },
-    });
-
-    await db.doc.create({
-      data: {
-        title: "یادداشت جلسه کاری",
-        area: "WORK",
-        userId: adminUser.id,
-        content:
-          "<h3>جلسه</h3><p>نکات مهم جلسه را اینجا نگه دار.</p><ul><li>تصمیم‌ها</li><li>اقدام‌ها</li></ul>",
-        contentText: "جلسه نکات مهم جلسه را اینجا نگه دار. تصمیم‌ها اقدام‌ها",
-      },
-    });
-
-    await db.doc.create({
-      data: {
-        title: "چک‌لیست خانه",
-        area: "LIFE",
-        userId: adminUser.id,
-        content:
-          "<p>کارهای شخصی و خانه.</p><ul><li>خرید</li><li>سلامت</li><li>امور اداری</li></ul>",
-        contentText: "کارهای شخصی و خانه. خرید سلامت امور اداری",
-      },
-    });
-
-    if (introTask) {
-      await db.docTask.create({
-        data: { docId: thesisDoc.id, taskId: introTask.id },
-      });
-    }
-    console.log("  ✓ Sample docs");
-  }
-
-  // Create default labels
   const labelCount = await db.label.count();
   if (labelCount === 0) {
     await db.label.createMany({
@@ -391,7 +159,7 @@ async function seed() {
 }
 
 seed()
-  .catch((e) => {
+  .catch(e => {
     console.error(e);
     process.exit(1);
   })

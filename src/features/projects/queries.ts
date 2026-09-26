@@ -1,6 +1,7 @@
 import { prisma as db } from "@/lib/db";
 import type { LifeArea } from "@/types/db";
-import { LIFE_AREAS, AREA_PROJECT_IDS } from "@/lib/life";
+import { LIFE_AREAS } from "@/lib/life";
+import { personalAreaProjectId } from "@/lib/area-projects";
 import {
   isAreaBucketId,
   projectWhereForScope,
@@ -77,9 +78,9 @@ export async function getProjectsHub(
 
   const sections: AreaHubSection[] = LIFE_AREAS.map(area => {
     const list = rows.filter(p => p.area === area);
-    const bucketId = AREA_PROJECT_IDS[area];
+    const bucketId = personalAreaProjectId(userId, area);
     const bucket =
-      list.find(p => p.id === bucketId) ??
+      list.find(p => p.id === bucketId || isAreaBucketId(p.id) && p.area === area) ??
       ({
         id: bucketId,
         name: area,
@@ -187,19 +188,19 @@ export async function getUserProjects(
   });
 
   const rows = memberships.map(m => toProjectRow(m.project));
-  const bucketOrder: Record<string, number> = {
-    [AREA_PROJECT_IDS.PHD]: 0,
-    [AREA_PROJECT_IDS.WORK]: 1,
-    [AREA_PROJECT_IDS.LIFE]: 2,
-    [AREA_PROJECT_IDS.LANG]: 3,
+  const areaOrder: Record<string, number> = {
+    PHD: 0,
+    WORK: 1,
+    LIFE: 2,
+    LANG: 3,
   };
 
   rows.sort((a, b) => {
-    const aBucket = bucketOrder[a.id];
-    const bBucket = bucketOrder[b.id];
-    const aIsBucket = aBucket !== undefined;
-    const bIsBucket = bBucket !== undefined;
-    if (aIsBucket && bIsBucket) return aBucket - bBucket;
+    const aIsBucket = isAreaBucketId(a.id);
+    const bIsBucket = isAreaBucketId(b.id);
+    if (aIsBucket && bIsBucket) {
+      return (areaOrder[a.area] ?? 9) - (areaOrder[b.area] ?? 9);
+    }
     if (aIsBucket) return -1;
     if (bIsBucket) return 1;
     return a.name.localeCompare(b.name, "fa");

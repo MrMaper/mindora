@@ -10,7 +10,7 @@ import {
 import { ResearchLibraryPanel } from "@/components/research/research-library";
 import { ResearchWritingPanel } from "@/components/research/research-writing";
 import { ResearchProjectSwitcher } from "@/components/research/research-project-switcher";
-import { AREA_PROJECT_IDS } from "@/lib/life";
+import { useAreaBuckets } from "@/components/area-buckets-provider";
 import type {
   ResearchHubData,
   ResearchProjectItem,
@@ -67,6 +67,7 @@ function ResearchCCInner({
   columnLabels,
 }: ResearchCCProps) {
   const t = useTranslation();
+  const areaIds = useAreaBuckets();
   const [tab, setTab] = React.useState<ResearchTab>("pipeline");
 
   const docProjectId =
@@ -108,7 +109,7 @@ function ResearchCCInner({
               createDefaults={{
                 projectId:
                   scope === "all" || scope === "inbox"
-                    ? AREA_PROJECT_IDS.PHD
+                    ? areaIds.PHD
                     : scope,
                 area: "PHD",
                 status: "BACKLOG",

@@ -6,6 +6,7 @@ import { prisma as db } from "@/lib/db";
 import { createTaskSchema, updateTaskSchema } from "@/schemas/tasks";
 import { getTaskById } from "./queries";
 import { ensurePersonalWorkspace, projectIdForArea } from "@/features/life/workspace";
+import { isAreaBucketId } from "@/lib/area-projects";
 import { spawnNextIfRecurring, newRecurrenceSeriesId } from "@/features/life/recurrence";
 import { updateRecurrenceSeries } from "@/features/life/recurrence";
 import { parseLocalDate } from "@/lib/life";
@@ -87,8 +88,8 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
     rawArea === "LANG"
       ? rawArea
       : null;
-  if (!projectId && area) {
-    projectId = projectIdForArea(area);
+  if (area && (!projectId || isAreaBucketId(projectId))) {
+    projectId = projectIdForArea(session.user.id, area);
   }
   if (projectId) {
     const projectMember = await db.projectMember.findUnique({
@@ -229,8 +230,10 @@ export async function updateTask(
     existing.recurrence ??
     "NONE") as RecurrenceInterval;
 
-  if (nextArea) {
-    projectId = projectIdForArea(nextArea);
+  if (nextArea && (!projectId || isAreaBucketId(projectId))) {
+    projectId = projectIdForArea(session.user.id, nextArea);
+  } else if (nextArea && !projectId) {
+    projectId = projectIdForArea(session.user.id, nextArea);
   }
 
   if (projectId && projectId !== existing.projectId) {

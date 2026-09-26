@@ -21,7 +21,6 @@ interface UsersCCProps {
   initialData: GetUsersResult;
   page: number;
   language: Language;
-  teams: { id: string; name: string }[];
   filters: Partial<UserFilters>;
 }
 
@@ -29,7 +28,6 @@ export function UsersCC({
   initialData,
   page,
   language,
-  teams,
   filters,
 }: UsersCCProps) {
   const t = useTranslation();
@@ -47,17 +45,7 @@ export function UsersCC({
     t.users.allStatuses,
   );
 
-  const teamOptions = withEmptyOption(
-    teams.map(team => ({ value: team.id, label: team.name })),
-    t.users.allTeams,
-  );
-
-  const hasActiveFilters = !!(
-    filters.search ||
-    filters.role ||
-    filters.status ||
-    filters.teamId
-  );
+  const hasActiveFilters = !!(filters.search || filters.role || filters.status);
 
   return (
     <>
@@ -68,7 +56,6 @@ export function UsersCC({
         filters={filters}
         statusOptions={statusOptions}
         roleOptions={roleOptions}
-        teamOptions={teamOptions}
         onSearchChange={u.setSearch}
         onSearchSubmit={u.onSearchSubmit}
         onFiltersChange={u.onFiltersChange}
@@ -100,8 +87,10 @@ export function UsersCC({
         open={u.drawerMode === "create"}
         onClose={u.closeDrawer}
         t={t}
-        teams={teams}
+        language={language === "EN" ? "EN" : "FA"}
         createForm={u.createForm}
+        modules={u.createModules}
+        onModulesChange={u.setCreateModules}
         actionError={u.actionError}
         isPending={u.isPending}
         createdPassword={u.createdPassword}
@@ -112,12 +101,16 @@ export function UsersCC({
         open={u.drawerMode === "edit"}
         onClose={u.closeDrawer}
         t={t}
-        teams={teams}
+        language={language === "EN" ? "EN" : "FA"}
         editForm={u.editForm}
         editingUser={u.editingUser}
+        modules={u.editModules}
+        onModulesChange={u.setEditModules}
         actionError={u.actionError}
         isPending={u.isPending}
+        resetPassword={u.resetPassword}
         onEditSubmit={u.onEditSubmit}
+        onResetPassword={u.onResetPassword}
       />
 
       <DeleteUserDialog

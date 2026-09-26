@@ -10,12 +10,9 @@ import type { SelectOption } from "@/components/ui-kit/forms/select";
 import { DatePicker } from "@/components/ui-kit/forms/date-picker";
 import { LabelPicker } from "@/app/(dashboard)/tasks/components/ui/label-picker";
 import { useTranslation } from "@/i18n/provider";
-import {
-  AREA_PROJECT_IDS,
-  LIFE_AREAS,
-  coerceLifeArea,
-} from "@/lib/life";
-import { isAreaBucketId, projectPickerLabel } from "@/lib/project-namespace";
+import { LIFE_AREAS, coerceLifeArea } from "@/lib/life";
+import { isAreaBucketId, lifeAreaFromBucketId, projectPickerLabel } from "@/lib/project-namespace";
+import { useAreaBuckets } from "@/components/area-buckets-provider";
 import { cn } from "@/lib/utils";
 import type { CreateTaskInput } from "@/schemas/tasks";
 import type { LabelRow } from "@/features/labels/types";
@@ -46,8 +43,8 @@ function areaLabel(
   area: LifeArea,
   t: ReturnType<typeof useTranslation>,
   projects: ProjectRow[],
+  bucketId: string,
 ): string {
-  const bucketId = AREA_PROJECT_IDS[area];
   const bucket = projects.find(p => p.id === bucketId);
   if (bucket?.name?.trim()) return bucket.name.trim();
   if (area === "PHD") return t.dashboard.areaPhd;
@@ -78,6 +75,7 @@ export function TaskFormFields({
   showLabels,
 }: TaskFormFieldsProps) {
   const t = useTranslation();
+  const areaIds = useAreaBuckets();
   const isAdmin = currentUserRole === "ADMIN";
   const lockedArea = lockedAreaForPreset(preset);
   const labelsEnabled =
@@ -100,7 +98,7 @@ export function TaskFormFields({
       return area === currentArea;
     });
 
-    const bucketId = AREA_PROJECT_IDS[currentArea];
+    const bucketId = areaIds[currentArea];
     const opts: SelectOption[] = filtered.map(p => ({
       value: p.id,
       label: isAreaBucketId(p.id)
@@ -116,7 +114,7 @@ export function TaskFormFields({
         label:
           preset === "research"
             ? t.life.researchProjectInbox
-            : areaLabel(currentArea, t, projects),
+            : areaLabel(currentArea, t, projects, bucketId),
       });
     } else {
       opts.sort((a, b) => {
@@ -127,12 +125,12 @@ export function TaskFormFields({
     }
 
     return opts;
-  }, [projects, currentArea, preset, t]);
+  }, [projects, currentArea, preset, t, areaIds]);
 
   function handleAreaChange(area: LifeArea) {
     if (lockedArea) return;
     setValue("area", area, { shouldValidate: true });
-    setValue("projectId", AREA_PROJECT_IDS[area], { shouldValidate: true });
+    setValue("projectId", areaIds[area], { shouldValidate: true });
   }
 
   function handleProjectChange(value: string) {
@@ -141,11 +139,9 @@ export function TaskFormFields({
     if (project?.area) {
       setValue("area", coerceLifeArea(project.area), { shouldValidate: true });
     } else if (isAreaBucketId(value)) {
-      const entry = Object.entries(AREA_PROJECT_IDS).find(
-        ([, id]) => id === value,
-      );
-      if (entry) {
-        setValue("area", entry[0] as LifeArea, { shouldValidate: true });
+      const fromId = lifeAreaFromBucketId(value);
+      if (fromId) {
+        setValue("area", fromId, { shouldValidate: true });
       }
     }
   }
@@ -221,7 +217,7 @@ export function TaskFormFields({
                 lockedArea && "opacity-90 cursor-default",
               )}
             >
-              {areaLabel(area, t, projects)}
+              {areaLabel(area, t, projects, areaIds[area])}
             </button>
           ))}
         </div>
@@ -233,7 +229,7 @@ export function TaskFormFields({
           control={control}
           render={({ field, fieldState }) => (
             <Select
-              value={field.value || AREA_PROJECT_IDS[currentArea]}
+              value={field.value || areaIds[currentArea]}
               onChange={handleProjectChange}
               label={t.tasks.pathOrProject}
               options={projectSelectOptions}

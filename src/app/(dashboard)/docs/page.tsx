@@ -1,3 +1,4 @@
+import { requireModule } from "@/lib/require-role";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
@@ -9,9 +10,10 @@ export const metadata: Metadata = { title: "نوشته‌ها" };
 
 export default async function DocsPage({
   searchParams,
-}: {
+}:  {
   searchParams: Promise<{ id?: string }>;
 }) {
+  await requireModule("docs");
   const session = await auth();
   if (!session?.user) redirect("/login");
   await ensurePersonalWorkspaceCached(session.user.id);

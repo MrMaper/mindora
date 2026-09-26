@@ -1,3 +1,4 @@
+import { requireModule } from "@/lib/require-role";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
@@ -20,9 +21,10 @@ interface KanbanSearchParams {
 
 export default async function KanbanPage({
   searchParams,
-}: {
+}:  {
   searchParams: Promise<KanbanSearchParams>;
 }) {
+  await requireModule("kanban");
   const session = await auth();
   if (!session?.user) redirect("/login");
 

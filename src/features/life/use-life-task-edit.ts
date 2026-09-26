@@ -6,7 +6,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { updateTaskSchema } from "@/schemas/tasks";
 import { updateTask, getTaskDetailAction } from "@/features/tasks/actions";
-import { AREA_PROJECT_IDS, coerceLifeArea } from "@/lib/life";
+import { coerceLifeArea } from "@/lib/life";
+import { useAreaBuckets } from "@/components/area-buckets-provider";
 import type { UpdateTaskInput } from "@/schemas/tasks";
 import type { TaskRow, TaskDetail } from "@/features/tasks/types";
 import type { LifeArea } from "@/types/db";
@@ -22,6 +23,7 @@ function resolveArea(task: TaskRow | TaskDetail): LifeArea {
 
 export function useLifeTaskEdit() {
   const router = useRouter();
+  const areaIds = useAreaBuckets();
 
   const [editingTaskId, setEditingTaskId] = React.useState<string | null>(null);
   const [activeTask, setActiveTask] = React.useState<TaskDetail | null>(null);
@@ -68,7 +70,7 @@ export function useLifeTaskEdit() {
       status: detail.status,
       priority: detail.priority,
       type: detail.type,
-      projectId: detail.projectId ?? AREA_PROJECT_IDS[area],
+      projectId: detail.projectId ?? areaIds[area],
       assignedToId: detail.assignedTo?.id ?? "",
       dueDate: toDateInputValue(detail.dueDate),
       area,
@@ -102,7 +104,7 @@ export function useLifeTaskEdit() {
       fd.append("status", data.status);
       fd.append("priority", data.priority);
       fd.append("type", "TASK");
-      fd.append("projectId", data.projectId || AREA_PROJECT_IDS[area]);
+      fd.append("projectId", data.projectId || areaIds[area]);
       fd.append("assignedToId", data.assignedToId ?? "");
       fd.append("dueDate", data.dueDate ?? "");
       fd.append("area", area);

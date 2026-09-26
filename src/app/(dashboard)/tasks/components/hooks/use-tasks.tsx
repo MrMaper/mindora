@@ -23,7 +23,7 @@ import type {
 } from "@/schemas/tasks";
 import type { TaskRow, TaskDetail } from "@/features/tasks/types";
 import { coerceLifeArea } from "@/lib/life";
-import { AREA_PROJECT_IDS } from "@/lib/life";
+import { useAreaBuckets } from "@/components/area-buckets-provider";
 
 type DrawerMode = "none" | "create" | "edit";
 
@@ -45,6 +45,7 @@ export interface TaskFilters {
 
 export function useTasks(initialFilters: TaskFilters) {
   const router = useRouter();
+  const areaIds = useAreaBuckets();
 
   const [drawerMode, setDrawerMode] = React.useState<DrawerMode>("none");
   const [editingTaskId, setEditingTaskId] = React.useState<string | null>(null);
@@ -108,7 +109,7 @@ export function useTasks(initialFilters: TaskFilters) {
       recurrence: "NONE",
     });
     // Default to life bucket after reset — set explicitly via AREA id in submit if empty
-    createForm.setValue("projectId", AREA_PROJECT_IDS.LIFE);
+    createForm.setValue("projectId", areaIds.LIFE);
     createForm.setValue("area", "LIFE");
     setSelectedLabelIds([]);
     setActionError(null);
@@ -171,7 +172,7 @@ export function useTasks(initialFilters: TaskFilters) {
       fd.append("status", data.status);
       fd.append("priority", data.priority);
       fd.append("type", "TASK");
-      fd.append("projectId", data.projectId || AREA_PROJECT_IDS.LIFE);
+      fd.append("projectId", data.projectId || areaIds.LIFE);
       fd.append("assignedToId", data.assignedToId ?? "");
       fd.append("dueDate", data.dueDate ?? "");
       fd.append("area", data.area || "LIFE");

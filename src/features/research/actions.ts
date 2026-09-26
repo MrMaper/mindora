@@ -18,7 +18,7 @@ import type {
   ResearchSourceItem,
 } from "./types";
 import { formatApaLike, normalizeDoi } from "./cite";
-import { AREA_PROJECT_IDS } from "@/lib/life";
+import { isUserAreaBucket } from "@/lib/life";
 
 export interface ActionResult {
   success: boolean;
@@ -121,7 +121,11 @@ export async function createDocLinkedToTask(input: {
   const content = ensureHeadingIds(template.content);
 
   let projectId = input.projectId ?? null;
-  if (!projectId && task.projectId && task.projectId !== AREA_PROJECT_IDS.PHD) {
+  if (
+    !projectId &&
+    task.projectId &&
+    !isUserAreaBucket(task.projectId, session.user.id, "PHD")
+  ) {
     const member = await db.projectMember.findFirst({
       where: {
         userId: session.user.id,

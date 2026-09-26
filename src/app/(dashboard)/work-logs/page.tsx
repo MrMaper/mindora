@@ -1,3 +1,4 @@
+import { requireModule } from "@/lib/require-role";
 import type { Metadata } from "next";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
@@ -21,9 +22,10 @@ interface WorkLogsSearchParams {
 
 export default async function WorkLogsPage({
   searchParams,
-}: {
+}:  {
   searchParams: Promise<WorkLogsSearchParams>;
 }) {
+  await requireModule("workLogs");
   const session = await auth();
   if (!session?.user) redirect("/login");
 

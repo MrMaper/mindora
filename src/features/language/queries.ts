@@ -1,5 +1,5 @@
 import { prisma as db } from "@/lib/db";
-import { AREA_PROJECT_IDS } from "@/lib/life";
+import { areaBucketIdsToExclude } from "@/lib/life";
 import { countWords } from "@/features/docs/utils";
 import type { LangSkill } from "@/types/db";
 import {
@@ -60,7 +60,7 @@ export async function listLangProjects(
       project: {
         area: "LANG",
         status: { not: "ARCHIVED" },
-        id: { not: AREA_PROJECT_IDS.LANG },
+        id: { notIn: areaBucketIdsToExclude(userId, "LANG") },
       },
     },
     orderBy: { project: { updatedAt: "desc" } },

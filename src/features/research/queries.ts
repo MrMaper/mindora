@@ -1,5 +1,8 @@
 import { prisma as db } from "@/lib/db";
-import { AREA_PROJECT_IDS } from "@/lib/life";
+import {
+  areaBucketIdsToExclude,
+  personalAreaProjectId,
+} from "@/lib/life";
 import { getRecentDocs, getWritingPulse } from "@/features/docs/queries";
 import type {
   ResearchHubData,
@@ -23,13 +26,14 @@ export async function resolveResearchTaskProjectIds(
   userId: string,
   scope: ResearchProjectScope,
 ): Promise<string[]> {
-  if (scope === "inbox") return [AREA_PROJECT_IDS.PHD];
+  const phdInbox = personalAreaProjectId(userId, "PHD");
+  if (scope === "inbox") return [phdInbox];
   if (scope !== "all") return [scope];
 
   const projects = await listPhdResearchProjects(userId);
   const ids = projects.map(p => p.id);
-  if (!ids.includes(AREA_PROJECT_IDS.PHD)) ids.push(AREA_PROJECT_IDS.PHD);
-  return ids.length > 0 ? ids : [AREA_PROJECT_IDS.PHD];
+  if (!ids.includes(phdInbox)) ids.push(phdInbox);
+  return ids.length > 0 ? ids : [phdInbox];
 }
 
 export async function listPhdResearchProjects(
@@ -41,7 +45,7 @@ export async function listPhdResearchProjects(
       project: {
         area: "PHD",
         status: { not: "ARCHIVED" },
-        id: { not: AREA_PROJECT_IDS.PHD },
+        id: { notIn: areaBucketIdsToExclude(userId, "PHD") },
       },
     },
     orderBy: { project: { updatedAt: "desc" } },
