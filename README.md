@@ -107,25 +107,26 @@ See `.env.example` for the full list.
 
 ## Docker
 
-The included `Dockerfile` builds a standalone Next.js image. `docker-compose.yml` runs the app on port **3080** and expects:
-
-- A reachable PostgreSQL (`DB_HOST`, credentials in `.env`)
-- External Docker network `nazarbin-net` (create it, or edit compose to remove that dependency)
+Self-contained stack: **Postgres + app** (no external Docker network required).
 
 ```bash
-# if you need the external network referenced in compose:
-docker network create nazarbin-net
+cp .env.production.example .env
+# set AUTH_SECRET, POSTGRES_PASSWORD, NEXT_PUBLIC_APP_URL, APP_URL
 
 docker compose up -d --build
 ```
 
-Entrypoint runs `prisma migrate deploy`, optional seed, then `npm start`.
+App: host port **3080**. Entrypoint runs `prisma migrate deploy`, optional seed, then `npm start`.
 
-For production after the first seed:
+First deploy seed:
 
 ```env
-DISABLE_DB_SEED=1
+DISABLE_DB_SEED=0
 ```
+
+Then set `DISABLE_DB_SEED=1` for subsequent restarts.
+
+Full VPS + Nginx/HTTPS steps: [`docs/DEPLOY.md`](docs/DEPLOY.md).
 
 ## Deploy checklist (VPS)
 
