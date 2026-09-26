@@ -46,3 +46,8 @@ next-env.d.ts
 .claude
 
 *test
+# local deploy keys — never commit
+id_ed25519
+id_ed25519.pub
+*.pem
+
