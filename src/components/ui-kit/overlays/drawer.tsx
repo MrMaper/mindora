@@ -43,7 +43,7 @@ export function Drawer({
         side={side}
         className={cn(
           "flex flex-col min-w-0",
-          wide ? "w-170 max-w-[95vw]" : "sm:max-w-sm",
+          wide ? "w-full sm:w-[42rem] sm:max-w-[95vw]" : "w-full max-w-none sm:max-w-sm",
           className,
         )}
         showCloseButton={false}

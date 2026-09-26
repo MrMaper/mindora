@@ -53,11 +53,11 @@ export function SearchFilters({
 }: SearchFiltersProps) {
   const isAdmin = currentUserRole === "ADMIN";
   return (
-    <div className="mb-4 flex flex-wrap gap-2 justify-between items-end">
-      <div className="flex gap-2 items-center w-fit">
+    <div className="mb-4 flex flex-col gap-2 lg:flex-row lg:flex-wrap lg:justify-between lg:items-end">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex gap-2 items-end w-full">
         <form
           onSubmit={onSearchSubmit}
-          className="flex gap-1 w-full max-w-60 items-end"
+          className="flex gap-1 w-full lg:max-w-60 items-end sm:col-span-2"
         >
           <Input
             label={t.searchButton}
@@ -77,7 +77,7 @@ export function SearchFilters({
           />
         </form>
 
-        <div className="w-48">
+        <div className="w-full lg:w-48">
           <Select
             label={t.project}
             value={project}
@@ -85,7 +85,7 @@ export function SearchFilters({
             options={projectOptions}
           />
         </div>
-        <div className="w-40">
+        <div className="w-full lg:w-40">
           <Select
             label={t.status}
             value={filters.status}
@@ -93,7 +93,7 @@ export function SearchFilters({
             options={statusOptions}
           />
         </div>
-        <div className="w-40">
+        <div className="w-full lg:w-40">
           <Select
             label={t.priority}
             value={filters.priority}
@@ -102,7 +102,7 @@ export function SearchFilters({
           />
         </div>
         {isAdmin && (
-        <div className="w-40">
+        <div className="w-full lg:w-40">
           <Select
             label={t.assignee}
             value={filters.assignee}

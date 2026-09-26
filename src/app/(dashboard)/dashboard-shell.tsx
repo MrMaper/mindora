@@ -109,11 +109,12 @@ export function DashboardShell({
           isRtl ? "lg:mr-64" : "lg:ml-64",
         )}
       >
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b bg-background/95 px-3 backdrop-blur supports-backdrop-filter:bg-background/80 lg:hidden">
+        <header className="sticky top-0 z-30 flex min-h-14 items-center gap-1 border-b bg-background/95 px-2 pt-[env(safe-area-inset-top)] backdrop-blur supports-backdrop-filter:bg-background/80 lg:hidden">
           <Button
             type="button"
             variant="ghost"
-            size="icon-sm"
+            size="icon"
+            className="size-11"
             aria-label={language === "FA" ? "منو" : "Menu"}
             onClick={() => setMobileOpen(true)}
           >
@@ -125,14 +126,15 @@ export function DashboardShell({
           <Button
             type="button"
             variant="ghost"
-            size="icon-sm"
+            size="icon"
+            className="size-11"
             aria-label={language === "FA" ? "جستجو" : "Search"}
             onClick={openCommandPalette}
           >
             <Icon name="search" size={18} />
           </Button>
         </header>
-        <main className="flex-1 overflow-auto p-3 sm:p-4 lg:p-6">{children}</main>
+        <main className="flex-1 overflow-auto p-3 sm:p-4 lg:p-6 max-lg:pb-[max(0.75rem,env(safe-area-inset-bottom))]!">{children}</main>
       </div>
     </>
   );

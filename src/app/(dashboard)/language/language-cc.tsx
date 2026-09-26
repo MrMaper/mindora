@@ -300,7 +300,7 @@ function LanguageCCInner({ hub, scope, projects }: LanguageCCProps) {
       <LanguageProjectSwitcher scope={scope} projects={projects} />
 
       <div
-        className="mb-3 flex flex-wrap gap-1.5 border-b pb-2"
+        className="mb-3 flex gap-1.5 border-b pb-2 overflow-x-auto"
         role="tablist"
         aria-label={t.language.hubTitle}
       >
@@ -312,7 +312,7 @@ function LanguageCCInner({ hub, scope, projects }: LanguageCCProps) {
             aria-selected={tab === item.id}
             onClick={() => goTab(item.id)}
             className={cn(
-              "rounded-lg px-3 py-1.5 text-sm transition-colors",
+              "shrink-0 rounded-lg px-3 py-2 text-sm transition-colors",
               tab === item.id
                 ? "bg-emerald-600 text-white"
                 : "text-muted-foreground hover:bg-muted",

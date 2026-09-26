@@ -80,7 +80,7 @@ export function TasksTable({
     <>
       <div className="rounded-lg border border-border-default bg-bg-surface overflow-hidden">
         <div
-          className="grid gap-3 border-b border-border-subtle bg-bg-sunken px-4 h-9 items-center"
+          className="hidden md:grid gap-3 border-b border-border-subtle bg-bg-sunken px-4 h-9 items-center"
           style={{ gridTemplateColumns: "1fr 140px 130px 90px 160px 110px 40px" }}
         >
           {columns.map(col => (
@@ -151,10 +151,49 @@ export function TasksTable({
             }
 
             return (
+              <React.Fragment key={task.id}>
+                <div
+                  role={canEdit ? "button" : undefined}
+                  tabIndex={canEdit ? 0 : undefined}
+                  onClick={canEdit ? () => onRowClick(task) : undefined}
+                  onKeyDown={
+                    canEdit
+                      ? e => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            onRowClick(task);
+                          }
+                        }
+                      : undefined
+                  }
+                  className="md:hidden w-full text-start flex items-start gap-3 px-3 py-3 border-b border-border-subtle hover:bg-bg-sunken/50"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-medium text-text-primary">
+                      {task.title}
+                    </div>
+                    <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-text-tertiary">
+                      <StatusBadge status={statusToDisplay(task.status)} />
+                      <span>{formatDate(task.dueDate)}</span>
+                    </div>
+                  </div>
+                  <span onClick={e => e.stopPropagation()}>
+                    <Menu
+                      trigger={
+                        <IconButton
+                          icon="more-horizontal"
+                          aria-label={t.tasks.taskActionsLabel}
+                          size="sm"
+                        />
+                      }
+                      align="end"
+                      items={menuItems}
+                    />
+                  </span>
+                </div>
               <div
-                key={task.id}
                 onClick={canEdit ? () => onRowClick(task) : undefined}
-                className="grid gap-3 px-4 min-h-13 items-center border-b border-border-subtle hover:bg-bg-sunken/50 cursor-pointer"
+                className="hidden md:grid gap-3 px-4 min-h-13 items-center border-b border-border-subtle hover:bg-bg-sunken/50 cursor-pointer"
                 style={{ gridTemplateColumns: "1fr 140px 130px 90px 160px 110px 40px" }}
               >
                 <div className="min-w-0">
@@ -225,6 +264,7 @@ export function TasksTable({
                   />
                 </span>
               </div>
+              </React.Fragment>
             );
           })
         )}

@@ -69,10 +69,10 @@ export function KanbanFilters({
   ];
 
   return (
-    <div className="mb-4 flex flex-wrap items-end gap-2">
+    <div className="mb-4 grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-wrap items-end gap-2">
       <form
         onSubmit={onSearchSubmit}
-        className="flex gap-1 w-full max-w-60 items-end"
+        className="flex gap-1 w-full lg:max-w-60 items-end sm:col-span-2 lg:col-span-1"
       >
         <Input
           label={t.board.searchButton}
@@ -93,7 +93,7 @@ export function KanbanFilters({
       </form>
 
       {showProjectFilter && (
-        <div className="w-48">
+        <div className="w-full lg:w-48">
           <Select
             label={t.board.project}
             value={project}
@@ -103,7 +103,7 @@ export function KanbanFilters({
         </div>
       )}
       {showAssigneeFilter && (
-        <div className="w-40">
+        <div className="w-full lg:w-40">
           <Select
             label={t.board.assignee}
             value={assignee}
@@ -112,7 +112,7 @@ export function KanbanFilters({
           />
         </div>
       )}
-      <div className="w-40">
+      <div className="w-full lg:w-40">
         <Select
           label={t.board.labels}
           value={label}
@@ -120,7 +120,7 @@ export function KanbanFilters({
           options={labelOptions}
         />
       </div>
-      <div className="w-40">
+      <div className="w-full lg:w-40">
         <Select
           label={t.board.priority}
           value={priority}

@@ -19,7 +19,7 @@ export function PageHeader({
   const isAdmin = currentUserRole === "ADMIN";
 
   return (
-    <div className="flex items-start justify-between mb-5">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-5">
       <div>
         <h1 className="text-xl font-semibold text-text-primary">
           {t.tasks.title}
@@ -28,7 +28,7 @@ export function PageHeader({
           {total} {t.tasks.totalTasks}
         </p>
       </div>
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {isAdmin && (
           <Button variant="secondary" icon="flag" onClick={onLabelDialogOpen}>
             {t.tasks.manageLabels}

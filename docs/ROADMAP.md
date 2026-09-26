@@ -47,6 +47,30 @@ Features intentionally **not** implemented yet. Do not start these unless the pr
 
 ---
 
+## Mobile UX (in progress)
+
+Goal: every member surface is usable one-handed on a phone — no clipped filters, no desktop-only tables, drawers that fit the screen, calendar that doesn’t force a huge empty scroll.
+
+### Shipped in this pass
+- App shell: larger menu/search targets, safe-area padding
+- Drawers: full width on small screens
+- Board + task filters: stack into a 1/2-column grid
+- Tasks: card rows on phones; table from `md` up
+- Calendar: shorter month/week cells on small screens
+- Language hub tabs: horizontal scroll instead of wrapping
+
+### Still to do (section by section)
+1. **Today dashboard** — week strip and attention cards: tighter type, no overflow
+2. **Research** — pipeline board + library panels stacked, tab bar scroll
+3. **Docs** — editor toolbar wraps; PDF annotator already stacks under `lg`
+4. **Projects** — list and detail tabs
+5. **Work logs / reporting / review** — forms full width
+6. **Profile, settings, notifications, users (admin)** — form fields and tables
+7. Pass each page in a real phone viewport and fix leftover horizontal scroll
+
+
+---
+
 ## Other known later items (not this doc’s focus)
 
 - Stronger citations (CSL / BibTeX pack / Zotero) — R2

@@ -637,7 +637,7 @@ export function CalendarCC({
           onDragEnd={onDragEnd}
         >
           <div className="grid xl:grid-cols-[minmax(0,1fr)_300px] gap-4 flex-1 min-h-0">
-            <div className="rounded-2xl border bg-card shadow-sm overflow-hidden flex flex-col min-h-[640px] xl:min-h-0 xl:h-full">
+            <div className="rounded-2xl border bg-card shadow-sm overflow-hidden flex flex-col min-h-[22rem] sm:min-h-[640px] xl:min-h-0 xl:h-full">
               <div className="grid grid-cols-7 border-b bg-muted/30">
                 {weekdays.map((day, index) => (
                   <div
@@ -655,8 +655,8 @@ export function CalendarCC({
                 className={cn(
                   "grid grid-cols-7 flex-1 min-h-0",
                   view === "month"
-                    ? "grid-rows-[repeat(6,minmax(108px,1fr))]"
-                    : "grid-rows-1 min-h-[480px]",
+                    ? "grid-rows-[repeat(6,minmax(4.25rem,1fr))] sm:grid-rows-[repeat(6,minmax(108px,1fr))]"
+                    : "grid-rows-1 min-h-[18rem] sm:min-h-[480px]",
                 )}
               >
                 {cells.map((date, index) => {
