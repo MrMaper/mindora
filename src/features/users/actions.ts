@@ -17,7 +17,6 @@ import {
   normalizeModuleFlags,
   parseModuleFlags,
   type ModuleFlags,
-  type PrimaryModule,
   PRIMARY_MODULES,
 } from "@/lib/modules";
 import { ensurePersonalWorkspace } from "@/features/life/workspace";
@@ -363,5 +362,3 @@ export async function changePassword(formData: FormData): Promise<ActionResult> 
   revalidatePath("/settings");
   return { success: true };
 }
-
-export type { PrimaryModule, ModuleFlags };
