@@ -1,7 +1,6 @@
 "use server";
 
 import { auth } from "@/auth";
-import { revalidatePath } from "next/cache";
 import { prisma as db } from "@/lib/db";
 import { notify } from "@/lib/notify";
 import {
@@ -145,10 +144,8 @@ export async function ensureDeadlineReminders(userId?: string): Promise<void> {
     created += 1;
   }
 
-  if (created > 0) {
-    revalidatePath("/notifications");
-    revalidatePath("/dashboard");
-  }
+  // Do not revalidatePath here — this helper runs during RSC render
+  // (dashboard via ensureDailyRemindersCached). Cron does not need it.
 }
 
 /** Run deadline reminders for all eligible users (cron). */

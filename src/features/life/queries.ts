@@ -226,16 +226,9 @@ export async function getPersonalDashboard(userId: string) {
     };
   });
 
-  let focusIds =
+  // Stale focus from another day → treat as empty (no write during RSC render)
+  const focusIds =
     prefs?.todayFocusDate === todayKey ? [...(prefs.todayFocusIds ?? [])] : [];
-
-  if (prefs && prefs.todayFocusDate !== todayKey && (prefs.todayFocusIds?.length ?? 0) > 0) {
-    await db.userPreferences.update({
-      where: { userId },
-      data: { todayFocusDate: todayKey, todayFocusIds: [] },
-    });
-    focusIds = [];
-  }
 
   const todayRows = today.map(withArea);
   const overdueRows = overdue.map(withArea);
