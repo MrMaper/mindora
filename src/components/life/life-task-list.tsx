@@ -19,11 +19,33 @@ import {
   stopTaskRecurrence,
 } from "@/features/life/actions";
 import { listDocsByTaskIdsAction } from "@/features/docs/actions";
-import { formatJalaliShort } from "@/lib/life";
+import { formatClock, formatJalaliShort } from "@/lib/life";
 import { statusToDisplay, priorityToDisplay } from "@/features/tasks/types";
 import type { TaskRow } from "@/features/tasks/types";
 import { Icon } from "@/components/ui-kit/foundation/icon";
 import { cn } from "@/lib/utils";
+import { useDraggable } from "@dnd-kit/core";
+
+function TaskDragHandle({ taskId, label }: { taskId: string; label: string }) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: `task:${taskId}`,
+  });
+  return (
+    <button
+      type="button"
+      ref={setNodeRef}
+      className={cn(
+        "mt-0.5 shrink-0 cursor-grab touch-none rounded-md p-1 text-muted-foreground hover:bg-accent",
+        isDragging && "opacity-40",
+      )}
+      aria-label={label}
+      {...listeners}
+      {...attributes}
+    >
+      <Icon name="grip-vertical" size={14} />
+    </button>
+  );
+}
 
 export function LifeTaskList({
   tasks,
@@ -33,6 +55,8 @@ export function LifeTaskList({
   compact = false,
   focusIds,
   onToggleFocus,
+  canPinFocus,
+  enableDrag = false,
   onTaskClick,
   currentUserId,
   currentUserRole,
@@ -45,6 +69,10 @@ export function LifeTaskList({
   compact?: boolean;
   focusIds?: string[];
   onToggleFocus?: (task: TaskRow) => void;
+  /** When set, only these rows get the priority target and drag handle. */
+  canPinFocus?: (task: TaskRow) => boolean;
+  /** Drag the row into today's three priority slots. Requires a parent DndContext. */
+  enableDrag?: boolean;
   onTaskClick?: (task: TaskRow) => void;
   currentUserId?: string;
   currentUserRole?: string;
@@ -163,7 +191,10 @@ export function LifeTaskList({
             )}
           >
             <div className="flex min-w-0 items-start gap-2">
-              {onToggleFocus ? (
+              {enableDrag && (!canPinFocus || canPinFocus(task)) ? (
+                <TaskDragHandle taskId={task.id} label={t.dashboard.focusDrag} />
+              ) : null}
+              {onToggleFocus && (!canPinFocus || canPinFocus(task)) ? (
                 <button
                   type="button"
                   className={cn(
@@ -263,6 +294,9 @@ export function LifeTaskList({
                   {task.dueDate ? (
                     <span className="shrink-0 text-[11px] text-muted-foreground">
                       {formatJalaliShort(new Date(task.dueDate), language)}
+                      {formatClock(new Date(task.dueDate), language)
+                        ? ` ${formatClock(new Date(task.dueDate), language)}`
+                        : ""}
                     </span>
                   ) : null}
                   {linked.length > 0 ? (

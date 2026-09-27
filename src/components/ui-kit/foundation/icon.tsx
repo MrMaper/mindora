@@ -28,6 +28,7 @@ import {
   ArrowDown,
   ArrowRight,
   ArrowLeft,
+  GripVertical,
   MoreHorizontal,
   MoreVertical,
   Filter,
@@ -123,6 +124,7 @@ export type IconName =
   | "arrow-down"
   | "arrow-right"
   | "arrow-left"
+  | "grip-vertical"
   | "more-horizontal"
   | "more-vertical"
   | "filter"
@@ -195,6 +197,7 @@ const iconMap: Record<
   "arrow-down": ArrowDown,
   "arrow-right": ArrowRight,
   "arrow-left": ArrowLeft,
+  "grip-vertical": GripVertical,
   "more-horizontal": MoreHorizontal,
   "more-vertical": MoreVertical,
   filter: Filter,

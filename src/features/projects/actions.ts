@@ -148,7 +148,7 @@ export async function updateProject(
   }
 
   const isAdmin = await requireProjectAdmin(id, session.user.id);
-  if (!isAdmin) return { success: false, error: "تنها مدیران پروژه می‌توانند این پروژه را به‌روزرسانی کنند" };
+  if (!isAdmin) return { success: false, error: "فقط مدیران مسیر می‌توانند این مسیر را به‌روزرسانی کنند" };
 
   const parsed = updateProjectSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
@@ -180,7 +180,7 @@ export async function archiveProject(id: string): Promise<ActionResult> {
   }
 
   const isAdmin = await requireProjectAdmin(id, session.user.id);
-  if (!isAdmin) return { success: false, error: "تنها مدیران پروژه می‌توانند این پروژه را بایگانی کنند" };
+  if (!isAdmin) return { success: false, error: "فقط مدیران مسیر می‌توانند این مسیر را بایگانی کنند" };
 
   const parsed = archiveProjectSchema.safeParse({ id });
   if (!parsed.success) {
@@ -208,7 +208,7 @@ export async function unarchiveProject(id: string): Promise<ActionResult> {
   }
 
   const isAdmin = await requireProjectAdmin(id, session.user.id);
-  if (!isAdmin) return { success: false, error: "تنها مدیران پروژه می‌توانند این پروژه را بازگردانند" };
+  if (!isAdmin) return { success: false, error: "فقط مدیران مسیر می‌توانند این مسیر را بازگردانند" };
 
   const parsed = archiveProjectSchema.safeParse({ id });
   if (!parsed.success) {
@@ -236,7 +236,7 @@ export async function deleteProject(id: string): Promise<ActionResult> {
   }
 
   const isOwner = await requireProjectOwner(id, session.user.id);
-  if (!isOwner) return { success: false, error: "تنها مالک پروژه می‌تواند این پروژه را حذف کند" };
+  if (!isOwner) return { success: false, error: "فقط مالک مسیر می‌تواند این مسیر را حذف کند" };
 
   const parsed = deleteProjectSchema.safeParse({ id });
   if (!parsed.success) {
@@ -247,7 +247,7 @@ export async function deleteProject(id: string): Promise<ActionResult> {
     where: { projectId: id, status: { not: "DONE" } },
   });
   if (activeTasks > 0) {
-    return { success: false, error: `نمی‌توان پروژه‌ای با ${activeTasks} تسک فعال را حذف کرد` };
+    return { success: false, error: `نمی‌توان مسیری با ${activeTasks} کار فعال را حذف کرد` };
   }
 
   await db.project.delete({ where: { id } });
@@ -290,7 +290,7 @@ export async function updateMemberRole(
   if (!member) return { success: false, error: "عضو یافت نشد" };
 
   const isOwner = await requireProjectOwner(member.projectId, session.user.id);
-  if (!isOwner) return { success: false, error: "تنها مالک پروژه می‌تواند نقش اعضا را تغییر دهد" };
+  if (!isOwner) return { success: false, error: "فقط مالک مسیر می‌تواند نقش اعضا را تغییر دهد" };
 
   if (member.role === "OWNER") {
     const ownerCount = await db.projectMember.count({
@@ -336,7 +336,7 @@ export async function removeMember(memberId: string): Promise<ActionResult> {
   }
 
   if (member.userId === session.user.id) {
-    return { success: false, error: "شما نمی‌توانید خود را از پروژه حذف کنید" };
+    return { success: false, error: "نمی‌توانی خودت را از مسیر حذف کنی" };
   }
 
   await db.projectMember.delete({ where: { id: memberId } });

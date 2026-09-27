@@ -51,7 +51,7 @@ export async function createComment(taskId: string, formData: FormData): Promise
     where: { id: taskId },
     select: { id: true, title: true, assignedToId: true, createdById: true },
   });
-  if (!task) return { success: false, error: "تسک یافت نشد" };
+  if (!task) return { success: false, error: "کار پیدا نشد" };
 
   const mentionIds = new Set<string>();
   for (const raw of formData.getAll("mentions")) {

@@ -82,7 +82,7 @@ export async function skipRecurrenceOccurrence(
       status: true,
     },
   });
-  if (!task) return { ok: false, error: "تسک یافت نشد" };
+  if (!task) return { ok: false, error: "کار پیدا نشد" };
   if (task.recurrence === "NONE") {
     return { ok: false, error: "این کار تکراری نیست" };
   }
@@ -128,7 +128,7 @@ export async function updateRecurrenceSeries(
       recurrence: true,
     },
   });
-  if (!task) return { ok: false, error: "تسک یافت نشد" };
+  if (!task) return { ok: false, error: "کار پیدا نشد" };
   if (task.assignedToId !== userId && task.createdById !== userId) {
     return { ok: false, error: "اجازه ندارید" };
   }
@@ -186,7 +186,7 @@ export async function stopRecurrenceSeries(
       createdById: true,
     },
   });
-  if (!task) return { ok: false, error: "تسک یافت نشد" };
+  if (!task) return { ok: false, error: "کار پیدا نشد" };
   if (task.assignedToId !== userId && task.createdById !== userId) {
     return { ok: false, error: "اجازه ندارید" };
   }

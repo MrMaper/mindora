@@ -22,13 +22,27 @@ export async function getBoardColumns(
     ...(filters.labelId
       ? { labels: { some: { labelId: filters.labelId } } }
       : {}),
-    ...(filters.projectIds && filters.projectIds.length > 0
-      ? { projectId: { in: filters.projectIds } }
-      : {}),
     ...(excludeHub ? taskWhereExcludeHub() : {}),
-    OR: [
-      { projectId: null },
-      { project: { status: { not: "ARCHIVED" as const } } },
+    AND: [
+      {
+        OR: [
+          { projectId: null },
+          { project: { status: { not: "ARCHIVED" as const } } },
+        ],
+      },
+      ...(filters.projectIds && filters.projectIds.length > 0
+        ? [{ projectId: { in: filters.projectIds } }]
+        : []),
+      ...(filters.area
+        ? [
+            {
+              OR: [
+                { area: filters.area },
+                { project: { area: filters.area } },
+              ],
+            },
+          ]
+        : []),
     ],
   };
 

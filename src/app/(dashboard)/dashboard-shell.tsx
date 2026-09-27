@@ -11,6 +11,8 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { SidebarNav, type NavGroup } from "./sidebar-nav";
+import { useTranslation } from "@/i18n/provider";
+import { openCapture } from "@/features/capture/open-capture";
 import { cn } from "@/lib/utils";
 
 interface DashboardShellProps {
@@ -26,6 +28,7 @@ interface DashboardShellProps {
   userName: string;
   userEmail: string;
   userImage?: string;
+  captureEnabled?: boolean;
   children: React.ReactNode;
 }
 
@@ -46,10 +49,32 @@ export function DashboardShell({
   userName,
   userEmail,
   userImage,
+  captureEnabled = false,
   children,
 }: DashboardShellProps) {
+  const t = useTranslation();
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const isRtl = language === "FA";
+
+  function renderCaptureLaunch() {
+    if (!captureEnabled) return null;
+    return (
+      <div className="shrink-0 border-b px-3 py-2">
+        <button
+          type="button"
+          onClick={() => {
+            setMobileOpen(false);
+            openCapture();
+          }}
+          className="flex w-full items-center gap-2 rounded-lg border border-border-default px-3 py-2 text-sm hover:bg-accent"
+        >
+          <Icon name="plus" size={16} />
+          <span className="min-w-0 flex-1 text-start">{t.dashboard.captureOpen}</span>
+          <kbd className="text-[10px] text-muted-foreground">N</kbd>
+        </button>
+      </div>
+    );
+  }
 
   const sidebar = (
     <SidebarNav
@@ -84,6 +109,7 @@ export function DashboardShell({
         )}
       >
         {brand}
+        {renderCaptureLaunch()}
         {sidebar}
       </aside>
 
@@ -99,6 +125,7 @@ export function DashboardShell({
             </SheetTitle>
           </SheetHeader>
           {brand}
+          {renderCaptureLaunch()}
           <div className="flex-1 min-h-0 overflow-hidden">{sidebar}</div>
         </SheetContent>
       </Sheet>
@@ -123,6 +150,18 @@ export function DashboardShell({
           <div className="min-w-0 flex-1">
             <BrandMark size="sm" showSlogan={false} />
           </div>
+          {captureEnabled ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-11"
+              aria-label={t.dashboard.captureOpen}
+              onClick={() => openCapture()}
+            >
+              <Icon name="plus" size={18} />
+            </Button>
+          ) : null}
           <Button
             type="button"
             variant="ghost"

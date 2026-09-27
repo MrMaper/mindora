@@ -39,8 +39,11 @@ export interface TaskFilters {
   priority: string;
   assignee: string;
   project: string;
+  area: string;
+  label: string;
   sort: string;
   order: string;
+  group: string;
 }
 
 export function useTasks(initialFilters: TaskFilters) {
@@ -240,9 +243,12 @@ export function useTasks(initialFilters: TaskFilters) {
     if (merged.status) params.set("status", merged.status);
     if (merged.priority) params.set("priority", merged.priority);
     if (merged.assignee) params.set("assignee", merged.assignee);
+    if (merged.area) params.set("area", merged.area);
     if (merged.project) params.set("project", merged.project);
+    if (merged.label) params.set("label", merged.label);
     if (merged.sort) params.set("sort", merged.sort);
     if (merged.order) params.set("order", merged.order);
+    if (merged.group) params.set("group", merged.group);
     params.set("page", "1");
     router.push(`/tasks?${params.toString()}`);
   }

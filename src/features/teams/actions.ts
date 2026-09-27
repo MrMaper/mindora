@@ -162,7 +162,7 @@ export async function deleteTeam(id: string): Promise<ActionResult> {
     where: { teamId: id, status: { not: "DONE" } },
   });
   if (activeTasks > 0) {
-    return { success: false, error: `نمی‌توان تیمی با ${activeTasks} تسک فعال را حذف کرد` };
+    return { success: false, error: `نمی‌توان تیمی با ${activeTasks} کار فعال را حذف کرد` };
   }
 
   // Guard: check for members

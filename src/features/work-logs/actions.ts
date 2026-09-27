@@ -49,13 +49,13 @@ export async function createWorkLog(formData: FormData): Promise<ActionResult> {
       project: { select: { name: true } },
     },
   });
-  if (!task) return { success: false, error: "تسک یافت نشد" };
+  if (!task) return { success: false, error: "کار پیدا نشد" };
 
   const isAdmin = session.user.role === "ADMIN";
   const isAssignee = task.assignedToId === session.user.id;
 
   if (!isAdmin && !isAssignee) {
-    return { success: false, error: "تنها عامل تسک می‌تواند لاگ کاری ثبت کند" };
+    return { success: false, error: "فقط مسئول این کار می‌تواند ساعت ثبت کند" };
   }
 
   const workLog = await db.workLog.create({
@@ -117,14 +117,14 @@ export async function updateWorkLog(formData: FormData): Promise<ActionResult> {
       task: { select: { title: true, assignedToId: true, projectId: true } },
     },
   });
-  if (!existing) return { success: false, error: "لاگ کاری یافت نشد" };
+  if (!existing) return { success: false, error: "ثبت ساعت پیدا نشد" };
 
   const isAdmin = session.user.role === "ADMIN";
   const isOwner = existing.userId === session.user.id;
   if (!isAdmin && !isOwner) {
     return {
       success: false,
-      error: "تنها صاحب لاگ یا ادمین می‌تواند آن را ویرایش کند",
+      error: "فقط کسی که این ساعت را ثبت کرده یا مدیر می‌تواند آن را ویرایش کند",
     };
   }
 
@@ -176,14 +176,14 @@ export async function deleteWorkLog(id: string): Promise<ActionResult> {
       description: true,
     },
   });
-  if (!existing) return { success: false, error: "لاگ کاری یافت نشد" };
+  if (!existing) return { success: false, error: "ثبت ساعت پیدا نشد" };
 
   const isAdmin = session.user.role === "ADMIN";
   const isOwner = existing.userId === session.user.id;
   if (!isAdmin && !isOwner) {
     return {
       success: false,
-      error: "تنها صاحب لاگ یا ادمین می‌تواند آن را حذف کند",
+      error: "فقط کسی که این ساعت را ثبت کرده یا مدیر می‌تواند آن را حذف کند",
     };
   }
 

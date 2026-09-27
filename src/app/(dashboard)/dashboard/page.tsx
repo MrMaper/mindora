@@ -53,11 +53,16 @@ export default async function DashboardPage() {
       yesterdayLeftover={data.yesterdayLeftover}
       focusTasks={data.focusTasks}
       focusIds={data.focusIds}
+      focusCandidates={data.focusCandidates}
       weekDays={data.weekDays}
       hoursThisWeek={data.hoursThisWeek}
       doneThisWeek={data.doneThisWeek}
       todayKey={data.todayKey}
       attention={data.attention}
+      attentionModules={{
+        language: flags.language,
+        research: flags.research,
+      }}
       habits={flags.habits ? habits : []}
       showOnboarding={!prefs?.onboardingCompletedAt}
       users={users}

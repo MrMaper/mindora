@@ -39,7 +39,7 @@ export function ReportingPreviewColumns({ language }: ReportingPreviewColumnsPro
               <td className="p-2 text-center text-text-tertiary">08:00</td>
               <td className="p-2 text-center text-text-tertiary">00:00</td>
               <td className="p-2 text-text-tertiary">
-                1. انجام تسک فرانت‌اند (04:00)
+                1. انجام کار فرانت‌اند (04:00)
                 <br />
                 2. کد ریویو (02:00)
                 <br />

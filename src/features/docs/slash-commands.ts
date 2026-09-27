@@ -109,7 +109,7 @@ export const SLASH_COMMANDS: SlashCommand[] = [
     aliases: ["task", "کار", "تسک"],
     labelFa: "ساخت کار از خط",
     labelEn: "Create task from line",
-    hintFa: "متن خط را به تسک تبدیل کن",
+    hintFa: "متن خط را به کار تبدیل کن",
     hintEn: "Turn this line into a task",
   },
   {

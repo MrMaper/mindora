@@ -15,7 +15,13 @@ import {
 import type { LifeArea, RecurrenceInterval } from "@/types/db";
 import { ensurePersonalWorkspace, projectIdForArea } from "./workspace";
 import { getCalendarTasks } from "./queries";
-import { taskWhereExcludeHub } from "@/lib/project-namespace";
+import { isHubArea, taskWhereExcludeHub } from "@/lib/project-namespace";
+import {
+  FOCUS_SLOT_COUNT,
+  isTodayFocusCandidate,
+  normalizeFocusSlots,
+  serializeFocusSlots,
+} from "@/features/life/focus-slots";
 
 export interface ActionResult {
   success: boolean;
@@ -38,12 +44,23 @@ export async function loadCalendarRange(fromIso: string, toIso: string) {
   return getCalendarTasks(session.user.id, new Date(fromIso), new Date(toIso));
 }
 
+function resolveDue(dateKey?: string, time?: string | null): Date | null {
+  if (!dateKey) return null;
+  const due = parseLocalDate(dateKey);
+  if (time && /^(\d{2}):(\d{2})$/.test(time)) {
+    const [hours, minutes] = time.split(":").map(Number);
+    if (hours <= 23 && minutes <= 59) due.setHours(hours, minutes, 0, 0);
+  }
+  return due;
+}
+
 export async function quickCapture(input: {
   title: string;
   area?: LifeArea;
   recurrence?: RecurrenceInterval;
   dueDate?: string;
-}): Promise<ActionResult> {
+  time?: string | null;
+}): Promise<ActionResult & { data?: { id: string } }> {
   const session = await auth();
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
@@ -55,26 +72,28 @@ export async function quickCapture(input: {
   const projectId = projectIdForArea(session.user.id, area);
 
   const recurrence = input.recurrence ?? "NONE";
-  await db.task.create({
+  const due = resolveDue(input.dueDate, input.time);
+  const task = await db.task.create({
     data: {
       title,
-      status: input.dueDate ? "TODO" : "BACKLOG",
+      status: due ? "TODO" : "BACKLOG",
       priority: "NONE",
       type: "TASK",
       area,
       recurrence,
       recurrenceSeriesId:
         recurrence !== "NONE" ? newRecurrenceSeriesId() : null,
-      dueDate: input.dueDate ? parseLocalDate(input.dueDate) : null,
+      dueDate: due,
       projectId,
       teamId,
       createdById: session.user.id,
       assignedToId: session.user.id,
     },
+    select: { id: true },
   });
 
   revalidateLife();
-  return { success: true };
+  return { success: true, data: { id: task.id } };
 }
 
 export async function completePersonalTask(taskId: string): Promise<ActionResult> {
@@ -85,7 +104,7 @@ export async function completePersonalTask(taskId: string): Promise<ActionResult
     where: { id: taskId },
     select: { id: true },
   });
-  if (!task) return { success: false, error: "تسک یافت نشد" };
+  if (!task) return { success: false, error: "کار پیدا نشد" };
 
   await db.task.update({
     where: { id: taskId },
@@ -126,7 +145,7 @@ export async function planTaskForToday(taskId: string): Promise<ActionResult> {
     where: { id: taskId },
     select: { id: true, assignedToId: true, createdById: true },
   });
-  if (!existing) return { success: false, error: "تسک یافت نشد" };
+  if (!existing) return { success: false, error: "کار پیدا نشد" };
 
   const allowed =
     session.user.role === "ADMIN" ||
@@ -173,43 +192,170 @@ export async function moveYesterdayToToday(): Promise<ActionResult & { data?: { 
   return { success: true, data: { moved: result.count } };
 }
 
-const MAX_FOCUS = 3;
-
-export async function toggleTodayFocus(taskId: string): Promise<ActionResult> {
-  const session = await auth();
-  if (!session?.user) return { success: false, error: "غیرمجاز" };
-
+async function readFocusSlots(userId: string): Promise<(string | null)[]> {
   const todayKey = toDateKey(new Date());
   const prefs = await db.userPreferences.upsert({
-    where: { userId: session.user.id },
+    where: { userId },
     create: {
-      userId: session.user.id,
+      userId,
       todayFocusDate: todayKey,
       todayFocusIds: [],
     },
     update: {},
     select: { todayFocusDate: true, todayFocusIds: true },
   });
+  if (prefs.todayFocusDate !== todayKey) return [null, null, null];
+  return normalizeFocusSlots(prefs.todayFocusIds);
+}
 
-  let ids =
-    prefs.todayFocusDate === todayKey ? [...prefs.todayFocusIds] : [];
+async function writeFocusSlots(userId: string, slots: (string | null)[]) {
+  const todayKey = toDateKey(new Date());
+  const todayFocusIds = serializeFocusSlots(slots);
+  await db.userPreferences.update({
+    where: { userId },
+    data: { todayFocusDate: todayKey, todayFocusIds },
+  });
+}
 
-  if (ids.includes(taskId)) {
-    ids = ids.filter(id => id !== taskId);
-  } else {
-    if (ids.length >= MAX_FOCUS) {
-      return { success: false, error: "حداکثر ۳ اولویت برای امروز" };
-    }
-    ids.push(taskId);
+async function loadOwnedTasks(userId: string, ids: string[]) {
+  if (ids.length === 0) return [];
+  return db.task.findMany({
+    where: {
+      id: { in: ids },
+      OR: [
+        { assignedToId: userId },
+        { createdById: userId, assignedToId: null },
+      ],
+    },
+    select: {
+      id: true,
+      status: true,
+      dueDate: true,
+      area: true,
+      project: { select: { area: true } },
+    },
+  });
+}
+
+function canAddToTodayFocus(
+  task: {
+    status: string;
+    dueDate: Date | null;
+    area: LifeArea | null;
+    project: { area: LifeArea | null } | null;
+  },
+  todayKey: string,
+) {
+  if (isHubArea(task.area) || isHubArea(task.project?.area)) return false;
+  return isTodayFocusCandidate(task, todayKey);
+}
+
+export async function setTodayFocus(ids: string[]): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
+  if (session.user.role === "ADMIN") {
+    return { success: false, error: "اولویت امروز برای فضای شخصی است" };
   }
 
-  await db.userPreferences.update({
-    where: { userId: session.user.id },
-    data: { todayFocusDate: todayKey, todayFocusIds: ids },
-  });
+  const slots = normalizeFocusSlots(ids.slice(0, FOCUS_SLOT_COUNT));
+  const real = slots.filter((id): id is string => !!id);
+  if (new Set(real).size !== real.length) {
+    return { success: false, error: "هر کار فقط در یک اولویت می‌نشیند" };
+  }
 
+  const previous = await readFocusSlots(session.user.id);
+  const kept = new Set(previous.filter((id): id is string => !!id));
+  const added = real.filter(id => !kept.has(id));
+  const owned = await loadOwnedTasks(session.user.id, real);
+  if (owned.length !== new Set(real).size) {
+    return { success: false, error: "کار پیدا نشد" };
+  }
+  const todayKey = toDateKey(startOfDay());
+  const ownedById = new Map(owned.map(task => [task.id, task]));
+  if (added.some(id => !canAddToTodayFocus(ownedById.get(id)!, todayKey))) {
+    return { success: false, error: "فقط کار عقب‌افتاده، کار امروز، یا کار بدون زمان را می‌توان اولویت کرد" };
+  }
+
+  await writeFocusSlots(session.user.id, slots);
   revalidateLife();
   return { success: true };
+}
+
+export async function toggleTodayFocus(taskId: string): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
+
+  const slots = await readFocusSlots(session.user.id);
+  const existing = slots.indexOf(taskId);
+  if (existing >= 0) {
+    slots[existing] = null;
+  } else {
+    const [task] = await loadOwnedTasks(session.user.id, [taskId]);
+    if (!task) return { success: false, error: "کار پیدا نشد" };
+    if (!canAddToTodayFocus(task, toDateKey(startOfDay()))) {
+      return { success: false, error: "فقط کار عقب‌افتاده، کار امروز، یا کار بدون زمان را می‌توان اولویت کرد" };
+    }
+    const hole = slots.indexOf(null);
+    if (hole < 0) {
+      return { success: false, error: "حداکثر ۳ اولویت برای امروز" };
+    }
+    slots[hole] = taskId;
+  }
+
+  await writeFocusSlots(session.user.id, slots);
+  revalidateLife();
+  return { success: true };
+}
+
+export async function logFocusSession(input: {
+  taskId: string;
+  minutes: number;
+}): Promise<ActionResult & { data?: { hours: number } }> {
+  const session = await auth();
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
+  if (session.user.role === "ADMIN") {
+    return { success: false, error: "جلسه تمرکز برای فضای شخصی است" };
+  }
+
+  const minutes = Math.round(input.minutes);
+  if (minutes < 1) return { success: true, data: { hours: 0 } };
+  if (minutes > 180) return { success: false, error: "جلسه طولانی‌تر از ۳ ساعت نیست" };
+
+  const task = await db.task.findFirst({
+    where: {
+      id: input.taskId,
+      OR: [
+        { assignedToId: session.user.id },
+        { createdById: session.user.id, assignedToId: null },
+      ],
+    },
+    select: { id: true },
+  });
+  if (!task) return { success: false, error: "کار پیدا نشد" };
+
+  const hours = Math.round((minutes / 60) * 100) / 100;
+  const workLog = await db.workLog.create({
+    data: {
+      taskId: task.id,
+      userId: session.user.id,
+      hours,
+      date: parseLocalDate(toDateKey(new Date())),
+      description: "جلسه تمرکز",
+    },
+  });
+
+  await db.activityLog.create({
+    data: {
+      entity: "work_log",
+      entityId: workLog.id,
+      action: "created",
+      performedBy: session.user.id,
+      newValue: { hours, description: "جلسه تمرکز" },
+    },
+  });
+
+  revalidateLife(["/work-logs", "/reporting"]);
+  return { success: true, data: { hours } };
 }
 
 export async function stopTaskRecurrence(
@@ -278,7 +424,7 @@ export async function rescheduleTaskDueDate(
     where: { id: taskId },
     select: { assignedToId: true, dueDate: true },
   });
-  if (!existing) return { success: false, error: "تسک یافت نشد" };
+  if (!existing) return { success: false, error: "کار پیدا نشد" };
 
   const isAdmin = session.user.role === "ADMIN";
   const isAssignee = existing.assignedToId === session.user.id;

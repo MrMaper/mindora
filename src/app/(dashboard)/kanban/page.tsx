@@ -8,8 +8,12 @@ import { getLabels } from "@/features/labels/queries";
 import { getUserProjects } from "@/features/projects/queries";
 import { KanbanCC } from "./components/client";
 import type { TaskPriority } from "@/types/db";
+import { isLifeAreaValue, scopeFromFilters } from "@/lib/project-namespace";
+import { localizedTitle } from "@/lib/page-title";
 
-export const metadata: Metadata = { title: "Board" };
+export function generateMetadata(): Promise<Metadata> {
+  return localizedTitle("بورد", "Board");
+}
 
 interface KanbanSearchParams {
   search?: string;
@@ -17,6 +21,7 @@ interface KanbanSearchParams {
   label?: string;
   priority?: string;
   project?: string;
+  area?: string;
 }
 
 export default async function KanbanPage({
@@ -34,23 +39,25 @@ export default async function KanbanPage({
     label = "",
     priority = "",
     project = "",
+    area = "",
   } = await searchParams;
 
   const effectiveAssignee = session.user.id;
-  const projectIds = project ? project.split(",").filter(Boolean) : undefined;
+  const userProjects = await getUserProjects(session.user.id, "assignable");
+  const scope = scopeFromFilters(area, project, userProjects);
 
-  const [columns, users, labels, userProjects] = await Promise.all([
+  const [columns, users, labels] = await Promise.all([
     getBoardColumns({
       search: search || undefined,
       assigneeId: effectiveAssignee,
       labelId: label || undefined,
       priority: (priority || undefined) as TaskPriority | undefined,
-      projectIds,
+      projectIds: scope.projectId ? [scope.projectId] : undefined,
+      area: isLifeAreaValue(scope.area) ? scope.area : undefined,
       excludeHub: false,
     }),
     getAssignableUsers(session.user.id),
     getLabels(),
-    getUserProjects(session.user.id, "assignable"),
   ]);
 
   return (
@@ -59,7 +66,14 @@ export default async function KanbanPage({
       users={users}
       labels={labels}
       userProjects={userProjects}
-      filters={{ search, assignee, label, priority, project }}
+      filters={{
+        search,
+        assignee,
+        label,
+        priority,
+        project: scope.projectId,
+        area: scope.area,
+      }}
       currentUserId={session.user.id}
       currentUserRole={session.user.role}
     />

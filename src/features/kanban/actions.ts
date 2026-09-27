@@ -45,7 +45,7 @@ export async function moveTask(params: {
     where: { id: params.taskId },
     select: { status: true, title: true, assignedToId: true },
   });
-  if (!existing) return { success: false, error: "تسک یافت نشد" };
+  if (!existing) return { success: false, error: "کار پیدا نشد" };
 
   await db.$transaction(
     params.orderedIds.map((id, index) =>

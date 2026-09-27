@@ -1,4 +1,4 @@
-import type { TaskStatus, TaskPriority, TaskType } from "@/types/db";
+import type { LifeArea, TaskStatus, TaskPriority, TaskType } from "@/types/db";
 import type { TaskStatus as DisplayStatus } from "@/components/ui-kit/agile/status-badge";
 import type { Priority as DisplayPriority } from "@/components/ui-kit/agile/priority-icon";
 
@@ -55,10 +55,14 @@ export interface GetTasksParams {
   priority?: TaskPriority;
   assigneeId?: string;
   projectIds?: string[];
+  area?: LifeArea;
+  labelId?: string;
   /** Default true: hide research/language hub tasks on /tasks. */
   excludeHub?: boolean;
-  sort?: "title" | "priority" | "status" | "dueDate" | "createdAt";
+  sort?: "title" | "project" | "status" | "priority" | "assignee" | "dueDate" | "createdAt";
   order?: "asc" | "desc";
+  /** When set, the page returns the filtered set so groups stay intact. */
+  group?: "path" | "date" | "status" | "area";
   page?: number;
 }
 

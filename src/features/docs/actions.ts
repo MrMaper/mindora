@@ -172,7 +172,7 @@ export async function createDoc(input?: {
 
   if (input?.projectId) {
     const ok = await assertProjectMember(input.projectId, session.user.id);
-    if (!ok) return { success: false, error: "پروژه پیدا نشد" };
+    if (!ok) return { success: false, error: "مسیر پیدا نشد" };
   }
 
   const doc = await db.doc.create({
@@ -241,7 +241,7 @@ export async function updateDoc(
 
   if (input.projectId) {
     const ok = await assertProjectMember(input.projectId, session.user.id);
-    if (!ok) return { success: false, error: "پروژه پیدا نشد" };
+    if (!ok) return { success: false, error: "مسیر پیدا نشد" };
   }
 
   const data: {
@@ -358,7 +358,7 @@ export async function linkDocTask(
     },
     select: { id: true },
   });
-  if (!task) return { success: false, error: "تسک پیدا نشد" };
+  if (!task) return { success: false, error: "کار پیدا نشد" };
 
   await db.docTask.upsert({
     where: { docId_taskId: { docId, taskId } },

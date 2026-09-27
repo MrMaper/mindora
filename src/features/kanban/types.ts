@@ -1,4 +1,4 @@
-import type { TaskPriority } from "@/types/db";
+import type { LifeArea, TaskPriority } from "@/types/db";
 import type { TaskRow } from "@/features/tasks/types";
 
 export type BoardStatus =
@@ -37,6 +37,7 @@ export interface BoardFilters {
   labelId?: string;
   priority?: TaskPriority;
   projectIds?: string[];
+  area?: LifeArea;
   /** When true (default for /kanban), hide research/language hub tasks. */
   excludeHub?: boolean;
   /** Cap cards loaded for the board (default 400). */

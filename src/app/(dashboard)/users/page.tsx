@@ -4,8 +4,11 @@ import { requireAdmin } from "@/lib/require-role";
 import { getUsers } from "@/features/users/queries";
 import { getUserPreferences } from "@/features/settings/queries";
 import { UsersCC } from "./components/client";
+import { localizedTitle } from "@/lib/page-title";
 
-export const metadata: Metadata = { title: "Users" };
+export function generateMetadata(): Promise<Metadata> {
+  return localizedTitle("کاربرها", "Users");
+}
 
 export default async function UsersPage({
   searchParams,

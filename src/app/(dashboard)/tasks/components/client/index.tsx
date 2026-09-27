@@ -13,7 +13,7 @@ import type { UserRow } from "@/features/users/types";
 import type { LabelRow } from "@/features/labels/types";
 import type { Language } from "@/types/db";
 import type { ProjectRow } from "@/features/projects/types";
-import { withCurrentProjectOption, projectPickerLabel } from "@/lib/project-namespace";
+import { formatClock } from "@/lib/life";
 
 // UI components
 import { PageHeader } from "../ui/page-header";
@@ -37,8 +37,11 @@ interface TasksCCProps {
     priority: string;
     assignee: string;
     project: string;
+    area: string;
+    label: string;
     sort: string;
     order: string;
+    group: string;
   };
   page: number;
   language: Language;
@@ -67,22 +70,6 @@ export function TasksCC({
     ...users.map(usr => ({ value: usr.id, label: usr.name })),
   ];
 
-  const projectOptions = withCurrentProjectOption(
-    [
-      { value: "", label: t.tasks.noProject },
-      ...userProjects.map(proj => ({
-        value: proj.id,
-        label: projectPickerLabel(proj, language === "EN" ? "EN" : "FA"),
-      })),
-    ],
-    u.activeTask?.projectId
-      ? {
-          id: u.activeTask.projectId,
-          name: u.activeTask.projectName ?? u.activeTask.projectId,
-        }
-      : null,
-  );
-
   const statusOptions = withEmptyOption(
     getAllOptionsWithLabels(t, "status"),
     t.tasks.allStatuses,
@@ -97,6 +84,8 @@ export function TasksCC({
     filters.priority ||
     filters.assignee ||
     filters.project ||
+    filters.area ||
+    filters.label ||
     filters.search
   );
 
@@ -104,11 +93,14 @@ export function TasksCC({
 
   function formatDate(date: Date | null): string {
     if (!date) return "—";
-    return new Date(date).toLocaleDateString(dateLocale, {
+    const value = new Date(date);
+    const day = value.toLocaleDateString(dateLocale, {
       month: "short",
       day: "numeric",
       year: "numeric",
     });
+    const clock = formatClock(value, language);
+    return clock ? `${day} ${clock}` : day;
   }
 
   return (
@@ -126,8 +118,9 @@ export function TasksCC({
         t={t.tasks}
         filters={filters}
         search={u.search}
-        project={u.project}
-        projectOptions={projectOptions}
+        projects={userProjects}
+        labels={labels}
+        language={language === "EN" ? "EN" : "FA"}
         statusOptions={statusOptions}
         priorityOptions={priorityOptions}
         userOptions={userOptions}
@@ -138,10 +131,17 @@ export function TasksCC({
             filter as Partial<import("../hooks/use-tasks").TaskFilters>,
           )
         }
-        onProjectChange={u.setProject}
         onClearFilters={() => {
           u.setProject("");
-          u.applyFilters({ search: "", status: "", priority: "", assignee: "", project: "" });
+          u.applyFilters({
+            search: "",
+            status: "",
+            priority: "",
+            assignee: "",
+            project: "",
+            area: "",
+            label: "",
+          });
         }}
         hasActiveFilters={hasActiveFilters}
         currentUserRole={currentUserRole}
@@ -154,11 +154,27 @@ export function TasksCC({
       <TasksTable
         tasks={tasks}
         t={t}
-        filters={{ sort: filters.sort, order: filters.order }}
+        filters={{ sort: filters.sort, order: filters.order, group: filters.group }}
+        language={language === "EN" ? "EN" : "FA"}
+        hasActiveFilters={hasActiveFilters}
         onSortChange={u.changeSort}
         onRowClick={u.openEdit}
         onEdit={u.openEdit}
         onDelete={u.setDeleteTarget}
+        onCreate={u.openCreate}
+        onClearFilters={() => {
+          u.setSearch("");
+          u.setProject("");
+          u.applyFilters({
+            search: "",
+            status: "",
+            priority: "",
+            assignee: "",
+            project: "",
+            area: "",
+            label: "",
+          });
+        }}
         formatDate={formatDate}
         currentUserId={currentUserId}
         currentUserRole={currentUserRole}

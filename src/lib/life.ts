@@ -1,5 +1,6 @@
 import type { LifeArea, RecurrenceInterval } from "@/types/db";
 import { toJalaali, toGregorian, jalaaliMonthLength } from "jalaali-js";
+import { formatNumber } from "@/lib/utils";
 
 export {
   AREA_PROJECT_IDS,
@@ -34,7 +35,7 @@ export const AREA_META: Record<
   WORK: {
     nameFa: "کار",
     nameEn: "Work",
-    descriptionFa: "کارها و پروژه‌های شغلی",
+    descriptionFa: "شغل و کارهای حرفه‌ای",
     descriptionEn: "Job and professional projects",
   },
   LIFE: {
@@ -133,6 +134,16 @@ export function formatJalaliDate(date: Date, language: "FA" | "EN" = "FA"): stri
   const { jy, jm, jd } = toJalaali(date);
   const weekday = PERSIAN_WEEKDAYS[date.getDay()];
   return `${weekday} ${jd} ${PERSIAN_MONTHS[jm - 1]} ${jy}`;
+}
+
+/** Clock label when a due date has a real time. Noon is the dateless default. */
+export function formatClock(date: Date, language: "FA" | "EN" = "FA"): string | null {
+  const value = new Date(date);
+  if (value.getHours() === 12 && value.getMinutes() === 0) return null;
+  return formatNumber(
+    `${String(value.getHours()).padStart(2, "0")}:${String(value.getMinutes()).padStart(2, "0")}`,
+    language,
+  );
 }
 
 export function formatJalaliShort(date: Date, language: "FA" | "EN" = "FA"): string {

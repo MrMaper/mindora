@@ -1,0 +1,43 @@
+# Universal Capture
+
+ثبت سریع یک دیالوگ برای کل فضای عضو است. جمله را با قانون محلی می‌خواند، نه با مدل زبانی. میانبرش کلید N است. Ctrl+K جستجو می‌ماند.
+
+Quick capture is one dialog for the whole member workspace. It is rule-based. Do not add an LLM parser unless the product owner asks.
+
+## How to open it
+
+- Physical key **N** (the `KeyN` key), with no modifier, when focus is not in a text field.
+- The sidebar button «ثبت سریع», the mobile header button, and the slim row on Today, Calendar, and Weekly review.
+- **Ctrl+K / Cmd+K stays search.** Do not reuse it for capture.
+
+## What a sentence becomes
+
+The server parses the text again. The dialog preview uses the same rules.
+
+| Input | Result |
+| --- | --- |
+| `فردا ساعت ۱۰ مقاله STT را بررسی کنم` | Task, tomorrow, 10:00, area PhD (دکتری) |
+| `ایده: …` or `یادداشت:` / `note:` / `idea:` | Doc with status IDEA |
+| `/task` `/note` `/idea` `/research` `/habit` | Forces that kind. Persian aliases: `/یادداشت` `/ایده` `/پژوهش` `/عادت` |
+| `/research` or words like مقاله، پژوهش، phd, paper | Task in the PhD area. This is not a separate research-pipeline item. |
+| `عادت:` or `/habit` | Habit. `هر هفته` / weekly → weekly; otherwise daily. |
+| `هر روز` `هر هفته` `هر ماه` | Task recurrence. |
+| امروز / فردا / پس‌فردا, today / tomorrow, weekday names, `تا جمعه` | Due day. A named day wins over the page default. |
+| `دو روز دیگر`, `۳ روز بعد`, `هفته بعد` / `هفته آینده` | A day counted from today, or seven days ahead. |
+| `امشب` | Today at 21:00. |
+| `صبح` / `ظهر` / `عصر` / `شب` with no clock | 09:00, 12:00, 17:00, 21:00. An explicit `ساعت …` wins. |
+| `ساعت ۱۰`, `ساعت ده و نیم`, `۱۰:۳۰`, `at 10`, `شب` / `عصر` | Clock time on the task due date. Without a time, a dated task stays at noon. Lists show that clock beside the day; noon stays date-only. The task date field is still a day picker. |
+
+Area chips in the dialog override the guess. Life is the default area. The bare word «کار» does not switch the area to work; شغل، اداره، دفتر، work, and job do. The dialog lists these rules under «چطور جمله را می‌خواند؟» and shows the title that will be stored.
+
+PhD and language tasks are saved on the member’s tasks, with area, project, due date, and clock. They do not appear on Today or the calendar. They show on All tasks and the board.
+
+If the sentence has no day, the open page supplies one: Today uses today, Calendar uses the selected day. Other pages leave the task undated (inbox) unless the sentence names a day. A clock time with no day is stored on today.
+
+Notes keep date words in the title. Habits do not get a due date.
+
+Empty title after stripping the day and time is rejected.
+
+## Modules
+
+Tasks, docs, and habits each require that module to be on. Admin accounts do not get this dialog; their shell is management-only.

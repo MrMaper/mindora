@@ -96,7 +96,7 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
       where: { projectId_userId: { projectId, userId: session.user.id } },
     });
     if (!projectMember) {
-      return { success: false, error: "شما به این پروژه دسترسی ندارید" };
+      return { success: false, error: "به این مسیر دسترسی ندارید" };
     }
     if (!area) {
       const project = await db.project.findUnique({
@@ -227,7 +227,7 @@ export async function updateTask(
       labels: { select: { labelId: true } },
     },
   });
-  if (!existing) return { success: false, error: "تسک یافت نشد" };
+  if (!existing) return { success: false, error: "کار پیدا نشد" };
 
   // Validate project access if projectId is provided
   let projectId = parsed.data.projectId || null;
@@ -247,7 +247,7 @@ export async function updateTask(
       where: { projectId_userId: { projectId, userId: session.user.id } },
     });
     if (!projectMember) {
-      return { success: false, error: "شما به این پروژه دسترسی ندارید" };
+      return { success: false, error: "به این مسیر دسترسی ندارید" };
     }
   }
 
@@ -257,7 +257,7 @@ export async function updateTask(
   if (!isAdmin && !isAssignee) {
     return {
       success: false,
-      error: "تنها عامل یا ادمین می‌تواند این تسک را ویرایش کند",
+      error: "فقط مسئول این کار یا مدیر می‌تواند آن را ویرایش کند",
     };
   }
 
@@ -499,7 +499,7 @@ export async function updateTaskStatus(
     where: { id },
     select: { status: true, title: true, assignedToId: true },
   });
-  if (!existing) return { success: false, error: "تسک یافت نشد" };
+  if (!existing) return { success: false, error: "کار پیدا نشد" };
 
   // Authorization: only admin or assignee can change status
   const isAdmin = session.user.role === "ADMIN";
@@ -507,7 +507,7 @@ export async function updateTaskStatus(
   if (!isAdmin && !isAssignee) {
     return {
       success: false,
-      error: "تنها عامل یا ادمین می‌تواند وضعیت تسک را تغییر دهد",
+      error: "فقط مسئول این کار یا مدیر می‌تواند وضعیتش را عوض کند",
     };
   }
 
@@ -568,7 +568,7 @@ export async function deleteTask(id: string): Promise<ActionResult> {
     where: { id },
     select: { id: true, assignedToId: true, projectId: true },
   });
-  if (!existing) return { success: false, error: "تسک یافت نشد" };
+  if (!existing) return { success: false, error: "کار پیدا نشد" };
 
   // Authorization: only admin or assignee can delete
   const isAdmin = session.user.role === "ADMIN";
@@ -576,7 +576,7 @@ export async function deleteTask(id: string): Promise<ActionResult> {
   if (!isAdmin && !isAssignee) {
     return {
       success: false,
-      error: "تنها عامل یا ادمین می‌تواند این تسک را حذف کند",
+      error: "فقط مسئول این کار یا مدیر می‌تواند آن را حذف کند",
     };
   }
 

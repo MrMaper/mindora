@@ -111,9 +111,9 @@ export function WorkLogButton({
 
 const buttonTranslations = {
   en: {
-    workLogs: "Work Logs",
+    workLogs: "Hours",
   },
   fa: {
-    workLogs: "لاگ‌های کاری",
+    workLogs: "ساعت‌ها",
   },
 };

@@ -30,6 +30,7 @@ import { useAreaBuckets } from "@/components/area-buckets-provider";
 interface KanbanFilters {
   search: string;
   project: string;
+  area?: string;
   assignee: string;
   label: string;
   priority: string;
@@ -351,6 +352,7 @@ export function useKanban(
     if (merged.assignee) params.set("assignee", merged.assignee);
     if (merged.label) params.set("label", merged.label);
     if (merged.priority) params.set("priority", merged.priority);
+    if (urlProjectParam === undefined && merged.area) params.set("area", merged.area);
     const projectForUrl =
       urlProjectParam !== undefined ? urlProjectParam : merged.project;
     if (projectForUrl) params.set("project", projectForUrl);

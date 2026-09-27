@@ -1,0 +1,14 @@
+---
+description: Persist important leftover decisions into project docs when summarizing or leaving work unfinished
+alwaysApply: true
+---
+
+# Persist important context in project docs
+
+When you summarize the conversation, compact context, or stop with work unfinished:
+
+1. Write the important remaining decisions, constraints, and current behavior into project docs (`docs/` or `docs/ROADMAP.md`), not only into the chat.
+2. Update the doc that already owns that topic instead of starting a parallel note. Capture behavior lives in `docs/CAPTURE.md`. Deferred work lives in `docs/ROADMAP.md`.
+3. Do not treat a chat summary as the source of truth for product behavior.
+
+Skip secrets, passwords, and one-off debug noise.

@@ -9,7 +9,7 @@ import type { UserRow } from "@/features/users/types";
 import type { ProjectRow } from "@/features/projects/types";
 import type { Language } from "@/types/db";
 import type { WorkLogSummary } from "@/features/work-logs/types";
-import { projectPickerLabel } from "@/lib/project-namespace";
+import { AreaPathFilters } from "@/components/life/area-path-filters";
 import { Icon } from "@/components/ui-kit/foundation/icon";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui-kit/data-display/badge";
@@ -24,6 +24,7 @@ interface WorkLogsCCProps {
   filters: {
     userId: string;
     projectId: string;
+    area: string;
     dateFrom: string;
     dateTo: string;
   };
@@ -53,30 +54,27 @@ export function WorkLogsCC({
     ...users.map(u => ({ value: u.id, label: u.name })),
   ];
 
-  const projectOptions = [
-    { value: "", label: t.workLogs.allProjects },
-    ...userProjects.map(p => ({
-      value: p.id,
-      label: projectPickerLabel(p, language === "EN" ? "EN" : "FA"),
-    })),
-  ];
-
   const hasActiveFilters = !!(
     filters.userId ||
     filters.projectId ||
+    filters.area ||
     filters.dateFrom ||
     filters.dateTo
   );
 
-  const handleFilterChange = (key: string, value: string) => {
+  const writeFilters = (next: typeof filters) => {
     const params = new URLSearchParams();
-    const newFilters = { ...filters, [key]: value };
-    if (newFilters.userId) params.set("userId", newFilters.userId);
-    if (newFilters.projectId) params.set("projectId", newFilters.projectId);
-    if (newFilters.dateFrom) params.set("dateFrom", newFilters.dateFrom);
-    if (newFilters.dateTo) params.set("dateTo", newFilters.dateTo);
+    if (next.userId) params.set("userId", next.userId);
+    if (next.area) params.set("area", next.area);
+    if (next.projectId) params.set("projectId", next.projectId);
+    if (next.dateFrom) params.set("dateFrom", next.dateFrom);
+    if (next.dateTo) params.set("dateTo", next.dateTo);
     params.set("page", "1");
     window.location.href = `/work-logs?${params.toString()}`;
+  };
+
+  const handleFilterChange = (key: string, value: string) => {
+    writeFilters({ ...filters, [key]: value });
   };
 
   const formatDate = (date: Date): string => {
@@ -144,12 +142,20 @@ export function WorkLogsCC({
                 placeholder={t.workLogs.allUsers}
               />
             )}
-            <Select
-              label={t.workLogs.project}
-              options={projectOptions}
-              value={filters.projectId}
-              onChange={value => handleFilterChange("projectId", value)}
-              placeholder={t.workLogs.allProjects}
+            <AreaPathFilters
+              projects={userProjects}
+              area={filters.area}
+              project={filters.projectId}
+              language={language === "EN" ? "EN" : "FA"}
+              labels={{
+                area: t.workLogs.area,
+                path: t.workLogs.path,
+                allAreas: t.workLogs.allAreas,
+                allPaths: t.workLogs.allPaths,
+              }}
+              onChange={next =>
+                writeFilters({ ...filters, area: next.area, projectId: next.project })
+              }
             />
             <DatePicker
               value={filters.dateFrom ? new Date(filters.dateFrom) : null}

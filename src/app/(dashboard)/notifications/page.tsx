@@ -4,8 +4,11 @@ import { auth } from "@/auth";
 import { getNotifications } from "@/features/notifications/queries";
 import { getUserPreferences } from "@/features/settings/queries";
 import { NotificationsCC } from "./notifications-cc";
+import { localizedTitle } from "@/lib/page-title";
 
-export const metadata: Metadata = { title: "Notifications" };
+export function generateMetadata(): Promise<Metadata> {
+  return localizedTitle("اعلان‌ها", "Notifications");
+}
 
 export default async function NotificationsPage({
   searchParams,

@@ -9,12 +9,17 @@ import { getWorkLogSummary } from "@/features/work-logs/queries";
 import { WorkLogsCC } from "./work-logs-cc";
 import { SelectProvider } from "@/components/ui-kit/forms/common";
 import type { Language } from "@/types/db";
+import { isLifeAreaValue, scopeFromFilters } from "@/lib/project-namespace";
+import { localizedTitle } from "@/lib/page-title";
 
-export const metadata: Metadata = { title: "Work Logs" };
+export function generateMetadata(): Promise<Metadata> {
+  return localizedTitle("ساعت‌ها", "Hours");
+}
 
 interface WorkLogsSearchParams {
   userId?: string;
   projectId?: string;
+  area?: string;
   dateFrom?: string;
   dateTo?: string;
   page?: string;
@@ -34,6 +39,7 @@ export default async function WorkLogsPage({
   const {
     userId = "",
     projectId = "",
+    area = "",
     dateFrom = "",
     dateTo = "",
     page = "1",
@@ -44,16 +50,17 @@ export default async function WorkLogsPage({
 
   const [users, userProjects, preferences] = await Promise.all([
     getAssignableUsers(session.user.id),
-    getUserProjects(session.user.id, "life"),
+    getUserProjects(session.user.id, "assignable"),
     getUserPreferences(session.user.id),
   ]);
 
   const language = preferences?.language ?? "FA";
+  const scope = scopeFromFilters(area, projectId, userProjects);
 
-  // Get summary data
   const summary = await getWorkLogSummary({
     userId: effectiveUserId,
-    projectId: projectId || undefined,
+    projectId: scope.projectId || undefined,
+    area: isLifeAreaValue(scope.area) ? scope.area : undefined,
     dateFrom: dateFrom ? new Date(dateFrom) : undefined,
     dateTo: dateTo ? new Date(dateTo) : undefined,
     page: Math.max(1, Number(page)),
@@ -65,7 +72,13 @@ export default async function WorkLogsPage({
         users={users}
         userProjects={userProjects}
         summary={summary}
-        filters={{ userId, projectId, dateFrom, dateTo }}
+        filters={{
+          userId,
+          projectId: scope.projectId,
+          area: scope.area,
+          dateFrom,
+          dateTo,
+        }}
         page={Math.max(1, Number(page))}
         language={language}
         currentUserId={session.user.id}

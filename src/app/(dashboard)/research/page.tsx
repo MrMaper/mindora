@@ -21,8 +21,11 @@ import {
 } from "@/features/research/queries";
 import { RESEARCH_SCOPE_COOKIE } from "@/features/research/scope-cookie";
 import { ResearchCC } from "./research-cc";
+import { localizedTitle } from "@/lib/page-title";
 
-export const metadata: Metadata = { title: "پژوهش" };
+export function generateMetadata(): Promise<Metadata> {
+  return localizedTitle("پژوهش", "Research");
+}
 
 export default async function ResearchPage({
   searchParams,

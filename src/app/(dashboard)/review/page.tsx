@@ -12,8 +12,11 @@ import { getLabels } from "@/features/labels/queries";
 import { getUserProjects } from "@/features/projects/queries";
 import { ensureWeeklyReviewDoc } from "@/features/docs/weekly";
 import { ReviewCC } from "./review-cc";
+import { localizedTitle } from "@/lib/page-title";
 
-export const metadata: Metadata = { title: "بازبینی هفته" };
+export function generateMetadata(): Promise<Metadata> {
+  return localizedTitle("بازبینی هفته", "Weekly review");
+}
 
 export default async function ReviewPage() {
   await requireModule("review");

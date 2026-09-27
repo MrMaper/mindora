@@ -77,10 +77,10 @@ async function sendHelpMessage(chatId: number): Promise<void> {
 
 *اعلان‌ها:*
 پس از اتصال حساب، اعلان‌های زیر را دریافت خواهید کرد:
-• 📋 اختصاص وظیفه جدید
-• 🔄 تغییر وضعیت وظایف
-• 💬 نظرهای ثبت‌شده روی وظایف
-• ⏱️ به‌روزرسانی ثبت زمان کار`;
+• 📋 سپردن کار تازه
+• 🔄 تغییر وضعیت کارها
+• 💬 دیدگاه روی کارها
+• ⏱️ ثبت ساعت`;
 
   await sendMessage({ chat_id: chatId, text: message, parse_mode: "Markdown" });
 }
@@ -156,10 +156,10 @@ async function handleEmailCommand(
 حساب بله شما به ایمیل \`${email}\` در Mindora متصل شد.
 
 اعلان‌های زیر را دریافت خواهید کرد:
-• 📋 اختصاص وظیفه جدید
-• 🔄 تغییر وضعیت وظایف
-• 💬 نظرهای ثبت‌شده روی وظایف
-• ⏱️ ثبت و به‌روزرسانی زمان کار`,
+• 📋 سپردن کار تازه
+• 🔄 تغییر وضعیت کارها
+• 💬 دیدگاه روی کارها
+• ⏱️ ثبت ساعت`,
       parse_mode: "Markdown",
     });
   } else {
@@ -225,11 +225,11 @@ async function handleCallbackQuery(
   if (data.startsWith("task_")) {
     const taskId = data.replace("task_", "");
 
-    const message = `📋 *جزئیات وظیفه*
+    const message = `📋 *جزئیات کار*
 
-*شناسه وظیفه:* \`${taskId}\`
+*شناسه کار:* \`${taskId}\`
 
-[مشاهده وظیفه در Mindora](${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/tasks/${taskId})`;
+[مشاهده کار در Mindora](${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/tasks/${taskId})`;
 
     await sendMessage({
       chat_id: chatId,

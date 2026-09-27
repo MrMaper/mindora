@@ -35,7 +35,7 @@ export async function uploadAttachment(taskId: string, formData: FormData): Prom
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const task = await db.task.findUnique({ where: { id: taskId }, select: { id: true } });
-  if (!task) return { success: false, error: "تسک یافت نشد" };
+  if (!task) return { success: false, error: "کار پیدا نشد" };
 
   const file = formData.get("file") as File | null;
   if (!file || file.size === 0) return { success: false, error: "فایلی انتخاب نشده است" };

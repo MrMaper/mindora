@@ -17,6 +17,7 @@ import { Button } from "@/components/ui-kit/forms/button";
 import { Icon } from "@/components/ui-kit/foundation/icon";
 import { LifeTaskList } from "@/components/life/life-task-list";
 import { QuickCapture } from "@/components/life/quick-capture";
+import { CapturePageDate } from "@/components/life/capture-provider";
 import { listDocsByTaskIdsAction } from "@/features/docs/actions";
 import { EditTaskDrawer } from "../kanban/components/ui/edit-task-drawer";
 import { useLanguage, useTranslation } from "@/i18n/provider";
@@ -719,6 +720,7 @@ export function CalendarCC({
                   </h3>
                 </div>
               </div>
+              <CapturePageDate dueDate={toDateKey(selected)} />
               <QuickCapture compact dueDate={toDateKey(selected)} />
               <div className="flex-1 min-h-0 overflow-auto">
                 <LifeTaskList

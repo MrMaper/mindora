@@ -4,8 +4,11 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getProjectsHub } from "@/features/projects/queries";
 import { ProjectsCC } from "./components/client";
+import { localizedTitle } from "@/lib/page-title";
 
-export const metadata: Metadata = { title: "Areas & paths" };
+export function generateMetadata(): Promise<Metadata> {
+  return localizedTitle("حوزه‌ها و مسیرها", "Areas & paths");
+}
 
 export default async function ProjectsPage({
   searchParams,

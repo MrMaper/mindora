@@ -73,6 +73,8 @@ Goal: every member surface is usable one-handed on a phone — no clipped filter
 
 ## Other known later items (not this doc’s focus)
 
+- Universal Capture stays on the local rules in `docs/CAPTURE.md`. Do not add an LLM parser unless asked.
+
 - Stronger citations (CSL / BibTeX pack / Zotero) — R2
 - External calendar ICS sync — LF2
 - Orphan admin routes cleanup (users / teams / reporting)

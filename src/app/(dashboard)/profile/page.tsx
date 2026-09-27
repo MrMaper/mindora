@@ -4,8 +4,11 @@ import { requireAuth } from "@/lib/require-role";
 import { getUserById } from "@/features/users/queries";
 import { getUserPreferences } from "@/features/settings/queries";
 import { ProfileCC } from "./profile-cc";
+import { localizedTitle } from "@/lib/page-title";
 
-export const metadata: Metadata = { title: "Profile" };
+export function generateMetadata(): Promise<Metadata> {
+  return localizedTitle("پروفایل", "Profile");
+}
 
 export default async function ProfilePage() {
   const session = await requireAuth();

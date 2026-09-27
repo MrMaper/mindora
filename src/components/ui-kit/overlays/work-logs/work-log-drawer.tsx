@@ -93,15 +93,15 @@ export function WorkLogDrawer({
 
 const workLogTranslations = {
   en: {
-    workLogs: "Work Logs",
+    workLogs: "Hours",
     totalHours: "Total",
-    addWorkLog: "Add Work Log",
+    addWorkLog: "Log time",
     backToList: "Back to List",
   },
   fa: {
-    workLogs: "لاگ‌های کاری",
+    workLogs: "ساعت‌ها",
     totalHours: "مجموع",
-    addWorkLog: "افزودن لاگ",
+    addWorkLog: "ثبت ساعت",
     backToList: "بازگشت به لیست",
   },
 };

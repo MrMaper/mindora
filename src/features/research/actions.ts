@@ -61,7 +61,7 @@ export async function createResearchProjectAction(input: {
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const name = input.name.trim();
-  if (!name) return { success: false, error: "نام پروژه لازم است" };
+  if (!name) return { success: false, error: "نام مسیر لازم است" };
 
   const project = await db.project.create({
     data: {
@@ -112,7 +112,7 @@ export async function createDocLinkedToTask(input: {
     },
     select: { id: true, title: true, projectId: true },
   });
-  if (!task) return { success: false, error: "تسک پیدا نشد" };
+  if (!task) return { success: false, error: "کار پیدا نشد" };
 
   const template = input.templateKey
     ? getDocTemplate(input.templateKey)

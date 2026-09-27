@@ -5,8 +5,11 @@ import { auth } from "@/auth";
 import { ensurePersonalWorkspaceCached } from "@/lib/request-cache";
 import { getDocById, getDocs } from "@/features/docs/queries";
 import { DocsCC } from "./docs-cc";
+import { localizedTitle } from "@/lib/page-title";
 
-export const metadata: Metadata = { title: "نوشته‌ها" };
+export function generateMetadata(): Promise<Metadata> {
+  return localizedTitle("نوشته‌ها", "Docs");
+}
 
 export default async function DocsPage({
   searchParams,

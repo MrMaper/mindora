@@ -122,16 +122,16 @@ export function WorkLogList({ workLogs, currentUserId, onRefresh, isLoading = fa
 const listTranslations = {
   en: {
     loading: "Loading...",
-    noWorkLogs: "No work logs yet. Click \"Add Work Log\" to start tracking.",
-    confirmDelete: "Are you sure you want to delete this work log?",
-    deleteFailed: "Failed to delete work log",
+    noWorkLogs: "No time logged yet. Use “Log time” to start.",
+    confirmDelete: "Delete this time entry?",
+    deleteFailed: "Could not delete this time entry",
     delete: "Delete",
   },
   fa: {
     loading: "در حال بارگذاری...",
-    noWorkLogs: "هنوز لاگ کاری وجود ندارد. برای شروع ردیابی روی «افزودن لاگ» کلیک کنید.",
-    confirmDelete: "آیا مطمئن هستید که می‌خواهید این لاگ کاری را حذف کنید؟",
-    deleteFailed: "حذف لاگ کاری با خطا مواجه شد",
-    delete: "حapus",
+    noWorkLogs: "هنوز ساعتی ثبت نشده. برای شروع «ثبت ساعت» را بزن.",
+    confirmDelete: "این ثبت ساعت حذف شود؟",
+    deleteFailed: "حذف ثبت ساعت انجام نشد",
+    delete: "حذف",
   },
 };

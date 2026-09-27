@@ -8,8 +8,11 @@ import {
   getAllUsersForInvite,
 } from "@/features/projects/queries";
 import { ProjectDetailCC } from "./components/client";
+import { localizedTitle } from "@/lib/page-title";
 
-export const metadata: Metadata = { title: "Path details" };
+export function generateMetadata(): Promise<Metadata> {
+  return localizedTitle("جزئیات مسیر", "Path details");
+}
 
 export default async function ProjectDetailPage({
   params,

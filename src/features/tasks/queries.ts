@@ -1,5 +1,6 @@
 import { prisma as db } from "@/lib/db";
 import { taskWhereExcludeHub } from "@/lib/project-namespace";
+import { compareTasks } from "./view";
 import type {
   GetTasksParams,
   GetTasksResult,
@@ -8,6 +9,7 @@ import type {
 } from "./types";
 
 const PAGE_SIZE = 15;
+const MEMORY_CAP = 1000;
 
 const userRefSelect = { id: true, name: true, avatar: true } as const;
 
@@ -67,62 +69,114 @@ export async function getTasks(
     ...(params.status ? { status: params.status } : {}),
     ...(params.priority ? { priority: params.priority } : {}),
     ...(params.assigneeId ? { assignedToId: params.assigneeId } : {}),
-    ...(params.projectIds && params.projectIds.length > 0
-      ? { projectId: { in: params.projectIds } }
+    ...(params.labelId
+      ? { labels: { some: { labelId: params.labelId } } }
       : {}),
     ...(excludeHub ? taskWhereExcludeHub() : {}),
-    OR: [
-      { projectId: null },
-      { project: { status: { not: "ARCHIVED" as const } } },
+    AND: [
+      {
+        OR: [
+          { projectId: null },
+          { project: { status: { not: "ARCHIVED" as const } } },
+        ],
+      },
+      ...(params.projectIds && params.projectIds.length > 0
+        ? [{ projectId: { in: params.projectIds } }]
+        : []),
+      ...(params.area
+        ? [
+            {
+              OR: [
+                { area: params.area },
+                { project: { area: params.area } },
+              ],
+            },
+          ]
+        : []),
     ],
   };
 
+  const sort = params.sort ?? "createdAt";
+  const order = params.order ?? (sort === "createdAt" ? "desc" : "asc");
+  const direction = order === "asc" ? "asc" : "desc";
   const orderBy = (() => {
-    switch (params.sort) {
+    switch (sort) {
       case "title":
-        return { title: params.order ?? "asc" } as const;
+        return { title: direction } as const;
+      case "project":
+        return { project: { name: direction } } as const;
       case "priority":
-        return { priority: params.order ?? "asc" } as const;
+        return { priority: direction } as const;
       case "status":
-        return { status: params.order ?? "asc" } as const;
+        return { status: direction } as const;
+      case "assignee":
+        return { assignedTo: { name: direction } } as const;
       case "dueDate":
-        return { dueDate: params.order ?? "asc" } as const;
+        return { dueDate: { sort: direction, nulls: "last" as const } } as const;
       default:
-        return { createdAt: params.order ?? "desc" } as const;
+        return { createdAt: direction } as const;
     }
   })();
 
-  const [tasks, total] = await Promise.all([
-    db.task.findMany({
+  const taskSelect = {
+    id: true,
+    title: true,
+    status: true,
+    priority: true,
+    type: true,
+    dueDate: true,
+    position: true,
+    createdAt: true,
+    updatedAt: true,
+    projectId: true,
+    area: true,
+    recurrence: true,
+    recurrenceSeriesId: true,
+    recurrenceEndsAt: true,
+    project: { select: { name: true, area: true } },
+    createdBy: { select: userRefSelect },
+    assignedTo: { select: userRefSelect },
+    labels: {
+      select: { label: { select: { id: true, name: true, color: true } } },
+    },
+  } as const;
+
+  const total = await db.task.count({ where });
+  const inMemory = Boolean(params.group) || total <= MEMORY_CAP;
+
+  if (inMemory) {
+    const tasks = await db.task.findMany({
       where,
-      orderBy,
-      skip,
-      take: PAGE_SIZE,
-      select: {
-        id: true,
-        title: true,
-        status: true,
-        priority: true,
-        type: true,
-        dueDate: true,
-        position: true,
-        createdAt: true,
-        updatedAt: true,
-        projectId: true,
-        area: true,
-        recurrence: true,
-        recurrenceSeriesId: true,
-        recurrenceEndsAt: true,
-        project: { select: { name: true, area: true } },
-        createdBy: { select: userRefSelect },
-        assignedTo: { select: userRefSelect },
-        labels: {
-          select: { label: { select: { id: true, name: true, color: true } } },
-        },
-      },
-    }),
-    db.task.count({ where }),
-  ]);
+      take: MEMORY_CAP,
+      select: taskSelect,
+    });
+    const sorted = tasks
+      .map(toTaskRow)
+      .sort((a, b) => compareTasks(a, b, sort, direction));
+    if (params.group) {
+      return {
+        tasks: sorted,
+        total: sorted.length,
+        page: 1,
+        totalPages: 1,
+      };
+    }
+    const start = (page - 1) * PAGE_SIZE;
+    return {
+      tasks: sorted.slice(start, start + PAGE_SIZE),
+      total: sorted.length,
+      page,
+      totalPages: Math.max(1, Math.ceil(sorted.length / PAGE_SIZE)),
+    };
+  }
+
+  const tasks = await db.task.findMany({
+    where,
+    orderBy,
+    skip,
+    take: PAGE_SIZE,
+    select: taskSelect,
+  });
 
   return {
     tasks: tasks.map(toTaskRow),

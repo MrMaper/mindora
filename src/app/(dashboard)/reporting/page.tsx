@@ -6,8 +6,11 @@ import { getUserPreferences } from "@/features/settings/queries";
 import { getAssignableUsers } from "@/features/users/queries";
 import { ReportingCC } from "./reporting-cc";
 import { SelectProvider } from "@/components/ui-kit/forms/common";
+import { localizedTitle } from "@/lib/page-title";
 
-export const metadata: Metadata = { title: "Reporting" };
+export function generateMetadata(): Promise<Metadata> {
+  return localizedTitle("گزارش‌گیری", "Reporting");
+}
 
 export default async function ReportingPage() {
   await requireModule("reporting");

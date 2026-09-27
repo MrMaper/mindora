@@ -19,6 +19,7 @@ import { getUserModuleFlags } from "@/lib/require-role";
 import { hasModule } from "@/lib/modules";
 import { areaProjectIdsForUser } from "@/lib/area-projects";
 import { AreaBucketsProvider } from "@/components/area-buckets-provider";
+import { CaptureProvider } from "@/components/life/capture-provider";
 
 export default async function DashboardLayout({
   children,
@@ -57,6 +58,10 @@ export default async function DashboardLayout({
           },
           { label: t.nav.settings, href: "/settings", icon: "settings" },
         ],
+      },
+      {
+        id: "guide",
+        items: [{ label: t.nav.guide, href: "/guide", icon: "info" as const }],
       },
     ];
 
@@ -164,6 +169,10 @@ export default async function DashboardLayout({
     { id: "daily", label: t.nav.groupDaily, items: dailyItems },
     { id: "spaces", label: t.nav.groupSpaces, items: spacesItems },
     { id: "reflect", label: t.nav.groupReflect, items: reflectItems },
+    {
+      id: "guide",
+      items: [{ label: t.nav.guide, href: "/guide", icon: "info" as const }],
+    },
   ].filter(g => g.items.length > 0);
   return (
     <div
@@ -172,23 +181,26 @@ export default async function DashboardLayout({
     >
       <DirectionSync language={language} />
       <AreaBucketsProvider ids={areaIds}>
-        <DashboardShell
-          language={language}
-          navGroups={navGroups}
-          userRole={session.user.role}
-          settingsHref="/settings"
-          settingsLabel={t.nav.settings}
-          notificationsHref="/notifications"
-          notificationsLabel={t.nav.notifications}
-          notificationsBadge={unreadCount}
-          profileHref="/profile"
-          userName={session.user.name ?? "User"}
-          userEmail={session.user.email ?? ""}
-          userImage={session.user.image ?? undefined}
-        >
-          {children}
-        </DashboardShell>
-        <CommandPaletteWrapper />
+        <CaptureProvider>
+          <DashboardShell
+            captureEnabled
+            language={language}
+            navGroups={navGroups}
+            userRole={session.user.role}
+            settingsHref="/settings"
+            settingsLabel={t.nav.settings}
+            notificationsHref="/notifications"
+            notificationsLabel={t.nav.notifications}
+            notificationsBadge={unreadCount}
+            profileHref="/profile"
+            userName={session.user.name ?? "User"}
+            userEmail={session.user.email ?? ""}
+            userImage={session.user.image ?? undefined}
+          >
+            {children}
+          </DashboardShell>
+          <CommandPaletteWrapper />
+        </CaptureProvider>
       </AreaBucketsProvider>
     </div>
   );

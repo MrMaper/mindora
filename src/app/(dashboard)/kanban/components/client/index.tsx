@@ -24,10 +24,6 @@ import type { UserRow } from "@/features/users/types";
 import type { LabelRow } from "@/features/labels/types";
 import type { ProjectRow } from "@/features/projects/types";
 import type { LifeArea } from "@/types/db";
-import {
-  projectPickerLabel,
-  withCurrentProjectOption,
-} from "@/lib/project-namespace";
 import { Separator } from "@/components/ui/separator";
 import { listDocsByTaskIdsAction } from "@/features/docs/actions";
 
@@ -42,6 +38,7 @@ interface KanbanCCProps {
     label: string;
     priority: string;
     project: string;
+    area?: string;
   };
   currentUserId: string;
   currentUserRole: string;
@@ -108,28 +105,10 @@ export function KanbanCC({
     };
   }, [k.columns, statuses]);
 
-  const lang = language === "EN" ? "EN" : "FA";
-
   const userOptions = [
     { value: "", label: t.tasks.unassigned },
     ...users.map(usr => ({ value: usr.id, label: usr.name })),
   ];
-
-  const projectOptions = withCurrentProjectOption(
-    [
-      { value: "", label: t.tasks.noProject },
-      ...userProjects.map(proj => ({
-        value: proj.id,
-        label: projectPickerLabel(proj, lang),
-      })),
-    ],
-    k.activeTask?.projectId
-      ? {
-          id: k.activeTask.projectId,
-          name: k.activeTask.projectName ?? k.activeTask.projectId,
-        }
-      : null,
-  );
 
   const statusFieldOptions = statuses.map(status => {
     const opt = STATUS_OPTIONS.find(o => o.value === status);
@@ -151,7 +130,7 @@ export function KanbanCC({
     (filters.assignee && filters.assignee !== currentUserId) ||
     filters.label ||
     filters.priority ||
-    (showProjectFilter && filters.project)
+    (showProjectFilter && (filters.project || filters.area))
   );
 
   function handleOpenCreate() {
@@ -163,6 +142,9 @@ export function KanbanCC({
       area: createDefaults?.area,
       status: createDefaults?.status ?? "BACKLOG",
     };
+    if (!defaults.area && filters.area) {
+      defaults.area = filters.area as LifeArea;
+    }
     if (!defaults.area && defaults.projectId) {
       const proj = userProjects.find(p => p.id === defaults.projectId);
       if (proj?.area) defaults.area = proj.area as LifeArea;
@@ -184,11 +166,15 @@ export function KanbanCC({
       {showFilters && (
         <KanbanFilters
           search={k.search}
-          project={k.project}
-          projectOptions={projectOptions}
+          project={filters.project}
+          area={filters.area ?? ""}
+          projects={userProjects}
           onSearchChange={k.setSearch}
           onSearchSubmit={k.onSearchSubmit}
-          onProjectChange={k.setProject}
+          onScopeChange={next => {
+            k.setProject(next.project);
+            k.applyFilters(next);
+          }}
           showProjectFilter={showProjectFilter}
           assignee={filters.assignee}
           label={filters.label}
@@ -207,7 +193,7 @@ export function KanbanCC({
               assignee: "",
               label: "",
               priority: "",
-              ...(showProjectFilter ? { project: "" } : {}),
+              ...(showProjectFilter ? { project: "", area: "" } : {}),
             });
           }}
         />

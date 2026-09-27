@@ -48,18 +48,18 @@ export async function sendBaleTaskNotification(
 
   switch (action) {
     case "created":
-      message = `🆕 *افزودن کارخواسته*\n`;
+      message = `🆕 *کار تازه*\n`;
       message += `*${escapeMarkdown(task.title)}*\n`;
       if (task.status) message += `وضعیت: \`${escapeMarkdown(task.status)}\`\n`;
       if (task.priority)
         message += `اولویت: \`${escapeMarkdown(task.priority)}\`\n`;
       if (task.assigneeName)
-        message += `عامل: ${escapeMarkdown(task.assigneeName)}\n`;
-      message += `\n[برو به تسک](${formatTaskLink(task.id)})`;
+        message += `فرد: ${escapeMarkdown(task.assigneeName)}\n`;
+      message += `\n[برو به کار](${formatTaskLink(task.id)})`;
       break;
 
     case "updated":
-      message = `✏️ *بروزرسانی کارخواسته*\n`;
+      message = `✏️ *کار به‌روز شد*\n`;
       message += `*${escapeMarkdown(task.title)}*\n`;
       if (task.changedFields) {
         const fieldLabels: Record<string, string> = {
@@ -69,8 +69,8 @@ export async function sendBaleTaskNotification(
           priority: "اولویت",
           type: "نوع",
           dueDate: "تاریخ سررسید",
-          projectId: "پروژه",
-          assignedToId: "عامل",
+          projectId: "مسیر",
+          assignedToId: "فرد",
           labels: "برچسب‌ها",
         };
         for (const [field, values] of Object.entries(task.changedFields)) {
@@ -80,7 +80,7 @@ export async function sendBaleTaskNotification(
           message += `${fieldLabel}: ${escapeMarkdown(String(values.old))} ← ${escapeMarkdown(String(values.new))}\n`;
         }
       }
-      message += `\n[برو به تسک](${formatTaskLink(task.id)})`;
+      message += `\n[برو به کار](${formatTaskLink(task.id)})`;
       break;
 
     case "status_changed":
@@ -89,16 +89,16 @@ export async function sendBaleTaskNotification(
       if (task.changedFields?.status) {
         message += `وضعیت: \`${escapeMarkdown(String(task.changedFields.status.old))}\` ← \`${escapeMarkdown(String(task.changedFields.status.new))}\`\n`;
       }
-      message += `\n[برو به تسک](${formatTaskLink(task.id)})`;
+      message += `\n[برو به کار](${formatTaskLink(task.id)})`;
       break;
 
     case "assigned":
-      message = `👤 *کارخواسته تخصیص یافت*\n`;
+      message = `👤 *کار سپرده شد*\n`;
       message += `*${escapeMarkdown(task.title)}*\n`;
       if (task.assigneeName) {
         message += `*به: ${escapeMarkdown(task.assigneeName)}*\n`;
       }
-      message += `\n[برو به تسک](${formatTaskLink(task.id)})`;
+      message += `\n[برو به کار](${formatTaskLink(task.id)})`;
       break;
 
     case "commented":
@@ -111,7 +111,7 @@ export async function sendBaleTaskNotification(
             : task.commentBody;
         message += `\n${escapeMarkdown(truncated)}\n`;
       }
-      message += `\n[برو به تسک](${formatTaskLink(task.id)})`;
+      message += `\n[برو به کار](${formatTaskLink(task.id)})`;
       break;
 
     case "logged_work":
@@ -119,10 +119,10 @@ export async function sendBaleTaskNotification(
       message += `*${escapeMarkdown(task.title)}*\n`;
       if (task.workLog) {
         message += task.workLog.assignee
-          ? `*عامل:* ${escapeMarkdown(task.workLog.assignee)}\n`
+          ? `*فرد:* ${escapeMarkdown(task.workLog.assignee)}\n`
           : "";
         message += task.workLog.project
-          ? `*پروژه:* ${escapeMarkdown(task.workLog.project)}\n`
+          ? `*مسیر:* ${escapeMarkdown(task.workLog.project)}\n`
           : "";
         message += `*ساعت:* ${escapeMarkdown(String(task.workLog.hours))}\n`;
         message += `*تاریخ:* ${escapeMarkdown(task.workLog.date)}\n`;
@@ -134,7 +134,7 @@ export async function sendBaleTaskNotification(
           message += `*توضیحات:* ${escapeMarkdown(truncated)}\n`;
         }
       }
-      message += `\n[برو به تسک](${formatTaskLink(task.id)})`;
+      message += `\n[برو به کار](${formatTaskLink(task.id)})`;
       break;
   }
 

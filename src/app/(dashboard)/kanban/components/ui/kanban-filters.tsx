@@ -4,17 +4,20 @@ import * as React from "react";
 import { Button } from "@/components/ui-kit/forms/button";
 import { Input } from "@/components/ui-kit/forms/input";
 import { Select } from "@/components/ui-kit/forms/select";
-import { useTranslation } from "@/i18n/provider";
+import { AreaPathFilters } from "@/components/life/area-path-filters";
+import { useLanguage, useTranslation } from "@/i18n/provider";
+import type { ProjectRow } from "@/features/projects/types";
 import type { UserRow } from "@/features/users/types";
 import type { LabelRow } from "@/features/labels/types";
 
 interface KanbanFiltersProps {
   search: string;
   project: string;
-  projectOptions: { value: string; label: string }[];
+  area: string;
+  projects: ProjectRow[];
   onSearchChange: (value: string) => void;
   onSearchSubmit: (e: React.FormEvent) => void;
-  onProjectChange: (value: string) => void;
+  onScopeChange: (next: { area: string; project: string }) => void;
   assignee: string;
   label: string;
   priority: string;
@@ -37,10 +40,11 @@ interface KanbanFiltersProps {
 export function KanbanFilters({
   search,
   project,
-  projectOptions,
+  area,
+  projects,
   onSearchChange,
   onSearchSubmit,
-  onProjectChange,
+  onScopeChange,
   assignee,
   label,
   priority,
@@ -54,6 +58,7 @@ export function KanbanFilters({
   showAssigneeFilter = true,
 }: KanbanFiltersProps) {
   const t = useTranslation();
+  const language = useLanguage();
 
   const userOptions = [
     { value: "", label: t.board.allAssignees },
@@ -93,14 +98,19 @@ export function KanbanFilters({
       </form>
 
       {showProjectFilter && (
-        <div className="w-full lg:w-48">
-          <Select
-            label={t.board.project}
-            value={project}
-            onChange={onProjectChange}
-            options={projectOptions}
-          />
-        </div>
+        <AreaPathFilters
+          projects={projects}
+          area={area}
+          project={project}
+          language={language === "EN" ? "EN" : "FA"}
+          labels={{
+            area: t.board.area,
+            path: t.board.path,
+            allAreas: t.board.allAreas,
+            allPaths: t.board.allPaths,
+          }}
+          onChange={onScopeChange}
+        />
       )}
       {showAssigneeFilter && (
         <div className="w-full lg:w-40">
@@ -112,14 +122,16 @@ export function KanbanFilters({
           />
         </div>
       )}
-      <div className="w-full lg:w-40">
-        <Select
-          label={t.board.labels}
-          value={label}
-          onChange={value => onFilterChange({ label: value })}
-          options={labelOptions}
-        />
-      </div>
+      {labels.length > 0 && (
+        <div className="w-full lg:w-40">
+          <Select
+            label={t.board.labels}
+            value={label}
+            onChange={value => onFilterChange({ label: value })}
+            options={labelOptions}
+          />
+        </div>
+      )}
       <div className="w-full lg:w-40">
         <Select
           label={t.board.priority}

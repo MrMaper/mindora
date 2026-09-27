@@ -11,14 +11,18 @@ import { useLanguage, useTranslation } from "@/i18n/provider";
 import { createDocLinkedToTask } from "@/features/research/actions";
 import { Icon } from "@/components/ui-kit/foundation/icon";
 import { cn } from "@/lib/utils";
+import { formatClock } from "@/lib/life";
 
 export function formatDate(date: Date | null, language: "EN" | "FA"): string | undefined {
   if (!date) return undefined;
   const locale = language === "FA" ? "fa-IR" : "en-US";
-  return new Date(date).toLocaleDateString(locale, {
+  const value = new Date(date);
+  const day = value.toLocaleDateString(locale, {
     month: "short",
     day: "numeric",
   });
+  const clock = formatClock(value, language);
+  return clock ? `${day} ${clock}` : day;
 }
 
 export function isOverdue(task: TaskRow): boolean {

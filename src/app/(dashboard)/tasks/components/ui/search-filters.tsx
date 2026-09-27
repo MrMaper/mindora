@@ -4,6 +4,9 @@ import * as React from "react";
 import { Button } from "@/components/ui-kit/forms/button";
 import { Input } from "@/components/ui-kit/forms/input";
 import { Select } from "@/components/ui-kit/forms/select";
+import { AreaPathFilters } from "@/components/life/area-path-filters";
+import type { ProjectRow } from "@/features/projects/types";
+import type { LabelRow } from "@/features/labels/types";
 
 interface TaskFilters {
   search: string;
@@ -11,8 +14,11 @@ interface TaskFilters {
   priority: string;
   assignee: string;
   project: string;
+  area: string;
+  label: string;
   sort: string;
   order: string;
+  group: string;
 }
 
 export interface SearchFiltersProps {
@@ -20,15 +26,15 @@ export interface SearchFiltersProps {
   t: Record<string, any>;
   filters: TaskFilters;
   search: string;
-  project: string;
-  projectOptions: { value: string; label: string }[];
+  projects: ProjectRow[];
+  labels: LabelRow[];
+  language: "FA" | "EN";
   statusOptions: { value: string; label: string }[];
   priorityOptions: { value: string; label: string }[];
   userOptions: { value: string; label: string }[];
   onSearchChange: (value: string) => void;
   onSearchSubmit: (e: React.FormEvent) => void;
   onFiltersChange: (filter: Partial<TaskFilters>) => void;
-  onProjectChange: (value: string) => void;
   onClearFilters: (filter?: Partial<TaskFilters>) => void;
   hasActiveFilters: boolean;
   currentUserRole: string;
@@ -38,15 +44,15 @@ export function SearchFilters({
   t,
   filters,
   search,
-  project,
-  projectOptions,
+  projects,
+  labels,
+  language,
   statusOptions,
   priorityOptions,
   userOptions,
   onSearchChange,
   onSearchSubmit,
   onFiltersChange,
-  onProjectChange,
   onClearFilters,
   hasActiveFilters,
   currentUserRole,
@@ -77,14 +83,32 @@ export function SearchFilters({
           />
         </form>
 
-        <div className="w-full lg:w-48">
-          <Select
-            label={t.project}
-            value={project}
-            onChange={onProjectChange}
-            options={projectOptions}
-          />
-        </div>
+        <AreaPathFilters
+          projects={projects}
+          area={filters.area}
+          project={filters.project}
+          language={language}
+          labels={{
+            area: t.area,
+            path: t.path,
+            allAreas: t.allAreas,
+            allPaths: t.allPaths,
+          }}
+          onChange={next => onFiltersChange(next)}
+        />
+        {labels.length > 0 && (
+          <div className="w-full lg:w-40">
+            <Select
+              label={t.labels}
+              value={filters.label}
+              onChange={value => onFiltersChange({ label: value })}
+              options={[
+                { value: "", label: t.allLabels },
+                ...labels.map(item => ({ value: item.id, label: item.name })),
+              ]}
+            />
+          </div>
+        )}
         <div className="w-full lg:w-40">
           <Select
             label={t.status}
@@ -99,6 +123,20 @@ export function SearchFilters({
             value={filters.priority}
             onChange={value => onFiltersChange({ ...filters, priority: value })}
             options={priorityOptions}
+          />
+        </div>
+        <div className="w-full lg:w-40">
+          <Select
+            label={t.groupBy}
+            value={filters.group}
+            onChange={value => onFiltersChange({ group: value })}
+            options={[
+              { value: "", label: t.groupNone },
+              { value: "path", label: t.groupPath },
+              { value: "date", label: t.groupDate },
+              { value: "status", label: t.groupStatus },
+              { value: "area", label: t.groupArea },
+            ]}
           />
         </div>
         {isAdmin && (
@@ -124,6 +162,8 @@ export function SearchFilters({
               priority: "",
               assignee: "",
               project: "",
+              area: "",
+              label: "",
             });
           }}
           className="text-red-500! hover:bg-red-50 dark:hover:bg-red-950/20"

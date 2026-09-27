@@ -3,6 +3,22 @@ import type { GetWorkLogsParams, GetWorkLogsResult, WorkLogRow, WorkLogDetail, W
 
 const PAGE_SIZE = 20;
 
+function taskScope(params: GetWorkLogsParams): Record<string, unknown> | undefined {
+  if (!params.projectId && !params.area) return undefined;
+  return {
+    AND: [
+      ...(params.projectId ? [{ projectId: params.projectId }] : []),
+      ...(params.area
+        ? [
+            {
+              OR: [{ area: params.area }, { project: { area: params.area } }],
+            },
+          ]
+        : []),
+    ],
+  };
+}
+
 const userRefSelect = { id: true, name: true, avatar: true } as const;
 
 export function toWorkLogRow(workLog: {
@@ -38,9 +54,8 @@ export async function getWorkLogs(params: GetWorkLogsParams): Promise<GetWorkLog
 
   if (params.taskId) where.taskId = params.taskId;
   if (params.userId) where.userId = params.userId;
-  if (params.projectId) {
-    where.task = { projectId: params.projectId };
-  }
+  const scoped = taskScope(params);
+  if (scoped) where.task = scoped;
   if (params.dateFrom || params.dateTo) {
     where.date = {};
     if (params.dateFrom) (where.date as Record<string, Date>).gte = params.dateFrom;
@@ -154,9 +169,8 @@ export async function getWorkLogSummary(params: GetWorkLogsParams): Promise<Work
 
   if (params.taskId) where.taskId = params.taskId;
   if (params.userId) where.userId = params.userId;
-  if (params.projectId) {
-    where.task = { projectId: params.projectId };
-  }
+  const scoped = taskScope(params);
+  if (scoped) where.task = scoped;
   if (params.dateFrom || params.dateTo) {
     where.date = {};
     if (params.dateFrom) (where.date as Record<string, Date>).gte = params.dateFrom;

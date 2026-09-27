@@ -13,8 +13,11 @@ import {
   jalaliOf,
 } from "@/lib/life";
 import { CalendarCC } from "./calendar-cc";
+import { localizedTitle } from "@/lib/page-title";
 
-export const metadata: Metadata = { title: "تقویم" };
+export function generateMetadata(): Promise<Metadata> {
+  return localizedTitle("تقویم", "Calendar");
+}
 
 export default async function CalendarPage() {
   await requireModule("calendar");

@@ -10,6 +10,7 @@ import {
   weekCells,
 } from "@/lib/life";
 import { taskWhereExcludeHub } from "@/lib/project-namespace";
+import { normalizeFocusSlots } from "@/features/life/focus-slots";
 import type { TaskRow } from "@/features/tasks/types";
 import type { LifeArea } from "@/types/db";
 
@@ -86,6 +87,7 @@ export async function getPersonalDashboard(userId: string) {
     doneThisWeek,
     weekOpenTasks,
     prefs,
+    focusPickRows,
     areaRows,
     vocabDue,
     langWeekAgg,
@@ -162,6 +164,23 @@ export async function getPersonalDashboard(userId: string) {
       where: { userId },
       select: { todayFocusDate: true, todayFocusIds: true },
     }),
+    db.task.findMany({
+      where: {
+        ...lifeOnly,
+        status: { not: "DONE" },
+        OR: [
+          { dueDate: null },
+          { dueDate: { lte: todayEnd } },
+        ],
+      },
+      orderBy: [
+        { dueDate: { sort: "asc", nulls: "last" } },
+        { priority: "asc" },
+        { createdAt: "desc" },
+      ],
+      take: 40,
+      select: taskSelect,
+    }),
     db.project.findMany({
       where: {
         id: { in: ["area-work", "area-life", "area-phd", "area-lang"] },
@@ -227,32 +246,40 @@ export async function getPersonalDashboard(userId: string) {
   });
 
   // Stale focus from another day → treat as empty (no write during RSC render)
-  const focusIds =
+  const storedIds =
     prefs?.todayFocusDate === todayKey ? [...(prefs.todayFocusIds ?? [])] : [];
+  const slotIds = normalizeFocusSlots(storedIds);
+  const realSlotIds = slotIds.filter((id): id is string => !!id);
+  const focusRows = realSlotIds.length
+    ? await db.task.findMany({
+        where: { id: { in: realSlotIds }, ...mine },
+        select: taskSelect,
+      })
+    : [];
+  const focusById = new Map(focusRows.map(row => [row.id, withArea(row)]));
+  const focusTasks = slotIds.map(id => (id ? focusById.get(id) ?? null : null));
+  const focusIdSet = new Set(
+    focusTasks.flatMap(task => (task ? [task.id] : [])),
+  );
 
   const todayRows = today.map(withArea);
   const overdueRows = overdue.map(withArea);
   const weekRows = week.map(withArea);
-  const allOpen = [...todayRows, ...overdueRows, ...weekRows];
-
-  const focusResolved = focusIds
-    .map(id => allOpen.find(t => t.id === id))
-    .filter((t): t is ReturnType<typeof withArea> => !!t)
-    .slice(0, 3);
-
-  const focusIdSet = new Set(focusResolved.map(t => t.id));
 
   return {
-    overdue: overdueRows,
+    overdue: overdueRows.filter(task => !focusIdSet.has(task.id)),
     today: todayRows.filter(t => !focusIdSet.has(t.id)),
     week: weekRows.filter(t => {
       const key = t.dueDate ? toDateKey(new Date(t.dueDate)) : "";
       return key !== todayKey && !focusIdSet.has(t.id);
     }),
-    inbox: inbox.map(withArea),
+    inbox: inbox.map(withArea).filter(task => !focusIdSet.has(task.id)),
     yesterdayLeftover: yesterdayLeftover.map(withArea),
-    focusIds: focusResolved.map(t => t.id),
-    focusTasks: focusResolved,
+    focusIds: focusTasks.flatMap(task => (task ? [task.id] : [])),
+    focusTasks,
+    focusCandidates: focusPickRows
+      .map(withArea)
+      .filter(task => !focusIdSet.has(task.id)),
     weekDays,
     hoursThisWeek: hoursAgg._sum.hours ?? 0,
     doneThisWeek,
@@ -266,7 +293,8 @@ export async function getPersonalDashboard(userId: string) {
     attention: {
       vocabDue,
       langWeekMinutes: langWeekAgg._sum.minutes ?? 0,
-      langWeeklyGoal: langProfile?.weeklyGoalMin ?? 210,
+      langWeeklyGoal: langProfile?.weeklyGoalMin ?? 0,
+      hasLangGoal: (langProfile?.weeklyGoalMin ?? 0) > 0,
       sourcesToRead,
       phdDrafting,
     },
