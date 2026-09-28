@@ -73,7 +73,7 @@ async function main() {
   });
 
   const habits = await db.habit.deleteMany({
-    where: { name: { startsWith: DEMO_PREFIX } },
+    where: { title: { startsWith: DEMO_PREFIX } },
   });
 
   const projects = projectIds.length
