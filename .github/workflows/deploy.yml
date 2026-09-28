@@ -45,6 +45,15 @@ jobs:
           echo "--- remaining users ---"
           docker compose exec -T db psql -U "${POSTGRES_USER:-mindora}" -d "${POSTGRES_DB:-mindora}" -c \
             'SELECT email, role, status FROM users ORDER BY "createdAt";'
-          echo "--- task / project / doc counts ---"
+          echo "--- projects ---"
+          docker compose exec -T db psql -U "${POSTGRES_USER:-mindora}" -d "${POSTGRES_DB:-mindora}" -c \
+            'SELECT id, name, area, status FROM projects ORDER BY area, name;'
+          echo "--- tasks ---"
+          docker compose exec -T db psql -U "${POSTGRES_USER:-mindora}" -d "${POSTGRES_DB:-mindora}" -c \
+            'SELECT title, area, status FROM tasks ORDER BY "createdAt";'
+          echo "--- docs ---"
+          docker compose exec -T db psql -U "${POSTGRES_USER:-mindora}" -d "${POSTGRES_DB:-mindora}" -c \
+            'SELECT title, area, status FROM docs ORDER BY "createdAt";'
+          echo "--- counts ---"
           docker compose exec -T db psql -U "${POSTGRES_USER:-mindora}" -d "${POSTGRES_DB:-mindora}" -c \
             'SELECT (SELECT count(*) FROM tasks) AS tasks, (SELECT count(*) FROM projects) AS projects, (SELECT count(*) FROM docs) AS docs;'
