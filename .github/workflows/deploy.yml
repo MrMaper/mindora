@@ -42,16 +42,14 @@ jobs:
             sleep 2
           done
           docker compose exec -T app npx tsx scripts/clean-demo-data.ts
+          docker compose exec -T app npx tsx scripts/clean-sample-content.ts
           echo "--- remaining users ---"
           docker compose exec -T db psql -U "${POSTGRES_USER:-mindora}" -d "${POSTGRES_DB:-mindora}" -c \
             'SELECT email, role, status FROM users ORDER BY "createdAt";'
-          echo "--- projects ---"
-          docker compose exec -T db psql -U "${POSTGRES_USER:-mindora}" -d "${POSTGRES_DB:-mindora}" -c \
-            'SELECT id, name, area, status FROM projects ORDER BY area, name;'
-          echo "--- tasks ---"
+          echo "--- remaining tasks ---"
           docker compose exec -T db psql -U "${POSTGRES_USER:-mindora}" -d "${POSTGRES_DB:-mindora}" -c \
             'SELECT title, area, status FROM tasks ORDER BY "createdAt";'
-          echo "--- docs ---"
+          echo "--- remaining docs ---"
           docker compose exec -T db psql -U "${POSTGRES_USER:-mindora}" -d "${POSTGRES_DB:-mindora}" -c \
             'SELECT title, area, status FROM docs ORDER BY "createdAt";'
           echo "--- counts ---"
