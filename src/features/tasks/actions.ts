@@ -9,7 +9,7 @@ import { ensurePersonalWorkspace, projectIdForArea } from "@/features/life/works
 import { isAreaBucketId } from "@/lib/area-projects";
 import { spawnNextIfRecurring, newRecurrenceSeriesId } from "@/features/life/recurrence";
 import { updateRecurrenceSeries } from "@/features/life/recurrence";
-import { parseLocalDate } from "@/lib/life";
+import { formatJalaliShort, parseLocalDate } from "@/lib/life";
 import { notify } from "@/lib/notify";
 import type { LifeArea, RecurrenceInterval } from "@/types/db";
 import {
@@ -17,6 +17,7 @@ import {
   sendBaleAssignmentNotification,
   sendBaleStatusChangeNotification,
   sendBaleCommentNotification,
+  sendBaleDueChangeNotification,
 } from "@/features/external/bots/bale/notifications";
 import type { TaskDetail } from "./types";
 
@@ -168,8 +169,9 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
       title: `شما به «${task.title}» واگذار شدید`,
       data: { taskId: task.id },
     });
+  }
 
-    // Send Bale notification to assignee if linked
+  if (task.assignedToId) {
     await sendBaleAssignmentNotification(task.assignedToId, {
       id: task.id,
       title: task.title,
@@ -218,6 +220,7 @@ export async function updateTask(
       priority: true,
       type: true,
       assignedToId: true,
+      createdById: true,
       dueDate: true,
       projectId: true,
       area: true,
@@ -350,36 +353,32 @@ export async function updateTask(
   }
 
   // ─── Notifications ──────────────────────────────────────────────
-  if (
-    assigneeChanged &&
-    nextAssignedToId &&
-    nextAssignedToId !== session.user.id
-  ) {
+  if (assigneeChanged && nextAssignedToId && nextAssignedToId !== session.user.id) {
     await notify({
       userId: nextAssignedToId,
       type: "TASK_ASSIGNED",
       title: `شما به «${parsed.data.title}» واگذار شدید`,
       data: { taskId: id },
     });
-
+  }
+  if (assigneeChanged && nextAssignedToId) {
     await sendBaleAssignmentNotification(nextAssignedToId, {
       id,
       title: parsed.data.title,
       status: parsed.data.status,
       priority: parsed.data.priority,
     });
-  } else if (
-    statusChanged &&
-    nextAssignedToId &&
-    nextAssignedToId !== session.user.id
-  ) {
+  }
+
+  if (statusChanged && nextAssignedToId && nextAssignedToId !== session.user.id) {
     await notify({
       userId: nextAssignedToId,
       type: "STATUS_CHANGED",
       title: `وضعیت به «${parsed.data.status.replace("_", " ")}» در «${parsed.data.title}» تغییر کرد`,
       data: { taskId: id },
     });
-
+  }
+  if (statusChanged && nextAssignedToId) {
     await sendBaleStatusChangeNotification(nextAssignedToId, {
       id,
       title: parsed.data.title,
@@ -388,16 +387,23 @@ export async function updateTask(
     });
   }
 
-  if (
-    dueDateChanged &&
-    nextAssignedToId &&
-    nextAssignedToId !== session.user.id
-  ) {
+  const dueOwnerId = nextAssignedToId ?? existing.createdById;
+  if (dueDateChanged && dueOwnerId && dueOwnerId !== session.user.id) {
     await notify({
-      userId: nextAssignedToId,
+      userId: dueOwnerId,
       type: "TASK_UPDATED",
       title: `تاریخ سررسید در «${parsed.data.title}» تغییر کرد`,
       data: { taskId: id },
+    });
+  }
+  if (dueDateChanged && dueOwnerId) {
+    const dueLabel = nextDueDate
+      ? formatJalaliShort(nextDueDate, "FA")
+      : "بدون سررسید";
+    await sendBaleDueChangeNotification(dueOwnerId, {
+      id,
+      title: parsed.data.title,
+      dueLabel,
     });
   }
 
@@ -532,6 +538,15 @@ export async function updateTaskStatus(
         type: "STATUS_CHANGED",
         title: `وضعیت به «${status.replace("_", " ")}» در «${existing.title}» تغییر کرد`,
         data: { taskId: id },
+      });
+    }
+
+    if (existing.assignedToId) {
+      await sendBaleStatusChangeNotification(existing.assignedToId, {
+        id,
+        title: existing.title,
+        oldStatus: existing.status,
+        newStatus: status,
       });
     }
 

@@ -86,4 +86,5 @@ docker compose up -d --build
 
 - Change default seed admin passwords after first login.
 - Never commit `.env`.
+- Bale bot settings live in the admin page «ربات بله» (`/bale-bot`). Until that row is saved, `BALE_BOT_TOKEN`, `BALE_BASE_URL`, `BALE_ADMIN_CHAT_ID`, and `BALE_CHANNELS_TASKS` still apply. Linking a member needs the code shown on their profile. The daily cron also sends the morning brief and habit nudge once the member’s hour has passed. Container start registers the webhook only while the bot is on and a public URL is set; a Bale outage does not stop the app. Do not put the token in docs or the client.
 - Old `nazarbin-net` external network is no longer required.

@@ -84,7 +84,7 @@ Override via `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` if needed. **Change thes
 | `POSTGRES_*` / `DB_HOST` / `DB_PORT` | Docker | Used by `docker-compose` to build `DATABASE_URL` |
 | `SMTP_*` | No | If unset, emails log to console in development |
 | `S3_*` | No | Attachments / doc source files |
-| `BALE_*` / `APP_URL` | No | Bale bot + webhook (`APP_URL` for production webhook) |
+| `BALE_*` / `APP_URL` | No | Fallback until the admin saves Bale settings. After that, the panel is the source of truth; an empty saved token still falls back to `BALE_BOT_TOKEN`. `APP_URL` builds the webhook. |
 | `DISABLE_DB_SEED` | No | Set `1` in production after first deploy to skip seed |
 
 See `.env.example` for the full list.

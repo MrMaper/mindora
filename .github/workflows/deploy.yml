@@ -25,3 +25,26 @@ jobs:
           git reset --hard origin/main
           docker compose up -d --build
           docker compose ps
+
+      - name: Purge [DEMO] mock data
+        run: |
+          set -euo pipefail
+          cd "$HOME/mindora"
+          set -a
+          # shellcheck disable=SC1091
+          source .env
+          set +a
+          # Wait until the app container has finished migrate/start
+          for i in $(seq 1 60); do
+            if docker compose exec -T app wget -qO- http://127.0.0.1:3080/login >/dev/null 2>&1; then
+              break
+            fi
+            sleep 2
+          done
+          docker compose exec -T app npx tsx scripts/clean-demo-data.ts
+          echo "--- remaining users ---"
+          docker compose exec -T db psql -U "${POSTGRES_USER:-mindora}" -d "${POSTGRES_DB:-mindora}" -c \
+            'SELECT email, role, status FROM users ORDER BY "createdAt";'
+          echo "--- task / project / doc counts ---"
+          docker compose exec -T db psql -U "${POSTGRES_USER:-mindora}" -d "${POSTGRES_DB:-mindora}" -c \
+            'SELECT (SELECT count(*) FROM tasks) AS tasks, (SELECT count(*) FROM projects) AS projects, (SELECT count(*) FROM docs) AS docs;'

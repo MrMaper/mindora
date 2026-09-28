@@ -46,7 +46,7 @@ const fa: GuideCopy = {
   open: "باز کردن این بخش",
   off: "این بخش روی حساب تو روشن نیست.",
   adminBanner:
-    "این راهنما فضای عضو را هم توضیح می‌دهد. از این حساب فقط «کاربرها» باز می‌شود؛ تب‌های شخصی مال اعضای ساخته‌شده است.",
+    "حساب مدیر فضای شخصی ندارد. از این حساب فقط کاربرها، پروفایل، تنظیمات، ربات بله، و همین راهنما باز می‌شود. تب‌های شخصی مال اعضای ساخته‌شده است؛ اگر آدرسشان را باز کنی به کاربرها برمی‌گردی.",
   adminBadge: "فقط مدیر",
   tocLabel: "فهرست راهنما",
   backToTop: "بالای صفحه",
@@ -110,6 +110,10 @@ const fa: GuideCopy = {
               name: "مسیر",
               body: "نامی است که زیر یک حوزه می‌سازی. در پژوهش همان مسیرهای دکتری است و در زبان همان مسیرهای زبان. همه‌جا به آن مسیر می‌گوییم.",
             },
+            {
+              name: "صندوق",
+              body: "در پژوهش و زبان، کارهای بدون مسیر زیر «صندوق» جمع می‌شوند. اینباکس وضعیت کار است، نه همین صندوق.",
+            },
           ],
         },
         {
@@ -123,7 +127,7 @@ const fa: GuideCopy = {
       group: "روزانه",
       title: "امروز",
       summary:
-        "صفحهٔ شروع هر روز. سررسید امروز، کار عقب‌افتاده، اینباکس، بار هفته، سه اولویت، عادت و جلسهٔ تمرکز اینجاست.",
+        "صفحهٔ شروع هر روز. توجه امروز، سه اولویت، تمرکز، سررسید امروز، اینباکس، بار هفته، حوزه‌ها و عادت اینجاست.",
       href: "/dashboard",
       module: "dashboard",
       blocks: [
@@ -133,9 +137,9 @@ const fa: GuideCopy = {
           items: [
             "از منو وارد «امروز» شو.",
             "اگر بنر کارهای ناتمام دیروز آمد، «همه را به امروز بیاور» را بزن تا عقب نمانند.",
-            "سه اولویت همیشه سه جایگاه است. کار عقب‌افتاده، کار امروز، یا کار بدون زمان را می‌توانی انتخاب کنی؛ کار فردا و بقیهٔ هفته داخل فهرست نمی‌آید. با تمام‌شدن هر کدام، شمارنده مثل ۲/۳ ✓ می‌شود.",
+            "«۳ اولویت امروز» همیشه سه جایگاه است. کار عقب‌افتاده، کار امروز، یا کار بدون تاریخ را می‌توانی انتخاب کنی؛ کار فردا و بقیهٔ هفته داخل فهرست نمی‌آید. با تمام‌شدن هر کدام، شمارنده مثل ۲/۳ ✓ می‌شود.",
             "عادت‌ها را تیک بزن. نوار فعالیت و streak همان‌جا به‌روز می‌شود.",
-            "در «تمرکز امروز» یک کار را انتخاب کن و جلسه را شروع کن. ۱۵، ۲۵ یا ۵۰ دقیقه. با تمام شدن یا «ثبت و توقف»، همان دقیقه در ساعت‌ها و گزارش می‌نشیند. استراحت ثبت نمی‌شود.",
+            "در «تمرکز امروز» یک کار را انتخاب کن و جلسه را شروع کن: ۱۵، ۲۵ یا ۵۰ دقیقه. با تمام شدن یا «ثبت و توقف»، همان دقیقه در ساعت‌ها و گزارش می‌نشیند. استراحت ثبت نمی‌شود.",
           ],
         },
         {
@@ -143,20 +147,24 @@ const fa: GuideCopy = {
           title: "قطعه‌های صفحه",
           items: [
             {
-              name: "تمرکز امروز",
-              body: "یک جلسهٔ واقعی: کار را انتخاب کن، ۱۵ یا ۲۵ یا ۵۰ دقیقه تمرکز کن، بعد استراحت. زمان تمرکز روی همان کار در ساعت‌ها و گزارش ذخیره می‌شود.",
-            },
-            {
               name: "توجه امروز",
               body: "فقط وقتی چیزی برای توجه باشد می‌آید: کار عقب‌افتاده، واژهٔ آمادهٔ مرور، منبع نخوانده، یا دقیقهٔ مانده تا هدف زبان. اگر هیچ‌کدام نباشد، می‌نویسد همه‌چیز مرتب است.",
+            },
+            {
+              name: "نوار هفت‌روزه",
+              body: "بالای صفحه، روزهای شنبه تا جمعه را نشان می‌دهد و با کلیک به تقویم همان روز می‌روی. عنوان جداگانه‌ای ندارد.",
+            },
+            {
+              name: "۳ اولویت امروز و تمرکز",
+              body: "سه جایگاه اولویت کنار جلسهٔ تمرکز ۱۵ / ۲۵ / ۵۰ دقیقه‌ای است. زمان تمرکز روی همان کار در ساعت‌ها ذخیره می‌شود.",
             },
             {
               name: "لیست‌ها",
               body: "فهرست «امروز» سررسید همین روز است. کنارش سه زبانه است: اینباکس، عقب‌افتاده، و این هفته. از همین‌جا می‌توانی کاری را تمام کنی یا به این هفته بفرستی.",
             },
             {
-              name: "نوار هفته",
-              body: "بار روزهای پیش رو را یک‌جا نشان می‌دهد تا امروز را جدا از کل هفته ببینی.",
+              name: "نمای کلی و بار هفته",
+              body: "نمای کلی ساعت و تمام‌شدهٔ این هفته را می‌گوید. بار هفته بار روزهای پیش رو را با نمودار نشان می‌دهد.",
             },
             {
               name: "حوزه‌ها",
@@ -168,7 +176,7 @@ const fa: GuideCopy = {
             },
             {
               name: "ثبت سریع با N",
-              body: "جمله با قاعده خوانده می‌شود، نه با مدل. پیش‌فرض کار است. «ایده:» یادداشت می‌سازد و «عادت:» عادت. امروز، فردا، امشب، «دو روز دیگر»، «هفته بعد»، نام روز و «تا جمعه» تاریخ‌اند. ساعت را با «ساعت ۱۰» یا با صبح، ظهر، عصر و شب بگو. مقاله و پژوهش حوزهٔ دکتری است و در فهرست امروز نمی‌آید؛ در همهٔ کارها و بورد ذخیره شده است. کلمهٔ «کار» حوزه را عوض نمی‌کند.",
+              body: "جمله با قاعده خوانده می‌شود، نه با مدل. پیش‌فرض نوع، کار است؛ حوزهٔ بی‌کلید، زندگی. با /task، /note، /idea، /research، /habit یا پیشوند «ایده:»، «یادداشت:»، «عادت:» نوع عوض می‌شود. امروز، فردا، پس‌فردا، «دو روز دیگر»، «هفته بعد»، نام روز و «تا جمعه» تاریخ‌اند. ساعت را با «ساعت ۱۰» یا با صبح، ظهر، عصر و شب بگو. مقاله و پژوهش حوزهٔ دکتری است و در فهرست امروز نمی‌آید؛ در همهٔ کارها و بورد دیده می‌شود. کلمهٔ تنها «کار» حوزه را عوض نمی‌کند.",
             },
           ],
         },
@@ -183,7 +191,7 @@ const fa: GuideCopy = {
       group: "روزانه",
       title: "بورد",
       summary:
-        "همان کارها، به شکل ستون. کارت را بکش تا وضعیت عوض شود. ستون‌ها: اینباکس، این هفته، در حال انجام، بازخورد، تست، تمام، و منتظر.",
+        "همان کارها، به شکل ستون. کارت را بکش تا وضعیت عوض شود. ستون‌ها از راست به چپ: اینباکس، این هفته، در حال انجام، بازخورد، تست، منتظر، تمام.",
       href: "/kanban",
       module: "kanban",
       blocks: [
@@ -206,13 +214,13 @@ const fa: GuideCopy = {
             { name: "در حال انجام", body: "الان رویش کار می‌کنی." },
             { name: "بازخورد", body: "منتظر نظر؛ مثلاً استاد یا خودت در یک دور بازخوانی." },
             { name: "تست", body: "کار تقریباً تمام است و باید یک بار چک شود." },
-            { name: "تمام", body: "بسته شده. از لیست‌های باز امروز خارج می‌شود." },
             { name: "منتظر", body: "گیر کرده و به چیز دیگری وابسته است." },
+            { name: "تمام", body: "بسته شده. از لیست‌های باز امروز خارج می‌شود." },
           ],
         },
         {
           type: "tip",
-          body: "بورد مال خود توست. کارت را به کس دیگری واگذار نمی‌کنی و فیلتر افراد برای عضو نشان داده نمی‌شود.",
+          body: "بورد مال خود توست و کارت‌های دکتری و زبان را هم نشان می‌دهد. کارت را به کس دیگری واگذار نمی‌کنی و فیلتر افراد برای عضو نیست.",
         },
       ],
     },
@@ -231,7 +239,7 @@ const fa: GuideCopy = {
           items: [
             "«ایجاد کار» را بزن.",
             "عنوان را بنویس. توضیح را وقتی لازم شد اضافه کن.",
-            "وضعیت، اولویت (فوری، بالا، متوسط، پایین، هیچ) و نوع (کار، استوری، باگ، اپیک) را انتخاب کن.",
+            "وضعیت و اولویت را انتخاب کن: فوری، بالا، متوسط، پایین، یا هیچ‌کدام.",
             "حوزه را مشخص کن و اگر مسیر ساخته‌ای، کار را به همان مسیر وصل کن.",
             "سررسید را از تقویم انتخاب کن. تکرار می‌تواند هر روز، هر هفته یا هر ماه باشد.",
             "برچسب رنگی بساز یا از برچسب‌های قبلی انتخاب کن.",
@@ -252,7 +260,7 @@ const fa: GuideCopy = {
             },
             {
               name: "ساعت",
-              body: "از داخل کار، «ثبت ساعت» را بزن: مدت، تاریخ، و شرح اختیاری. جمع این ثبت‌ها در «ساعت‌ها» و «گزارش‌گیری» می‌آید.",
+              body: "از داخل کار، «ثبت ساعت» را بزن: مدت از ربع ساعت تا ۸ ساعت، تاریخ، و شرح اختیاری. جمع این ثبت‌ها در «ساعت‌ها» و «گزارش‌گیری» می‌آید. توقف جلسهٔ تمرکز هم همین‌جا می‌نشیند.",
             },
             {
               name: "تکرار",
@@ -260,7 +268,7 @@ const fa: GuideCopy = {
             },
             {
               name: "فیلتر جدول",
-              body: "جستجوی عنوان، وضعیت، اولویت، حوزه و مسیر. اگر برچسب داشته باشی، آن هم هست. سرستون‌های عنوان، مسیر، وضعیت، اولویت، فرد و موعد مرتب می‌شوند. جدول را می‌توانی بر اساس مسیر، تاریخ، وضعیت یا حوزه گروه کنی و هر گروه را با کلیک جمع کنی. اگر هنوز کاری نباشد، صفحه از تو می‌خواهد اولین کار را بسازی. روی موبایل هر ردیف یک کارت است؛ منوی همان کارت ویرایش و حذف را دارد.",
+              body: "جستجوی عنوان، وضعیت، اولویت، حوزه و مسیر. اگر برچسب داشته باشی، آن هم هست. سرستون‌های عنوان، مسیر، وضعیت، اولویت، فرد و موعد مرتب می‌شوند. جدول را می‌توانی بر اساس مسیر، تاریخ، وضعیت یا حوزه گروه کنی و هر گروه را با کلیک جمع کنی. روی موبایل هر ردیف یک کارت است.",
             },
           ],
         },
@@ -271,7 +279,7 @@ const fa: GuideCopy = {
       group: "روزانه",
       title: "تقویم",
       summary:
-        "سررسید کارها روی تقویم شمسی. نمای ماه برای تصویر کلی، نمای هفته برای چند روز نزدیک.",
+        "سررسید کارهای روزمره روی تقویم شمسی. نمای ماه برای تصویر کلی، نمای هفته برای چند روز نزدیک.",
       href: "/calendar",
       module: "calendar",
       blocks: [
@@ -280,14 +288,14 @@ const fa: GuideCopy = {
           title: "روز را از روی تقویم بچین",
           items: [
             "ماه یا هفته را انتخاب کن و با فلش‌ها جلو و عقب برو. «امروز» برمی‌گرداند به روز جاری.",
-            "فیلتر حوزه را بگذار روی همه، یا فقط دکتری، کار، زندگی، زبان.",
-            "روی یک روز بزن. کارهایی که سررسیدشان همان روز است فهرست می‌شوند.",
-            "از «کار برای این روز» یک کار با همان سررسید بساز.",
+            "به‌صورت پیش‌فرض فقط کار و زندگی روشن‌اند. فیلتر حوزه را روی همه، یا فقط یکی از چهار حوزه بگذار.",
+            "روی یک روز بزن. کارهایی که سررسیدشان همان روز است در کنار صفحه فهرست می‌شوند.",
+            "از ثبت سریع همان کنار، برای همان روز کار بساز.",
           ],
         },
         {
           type: "tip",
-          body: "کاری که سررسید ندارد روی تقویم دیده نمی‌شود. اگر می‌خواهی در یک روز مشخص باشد، موقع ساخت یا ویرایش تاریخ بده.",
+          body: "کاری که سررسید ندارد روی تقویم دیده نمی‌شود. کارها و منابع هاب دکتری و زبان هم اینجا نمی‌آیند؛ مسیرشان پژوهش و زبان است. اگر می‌خواهی در یک روز مشخص باشد، موقع ساخت یا ویرایش تاریخ بده.",
         },
       ],
     },
@@ -312,7 +320,7 @@ const fa: GuideCopy = {
         },
         {
           type: "tip",
-          body: "دعوت عضو به مسیر خاموش است. این سطل‌ها شخصی‌اند و با حساب دیگران مشترک نمی‌شوند.",
+          body: "دعوت عضو به مسیر در فضای شخصی خاموش است. این سطل‌ها شخصی‌اند و با حساب دیگران مشترک نمی‌شوند.",
         },
       ],
     },
@@ -329,8 +337,8 @@ const fa: GuideCopy = {
           type: "steps",
           title: "یک سند را از صفر تا خروجی ببر",
           items: [
-            "«سند جدید» یا «از قالب» را بزن. قالب‌ها شامل ایده، فصل، یادداشت منبع و مرور ادبیات‌اند.",
-            "عنوان بگذار و در متن بنویس. با / دستور می‌آوری: عنوان، فهرست، چک‌لیست، نقل‌قول، کد، لینک، جدول، تصویر، پاورقی.",
+            "«سند جدید» یا «از قالب» را بزن. قالب‌ها شامل یادداشت روزانه، ایدهٔ پژوهش، پیش‌نویس فصل، یادداشت منبع، مرور ادبیات، بازبینی هفته و چند قالب دیگرند.",
+            "عنوان بگذار و در متن بنویس. با / دستور می‌آوری: تیتر ۱ تا ۳، لیست، چک‌باکس، نقل‌قول، بلوک کد، خط جداکننده، تاریخ امروز، ساخت کار از خط، جدول، تصویر، پاورقی.",
             "نوار ابزار همان کارها را با دکمه انجام می‌دهد: پررنگ، کج، خط‌خورده، H1 تا H3.",
             "پوشه و تگ بده تا بعداً بین سندها گم نشوی. حوزه را هم اگر لازم است مشخص کن.",
             "وضعیت سند را بین ایده، در حال نوشتن، بازبینی و آماده عوض کن.",
@@ -340,31 +348,27 @@ const fa: GuideCopy = {
         },
         {
           type: "details",
-          title: "پنل کنار سند",
+          title: "کنار و بالای سند",
           items: [
             {
               name: "سرفصل",
-              body: "از H1 و H2 و H3 ساخته می‌شود و با کلیک به همان جای متن می‌پرد.",
+              body: "زبانهٔ کناری از H1 و H2 و H3 ساخته می‌شود و با کلیک به همان جای متن می‌پرد.",
             },
             {
               name: "کارها",
               body: "سند را به کار موجود وصل کن، یا از عنوان سند کار بساز. متن انتخاب‌شده را هم می‌توانی مستقیم به کار تبدیل کنی. چک‌لیست سند را پیش‌نمایش می‌کنی و هر مورد را که خواستی به کار جدا تبدیل می‌کنی.",
             },
             {
-              name: "منابع و نقل‌قول",
-              body: "منبع با عنوان، نویسنده، سال، لینک و یادداشت. PDF را پیوست کن، متنش را انتخاب کن و نقل‌قول بساز، بعد همان نقل‌قول را داخل سند درج کن.",
+              name: "منابع و نسخه‌ها",
+              body: "منبع با عنوان، نویسنده، سال، لینک و یادداشت. PDF را پیوست کن، متنش را انتخاب کن و نقل‌قول بساز، بعد همان نقل‌قول را داخل سند درج کن. زبانهٔ نسخه‌ها تاریخچهٔ ذخیره‌هاست.",
             },
             {
-              name: "هدف کلمه و نبض نوشتن",
-              body: "برای سند سقف کلمه بگذار. اگر سندی مدت‌ها ساکت مانده باشد، نبض نوشتن یادآوری می‌کند.",
-            },
-            {
-              name: "حالت تمرکز",
-              body: "اطراف ویرایشگر را خلوت می‌کند تا فقط متن بماند.",
+              name: "هدف کلمه و حالت تمرکز",
+              body: "از نوار بالای ویرایشگر برای سند سقف کلمه بگذار یا حالت تمرکز را روشن کن تا اطراف خلوت شود.",
             },
             {
               name: "یادداشت امروز",
-              body: "هر روز یک سند روزانه باز می‌شود؛ از نوشته‌ها یا از پنل پژوهش.",
+              body: "هر روز یک سند روزانه از پایین صفحهٔ امروز یا از کنار پژوهش باز می‌شود؛ خودش زبانهٔ کناری نوشته‌ها نیست.",
             },
             {
               name: "آرشیو و سطل",
@@ -387,7 +391,7 @@ const fa: GuideCopy = {
           type: "steps",
           title: "یک خط پژوهش را راه بینداز",
           items: [
-            "اگر چند مقاله داری، بالای صفحه «مسیر جدید» بساز و نام بگذار. «همه» همه‌چیز را نشان می‌دهد و «صندوق» مال کارها و سندهای بدون مسیر است.",
+            "اگر چند مقاله داری، بالای صفحه «مسیر جدید» بساز و نام بگذار. «همه» همه‌چیز را نشان می‌دهد و «صندوق (بدون مسیر)» مال کارها و سندهای بدون مسیر است.",
             "در زبانهٔ خط لوله، کارت را بین ایده، مطالعه، نوشتن، بازخورد، و تمام / سابمیت جابه‌جا کن.",
             "از کنار خط لوله، یادداشت امروز یا یک قالب (ایده، فصل، منبع، مرور ادبیات) را باز کن تا مستقیم در نوشته‌ها ساخته شود.",
             "در کتابخانه منبع اضافه کن. اگر DOI داری، واکشی فیلدها را از روی آن پر می‌کند. وضعیت مطالعه را بگذار: برای مطالعه، در حال مطالعه، خوانده‌شده.",
@@ -397,7 +401,7 @@ const fa: GuideCopy = {
         },
         {
           type: "tip",
-          body: "خط لوله همان کارها را با برچسب وضعیت پژوهش نشان می‌دهد، نه یک فهرست جدا. تمام‌کردن کارت اینجا یعنی کار دکتری به ستون آخر رسیده است.",
+          body: "خط لوله همان کارهای دکتری را با برچسب وضعیت پژوهش نشان می‌دهد، نه یک فهرست جدا. تمام‌کردن کارت اینجا یعنی کار دکتری به ستون آخر رسیده است.",
         },
       ],
     },
@@ -416,15 +420,15 @@ const fa: GuideCopy = {
           items: [
             {
               name: "امروز",
-              body: "یک جلسه را با دقیقه و یادداشت اختیاری ثبت کن. هدف هفته، دقیقهٔ جمع‌شده، روزهای پیاپی، و جلسات اخیر را همین‌جا می‌بینی. مسیر زبان (مثلاً یک آزمون خاص) را از بالا جدا کن.",
+              body: "یک جلسه را با دقیقه و یادداشت اختیاری ثبت کن. هدف هفته، دقیقهٔ جمع‌شده، روزهای پیاپی، و جلسات اخیر را همین‌جا می‌بینی. مسیر زبان (مثلاً یک آزمون خاص) را از بالا جدا کن؛ کارهای بدون مسیر زیر صندوق می‌مانند.",
             },
             {
               name: "مهارت‌ها",
-              body: "گرامر، خواندن، نوشتن، صحبت و بقیه را با دقیقهٔ ۷ روز اخیر مقایسه می‌کند و ضعیف‌ترین مهارت را نشان می‌دهد. از اینجا یا زمان سریع ثبت می‌کنی، یا می‌روی سراغ تمرین واقعی واژگان، شنیداری و mock.",
+              body: "شنیداری، خواندن، نوشتن، صحبت، گرامر، واژگان و تلفظ را با دقیقهٔ ۷ روز اخیر مقایسه می‌کند و ضعیف‌ترین مهارت را نشان می‌دهد. از اینجا یا زمان سریع ثبت می‌کنی، یا می‌روی سراغ تمرین واقعی واژگان، شنیداری و mock.",
             },
             {
               name: "واژگان",
-              body: "کارت واژه با مرور فاصله‌دار. عدد روی زبانه یعنی چند کارت امروز موعد دارد. کارت را ببین، معنی را چک کن، و کیفیت یادآوری را ثبت کن تا نوبت بعدی جابه‌جا شود.",
+              body: "کارت واژه با مرور فاصله‌دار. عدد روی زبانه یعنی چند کارت امروز موعد دارد. حالت‌ها: مطالعه، مرور، کتابخانه، آمار. کارت را ببین، معنی را چک کن، و دوباره / سخت / خوب / آسان را بزن تا نوبت بعدی جابه‌جا شود.",
             },
             {
               name: "شنیداری",
@@ -432,7 +436,7 @@ const fa: GuideCopy = {
             },
             {
               name: "آزمون‌ها",
-              body: "Mock برای MSRT، IELTS، TOEFL، TOLIMO، EPT یا آزمون دلخواه. بعد از آزمون کارنامه، ضعیف‌ترین بخش، و امکان آزمون دوباره را می‌بینی. قالب MSRT یعنی شنیداری، گرامر و خواندن.",
+              body: "Mock برای MSRT، IELTS Academic، TOEFL iBT، TOLIMO، EPT یا آزمون دلخواه. بعد از آزمون کارنامه، ضعیف‌ترین بخش، و امکان آزمون دوباره را می‌بینی. قالب MSRT یعنی شنیداری، گرامر و خواندن.",
             },
             {
               name: "یادداشت‌ها",
@@ -459,7 +463,7 @@ const fa: GuideCopy = {
           type: "steps",
           title: "هفته را ببند",
           items: [
-            "چهار عدد بالا را بخوان: باز، اینباکس، تمام، ساعت.",
+            "چهار عدد بالا را بخوان، به همین ترتیب: تمام، باز، اینباکس، ساعت.",
             "فهرست تمام‌شدهٔ این هفته را ببین تا مشخص شود واقعاً چه بسته شده.",
             "ناتمام‌ها را نگاه کن. هر کدام را یا به هفتهٔ بعد متعهد کن، یا وضعیتش را روی بورد عوض کن.",
             "اینباکس را خالی کن: کارهایی که هنوز هفته ندارند را به «این هفته» بفرست، یا اگر مال این دوره نیستند در اینباکس نگه دار.",
@@ -482,14 +486,14 @@ const fa: GuideCopy = {
           title: "ساعت را درست ثبت کن",
           items: [
             "کار را از بورد یا جدول باز کن و ساعت ثبت کن.",
-            "مدت را انتخاب کن (از ربع ساعت به بالا)، تاریخ را بگذار، و اگر لازم است شرح کار را بنویس.",
+            "مدت را انتخاب کن (از ربع ساعت تا ۸ ساعت)، تاریخ را بگذار، و اگر لازم است شرح کار را بنویس.",
             "بعد به «ساعت‌ها» برگرد. بازهٔ تاریخ و در صورت نیاز حوزه یا مسیر را فیلتر کن.",
             "جمع ساعت، تعداد ورود، و تفکیک بر اساس کار، مسیر و تاریخ را ببین.",
           ],
         },
         {
           type: "tip",
-          body: "اگر این صفحه خالی است، هنوز از داخل یک کار ساعت ثبت نکرده‌ای. ثبت ساعت به خود کار وصل است تا بعداً بدانی زمان صرف چه شده.",
+          body: "اگر این صفحه خالی است، هنوز از داخل یک کار ساعت ثبت نکرده‌ای. ثبت ساعت به خود کار وصل است تا بعداً بدانی زمان صرف چه شده. جلسهٔ تمرکز امروز هم همین‌جا می‌نشیند.",
         },
       ],
     },
@@ -508,7 +512,7 @@ const fa: GuideCopy = {
           items: [
             "بازه را با تاریخ شروع و پایان مشخص کن.",
             "«تولید گزارش» را بزن و صبر کن تا فایل دانلود شود.",
-            "ستون‌ها روز هفته، تاریخ، جمع ساعات، ساعات اضافه‌کاری، و متن گزارش کار هر روز را دارند.",
+            "ستون‌ها روز هفته، تاریخ، جمع ساعات کاری، جمع ساعات اضافه‌کاری، و متن گزارش کار هر روز را دارند.",
           ],
         },
         {
@@ -538,15 +542,15 @@ const fa: GuideCopy = {
             },
             {
               name: "اعلان‌ها",
-              body: "زنگ کنار پایین منو. برای واگذاری، تغییر کار، دیدگاه، نزدیک شدن مهلت و تغییر وضعیت. از تنظیمات می‌توانی اعلان داخل برنامه، صدا، و در صورت آماده بودن ایمیل را جداگانه خاموش و روشن کنی.",
+              body: "زنگ کنار پایین منو. برای سپردن کار، به‌روزرسانی، دیدگاه، منشن، نزدیک شدن مهلت و تغییر وضعیت. از تنظیمات، زبانهٔ اعلان‌ها، می‌توانی اعلان داخل برنامه، صدا، و در صورت آماده بودن ایمیل را جداگانه خاموش و روشن کنی.",
             },
             {
               name: "پروفایل",
-              body: "نام و عکس (JPG یا PNG یا WebP، تا ۲ مگابایت). ایمیل ثابت است. رمز را با رمز فعلی و رمز جدید عوض می‌کنی.",
+              body: "نام و عکس (JPG یا PNG یا WebP، تا ۲ مگابایت). ایمیل ثابت است. اگر ربات بله کد اتصال ساخته باشد، همان کد شش‌رقمی بالای پروفایل دیده می‌شود. رمز را با رمز فعلی و رمز جدید عوض می‌کنی.",
             },
             {
               name: "تنظیمات",
-              body: "زبان رابط فارسی یا انگلیسی، و پوستهٔ روشن، تیره، یا هماهنگ با سیستم.",
+              body: "چهار زبانه دارد: پروفایل (زبان رابط فارسی یا انگلیسی)، امنیت (عوض کردن رمز)، اعلان‌ها (کلیدهای داخل برنامه به‌همراه ساعت خلاصهٔ صبح و یادآوری عادت بله)، و نمایش (روشن، تیره، یا هماهنگ با سیستم).",
             },
           ],
         },
@@ -565,7 +569,7 @@ const fa: GuideCopy = {
       group: "مدیریت",
       title: "کاربرها و ماژول‌ها",
       summary:
-        "حساب مدیر فضای شخصی ندارد. کارش ساختن عضو، دادن رمز موقت، و روشن کردن بخش‌هایی است که هر عضو می‌بیند.",
+        "حساب مدیر فضای شخصی ندارد و به صفحهٔ امروز نمی‌رود. کارش ساختن عضو، دادن رمز موقت، و روشن کردن بخش‌هایی است که هر عضو می‌بیند.",
       href: "/users",
       adminOnly: true,
       blocks: [
@@ -575,9 +579,9 @@ const fa: GuideCopy = {
           items: [
             "از «کاربرها» ایجاد کاربر را بزن. نام و ایمیل را وارد کن.",
             "رمز موقت را همان لحظه کپی کن و به خود شخص بده. بعد از ورود اول، از پروفایل عوضش می‌کند.",
-            "نقش عضو برای فضای شخصی است. نقش مدیر فقط برای همین صفحهٔ مدیریت است و بیشتر از یک مدیر ساخته نمی‌شود.",
+            "نقش همیشه عضو است. نقش مدیر فقط برای همین حساب مدیریت است و بیشتر از یک مدیر ساخته نمی‌شود.",
             "وضعیت فعال یا غیرفعال تعیین می‌کند که بتواند وارد شود یا نه.",
-            "در ویرایش کاربر، ماژول‌ها را تیک بزن.",
+            "هنگام ساخت یا ویرایش کاربر، ماژول‌ها را تیک بزن. برای حساب مدیر ماژول شخصی معنی ندارد.",
           ],
         },
         {
@@ -603,8 +607,147 @@ const fa: GuideCopy = {
           ],
         },
         {
+          type: "details",
+          title: "بقیهٔ منوی مدیر",
+          items: [
+            {
+              name: "پروفایل و رمز",
+              body: "نام و عکس و رمز خود مدیر اینجاست. کد اتصال بله فقط برای عضو ساخته می‌شود، نه برای حساب مدیر.",
+            },
+            {
+              name: "تنظیمات",
+              body: "زبان، امنیت، اعلان و نمایش خود مدیر. ساعت خلاصهٔ صبح و یادآوری عادت بله را هر عضو در تنظیمات خودش می‌گذارد.",
+            },
+            {
+              name: "ربات بله",
+              body: "توکن، وب‌هوک، کانال، کلیدهای ارسال، اتصال اعضا و دفتر ارسال. شرح کاملش بخش بعدی است.",
+            },
+          ],
+        },
+        {
           type: "tip",
-          body: "راهنما برای عضو و مدیر هر دو در منو هست. مدیر با باز کردن تب‌های شخصی به فضای یک عضو وارد نمی‌شود.",
+          body: "راهنما برای عضو و مدیر هر دو در منو هست. مدیر با باز کردن آدرس تب‌های شخصی به فضای یک عضو وارد نمی‌شود؛ به کاربرها برمی‌گردد.",
+        },
+      ],
+    },
+    {
+      id: "bale",
+      group: "مدیریت",
+      title: "ربات بله",
+      summary:
+        "از منوی مدیریت باز می‌شود. توکن، وب‌هوک، کانال کارها، پیام گفتگوی عضو، و دفتر ارسال همین‌جاست. تا اولین ذخیره، مقدارهای محیط سرور کار می‌کنند.",
+      href: "/bale-bot",
+      adminOnly: true,
+      blocks: [
+        {
+          type: "steps",
+          title: "ربات را روشن کن",
+          items: [
+            "توکن را از بازوی بله در فیلد رمز بنویس و ذخیره کن. خالی گذاشتنِ فیلد، توکن قبلی را نگه می‌دارد.",
+            "کلید «توکن ذخیره‌شده در پنل پاک شود» فقط توکن داخل پنل را برمی‌دارد. اگر روی سرور هنوز توکن محیط باشد، همان می‌ماند.",
+            "زیر فیلد نوشته می‌شود توکن از پنل است یا از محیط سرور، به‌همراه چهار رقم آخر. خود توکن دیگر به صفحه برنمی‌گردد.",
+            "آدرس API را مگر دلیل خاصی داری همان https://tapi.bale.ai/bot بگذار.",
+            "شناسهٔ گفتگوی مدیر برای پیام آزمایشی است. شناسهٔ کانال کارها جایی است که رویدادهای کار پست می‌شود. خالی یعنی آن کانال خاموش است.",
+            "کلید «ربات روشن است» را بزن و ذخیره کن. تا این کلید خاموش باشد هیچ اعلانی نمی‌رود و دستورهایی که با / شروع شوند فقط می‌گویند ربات خاموش است.",
+          ],
+        },
+        {
+          type: "steps",
+          title: "وب‌هوک و پیام آزمایشی",
+          items: [
+            "بالای بخش اتصال، نام ربات و آدرسی که باید روی بله ثبت شود دیده می‌شود. اگر آدرس عمومی سایت روی سرور نباشد، ثبت وب‌هوک انجام نمی‌شود و صفحه همان را می‌گوید.",
+            "بررسی اتصال، نام ربات و وب‌هوک فعلی را دوباره می‌خواند. اگر وب‌هوک فعلی با آدرس این سایت یکی نباشد، صفحه می‌گوید.",
+            "«ثبت وب‌هوک» همان آدرس را روی بله می‌گذارد. «حذف وب‌هوک» آن را برمی‌دارد و به‌روزرسانی‌های معوق را پاک نمی‌کند.",
+            "آخرین خطای وب‌هوک و تعداد به‌روزرسانی معوق همان پایین نوشته می‌شود.",
+            "«پیام آزمایشی» اگر شناسهٔ گفتگو خالی باشد، به گفتگوی مدیر می‌رود. این دکمه با داشتن توکن کار می‌کند، حتی اگر کلید روشن بودن خاموش باشد.",
+          ],
+        },
+        {
+          type: "steps",
+          title: "عضو حسابش را وصل می‌کند",
+          items: [
+            "عضو در بله /email و ایمیل Mindora را می‌فرستد. /link همان کار را می‌کند.",
+            "اگر ایمیل مال یک عضو فعال باشد، کد شش‌رقمی بالای پروفایل خودش ظاهر می‌شود و ۱۵ دقیقه می‌ماند. کد داخل بله نوشته نمی‌شود.",
+            "عضو همان کد را با /code برمی‌گرداند. تا این تأیید نشود، گفتگو وصل نیست.",
+            "اگر ایمیل عضو فعال نباشد، یا مال حساب مدیر باشد، ربات همان جواب کلی را می‌دهد و کدی ساخته نمی‌شود.",
+            "اگر این گفتگو از قبل به همین حساب وصل باشد، ربات می‌گوید وصل است. اگر به عضو دیگری وصل باشد، تأیید کد رد می‌شود.",
+            "در فهرست اعضا می‌توانی شناسهٔ عددی گفتگو را خودت بنویسی یا با «قطع» پاک کنی. «منتظر کد تأیید» یعنی کد ساخته شده و هنوز برنگشته؛ خود کد را این فهرست نشان نمی‌دهد.",
+            "/unlink اتصال را قطع می‌کند. /status می‌گوید وصل است یا نه. /help دستورها را فهرست می‌کند. /start خوش‌آمد می‌گوید.",
+          ],
+        },
+        {
+          type: "details",
+          title: "کلیدهای کانال",
+          items: [
+            {
+              name: "پست در کانال کارها",
+              body: "کلید اصلی کانال. اگر خاموش باشد، یا شناسهٔ کانال خالی باشد، هیچ پستی به کانال نمی‌رود.",
+            },
+            {
+              name: "کار تازه، ویرایش، وضعیت، سپردن، دیدگاه",
+              body: "هر کدام کلید خودش را دارد و فقط وقتی پست می‌شود که هم کلید کانال روشن باشد هم کلید همان رویداد.",
+            },
+            {
+              name: "ثبت ساعت",
+              body: "فقط در کانال می‌رود. به گفتگوی شخصی عضو نمی‌رود.",
+            },
+          ],
+        },
+        {
+          type: "details",
+          title: "کلیدهای گفتگوی عضو",
+          items: [
+            {
+              name: "سپردن، وضعیت، تغییر سررسید",
+              body: "به گفتگوی وصل‌شده می‌رود، حتی اگر خود عضو همان کار را عوض کرده باشد. اعلان داخل برنامه برای کار خودش ساخته نمی‌شود؛ فقط بله می‌رود.",
+            },
+            {
+              name: "دیدگاه",
+              body: "به صاحب کار و کسی که نامش آمده می‌رود. کسی که خودش دیدگاه را نوشته، پیام شخصی آن دیدگاه را نمی‌گیرد.",
+            },
+            {
+              name: "یادآوری موعد و مرور واژه‌ها",
+              body: "موعد برای کار عقب‌افتاده، امروز، و نزدیک. واژه‌ها وقتی کارت مرور رسیده باشد، روزی یک بار. هر دو لینک همان کار یا صفحهٔ واژه‌ها را دارند.",
+            },
+            {
+              name: "خلاصهٔ صبح و یادآوری عادت",
+              body: "هر کدام کلید خودش را دارد. اگر کلید خاموش باشد، حتی بعد از رسیدن ساعت هم نمی‌رود.",
+            },
+            {
+              name: "خاموش بودن اعلان عضو",
+              body: "اگر عضو اعلان‌های داخل برنامه را خاموش کرده باشد، پیام شخصی بله هم نمی‌رود. کلید جداگانه‌ای که در تنظیماتش خاموش باشد، همان نوع پیام را هم قطع می‌کند.",
+            },
+          ],
+        },
+        {
+          type: "steps",
+          title: "خلاصهٔ صبح، عادت، و جواب تمام",
+          items: [
+            "ساعت خلاصهٔ صبح پیش‌فرض ۸ است و ساعت عادت ۲۱. هر عضو این دو ساعت را در تنظیمات، زبانهٔ اعلان‌ها، ذخیره می‌کند. ساعت، ساعت سرور است.",
+            "بعد از رسیدن آن ساعت، روزی یک بار فرستاده می‌شود: یا با باز شدن صفحهٔ امروز، یا با کار روزانهٔ سرور.",
+            "خلاصهٔ صبح این‌ها را می‌گوید: سه اولویت، عقب‌افتاده، سررسید امروز، و عادت تیک‌نخورده. اگر میز خالی باشد یک جمله می‌آید که چیزی منتظر نیست.",
+            "یادآوری عادت فقط عادت‌هایی را می‌گوید که همان روز تیک نخورده‌اند. اگر همه تیک خورده باشند، آن روز پیامی نمی‌رود و همان روز علامت می‌خورد که فرستاده شده.",
+            "روی پیام موعد یا پیام تغییر سررسید، جواب «تمام» همان کار را می‌بندد. «تموم» و done هم قبول است.",
+            "اگر چند کار باز باشد و جواب روی پیام مشخصی نباشد، ربات می‌گوید روی همان پیام موعد جواب بده.",
+          ],
+        },
+        {
+          type: "details",
+          title: "دفتر ارسال و ذخیرهٔ اول",
+          items: [
+            {
+              name: "دفتر ارسال",
+              body: "آخرین پیام‌ها اینجاست: رسید یا نرسید، نوع پیام، متن کوتاه، و اگر بله رد کرده باشد دلیلش. خراب شدن بله دیگر فقط داخل لاگ سرور نمی‌ماند.",
+            },
+            {
+              name: "قبل از اولین ذخیره",
+              body: "تا در پنل ذخیره نکنی، روشن بودن ربات و شناسه‌ها از محیط سرور می‌آیند. بعد از ذخیره، کلیدها و شناسه‌ها از پنل‌اند. توکن خالیِ پنل همچنان از محیط سرور خوانده می‌شود. شناسهٔ خالی بعد از ذخیره دیگر از محیط پر نمی‌شود.",
+            },
+            {
+              name: "بالا آمدن سرور",
+              body: "اگر ربات در پنل روشن باشد و آدرس عمومی سایت باشد، وب‌هوک موقع بالا آمدن ثبت می‌شود. اگر ربات خاموش باشد وب‌هوک دست نمی‌خورد. قطع بودن بله، بالا آمدن خود سایت را متوقف نمی‌کند.",
+            },
+          ],
         },
       ],
     },
@@ -621,7 +764,7 @@ const en: GuideCopy = {
   open: "Open this section",
   off: "This section is turned off for your account.",
   adminBanner:
-    "This guide also describes the member space. From this account only Users opens; the personal tabs belong to the members you create.",
+    "The admin account has no private workspace. From here only Users, Profile, Settings, the Bale bot, and this guide open. The personal tabs belong to the members you create; opening their URLs sends you back to Users.",
   adminBadge: "Admin only",
   tocLabel: "Guide contents",
   backToTop: "Back to top",
@@ -685,6 +828,10 @@ const en: GuideCopy = {
               name: "Path",
               body: "A name you create under an area. In Research those are the PhD paths, and in Language those are the language paths. The app calls all of them paths.",
             },
+            {
+              name: "صندوق",
+              body: "In Research and Language, work with no path sits under صندوق. Inbox is a task status, not that bucket.",
+            },
           ],
         },
         {
@@ -698,7 +845,7 @@ const en: GuideCopy = {
       group: "Daily",
       title: "Today",
       summary:
-        "The page you open each morning. Due today, overdue, inbox, the week’s load, three priorities, habits, and a focus session live here.",
+        "The page you open each morning. Needs attention, three priorities, focus, what’s due today, inbox, the week load, areas, and habits live here.",
       href: "/dashboard",
       module: "dashboard",
       blocks: [
@@ -708,7 +855,7 @@ const en: GuideCopy = {
           items: [
             "Choose Today in the menu.",
             "If yesterday’s unfinished work shows a banner, bring all of it onto today.",
-            "The three priorities are always three slots. Choose a task lists overdue work, work due today, and work with no date. Tomorrow and the rest of the week stay out. As you finish them, the counter reads like 2/3 ✓.",
+            "“3 priorities today” is always three slots. Choose overdue work, work due today, or work with no date. Tomorrow and the rest of the week stay out. As you finish them, the counter reads like 2/3 ✓.",
             "Tick habits. The streak and activity strip update in place.",
             "In Today’s focus, pick a task and start a session: 15, 25, or 50 minutes. When it ends, or you save and stop, those minutes land on Hours and reports. Breaks are not logged.",
           ],
@@ -718,20 +865,24 @@ const en: GuideCopy = {
           title: "What’s on the page",
           items: [
             {
-              name: "Focus today",
-              body: "A real session: pick a task, focus for 15, 25, or 50 minutes, then a break. The focus time is saved on that task in Hours and reports.",
-            },
-            {
               name: "Needs attention",
               body: "Shows only what needs you: overdue tasks, vocab ready to review, a source still to read, or minutes left on the language goal. If none of those are waiting, it says all clear.",
+            },
+            {
+              name: "Seven-day strip",
+              body: "Across the top, Saturday through Friday. Click a day to open that day on the calendar. It has no separate title.",
+            },
+            {
+              name: "3 priorities and focus",
+              body: "Three priority slots sit beside a 15 / 25 / 50 minute focus session. Focus time is saved on that task in Hours.",
             },
             {
               name: "Lists",
               body: "The Today list is what is due that day. Beside it are three tabs: Inbox, Overdue, and This week. Mark something done or send it into this week from here.",
             },
             {
-              name: "Week strip",
-              body: "Shows the load of the days ahead so today sits next to the whole week.",
+              name: "Overview and week load",
+              body: "Overview shows this week’s hours and finished count. Week load charts the days ahead.",
             },
             {
               name: "Areas",
@@ -743,7 +894,7 @@ const en: GuideCopy = {
             },
             {
               name: "Quick capture with N",
-              body: "The sentence is read by rules, not a model. The default is a task. “idea:” creates a note and “habit:” a habit. Today, tomorrow, tonight, “in two days”, “next week”, a weekday, and “by Friday” set the day. Say the clock with “at 10” or with morning, noon, evening, and night. A paper or research task is saved under PhD and does not appear on Today; it is on All tasks and the board. The word “task” alone does not change the area.",
+              body: "The sentence is read by rules, not a model. The default kind is a task; the default area with no keyword is Life. Change kind with /task, /note, /idea, /research, /habit, or the prefixes “idea:”, “note:”, and “habit:”. Today, tomorrow, the day after, “in two days”, “next week”, a weekday, and “by Friday” set the day. Say the clock with “at 10” or with morning, noon, evening, and night. A paper or research task is saved under PhD and does not appear on Today; it is on All tasks and the board. The bare word “task” does not change the area.",
             },
           ],
         },
@@ -758,7 +909,7 @@ const en: GuideCopy = {
       group: "Daily",
       title: "Board",
       summary:
-        "The same tasks as columns. Drag a card to change its status: Inbox, This week, In progress, Feedback, Testing, Done, and Waiting.",
+        "The same tasks as columns. Drag a card to change its status. Columns run: Inbox, This week, In progress, Feedback, Testing, Waiting, Done.",
       href: "/kanban",
       module: "kanban",
       blocks: [
@@ -781,13 +932,13 @@ const en: GuideCopy = {
             { name: "In progress", body: "You are on it now." },
             { name: "Feedback", body: "Waiting on a read, from an advisor or from you." },
             { name: "Testing", body: "Nearly done and needs one check." },
-            { name: "Done", body: "Closed. It leaves the open lists on Today." },
             { name: "Waiting", body: "Stuck on something else." },
+            { name: "Done", body: "Closed. It leaves the open lists on Today." },
           ],
         },
         {
           type: "tip",
-          body: "The board is yours. You don’t assign cards to other people, and members don’t get a people filter.",
+          body: "The board is yours and it also shows PhD and language cards. You don’t assign cards to other people, and members don’t get a people filter.",
         },
       ],
     },
@@ -806,7 +957,7 @@ const en: GuideCopy = {
           items: [
             "Choose Create task.",
             "Write a title. Add a description when it helps.",
-            "Set status, priority (urgent, high, medium, low, none), and type (task, story, bug, epic).",
+            "Set status and priority: urgent, high, medium, low, or none.",
             "Pick an area, and a path if you have made one.",
             "Pick a due date. Repeat can be daily, weekly, or monthly.",
             "Create a colored label or reuse one.",
@@ -827,7 +978,7 @@ const en: GuideCopy = {
             },
             {
               name: "Hours",
-              body: "From the task, log time: duration, date, and an optional note. Those entries show up in Hours and Reporting.",
+              body: "From the task, log time: duration from a quarter hour up to 8 hours, date, and an optional note. Those entries show up in Hours and Reporting. Stopping a Today focus session writes the same kind of entry.",
             },
             {
               name: "Repeat",
@@ -835,7 +986,7 @@ const en: GuideCopy = {
             },
             {
               name: "Table filters",
-              body: "Title search, status, priority, area, and path. Labels appear when you have some. The title, path, status, priority, person, and due headers sort the table. Group by path, date, status, or area, and collapse a group with a click. If you have no work yet, the page asks you to create the first task. On a phone each row is a card; its menu edits or deletes.",
+              body: "Title search, status, priority, area, and path. Labels appear when you have some. The title, path, status, priority, person, and due headers sort the table. Group by path, date, status, or area, and collapse a group with a click. On a phone each row is a card.",
             },
           ],
         },
@@ -846,7 +997,7 @@ const en: GuideCopy = {
       group: "Daily",
       title: "Calendar",
       summary:
-        "Due dates on a Jalali calendar. Month for the overview, week for the days right in front of you.",
+        "Due dates for day-to-day work on a Jalali calendar. Month for the overview, week for the days right in front of you.",
       href: "/calendar",
       module: "calendar",
       blocks: [
@@ -855,14 +1006,14 @@ const en: GuideCopy = {
           title: "Plan from the calendar",
           items: [
             "Switch between month and week, move with the arrows, and jump back with Today.",
-            "Filter by all areas, or only PhD, work, life, or language.",
-            "Select a day to list tasks due that day.",
-            "Add a task for this day and it is created with that due date.",
+            "By default only Work and Life are on. Filter by all areas, or only one of the four.",
+            "Select a day to list tasks due that day in the side panel.",
+            "Use quick capture beside that list to create a task for the same day.",
           ],
         },
         {
           type: "tip",
-          body: "A task with no due date never appears here. Set a date when you create or edit it.",
+          body: "A task with no due date never appears here. PhD and language hub work also stay off this calendar; their home is Research and Language. Set a date when you create or edit a day-to-day task.",
         },
       ],
     },
@@ -887,7 +1038,7 @@ const en: GuideCopy = {
         },
         {
           type: "tip",
-          body: "Inviting someone onto a path is off. These buckets stay personal.",
+          body: "Inviting someone onto a path is off in a private space. These buckets stay personal.",
         },
       ],
     },
@@ -904,8 +1055,8 @@ const en: GuideCopy = {
           type: "steps",
           title: "Take a doc from blank page to export",
           items: [
-            "Create a doc, or start from a template: idea, chapter, source note, or literature review.",
-            "Title it and write. Type / for headings, lists, checklists, quotes, code, links, tables, images, and footnotes.",
+            "Create a doc, or start from a template: daily note, research idea, chapter draft, source note, literature review, weekly review, and a few more.",
+            "Title it and write. Type / for heading 1–3, lists, checklists, quotes, code blocks, a divider, today’s date, create-task-from-line, tables, images, and footnotes.",
             "The toolbar does the same with buttons: bold, italic, strike, H1 to H3.",
             "Give it a folder and tags, and an area when that helps you find it later.",
             "Move status between idea, drafting, review, and ready.",
@@ -915,31 +1066,27 @@ const en: GuideCopy = {
         },
         {
           type: "details",
-          title: "The side panel",
+          title: "Beside and above the doc",
           items: [
             {
               name: "Outline",
-              body: "Built from H1, H2, and H3. Click a heading to jump there.",
+              body: "A side-panel tab built from H1, H2, and H3. Click a heading to jump there.",
             },
             {
               name: "Tasks",
               body: "Link an existing task, or create one from the doc title. A text selection can become a task. Checklist items can be previewed and turned into separate tasks.",
             },
             {
-              name: "Sources and quotes",
-              body: "A source has title, authors, year, link, and notes. Attach a PDF, select text, save a quote, then insert that quote into the doc.",
+              name: "Sources and versions",
+              body: "A source has title, authors, year, link, and notes. Attach a PDF, select text, save a quote, then insert that quote into the doc. The Versions tab is the save history.",
             },
             {
-              name: "Word goal and writing pulse",
-              body: "Set a word target on the doc. Writing pulse points at docs that have gone quiet.",
-            },
-            {
-              name: "Focus mode",
-              body: "Hides the surroundings so the text is what’s left.",
+              name: "Word goal and focus mode",
+              body: "From the editor toolbar, set a word target or turn on focus mode to clear the surroundings.",
             },
             {
               name: "Daily note",
-              body: "Opens one doc for the day, from Docs or from the research panel.",
+              body: "Opens one doc for the day from the bottom of Today or from the research side panel. It is not a Docs side-panel tab.",
             },
             {
               name: "Archive and trash",
@@ -962,7 +1109,7 @@ const en: GuideCopy = {
           type: "steps",
           title: "Start one research line",
           items: [
-            "If you have several papers, create a path at the top and name it. All shows everything. Inbox is work and docs with no path.",
+            "If you have several papers, create a path at the top and name it. All shows everything. صندوق (no path) is work and docs with no path.",
             "On the pipeline tab, move cards through Idea, Reading, Writing, Feedback, and Done / submitted.",
             "From the side panel, open today’s note or a template (idea, chapter, source, literature review). It is created in Docs.",
             "In the library, add a source. A DOI lookup fills the fields. Set reading status to to-read, reading, or done.",
@@ -991,15 +1138,15 @@ const en: GuideCopy = {
           items: [
             {
               name: "Today",
-              body: "Log a session with minutes and an optional note. See the weekly goal, minutes so far, the streak, and recent sessions. A language path (one exam, for example) filters the hub from the top.",
+              body: "Log a session with minutes and an optional note. See the weekly goal, minutes so far, the streak, and recent sessions. A language path (one exam, for example) filters the hub from the top; work with no path sits under صندوق.",
             },
             {
               name: "Skills",
-              body: "Compares grammar, reading, writing, speaking, and the rest over the last 7 days and marks the weakest. Log time quickly, or jump into real vocab, listening, and mock practice.",
+              body: "Compares listening, reading, writing, speaking, grammar, vocab, and pronunciation over the last 7 days and marks the weakest. Log time quickly, or jump into real vocab, listening, and mock practice.",
             },
             {
               name: "Vocab",
-              body: "Flashcards with spaced review. The count on the tab is how many cards are due. Reveal a card, check the meaning, and rate the recall so the next review moves.",
+              body: "Flashcards with spaced review. The count on the tab is how many cards are due. Modes: study, review, library, stats. Reveal a card, check the meaning, and rate again / hard / good / easy so the next review moves.",
             },
             {
               name: "Listening",
@@ -1007,7 +1154,7 @@ const en: GuideCopy = {
             },
             {
               name: "Exams",
-              body: "Mocks for MSRT, IELTS, TOEFL, TOLIMO, EPT, or a custom exam. Afterward you get a scorecard, the weakest section, and a retake. MSRT is listening, grammar, and reading.",
+              body: "Mocks for MSRT, IELTS Academic, TOEFL iBT, TOLIMO, EPT, or a custom exam. Afterward you get a scorecard, the weakest section, and a retake. MSRT is listening, grammar, and reading.",
             },
             {
               name: "Notes",
@@ -1034,7 +1181,7 @@ const en: GuideCopy = {
           type: "steps",
           title: "Close the week",
           items: [
-            "Read the four numbers: open, inbox, done, hours.",
+            "Read the four numbers in this order: done, open, inbox, hours.",
             "Scan what you finished this week.",
             "Look at leftovers. Commit each one to next week, or change its status on the board.",
             "Empty the inbox: send unplanned work into this week, or leave it in the inbox if it does not belong yet.",
@@ -1057,14 +1204,14 @@ const en: GuideCopy = {
           title: "Log time in the right place",
           items: [
             "Open a task from the board or the table and log time.",
-            "Pick a duration (from a quarter hour up), set the date, and write a note if you need one.",
+            "Pick a duration (from a quarter hour up to 8 hours), set the date, and write a note if you need one.",
             "Come back to Hours. Filter by date range and, if you want, by area or path.",
             "Read total hours, entry count, and the split by task, path, and date.",
           ],
         },
         {
           type: "tip",
-          body: "An empty page means you have not logged time on a task yet. Time stays attached to the task so you can see what it was spent on.",
+          body: "An empty page means you have not logged time on a task yet. Time stays attached to the task so you can see what it was spent on. A Today focus session lands here too.",
         },
       ],
     },
@@ -1083,7 +1230,7 @@ const en: GuideCopy = {
           items: [
             "Set a start and end date.",
             "Generate the report and wait for the download.",
-            "Columns cover weekday, date, total hours, overtime hours, and the written work note for each day.",
+            "Columns cover weekday, date, total work hours, overtime hours, and the written work note for each day.",
           ],
         },
         {
@@ -1113,15 +1260,15 @@ const en: GuideCopy = {
             },
             {
               name: "Notifications",
-              body: "The bell at the bottom of the menu. Assignment, task changes, comments, approaching deadlines, and status changes. Settings can turn in-app alerts, sound, and email (when mail is configured) on or off separately.",
+              body: "The bell at the bottom of the menu. Assignment, updates, comments, mentions, approaching deadlines, and status changes. Under Settings → Notifications you can turn in-app alerts, sound, and email (when mail is configured) on or off separately.",
             },
             {
               name: "Profile",
-              body: "Name and photo (JPG, PNG, or WebP, up to 2 MB). Email stays fixed. Change the password with the current one and a new one.",
+              body: "Name and photo (JPG, PNG, or WebP, up to 2 MB). Email stays fixed. If the Bale bot has started a link, the six-digit code appears at the top of Profile. Change the password with the current one and a new one.",
             },
             {
               name: "Settings",
-              body: "Interface language, Persian or English, and a light, dark, or system theme.",
+              body: "Four tabs: Profile (interface language, Persian or English), Security (change password), Notifications (in-app switches plus the Bale morning-brief and habit hours), and Appearance (light, dark, or system).",
             },
           ],
         },
@@ -1140,7 +1287,7 @@ const en: GuideCopy = {
       group: "Admin",
       title: "Users and modules",
       summary:
-        "The admin account has no private workspace. It creates members, hands out a temporary password, and turns on the sections each member can see.",
+        "The admin account has no private workspace and does not open Today. It creates members, hands out a temporary password, and turns on the sections each member can see.",
       href: "/users",
       adminOnly: true,
       blocks: [
@@ -1150,9 +1297,9 @@ const en: GuideCopy = {
           items: [
             "From Users, create a user and enter a name and email.",
             "Copy the temporary password immediately and give it to that person. They change it from Profile after the first sign-in.",
-            "Member is the private workspace. Admin is only this management screen, and there is a single admin.",
+            "The role is always Member. Admin is only this management account, and there is a single admin.",
             "Active or inactive decides whether they can sign in.",
-            "While editing the user, tick the modules they should have.",
+            "While creating or editing the user, tick the modules they should have. The admin account itself has no personal modules.",
           ],
         },
         {
@@ -1178,14 +1325,153 @@ const en: GuideCopy = {
           ],
         },
         {
+          type: "details",
+          title: "The rest of the admin menu",
+          items: [
+            {
+              name: "Profile and password",
+              body: "The admin’s own name, photo, and password. A Bale link code is only created for members, not for the admin account.",
+            },
+            {
+              name: "Settings",
+              body: "The admin’s language, security, notifications, and appearance. Each member sets the Bale morning-brief and habit hours in their own Settings.",
+            },
+            {
+              name: "Bale bot",
+              body: "Token, webhook, channel, send switches, member links, and the delivery log. The next section walks through each part.",
+            },
+          ],
+        },
+        {
           type: "tip",
-          body: "The guide stays in the menu for both members and the admin. Opening a personal tab does not drop the admin into a member’s space.",
+          body: "The guide stays in the menu for both members and the admin. Opening a personal-tab URL does not drop the admin into a member’s space; it sends them back to Users.",
+        },
+      ],
+    },
+    {
+      id: "bale",
+      group: "Admin",
+      title: "Bale bot",
+      summary:
+        "Opens from the admin menu. Token, webhook, the tasks channel, member-chat messages, and the delivery log all live here. Until the first save, server environment values keep working.",
+      href: "/bale-bot",
+      adminOnly: true,
+      blocks: [
+        {
+          type: "steps",
+          title: "Turn the bot on",
+          items: [
+            "Paste the token from Bale into the password field and save. Leaving the field blank keeps the current token.",
+            "“Remove the token saved in this panel” clears only the panel token. A token still set in the server environment keeps working.",
+            "Under the field you see whether the token comes from the panel or the server, plus the last four characters. The full token is never sent back to the page.",
+            "Leave the API address at https://tapi.bale.ai/bot unless you have a specific reason to change it.",
+            "The admin chat id is where a test message goes. The tasks channel id is where task events are posted. Empty means that channel is off.",
+            "Turn on “Bot is on” and save. While that switch is off, nothing is sent, and commands that start with / only hear that the bot is off.",
+          ],
+        },
+        {
+          type: "steps",
+          title: "Webhook and a test message",
+          items: [
+            "The connection section shows the bot’s name and the address that should be registered on Bale. If the public site address is missing on the server, Register webhook does not run and the page says so.",
+            "Check connection reads the bot name and the current webhook again. If that webhook is not this site, the page says so.",
+            "Register webhook sets that address on Bale. Remove webhook clears it and does not drop pending updates.",
+            "The last webhook error and the pending-update count are shown underneath.",
+            "A test message goes to the admin chat when the chat field is empty. The button works whenever a token exists, even while the bot switch is off.",
+          ],
+        },
+        {
+          type: "steps",
+          title: "How a member links",
+          items: [
+            "In Bale the member sends /email and their Mindora address. /link does the same thing.",
+            "If that email belongs to an active member, a six-digit code appears at the top of their own profile and lasts 15 minutes. The code is not written into the Bale chat.",
+            "They send that code back with /code. The chat is not linked until this confirmation.",
+            "If the email is not an active member, or it belongs to the admin, the bot gives the same general reply and no code is created.",
+            "If this chat is already linked to the same account, the bot says so. If it is linked to someone else, the code is rejected.",
+            "In the member list you can type the numeric chat id yourself, or clear it. “Waiting for the code” means a code was created and has not come back. The list does not show the code.",
+            "/unlink removes the link. /status says whether the chat is linked. /help lists the commands. /start greets them.",
+          ],
+        },
+        {
+          type: "details",
+          title: "Channel switches",
+          items: [
+            {
+              name: "Post to the tasks channel",
+              body: "The master switch for the channel. If it is off, or the channel id is empty, nothing is posted there.",
+            },
+            {
+              name: "New task, edit, status, assignment, comment",
+              body: "Each has its own switch and is posted only when both the channel switch and that event’s switch are on.",
+            },
+            {
+              name: "Logged hours",
+              body: "Goes to the channel only. It is not sent to the member’s private chat.",
+            },
+          ],
+        },
+        {
+          type: "details",
+          title: "Member-chat switches",
+          items: [
+            {
+              name: "Assignment, status, due-date change",
+              body: "Goes to the linked chat even when the member changed their own task. The in-app bell does not notify them about their own edit. Bale still does.",
+            },
+            {
+              name: "Comment",
+              body: "Goes to the task’s person and to anyone mentioned. The person who wrote the comment does not get a private copy of it.",
+            },
+            {
+              name: "Due reminder and vocab review",
+              body: "Due covers overdue, today, and coming up. Vocab goes once a day when cards are ready. Both include a link to the task or the vocab page.",
+            },
+            {
+              name: "Morning brief and habit nudge",
+              body: "Each has its own switch. If the switch is off, nothing is sent even after the hour arrives.",
+            },
+            {
+              name: "When the member mutes notifications",
+              body: "If they turn off in-app notifications, private Bale messages stop too. A specific switch they turn off in Settings also stops that kind of message.",
+            },
+          ],
+        },
+        {
+          type: "steps",
+          title: "Morning brief, habits, and replying done",
+          items: [
+            "The morning brief defaults to 8 and the habit nudge to 21. Each member saves those hours under Settings, on the notifications tab. The hour is the server clock.",
+            "After that hour, each one is sent once a day: when Today opens, or when the server’s daily job runs.",
+            "The brief lists three priorities, overdue work, what’s due today, and habits still unticked. If the desk is empty, one line says nothing is waiting.",
+            "The habit nudge lists only habits not ticked that day. If they are all ticked, nothing is sent and the day is still marked as done.",
+            "Replying تمام on a due reminder or a due-date message closes that task. تموم and done count too.",
+            "If several tasks are open and the reply is not on a specific message, the bot asks them to reply on that due message.",
+          ],
+        },
+        {
+          type: "details",
+          title: "Delivery log and the first save",
+          items: [
+            {
+              name: "Delivery log",
+              body: "The latest messages are listed here: sent or failed, the kind, a short preview, and Bale’s reason when it rejected one. A failed send is no longer only in the server log.",
+            },
+            {
+              name: "Before the first save",
+              body: "Until you save in the panel, the on/off switch and the chat ids come from the server environment. After that save, switches and chat ids come from the panel. An empty panel token still falls back to the environment. An empty chat id after a save does not.",
+            },
+            {
+              name: "When the server starts",
+              body: "If the bot is on in the panel and the public site address is set, startup registers the webhook. If the bot is off, the webhook is left alone. Bale being down does not stop the site from starting.",
+            },
+          ],
         },
       ],
     },
   ],
 };
 
-export function guideCopy(language: "FA" | "EN"): GuideCopy {
-  return language === "FA" ? fa : en;
+export function guideCopy(language: string): GuideCopy {
+  return language === "EN" || language === "en" ? en : fa;
 }

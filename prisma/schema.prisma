@@ -19,6 +19,9 @@ model User {
   /// Shape: { tasks, docs, research, language, habits, projects, workLogs, reporting }
   enabledModules      Json                 @default("{}")
   baleUserId          String?              @unique
+  baleLinkCode        String?
+  baleLinkChatId      String?
+  baleLinkExpires     DateTime?
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
   accounts            Account[]
@@ -113,6 +116,12 @@ model UserPreferences {
   notifySprintEnded         Boolean  @default(true)
   notifyDeadlineApproaching Boolean  @default(true)
   notifyStatusChanged       Boolean  @default(true)
+  /// Server-local hour (0–23) for the Bale morning digest
+  baleDigestHour            Int      @default(8)
+  /// Server-local hour (0–23) for the Bale habit nudge
+  baleHabitHour             Int      @default(21)
+  baleDigestSentOn          String?
+  baleHabitSentOn           String?
   /// YYYY-MM-DD for which todayFocusIds apply
   todayFocusDate            String?
   todayFocusIds             String[] @default([])
@@ -844,4 +853,57 @@ model MockAttempt {
   @@index([userId, startedAt])
   @@index([trackId, startedAt])
   @@map("mock_attempts")
+}
+
+/// Singleton row (`id = "default"`). Empty token falls back to BALE_BOT_TOKEN.
+model BaleConfig {
+  id               String   @id @default("default")
+  enabled          Boolean  @default(false)
+  botToken         String   @default("")
+  baseUrl          String   @default("https://tapi.bale.ai/bot")
+  adminChatId      String   @default("")
+  tasksChannelId   String   @default("")
+  notifyChannel    Boolean  @default(true)
+  notifyCreated    Boolean  @default(true)
+  notifyUpdated    Boolean  @default(true)
+  notifyStatus     Boolean  @default(true)
+  notifyAssigned   Boolean  @default(true)
+  notifyComment    Boolean  @default(true)
+  notifyWorkLog    Boolean  @default(true)
+  notifyDeadline   Boolean  @default(true)
+  notifyVocab      Boolean  @default(true)
+  notifyDmAssigned Boolean  @default(true)
+  notifyDmStatus   Boolean  @default(true)
+  notifyDmComment  Boolean  @default(true)
+  notifyDueChange  Boolean  @default(true)
+  notifyDigest     Boolean  @default(true)
+  notifyHabits     Boolean  @default(true)
+  updatedAt        DateTime @updatedAt
+
+  @@map("bale_config")
+}
+
+model BaleDelivery {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  kind      String
+  chatId    String
+  ok        Boolean
+  error     String?
+  preview   String   @default("")
+
+  @@index([createdAt])
+  @@map("bale_deliveries")
+}
+
+model BaleOutbound {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  chatId    String
+  messageId Int
+  taskId    String
+  kind      String
+
+  @@index([chatId, messageId])
+  @@map("bale_outbound")
 }

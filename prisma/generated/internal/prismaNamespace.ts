@@ -425,7 +425,10 @@ export const ModelName = {
   LangCard: 'LangCard',
   LangVocabDay: 'LangVocabDay',
   ExamTrack: 'ExamTrack',
-  MockAttempt: 'MockAttempt'
+  MockAttempt: 'MockAttempt',
+  BaleConfig: 'BaleConfig',
+  BaleDelivery: 'BaleDelivery',
+  BaleOutbound: 'BaleOutbound'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -441,7 +444,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "account" | "session" | "verificationToken" | "passwordResetToken" | "userPreferences" | "role" | "permission" | "rolePermission" | "organization" | "team" | "teamMember" | "project" | "projectMember" | "sprint" | "task" | "label" | "taskLabel" | "comment" | "attachment" | "checklist" | "checklistItem" | "notification" | "activityLog" | "workLog" | "habit" | "habitLog" | "doc" | "docFolder" | "docTag" | "docTagOnDoc" | "docTask" | "docVersion" | "docSource" | "docQuote" | "langProfile" | "langSession" | "langListeningClip" | "langCard" | "langVocabDay" | "examTrack" | "mockAttempt"
+    modelProps: "user" | "account" | "session" | "verificationToken" | "passwordResetToken" | "userPreferences" | "role" | "permission" | "rolePermission" | "organization" | "team" | "teamMember" | "project" | "projectMember" | "sprint" | "task" | "label" | "taskLabel" | "comment" | "attachment" | "checklist" | "checklistItem" | "notification" | "activityLog" | "workLog" | "habit" | "habitLog" | "doc" | "docFolder" | "docTag" | "docTagOnDoc" | "docTask" | "docVersion" | "docSource" | "docQuote" | "langProfile" | "langSession" | "langListeningClip" | "langCard" | "langVocabDay" | "examTrack" | "mockAttempt" | "baleConfig" | "baleDelivery" | "baleOutbound"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -3553,6 +3556,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    BaleConfig: {
+      payload: Prisma.$BaleConfigPayload<ExtArgs>
+      fields: Prisma.BaleConfigFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BaleConfigFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleConfigPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BaleConfigFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleConfigPayload>
+        }
+        findFirst: {
+          args: Prisma.BaleConfigFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleConfigPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BaleConfigFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleConfigPayload>
+        }
+        findMany: {
+          args: Prisma.BaleConfigFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleConfigPayload>[]
+        }
+        create: {
+          args: Prisma.BaleConfigCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleConfigPayload>
+        }
+        createMany: {
+          args: Prisma.BaleConfigCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BaleConfigCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleConfigPayload>[]
+        }
+        delete: {
+          args: Prisma.BaleConfigDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleConfigPayload>
+        }
+        update: {
+          args: Prisma.BaleConfigUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleConfigPayload>
+        }
+        deleteMany: {
+          args: Prisma.BaleConfigDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BaleConfigUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BaleConfigUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleConfigPayload>[]
+        }
+        upsert: {
+          args: Prisma.BaleConfigUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleConfigPayload>
+        }
+        aggregate: {
+          args: Prisma.BaleConfigAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBaleConfig>
+        }
+        groupBy: {
+          args: Prisma.BaleConfigGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BaleConfigGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BaleConfigCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BaleConfigCountAggregateOutputType> | number
+        }
+      }
+    }
+    BaleDelivery: {
+      payload: Prisma.$BaleDeliveryPayload<ExtArgs>
+      fields: Prisma.BaleDeliveryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BaleDeliveryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleDeliveryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BaleDeliveryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleDeliveryPayload>
+        }
+        findFirst: {
+          args: Prisma.BaleDeliveryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleDeliveryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BaleDeliveryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleDeliveryPayload>
+        }
+        findMany: {
+          args: Prisma.BaleDeliveryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleDeliveryPayload>[]
+        }
+        create: {
+          args: Prisma.BaleDeliveryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleDeliveryPayload>
+        }
+        createMany: {
+          args: Prisma.BaleDeliveryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BaleDeliveryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleDeliveryPayload>[]
+        }
+        delete: {
+          args: Prisma.BaleDeliveryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleDeliveryPayload>
+        }
+        update: {
+          args: Prisma.BaleDeliveryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleDeliveryPayload>
+        }
+        deleteMany: {
+          args: Prisma.BaleDeliveryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BaleDeliveryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BaleDeliveryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleDeliveryPayload>[]
+        }
+        upsert: {
+          args: Prisma.BaleDeliveryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleDeliveryPayload>
+        }
+        aggregate: {
+          args: Prisma.BaleDeliveryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBaleDelivery>
+        }
+        groupBy: {
+          args: Prisma.BaleDeliveryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BaleDeliveryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BaleDeliveryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BaleDeliveryCountAggregateOutputType> | number
+        }
+      }
+    }
+    BaleOutbound: {
+      payload: Prisma.$BaleOutboundPayload<ExtArgs>
+      fields: Prisma.BaleOutboundFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BaleOutboundFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleOutboundPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BaleOutboundFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleOutboundPayload>
+        }
+        findFirst: {
+          args: Prisma.BaleOutboundFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleOutboundPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BaleOutboundFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleOutboundPayload>
+        }
+        findMany: {
+          args: Prisma.BaleOutboundFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleOutboundPayload>[]
+        }
+        create: {
+          args: Prisma.BaleOutboundCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleOutboundPayload>
+        }
+        createMany: {
+          args: Prisma.BaleOutboundCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BaleOutboundCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleOutboundPayload>[]
+        }
+        delete: {
+          args: Prisma.BaleOutboundDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleOutboundPayload>
+        }
+        update: {
+          args: Prisma.BaleOutboundUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleOutboundPayload>
+        }
+        deleteMany: {
+          args: Prisma.BaleOutboundDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BaleOutboundUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BaleOutboundUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleOutboundPayload>[]
+        }
+        upsert: {
+          args: Prisma.BaleOutboundUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BaleOutboundPayload>
+        }
+        aggregate: {
+          args: Prisma.BaleOutboundAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBaleOutbound>
+        }
+        groupBy: {
+          args: Prisma.BaleOutboundGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BaleOutboundGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BaleOutboundCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BaleOutboundCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -3602,6 +3827,9 @@ export const UserScalarFieldEnum = {
   status: 'status',
   enabledModules: 'enabledModules',
   baleUserId: 'baleUserId',
+  baleLinkCode: 'baleLinkCode',
+  baleLinkChatId: 'baleLinkChatId',
+  baleLinkExpires: 'baleLinkExpires',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -3673,6 +3901,10 @@ export const UserPreferencesScalarFieldEnum = {
   notifySprintEnded: 'notifySprintEnded',
   notifyDeadlineApproaching: 'notifyDeadlineApproaching',
   notifyStatusChanged: 'notifyStatusChanged',
+  baleDigestHour: 'baleDigestHour',
+  baleHabitHour: 'baleHabitHour',
+  baleDigestSentOn: 'baleDigestSentOn',
+  baleHabitSentOn: 'baleHabitSentOn',
   todayFocusDate: 'todayFocusDate',
   todayFocusIds: 'todayFocusIds',
   onboardingCompletedAt: 'onboardingCompletedAt',
@@ -4162,6 +4394,59 @@ export const MockAttemptScalarFieldEnum = {
 } as const
 
 export type MockAttemptScalarFieldEnum = (typeof MockAttemptScalarFieldEnum)[keyof typeof MockAttemptScalarFieldEnum]
+
+
+export const BaleConfigScalarFieldEnum = {
+  id: 'id',
+  enabled: 'enabled',
+  botToken: 'botToken',
+  baseUrl: 'baseUrl',
+  adminChatId: 'adminChatId',
+  tasksChannelId: 'tasksChannelId',
+  notifyChannel: 'notifyChannel',
+  notifyCreated: 'notifyCreated',
+  notifyUpdated: 'notifyUpdated',
+  notifyStatus: 'notifyStatus',
+  notifyAssigned: 'notifyAssigned',
+  notifyComment: 'notifyComment',
+  notifyWorkLog: 'notifyWorkLog',
+  notifyDeadline: 'notifyDeadline',
+  notifyVocab: 'notifyVocab',
+  notifyDmAssigned: 'notifyDmAssigned',
+  notifyDmStatus: 'notifyDmStatus',
+  notifyDmComment: 'notifyDmComment',
+  notifyDueChange: 'notifyDueChange',
+  notifyDigest: 'notifyDigest',
+  notifyHabits: 'notifyHabits',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BaleConfigScalarFieldEnum = (typeof BaleConfigScalarFieldEnum)[keyof typeof BaleConfigScalarFieldEnum]
+
+
+export const BaleDeliveryScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  kind: 'kind',
+  chatId: 'chatId',
+  ok: 'ok',
+  error: 'error',
+  preview: 'preview'
+} as const
+
+export type BaleDeliveryScalarFieldEnum = (typeof BaleDeliveryScalarFieldEnum)[keyof typeof BaleDeliveryScalarFieldEnum]
+
+
+export const BaleOutboundScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  chatId: 'chatId',
+  messageId: 'messageId',
+  taskId: 'taskId',
+  kind: 'kind'
+} as const
+
+export type BaleOutboundScalarFieldEnum = (typeof BaleOutboundScalarFieldEnum)[keyof typeof BaleOutboundScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -4697,6 +4982,9 @@ export type GlobalOmitConfig = {
   langVocabDay?: Prisma.LangVocabDayOmit
   examTrack?: Prisma.ExamTrackOmit
   mockAttempt?: Prisma.MockAttemptOmit
+  baleConfig?: Prisma.BaleConfigOmit
+  baleDelivery?: Prisma.BaleDeliveryOmit
+  baleOutbound?: Prisma.BaleOutboundOmit
 }
 
 /* Types for Logging */

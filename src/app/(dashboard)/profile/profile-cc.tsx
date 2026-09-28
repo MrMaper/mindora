@@ -13,9 +13,10 @@ import type { Language } from "@/types/db";
 interface ProfileCCProps {
   user: UserRow;
   language: Language;
+  baleCode?: string | null;
 }
 
-export function ProfileCC({ user, language }: ProfileCCProps) {
+export function ProfileCC({ user, language, baleCode }: ProfileCCProps) {
   const avatarInputRef = React.useRef<HTMLInputElement>(null);
   const p = useProfile(user.id);
   const t = useTranslation();
@@ -36,6 +37,34 @@ export function ProfileCC({ user, language }: ProfileCCProps) {
       >
         {t.profile.title}
       </h1>
+
+      {baleCode ? (
+        <section style={{ marginBottom: "var(--space-8)" }}>
+          <div
+            style={{
+              fontSize: "var(--text-sm)",
+              fontWeight: "var(--weight-semibold)",
+              color: "var(--text-primary)",
+              marginBottom: "var(--space-2)",
+            }}
+          >
+            {t.profile.baleCodeTitle}
+          </div>
+          <p
+            style={{
+              fontSize: "var(--text-xl)",
+              letterSpacing: "0.2em",
+              color: "var(--text-primary)",
+              marginBottom: "var(--space-2)",
+            }}
+          >
+            {baleCode}
+          </p>
+          <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)" }}>
+            {t.profile.baleCodeHint}
+          </p>
+        </section>
+      ) : null}
 
       {/* ── Avatar ───────────────────────────────────────────────────── */}
       <section style={{ marginBottom: "var(--space-8)" }}>

@@ -24,6 +24,7 @@ export interface BaleMessage {
   text?: string;
   photo?: BalePhotoSize[];
   caption?: string;
+  reply_to_message?: { message_id: number; text?: string };
 }
 
 export interface BaleCallbackQuery {

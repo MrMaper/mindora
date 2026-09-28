@@ -1058,14 +1058,6 @@ export type EnumTaskTypeFieldUpdateOperationsInput = {
   set?: $Enums.TaskType
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type NullableEnumLifeAreaFieldUpdateOperationsInput = {
   set?: $Enums.LifeArea | null
 }

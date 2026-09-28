@@ -1,7 +1,8 @@
 import { prisma as db } from "@/lib/db";
 import { notify } from "@/lib/notify";
 import { formatNumber } from "@/lib/utils";
-import { sendMessage } from "@/features/external/bots/bale/actions";
+import { getBaleRuntime } from "@/features/external/bots/bale/config";
+import { baleAppOrigin, deliverBale } from "@/features/external/bots/bale/deliver";
 import { REVIEW_DAILY_CAP } from "./srs";
 import { startOfAppDay } from "./day";
 
@@ -15,11 +16,13 @@ async function sendBaleVocabDm(
       select: { baleUserId: true },
     });
     if (!user?.baleUserId) return;
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const href = `${baseUrl}/language?tab=vocab`;
-    await sendMessage({
-      chat_id: user.baleUserId,
+    const runtime = await getBaleRuntime();
+    if (!runtime.enabled || !runtime.notifyVocab) return;
+    const href = `${baleAppOrigin()}/language?tab=vocab`;
+    await deliverBale({
+      chatId: user.baleUserId,
       text: `📚 ${title.replace(/[*_`]/g, "")}\n\n${href}`,
+      kind: "vocab",
     });
   } catch (err) {
     console.error("Bale vocab DM failed:", err);

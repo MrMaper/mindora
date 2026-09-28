@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { sendMessage } from "@/lib/bale/handlers";
+import { auth } from "@/auth";
+import { sendMessage } from "@/features/external/bots/bale/actions";
 import { sendMessageSchema } from "@/schemas/bale";
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await auth();
+    if (!session?.user || session.user.role !== "ADMIN") {
+      return NextResponse.json({ ok: false, error: "Forbidden" }, { status: 403 });
+    }
+
     const body = await req.json();
 
     const validation = sendMessageSchema.safeParse(body);

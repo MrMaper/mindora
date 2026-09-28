@@ -20,8 +20,20 @@ export type UserPreferencesModel = runtime.Types.Result.DefaultSelection<Prisma.
 
 export type AggregateUserPreferences = {
   _count: UserPreferencesCountAggregateOutputType | null
+  _avg: UserPreferencesAvgAggregateOutputType | null
+  _sum: UserPreferencesSumAggregateOutputType | null
   _min: UserPreferencesMinAggregateOutputType | null
   _max: UserPreferencesMaxAggregateOutputType | null
+}
+
+export type UserPreferencesAvgAggregateOutputType = {
+  baleDigestHour: number | null
+  baleHabitHour: number | null
+}
+
+export type UserPreferencesSumAggregateOutputType = {
+  baleDigestHour: number | null
+  baleHabitHour: number | null
 }
 
 export type UserPreferencesMinAggregateOutputType = {
@@ -40,6 +52,10 @@ export type UserPreferencesMinAggregateOutputType = {
   notifySprintEnded: boolean | null
   notifyDeadlineApproaching: boolean | null
   notifyStatusChanged: boolean | null
+  baleDigestHour: number | null
+  baleHabitHour: number | null
+  baleDigestSentOn: string | null
+  baleHabitSentOn: string | null
   todayFocusDate: string | null
   onboardingCompletedAt: Date | null
   createdAt: Date | null
@@ -62,6 +78,10 @@ export type UserPreferencesMaxAggregateOutputType = {
   notifySprintEnded: boolean | null
   notifyDeadlineApproaching: boolean | null
   notifyStatusChanged: boolean | null
+  baleDigestHour: number | null
+  baleHabitHour: number | null
+  baleDigestSentOn: string | null
+  baleHabitSentOn: string | null
   todayFocusDate: string | null
   onboardingCompletedAt: Date | null
   createdAt: Date | null
@@ -84,6 +104,10 @@ export type UserPreferencesCountAggregateOutputType = {
   notifySprintEnded: number
   notifyDeadlineApproaching: number
   notifyStatusChanged: number
+  baleDigestHour: number
+  baleHabitHour: number
+  baleDigestSentOn: number
+  baleHabitSentOn: number
   todayFocusDate: number
   todayFocusIds: number
   onboardingCompletedAt: number
@@ -92,6 +116,16 @@ export type UserPreferencesCountAggregateOutputType = {
   _all: number
 }
 
+
+export type UserPreferencesAvgAggregateInputType = {
+  baleDigestHour?: true
+  baleHabitHour?: true
+}
+
+export type UserPreferencesSumAggregateInputType = {
+  baleDigestHour?: true
+  baleHabitHour?: true
+}
 
 export type UserPreferencesMinAggregateInputType = {
   id?: true
@@ -109,6 +143,10 @@ export type UserPreferencesMinAggregateInputType = {
   notifySprintEnded?: true
   notifyDeadlineApproaching?: true
   notifyStatusChanged?: true
+  baleDigestHour?: true
+  baleHabitHour?: true
+  baleDigestSentOn?: true
+  baleHabitSentOn?: true
   todayFocusDate?: true
   onboardingCompletedAt?: true
   createdAt?: true
@@ -131,6 +169,10 @@ export type UserPreferencesMaxAggregateInputType = {
   notifySprintEnded?: true
   notifyDeadlineApproaching?: true
   notifyStatusChanged?: true
+  baleDigestHour?: true
+  baleHabitHour?: true
+  baleDigestSentOn?: true
+  baleHabitSentOn?: true
   todayFocusDate?: true
   onboardingCompletedAt?: true
   createdAt?: true
@@ -153,6 +195,10 @@ export type UserPreferencesCountAggregateInputType = {
   notifySprintEnded?: true
   notifyDeadlineApproaching?: true
   notifyStatusChanged?: true
+  baleDigestHour?: true
+  baleHabitHour?: true
+  baleDigestSentOn?: true
+  baleHabitSentOn?: true
   todayFocusDate?: true
   todayFocusIds?: true
   onboardingCompletedAt?: true
@@ -199,6 +245,18 @@ export type UserPreferencesAggregateArgs<ExtArgs extends runtime.Types.Extension
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: UserPreferencesAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: UserPreferencesSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: UserPreferencesMinAggregateInputType
@@ -229,6 +287,8 @@ export type UserPreferencesGroupByArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   _count?: UserPreferencesCountAggregateInputType | true
+  _avg?: UserPreferencesAvgAggregateInputType
+  _sum?: UserPreferencesSumAggregateInputType
   _min?: UserPreferencesMinAggregateInputType
   _max?: UserPreferencesMaxAggregateInputType
 }
@@ -249,12 +309,18 @@ export type UserPreferencesGroupByOutputType = {
   notifySprintEnded: boolean
   notifyDeadlineApproaching: boolean
   notifyStatusChanged: boolean
+  baleDigestHour: number
+  baleHabitHour: number
+  baleDigestSentOn: string | null
+  baleHabitSentOn: string | null
   todayFocusDate: string | null
   todayFocusIds: string[]
   onboardingCompletedAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: UserPreferencesCountAggregateOutputType | null
+  _avg: UserPreferencesAvgAggregateOutputType | null
+  _sum: UserPreferencesSumAggregateOutputType | null
   _min: UserPreferencesMinAggregateOutputType | null
   _max: UserPreferencesMaxAggregateOutputType | null
 }
@@ -293,6 +359,10 @@ export type UserPreferencesWhereInput = {
   notifySprintEnded?: Prisma.BoolFilter<"UserPreferences"> | boolean
   notifyDeadlineApproaching?: Prisma.BoolFilter<"UserPreferences"> | boolean
   notifyStatusChanged?: Prisma.BoolFilter<"UserPreferences"> | boolean
+  baleDigestHour?: Prisma.IntFilter<"UserPreferences"> | number
+  baleHabitHour?: Prisma.IntFilter<"UserPreferences"> | number
+  baleDigestSentOn?: Prisma.StringNullableFilter<"UserPreferences"> | string | null
+  baleHabitSentOn?: Prisma.StringNullableFilter<"UserPreferences"> | string | null
   todayFocusDate?: Prisma.StringNullableFilter<"UserPreferences"> | string | null
   todayFocusIds?: Prisma.StringNullableListFilter<"UserPreferences">
   onboardingCompletedAt?: Prisma.DateTimeNullableFilter<"UserPreferences"> | Date | string | null
@@ -317,6 +387,10 @@ export type UserPreferencesOrderByWithRelationInput = {
   notifySprintEnded?: Prisma.SortOrder
   notifyDeadlineApproaching?: Prisma.SortOrder
   notifyStatusChanged?: Prisma.SortOrder
+  baleDigestHour?: Prisma.SortOrder
+  baleHabitHour?: Prisma.SortOrder
+  baleDigestSentOn?: Prisma.SortOrderInput | Prisma.SortOrder
+  baleHabitSentOn?: Prisma.SortOrderInput | Prisma.SortOrder
   todayFocusDate?: Prisma.SortOrderInput | Prisma.SortOrder
   todayFocusIds?: Prisma.SortOrder
   onboardingCompletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -344,6 +418,10 @@ export type UserPreferencesWhereUniqueInput = Prisma.AtLeast<{
   notifySprintEnded?: Prisma.BoolFilter<"UserPreferences"> | boolean
   notifyDeadlineApproaching?: Prisma.BoolFilter<"UserPreferences"> | boolean
   notifyStatusChanged?: Prisma.BoolFilter<"UserPreferences"> | boolean
+  baleDigestHour?: Prisma.IntFilter<"UserPreferences"> | number
+  baleHabitHour?: Prisma.IntFilter<"UserPreferences"> | number
+  baleDigestSentOn?: Prisma.StringNullableFilter<"UserPreferences"> | string | null
+  baleHabitSentOn?: Prisma.StringNullableFilter<"UserPreferences"> | string | null
   todayFocusDate?: Prisma.StringNullableFilter<"UserPreferences"> | string | null
   todayFocusIds?: Prisma.StringNullableListFilter<"UserPreferences">
   onboardingCompletedAt?: Prisma.DateTimeNullableFilter<"UserPreferences"> | Date | string | null
@@ -368,14 +446,20 @@ export type UserPreferencesOrderByWithAggregationInput = {
   notifySprintEnded?: Prisma.SortOrder
   notifyDeadlineApproaching?: Prisma.SortOrder
   notifyStatusChanged?: Prisma.SortOrder
+  baleDigestHour?: Prisma.SortOrder
+  baleHabitHour?: Prisma.SortOrder
+  baleDigestSentOn?: Prisma.SortOrderInput | Prisma.SortOrder
+  baleHabitSentOn?: Prisma.SortOrderInput | Prisma.SortOrder
   todayFocusDate?: Prisma.SortOrderInput | Prisma.SortOrder
   todayFocusIds?: Prisma.SortOrder
   onboardingCompletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserPreferencesCountOrderByAggregateInput
+  _avg?: Prisma.UserPreferencesAvgOrderByAggregateInput
   _max?: Prisma.UserPreferencesMaxOrderByAggregateInput
   _min?: Prisma.UserPreferencesMinOrderByAggregateInput
+  _sum?: Prisma.UserPreferencesSumOrderByAggregateInput
 }
 
 export type UserPreferencesScalarWhereWithAggregatesInput = {
@@ -397,6 +481,10 @@ export type UserPreferencesScalarWhereWithAggregatesInput = {
   notifySprintEnded?: Prisma.BoolWithAggregatesFilter<"UserPreferences"> | boolean
   notifyDeadlineApproaching?: Prisma.BoolWithAggregatesFilter<"UserPreferences"> | boolean
   notifyStatusChanged?: Prisma.BoolWithAggregatesFilter<"UserPreferences"> | boolean
+  baleDigestHour?: Prisma.IntWithAggregatesFilter<"UserPreferences"> | number
+  baleHabitHour?: Prisma.IntWithAggregatesFilter<"UserPreferences"> | number
+  baleDigestSentOn?: Prisma.StringNullableWithAggregatesFilter<"UserPreferences"> | string | null
+  baleHabitSentOn?: Prisma.StringNullableWithAggregatesFilter<"UserPreferences"> | string | null
   todayFocusDate?: Prisma.StringNullableWithAggregatesFilter<"UserPreferences"> | string | null
   todayFocusIds?: Prisma.StringNullableListFilter<"UserPreferences">
   onboardingCompletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"UserPreferences"> | Date | string | null
@@ -419,6 +507,10 @@ export type UserPreferencesCreateInput = {
   notifySprintEnded?: boolean
   notifyDeadlineApproaching?: boolean
   notifyStatusChanged?: boolean
+  baleDigestHour?: number
+  baleHabitHour?: number
+  baleDigestSentOn?: string | null
+  baleHabitSentOn?: string | null
   todayFocusDate?: string | null
   todayFocusIds?: Prisma.UserPreferencesCreatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Date | string | null
@@ -443,6 +535,10 @@ export type UserPreferencesUncheckedCreateInput = {
   notifySprintEnded?: boolean
   notifyDeadlineApproaching?: boolean
   notifyStatusChanged?: boolean
+  baleDigestHour?: number
+  baleHabitHour?: number
+  baleDigestSentOn?: string | null
+  baleHabitSentOn?: string | null
   todayFocusDate?: string | null
   todayFocusIds?: Prisma.UserPreferencesCreatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Date | string | null
@@ -465,6 +561,10 @@ export type UserPreferencesUpdateInput = {
   notifySprintEnded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   notifyDeadlineApproaching?: Prisma.BoolFieldUpdateOperationsInput | boolean
   notifyStatusChanged?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  baleDigestHour?: Prisma.IntFieldUpdateOperationsInput | number
+  baleHabitHour?: Prisma.IntFieldUpdateOperationsInput | number
+  baleDigestSentOn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleHabitSentOn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   todayFocusDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   todayFocusIds?: Prisma.UserPreferencesUpdatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -489,6 +589,10 @@ export type UserPreferencesUncheckedUpdateInput = {
   notifySprintEnded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   notifyDeadlineApproaching?: Prisma.BoolFieldUpdateOperationsInput | boolean
   notifyStatusChanged?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  baleDigestHour?: Prisma.IntFieldUpdateOperationsInput | number
+  baleHabitHour?: Prisma.IntFieldUpdateOperationsInput | number
+  baleDigestSentOn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleHabitSentOn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   todayFocusDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   todayFocusIds?: Prisma.UserPreferencesUpdatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -512,6 +616,10 @@ export type UserPreferencesCreateManyInput = {
   notifySprintEnded?: boolean
   notifyDeadlineApproaching?: boolean
   notifyStatusChanged?: boolean
+  baleDigestHour?: number
+  baleHabitHour?: number
+  baleDigestSentOn?: string | null
+  baleHabitSentOn?: string | null
   todayFocusDate?: string | null
   todayFocusIds?: Prisma.UserPreferencesCreatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Date | string | null
@@ -534,6 +642,10 @@ export type UserPreferencesUpdateManyMutationInput = {
   notifySprintEnded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   notifyDeadlineApproaching?: Prisma.BoolFieldUpdateOperationsInput | boolean
   notifyStatusChanged?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  baleDigestHour?: Prisma.IntFieldUpdateOperationsInput | number
+  baleHabitHour?: Prisma.IntFieldUpdateOperationsInput | number
+  baleDigestSentOn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleHabitSentOn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   todayFocusDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   todayFocusIds?: Prisma.UserPreferencesUpdatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -557,6 +669,10 @@ export type UserPreferencesUncheckedUpdateManyInput = {
   notifySprintEnded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   notifyDeadlineApproaching?: Prisma.BoolFieldUpdateOperationsInput | boolean
   notifyStatusChanged?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  baleDigestHour?: Prisma.IntFieldUpdateOperationsInput | number
+  baleHabitHour?: Prisma.IntFieldUpdateOperationsInput | number
+  baleDigestSentOn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleHabitSentOn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   todayFocusDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   todayFocusIds?: Prisma.UserPreferencesUpdatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -593,11 +709,20 @@ export type UserPreferencesCountOrderByAggregateInput = {
   notifySprintEnded?: Prisma.SortOrder
   notifyDeadlineApproaching?: Prisma.SortOrder
   notifyStatusChanged?: Prisma.SortOrder
+  baleDigestHour?: Prisma.SortOrder
+  baleHabitHour?: Prisma.SortOrder
+  baleDigestSentOn?: Prisma.SortOrder
+  baleHabitSentOn?: Prisma.SortOrder
   todayFocusDate?: Prisma.SortOrder
   todayFocusIds?: Prisma.SortOrder
   onboardingCompletedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type UserPreferencesAvgOrderByAggregateInput = {
+  baleDigestHour?: Prisma.SortOrder
+  baleHabitHour?: Prisma.SortOrder
 }
 
 export type UserPreferencesMaxOrderByAggregateInput = {
@@ -616,6 +741,10 @@ export type UserPreferencesMaxOrderByAggregateInput = {
   notifySprintEnded?: Prisma.SortOrder
   notifyDeadlineApproaching?: Prisma.SortOrder
   notifyStatusChanged?: Prisma.SortOrder
+  baleDigestHour?: Prisma.SortOrder
+  baleHabitHour?: Prisma.SortOrder
+  baleDigestSentOn?: Prisma.SortOrder
+  baleHabitSentOn?: Prisma.SortOrder
   todayFocusDate?: Prisma.SortOrder
   onboardingCompletedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -638,10 +767,19 @@ export type UserPreferencesMinOrderByAggregateInput = {
   notifySprintEnded?: Prisma.SortOrder
   notifyDeadlineApproaching?: Prisma.SortOrder
   notifyStatusChanged?: Prisma.SortOrder
+  baleDigestHour?: Prisma.SortOrder
+  baleHabitHour?: Prisma.SortOrder
+  baleDigestSentOn?: Prisma.SortOrder
+  baleHabitSentOn?: Prisma.SortOrder
   todayFocusDate?: Prisma.SortOrder
   onboardingCompletedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type UserPreferencesSumOrderByAggregateInput = {
+  baleDigestHour?: Prisma.SortOrder
+  baleHabitHour?: Prisma.SortOrder
 }
 
 export type UserPreferencesCreateNestedOneWithoutUserInput = {
@@ -692,13 +830,17 @@ export type BoolFieldUpdateOperationsInput = {
   set?: boolean
 }
 
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
 export type UserPreferencesUpdatetodayFocusIdsInput = {
   set?: string[]
   push?: string | string[]
-}
-
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
 }
 
 export type UserPreferencesCreateWithoutUserInput = {
@@ -716,6 +858,10 @@ export type UserPreferencesCreateWithoutUserInput = {
   notifySprintEnded?: boolean
   notifyDeadlineApproaching?: boolean
   notifyStatusChanged?: boolean
+  baleDigestHour?: number
+  baleHabitHour?: number
+  baleDigestSentOn?: string | null
+  baleHabitSentOn?: string | null
   todayFocusDate?: string | null
   todayFocusIds?: Prisma.UserPreferencesCreatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Date | string | null
@@ -738,6 +884,10 @@ export type UserPreferencesUncheckedCreateWithoutUserInput = {
   notifySprintEnded?: boolean
   notifyDeadlineApproaching?: boolean
   notifyStatusChanged?: boolean
+  baleDigestHour?: number
+  baleHabitHour?: number
+  baleDigestSentOn?: string | null
+  baleHabitSentOn?: string | null
   todayFocusDate?: string | null
   todayFocusIds?: Prisma.UserPreferencesCreatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Date | string | null
@@ -776,6 +926,10 @@ export type UserPreferencesUpdateWithoutUserInput = {
   notifySprintEnded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   notifyDeadlineApproaching?: Prisma.BoolFieldUpdateOperationsInput | boolean
   notifyStatusChanged?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  baleDigestHour?: Prisma.IntFieldUpdateOperationsInput | number
+  baleHabitHour?: Prisma.IntFieldUpdateOperationsInput | number
+  baleDigestSentOn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleHabitSentOn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   todayFocusDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   todayFocusIds?: Prisma.UserPreferencesUpdatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -798,6 +952,10 @@ export type UserPreferencesUncheckedUpdateWithoutUserInput = {
   notifySprintEnded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   notifyDeadlineApproaching?: Prisma.BoolFieldUpdateOperationsInput | boolean
   notifyStatusChanged?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  baleDigestHour?: Prisma.IntFieldUpdateOperationsInput | number
+  baleHabitHour?: Prisma.IntFieldUpdateOperationsInput | number
+  baleDigestSentOn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleHabitSentOn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   todayFocusDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   todayFocusIds?: Prisma.UserPreferencesUpdatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -823,6 +981,10 @@ export type UserPreferencesSelect<ExtArgs extends runtime.Types.Extensions.Inter
   notifySprintEnded?: boolean
   notifyDeadlineApproaching?: boolean
   notifyStatusChanged?: boolean
+  baleDigestHour?: boolean
+  baleHabitHour?: boolean
+  baleDigestSentOn?: boolean
+  baleHabitSentOn?: boolean
   todayFocusDate?: boolean
   todayFocusIds?: boolean
   onboardingCompletedAt?: boolean
@@ -847,6 +1009,10 @@ export type UserPreferencesSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   notifySprintEnded?: boolean
   notifyDeadlineApproaching?: boolean
   notifyStatusChanged?: boolean
+  baleDigestHour?: boolean
+  baleHabitHour?: boolean
+  baleDigestSentOn?: boolean
+  baleHabitSentOn?: boolean
   todayFocusDate?: boolean
   todayFocusIds?: boolean
   onboardingCompletedAt?: boolean
@@ -871,6 +1037,10 @@ export type UserPreferencesSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   notifySprintEnded?: boolean
   notifyDeadlineApproaching?: boolean
   notifyStatusChanged?: boolean
+  baleDigestHour?: boolean
+  baleHabitHour?: boolean
+  baleDigestSentOn?: boolean
+  baleHabitSentOn?: boolean
   todayFocusDate?: boolean
   todayFocusIds?: boolean
   onboardingCompletedAt?: boolean
@@ -895,6 +1065,10 @@ export type UserPreferencesSelectScalar = {
   notifySprintEnded?: boolean
   notifyDeadlineApproaching?: boolean
   notifyStatusChanged?: boolean
+  baleDigestHour?: boolean
+  baleHabitHour?: boolean
+  baleDigestSentOn?: boolean
+  baleHabitSentOn?: boolean
   todayFocusDate?: boolean
   todayFocusIds?: boolean
   onboardingCompletedAt?: boolean
@@ -902,7 +1076,7 @@ export type UserPreferencesSelectScalar = {
   updatedAt?: boolean
 }
 
-export type UserPreferencesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "language" | "theme" | "emailNotifs" | "notifications" | "soundNotifs" | "notifyTaskAssigned" | "notifyTaskUpdated" | "notifyTaskCommented" | "notifyMention" | "notifySprintStarted" | "notifySprintEnded" | "notifyDeadlineApproaching" | "notifyStatusChanged" | "todayFocusDate" | "todayFocusIds" | "onboardingCompletedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["userPreferences"]>
+export type UserPreferencesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "language" | "theme" | "emailNotifs" | "notifications" | "soundNotifs" | "notifyTaskAssigned" | "notifyTaskUpdated" | "notifyTaskCommented" | "notifyMention" | "notifySprintStarted" | "notifySprintEnded" | "notifyDeadlineApproaching" | "notifyStatusChanged" | "baleDigestHour" | "baleHabitHour" | "baleDigestSentOn" | "baleHabitSentOn" | "todayFocusDate" | "todayFocusIds" | "onboardingCompletedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["userPreferences"]>
 export type UserPreferencesInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -934,6 +1108,16 @@ export type $UserPreferencesPayload<ExtArgs extends runtime.Types.Extensions.Int
     notifySprintEnded: boolean
     notifyDeadlineApproaching: boolean
     notifyStatusChanged: boolean
+    /**
+     * Server-local hour (0–23) for the Bale morning digest
+     */
+    baleDigestHour: number
+    /**
+     * Server-local hour (0–23) for the Bale habit nudge
+     */
+    baleHabitHour: number
+    baleDigestSentOn: string | null
+    baleHabitSentOn: string | null
     /**
      * YYYY-MM-DD for which todayFocusIds apply
      */
@@ -1384,6 +1568,10 @@ export interface UserPreferencesFieldRefs {
   readonly notifySprintEnded: Prisma.FieldRef<"UserPreferences", 'Boolean'>
   readonly notifyDeadlineApproaching: Prisma.FieldRef<"UserPreferences", 'Boolean'>
   readonly notifyStatusChanged: Prisma.FieldRef<"UserPreferences", 'Boolean'>
+  readonly baleDigestHour: Prisma.FieldRef<"UserPreferences", 'Int'>
+  readonly baleHabitHour: Prisma.FieldRef<"UserPreferences", 'Int'>
+  readonly baleDigestSentOn: Prisma.FieldRef<"UserPreferences", 'String'>
+  readonly baleHabitSentOn: Prisma.FieldRef<"UserPreferences", 'String'>
   readonly todayFocusDate: Prisma.FieldRef<"UserPreferences", 'String'>
   readonly todayFocusIds: Prisma.FieldRef<"UserPreferences", 'String[]'>
   readonly onboardingCompletedAt: Prisma.FieldRef<"UserPreferences", 'DateTime'>

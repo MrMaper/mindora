@@ -10,17 +10,17 @@ import type {
   GetUpdatesParams,
   BaleUpdate,
 } from "./types";
+import { getBaleRuntime } from "./config";
 
 async function baleRequest<T>(
   action: string,
   method: "GET" | "POST" = "POST",
   params?: unknown,
 ): Promise<BaleActionResult<T>> {
-  const token = process.env.BALE_BOT_TOKEN;
-  const baseUrl = process.env.BALE_BASE_URL || "https://tapi.bale.ai/bot";
+  const { token, baseUrl } = await getBaleRuntime();
 
   if (!token) {
-    throw new Error("BALE_BOT_TOKEN environment variable is not set");
+    return { success: false, error: "Bale bot token is not set" };
   }
 
   const url = `${baseUrl}${token}/${action}`;

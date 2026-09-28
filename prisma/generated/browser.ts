@@ -227,3 +227,18 @@ export type ExamTrack = Prisma.ExamTrackModel
  * 
  */
 export type MockAttempt = Prisma.MockAttemptModel
+/**
+ * Model BaleConfig
+ * Singleton row (`id = "default"`). Empty token falls back to BALE_BOT_TOKEN.
+ */
+export type BaleConfig = Prisma.BaleConfigModel
+/**
+ * Model BaleDelivery
+ * 
+ */
+export type BaleDelivery = Prisma.BaleDeliveryModel
+/**
+ * Model BaleOutbound
+ * 
+ */
+export type BaleOutbound = Prisma.BaleOutboundModel

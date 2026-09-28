@@ -11,7 +11,8 @@ import {
   toDateKey,
 } from "@/lib/life";
 import { taskWhereExcludeHub } from "@/lib/project-namespace";
-import { sendMessage } from "@/features/external/bots/bale/actions";
+import { getBaleRuntime } from "@/features/external/bots/bale/config";
+import { baleAppOrigin, deliverBale } from "@/features/external/bots/bale/deliver";
 
 type DeadlineBucket = "overdue" | "today" | "approaching";
 
@@ -26,7 +27,7 @@ function bucketForDue(due: Date, today: Date): DeadlineBucket {
 async function sendBaleDeadlineDm(
   userId: string,
   title: string,
-  taskTitle: string,
+  task: { id: string; title: string },
 ): Promise<void> {
   try {
     const user = await db.user.findUnique({
@@ -34,11 +35,14 @@ async function sendBaleDeadlineDm(
       select: { baleUserId: true },
     });
     if (!user?.baleUserId) return;
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const href = `${baseUrl}/tasks?search=${encodeURIComponent(taskTitle)}`;
-    await sendMessage({
-      chat_id: user.baleUserId,
-      text: `⏰ ${title.replace(/[*_`]/g, "")}\n\n${href}`,
+    const runtime = await getBaleRuntime();
+    if (!runtime.enabled || !runtime.notifyDeadline) return;
+    const href = `${baleAppOrigin()}/tasks/${task.id}`;
+    await deliverBale({
+      chatId: user.baleUserId,
+      text: `⏰ ${title.replace(/[*_`]/g, "")}\n\n${href}\n\nروی همین پیام جواب بده: تمام`,
+      kind: "deadline",
+      taskId: task.id,
     });
   } catch (err) {
     console.error("Bale deadline DM failed:", err);
@@ -140,7 +144,7 @@ export async function ensureDeadlineReminders(userId?: string): Promise<void> {
       },
     });
 
-    await sendBaleDeadlineDm(uid, title, task.title);
+    await sendBaleDeadlineDm(uid, title, { id: task.id, title: task.title });
     created += 1;
   }
 

@@ -78,6 +78,28 @@ export async function updateUserPreferences(
   }
 }
 
+export async function updateBaleSchedule(digestHour: number, habitHour: number): Promise<ActionResult> {
+  try {
+    const session = await requireAuth();
+    const digest = clampHour(digestHour);
+    const habit = clampHour(habitHour);
+    await db.userPreferences.upsert({
+      where: { userId: session.user.id },
+      create: { userId: session.user.id, baleDigestHour: digest, baleHabitHour: habit },
+      update: { baleDigestHour: digest, baleHabitHour: habit },
+    });
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating Bale schedule:", error);
+    return { success: false, error: "به‌روزرسانی ترجیحات ناموفق بود" };
+  }
+}
+
+function clampHour(value: number) {
+  if (!Number.isFinite(value)) return 8;
+  return Math.min(23, Math.max(0, Math.round(value)));
+}
+
 export async function updateLanguagePreference(
   language: Language,
 ): Promise<ActionResult> {

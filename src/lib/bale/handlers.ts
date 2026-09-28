@@ -11,35 +11,19 @@ import type {
   BaleUpdate,
 } from "./types";
 
-function getBaseAddress(): string {
-  const token = process.env.BALE_BOT_TOKEN;
-  const baseUrl = process.env.BALE_BASE_URL;
-
-  if (!token || !baseUrl) {
-    throw new Error(
-      "BALE_BOT_TOKEN or BALE_BASE_URL environment variable is not set",
-    );
-  }
-
-  return `${baseUrl}${token}`;
-}
-
 async function baleRequest<T>(
   action: string,
   method: "GET" | "POST" = "GET",
   params?: unknown,
 ): Promise<BaleActionResult<T>> {
-  const token = process.env.BALE_BOT_TOKEN;
-  const baseUrl = process.env.BALE_BASE_URL;
+  const { getBaleRuntime } = await import("@/features/external/bots/bale/config");
+  const { token, baseUrl } = await getBaleRuntime();
 
-  if (!token || !baseUrl) {
-    throw new Error(
-      "BALE_BOT_TOKEN or BALE_BASE_URL environment variable is not set",
-    );
+  if (!token) {
+    return { success: false, error: "Bale bot token is not set" };
   }
 
-  const baseAddress = `${baseUrl}${token}`;
-  const url = `${baseAddress}/${action}`;
+  const url = `${baseUrl}${token}/${action}`;
 
   try {
     const response = await fetch(url, {
@@ -51,8 +35,6 @@ async function baleRequest<T>(
     });
 
     const data: BaleResponse<T> = await response.json();
-
-    console.log(data);
 
     if (!data.ok) {
       return {

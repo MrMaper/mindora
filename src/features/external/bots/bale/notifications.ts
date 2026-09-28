@@ -1,21 +1,15 @@
 "use server";
 
-import dotenv from "dotenv";
-import { sendMessage } from "@/features/external/bots/bale/actions";
-import { SendMessageParams } from "@/features/external/bots/bale/types";
+import { getBaleRuntime, type BaleRuntime } from "@/features/external/bots/bale/config";
+import { baleAppOrigin, deliverBale, escapeBale } from "@/features/external/bots/bale/deliver";
 import { prisma as db } from "@/lib/db";
 
-dotenv.config({ path: ".env" });
-
-const BALE_UPDATES_CHAT = process.env.BALE_CHANNELS_TASKS;
-
 function escapeMarkdown(text: string): string {
-  return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, "\\$&");
+  return escapeBale(text);
 }
 
 function formatTaskLink(taskId: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  return `${baseUrl}/tasks/${taskId}`;
+  return `${baleAppOrigin()}/tasks/${taskId}`;
 }
 
 export async function sendBaleTaskNotification(
@@ -138,18 +132,46 @@ export async function sendBaleTaskNotification(
       break;
   }
 
-  const data = {
-    chat_id: BALE_UPDATES_CHAT as string,
-    text: message,
-    parse_mode: "Markdown",
-  } satisfies SendMessageParams;
+  try {
+    const runtime = await getBaleRuntime();
+    if (!runtime.enabled || !runtime.notifyChannel || !runtime.tasksChannelId) return;
+    if (!channelAllows(runtime, action)) return;
 
-  // console.log("Bale notification:", data);
+    await deliverBale({
+      chatId: runtime.tasksChannelId,
+      text: message,
+      kind: `channel:${action}`,
+      taskId: task.id,
+      parseMode: "Markdown",
+    });
+  } catch (error) {
+    console.error("Failed to send Bale notification:", error);
+  }
+}
 
-  const result = await sendMessage(data);
-
-  if (!result.success) {
-    console.error("Failed to send Bale notification:", result.error);
+function channelAllows(
+  runtime: BaleRuntime,
+  action:
+    | "created"
+    | "updated"
+    | "status_changed"
+    | "assigned"
+    | "commented"
+    | "logged_work",
+) {
+  switch (action) {
+    case "created":
+      return runtime.notifyCreated;
+    case "updated":
+      return runtime.notifyUpdated;
+    case "status_changed":
+      return runtime.notifyStatus;
+    case "assigned":
+      return runtime.notifyAssigned;
+    case "commented":
+      return runtime.notifyComment;
+    case "logged_work":
+      return runtime.notifyWorkLog;
   }
 }
 
@@ -162,30 +184,16 @@ export async function sendBaleAssignmentNotification(
     priority?: string;
   },
 ): Promise<void> {
-  const user = await db.user.findUnique({
-    where: { id: assigneeId },
-    select: { baleUserId: true, name: true },
-  });
-
-  if (!user?.baleUserId) return;
-
-  const message = `📋 *New Task Assigned*
+  const message = `📋 *کار به تو سپرده شد*
 
 *${escapeMarkdown(task.title)}*
-${task.status ? `Status: \`${escapeMarkdown(task.status)}\`\n` : ""}${task.priority ? `Priority: \`${escapeMarkdown(task.priority)}\`\n` : ""}
-[View Task](${formatTaskLink(task.id)})`;
+${task.status ? `وضعیت: \`${escapeMarkdown(task.status)}\`\n` : ""}${task.priority ? `اولویت: \`${escapeMarkdown(task.priority)}\`\n` : ""}
+[برو به کار](${formatTaskLink(task.id)})`;
 
-  const data = {
-    chat_id: user.baleUserId,
-    text: message,
-    parse_mode: "Markdown",
-  } satisfies SendMessageParams;
-
-  const result = await sendMessage(data);
-
-  if (!result.success) {
-    console.error("Failed to send Bale assignment notification:", result.error);
-  }
+  await deliverDm(assigneeId, "notifyDmAssigned", "notifyTaskAssigned", message, {
+    kind: "assigned",
+    taskId: task.id,
+  });
 }
 
 export async function sendBaleStatusChangeNotification(
@@ -197,33 +205,16 @@ export async function sendBaleStatusChangeNotification(
     newStatus: string;
   },
 ): Promise<void> {
-  const user = await db.user.findUnique({
-    where: { id: assigneeId },
-    select: { baleUserId: true },
-  });
-
-  if (!user?.baleUserId) return;
-
-  const message = `🔄 *Status Changed*
+  const message = `🔄 *وضعیت عوض شد*
 
 *${escapeMarkdown(task.title)}*
-Status: \`${escapeMarkdown(task.oldStatus)}\` → \`${escapeMarkdown(task.newStatus)}\`
-[View Task](${formatTaskLink(task.id)})`;
+وضعیت: \`${escapeMarkdown(task.oldStatus)}\` → \`${escapeMarkdown(task.newStatus)}\`
+[برو به کار](${formatTaskLink(task.id)})`;
 
-  const data = {
-    chat_id: user.baleUserId,
-    text: message,
-    parse_mode: "Markdown",
-  } satisfies SendMessageParams;
-
-  const result = await sendMessage(data);
-
-  if (!result.success) {
-    console.error(
-      "Failed to send Bale status change notification:",
-      result.error,
-    );
-  }
+  await deliverDm(assigneeId, "notifyDmStatus", "notifyStatusChanged", message, {
+    kind: "status",
+    taskId: task.id,
+  });
 }
 
 export async function sendBaleCommentNotification(
@@ -234,33 +225,81 @@ export async function sendBaleCommentNotification(
     commentBody: string;
   },
 ): Promise<void> {
-  const user = await db.user.findUnique({
-    where: { id: assigneeId },
-    select: { baleUserId: true },
-  });
-
-  if (!user?.baleUserId) return;
-
   const truncated =
     task.commentBody.length > 200
       ? task.commentBody.slice(0, 200) + "..."
       : task.commentBody;
 
-  const message = `💬 *New Comment*
+  const message = `💬 *دیدگاه تازه*
 
 *${escapeMarkdown(task.title)}*
 ${escapeMarkdown(truncated)}
-[View Task](${formatTaskLink(task.id)})`;
+[برو به کار](${formatTaskLink(task.id)})`;
 
-  const data = {
-    chat_id: user.baleUserId,
-    text: message,
-    parse_mode: "Markdown",
-  } satisfies SendMessageParams;
+  await deliverDm(assigneeId, "notifyDmComment", "notifyTaskCommented", message, {
+    kind: "comment",
+    taskId: task.id,
+  });
+}
 
-  const result = await sendMessage(data);
+export async function sendBaleDueChangeNotification(
+  userId: string,
+  task: { id: string; title: string; dueLabel: string },
+): Promise<void> {
+  const message = `📅 *سررسید عوض شد*
 
-  if (!result.success) {
-    console.error("Failed to send Bale comment notification:", result.error);
+*${escapeMarkdown(task.title)}*
+سررسید: ${escapeMarkdown(task.dueLabel)}
+[برو به کار](${formatTaskLink(task.id)})
+
+روی همین پیام جواب بده: تمام`;
+
+  await deliverDm(userId, "notifyDueChange", "notifyTaskUpdated", message, {
+    kind: "due",
+    taskId: task.id,
+  });
+}
+
+async function deliverDm(
+  userId: string,
+  flag: "notifyDmAssigned" | "notifyDmStatus" | "notifyDmComment" | "notifyDueChange",
+  pref:
+    | "notifyTaskAssigned"
+    | "notifyStatusChanged"
+    | "notifyTaskCommented"
+    | "notifyTaskUpdated",
+  text: string,
+  meta: { kind: string; taskId: string },
+) {
+  try {
+    const runtime = await getBaleRuntime();
+    if (!runtime.enabled || !runtime[flag]) return;
+    const user = await db.user.findUnique({
+      where: { id: userId },
+      select: {
+        baleUserId: true,
+        preferences: {
+          select: {
+            notifications: true,
+            notifyTaskAssigned: true,
+            notifyStatusChanged: true,
+            notifyTaskCommented: true,
+            notifyTaskUpdated: true,
+          },
+        },
+      },
+    });
+    if (!user?.baleUserId) return;
+    if (user.preferences?.notifications === false) return;
+    if (user.preferences && user.preferences[pref] === false) return;
+    await deliverBale({
+      chatId: user.baleUserId,
+      text,
+      kind: meta.kind,
+      taskId: meta.taskId,
+      parseMode: "Markdown",
+    });
+  } catch (error) {
+    console.error("Failed to send Bale DM:", error);
   }
 }

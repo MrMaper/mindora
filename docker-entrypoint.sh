@@ -29,13 +29,9 @@ else
   echo "Skipping seed step because DISABLE_DB_SEED=1"
 fi
 
-if [ -n "$BALE_BOT_TOKEN" ] && [ -n "$APP_URL" ]; then
-  echo "BALE_BOT_TOKEN is ${BALE_BOT_TOKEN:+set}"
-  echo "APP_URL is ${APP_URL:+set}"
-  echo "Setting up Bale webhook..."
-  retry npx tsx scripts/bale/set-webhook.ts
-else
-  echo "Skipping Bale webhook setup (BALE_BOT_TOKEN or APP_URL not set)"
+echo "Checking Bale webhook from saved settings..."
+if ! npx tsx scripts/bale/set-webhook.ts; then
+  echo "Bale webhook setup failed; starting the app anyway"
 fi
 
 echo "Starting app..."

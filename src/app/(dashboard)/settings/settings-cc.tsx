@@ -8,7 +8,7 @@ import type { Language, Theme } from "@/types/db";
 import { UserPreferencesData } from "@/features/settings/queries";
 import type { ChangePasswordInput } from "@/schemas/auth";
 import type { UseFormReturn } from "react-hook-form";
-import type { UpdatePreferencesInput } from "@/features/settings/actions";
+import { updateBaleSchedule, type UpdatePreferencesInput } from "@/features/settings/actions";
 
 type SettingsTab = "profile" | "security" | "notifications" | "appearance";
 
@@ -470,6 +470,95 @@ function SecuritySettingsSection({
   );
 }
 
+function BaleHours({
+  digestHour,
+  habitHour,
+  digestLabel,
+  habitLabel,
+  hint,
+  saveLabel,
+  savedLabel,
+}: {
+  digestHour: number;
+  habitHour: number;
+  digestLabel: string;
+  habitLabel: string;
+  hint: string;
+  saveLabel: string;
+  savedLabel: string;
+}) {
+  const [digest, setDigest] = React.useState(String(digestHour));
+  const [habit, setHabit] = React.useState(String(habitHour));
+  const [note, setNote] = React.useState<string | null>(null);
+  const [pending, startTransition] = React.useTransition();
+
+  return (
+    <div style={{ marginTop: "var(--space-6)" }}>
+      <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", marginBottom: "var(--space-3)" }}>
+        {hint}
+      </p>
+      <div style={{ display: "flex", gap: "var(--space-4)", flexWrap: "wrap" }}>
+        <label style={{ fontSize: "var(--text-sm)", color: "var(--text-primary)" }}>
+          {digestLabel}
+          <select
+            value={digest}
+            onChange={(event) => setDigest(event.target.value)}
+            style={{ display: "block", marginTop: "var(--space-1)" }}
+          >
+            {HOURS.map((hour) => (
+              <option key={hour} value={hour}>
+                {hour}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label style={{ fontSize: "var(--text-sm)", color: "var(--text-primary)" }}>
+          {habitLabel}
+          <select
+            value={habit}
+            onChange={(event) => setHabit(event.target.value)}
+            style={{ display: "block", marginTop: "var(--space-1)" }}
+          >
+            {HOURS.map((hour) => (
+              <option key={hour} value={hour}>
+                {hour}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+      <button
+        type="button"
+        disabled={pending}
+        onClick={() =>
+          startTransition(async () => {
+            const result = await updateBaleSchedule(Number(digest), Number(habit));
+            setNote(result.success ? savedLabel : result.error ?? savedLabel);
+          })
+        }
+        style={{
+          marginTop: "var(--space-3)",
+          padding: "var(--space-2) var(--space-4)",
+          borderRadius: "var(--radius-md)",
+          border: "1px solid var(--border-default)",
+          background: "var(--surface-default)",
+          color: "var(--text-primary)",
+          cursor: "pointer",
+        }}
+      >
+        {saveLabel}
+      </button>
+      {note ? (
+        <p style={{ fontSize: "var(--text-sm)", marginTop: "var(--space-2)" }} role="status">
+          {note}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+const HOURS = Array.from({ length: 24 }, (_, hour) => String(hour));
+
 function NotificationSettingsSection({
   t,
   preferences,
@@ -559,6 +648,16 @@ function NotificationSettingsSection({
           </label>
         ))}
       </div>
+
+      <BaleHours
+        digestHour={preferences?.baleDigestHour ?? 8}
+        habitHour={preferences?.baleHabitHour ?? 21}
+        digestLabel={t.settings.baleDigestHour}
+        habitLabel={t.settings.baleHabitHour}
+        hint={t.settings.baleHoursHint}
+        saveLabel={t.settings.baleHoursSave}
+        savedLabel={t.settings.baleHoursSaved}
+      />
 
       {notifyError && (
         <p

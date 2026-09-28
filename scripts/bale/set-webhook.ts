@@ -1,89 +1,56 @@
-import dotenv from "dotenv";
-import { readFileSync } from "fs";
-import { resolve } from "path";
+import * as dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
+dotenv.config({ path: ".env" });
 
-// dotenv.config({ path: ".env" });
+import { PrismaClient } from "../../prisma/generated/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 
-function getVersion(): string {
+const DEFAULT_BASE = "https://tapi.bale.ai/bot";
+
+function trimSlash(value: string) {
+  return value.trim().replace(/\/+$/, "");
+}
+
+async function main() {
+  const appUrl = trimSlash(
+    process.env.APP_URL || process.env.AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "",
+  );
+  const envToken = (process.env.BALE_BOT_TOKEN ?? "").trim();
+  const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+  const db = new PrismaClient({ adapter });
+
   try {
-    const pkgPath = resolve(process.cwd(), "package.json");
-    const pkg = JSON.parse(readFileSync(pkgPath, "utf-8"));
-    return pkg.version;
-  } catch {
-    return "unknown";
+    const row = await db.baleConfig.findUnique({ where: { id: "default" } });
+    const enabled = row ? row.enabled : envToken.length > 0;
+    const token = row?.botToken.trim() || envToken;
+    const baseUrl = trimSlash(row?.baseUrl || process.env.BALE_BASE_URL || DEFAULT_BASE) || DEFAULT_BASE;
+
+    if (!enabled) {
+      console.log("Bale bot is off in settings; webhook left unchanged.");
+      return;
+    }
+    if (!token || !appUrl) {
+      console.log("Bale webhook skipped (token or public URL missing).");
+      return;
+    }
+
+    const webhookUrl = `${appUrl}/api/bale/webhook`;
+    const response = await fetch(`${baseUrl}${token}/setWebhook`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: webhookUrl }),
+    });
+    const result = (await response.json()) as { ok?: boolean; description?: string };
+    if (!response.ok || !result.ok) {
+      throw new Error(result.description || "Bale rejected setWebhook");
+    }
+    console.log(`Bale webhook set to: ${webhookUrl}`);
+  } finally {
+    await db.$disconnect();
   }
 }
 
-async function setWebhook() {
-  const token = process.env.BALE_BOT_TOKEN;
-  const appUrl = process.env.APP_URL;
-  const baseUrl = process.env.BALE_BASE_URL ?? "https://tapi.bale.ai/bot";
-  const adminChatId = process.env.BALE_ADMIN_CHAT_ID;
-
-  if (!token) {
-    throw new Error("BALE_BOT_TOKEN is not defined");
-  }
-
-  if (!appUrl) {
-    throw new Error("APP_URL is not defined");
-  }
-
-  const webhookUrl = `${appUrl}/api/bale/webhook`;
-
-  const response = await fetch(`${baseUrl}${token}/setWebhook`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      url: webhookUrl,
-    }),
-  });
-
-  const result = await response.json();
-
-  if (!response.ok || !result.ok) {
-    throw new Error(`Failed to set Bale webhook: ${JSON.stringify(result)}`);
-  }
-
-  console.log(`Bale webhook set to: ${webhookUrl}`);
-  console.log(result);
-
-  if (adminChatId) {
-    await sendStartupMessage(token, baseUrl, adminChatId!);
-  }
-}
-
-async function sendStartupMessage(
-  token: string,
-  baseUrl: string,
-  chatId: string,
-) {
-  const version = getVersion();
-  const message = `🚀 *Scrumflow Started*\n\nVersion: \`${version}\`\nStatus: Webhook configured\nTime: ${new Date().toISOString()}`;
-
-  const response = await fetch(`${baseUrl}${token}/sendMessage`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text: message,
-      parse_mode: "Markdown",
-    }),
-  });
-
-  const result = await response.json();
-
-  if (!response.ok || !result.ok) {
-    console.error(`Failed to send startup message: ${JSON.stringify(result)}`);
-  } else {
-    console.log("Startup message sent to admin chat");
-  }
-}
-
-setWebhook().catch(error => {
-  console.error(error);
+main().catch((error) => {
+  console.error(error instanceof Error ? error.message : error);
   process.exit(1);
 });

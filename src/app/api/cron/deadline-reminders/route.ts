@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { runDeadlineRemindersForAllUsers } from "@/features/life/reminders";
 import { runVocabReviewRemindersForAllUsers } from "@/features/language/reminders";
+import { runBaleDigestsForAllUsers } from "@/features/external/bots/bale/digest";
 
 /**
  * Secure cron endpoint for deadline + vocab reminders.
@@ -13,14 +14,16 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const [deadlines, vocab] = await Promise.all([
+  const [deadlines, vocab, bale] = await Promise.all([
     runDeadlineRemindersForAllUsers(),
     runVocabReviewRemindersForAllUsers(),
+    runBaleDigestsForAllUsers(),
   ]);
   return NextResponse.json({
     ok: true,
     deadlines,
     vocab,
+    bale,
   });
 }
 

@@ -14,6 +14,7 @@
     "db:push": "prisma db push",
     "db:seed": "prisma db seed",
     "db:seed:demo": "tsx scripts/seed-namespace-demo.ts",
+    "db:clean:demo": "tsx scripts/clean-demo-data.ts",
     "db:studio": "prisma studio",
     "bale:set-webhook": "tsx scripts/bale/set-webhook.ts",
     "version:patch": "tsx scripts/version-bump.ts patch",

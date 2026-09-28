@@ -57,6 +57,7 @@ export default async function DashboardLayout({
             icon: "user",
           },
           { label: t.nav.settings, href: "/settings", icon: "settings" },
+          { label: t.nav.botMessage, href: "/bale-bot", icon: "bot" },
         ],
       },
       {

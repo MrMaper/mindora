@@ -33,6 +33,9 @@ export type UserMinAggregateOutputType = {
   role: $Enums.UserRole | null
   status: $Enums.UserStatus | null
   baleUserId: string | null
+  baleLinkCode: string | null
+  baleLinkChatId: string | null
+  baleLinkExpires: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -46,6 +49,9 @@ export type UserMaxAggregateOutputType = {
   role: $Enums.UserRole | null
   status: $Enums.UserStatus | null
   baleUserId: string | null
+  baleLinkCode: string | null
+  baleLinkChatId: string | null
+  baleLinkExpires: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -60,6 +66,9 @@ export type UserCountAggregateOutputType = {
   status: number
   enabledModules: number
   baleUserId: number
+  baleLinkCode: number
+  baleLinkChatId: number
+  baleLinkExpires: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -75,6 +84,9 @@ export type UserMinAggregateInputType = {
   role?: true
   status?: true
   baleUserId?: true
+  baleLinkCode?: true
+  baleLinkChatId?: true
+  baleLinkExpires?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -88,6 +100,9 @@ export type UserMaxAggregateInputType = {
   role?: true
   status?: true
   baleUserId?: true
+  baleLinkCode?: true
+  baleLinkChatId?: true
+  baleLinkExpires?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -102,6 +117,9 @@ export type UserCountAggregateInputType = {
   status?: true
   enabledModules?: true
   baleUserId?: true
+  baleLinkCode?: true
+  baleLinkChatId?: true
+  baleLinkExpires?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -189,6 +207,9 @@ export type UserGroupByOutputType = {
   status: $Enums.UserStatus
   enabledModules: runtime.JsonValue
   baleUserId: string | null
+  baleLinkCode: string | null
+  baleLinkChatId: string | null
+  baleLinkExpires: Date | null
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
@@ -224,6 +245,9 @@ export type UserWhereInput = {
   status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
   enabledModules?: Prisma.JsonFilter<"User">
   baleUserId?: Prisma.StringNullableFilter<"User"> | string | null
+  baleLinkCode?: Prisma.StringNullableFilter<"User"> | string | null
+  baleLinkChatId?: Prisma.StringNullableFilter<"User"> | string | null
+  baleLinkExpires?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   accounts?: Prisma.AccountListRelationFilter
@@ -261,6 +285,9 @@ export type UserOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   enabledModules?: Prisma.SortOrder
   baleUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  baleLinkCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  baleLinkChatId?: Prisma.SortOrderInput | Prisma.SortOrder
+  baleLinkExpires?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   accounts?: Prisma.AccountOrderByRelationAggregateInput
@@ -301,6 +328,9 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   role?: Prisma.EnumUserRoleFilter<"User"> | $Enums.UserRole
   status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
   enabledModules?: Prisma.JsonFilter<"User">
+  baleLinkCode?: Prisma.StringNullableFilter<"User"> | string | null
+  baleLinkChatId?: Prisma.StringNullableFilter<"User"> | string | null
+  baleLinkExpires?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   accounts?: Prisma.AccountListRelationFilter
@@ -338,6 +368,9 @@ export type UserOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   enabledModules?: Prisma.SortOrder
   baleUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  baleLinkCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  baleLinkChatId?: Prisma.SortOrderInput | Prisma.SortOrder
+  baleLinkExpires?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -358,6 +391,9 @@ export type UserScalarWhereWithAggregatesInput = {
   status?: Prisma.EnumUserStatusWithAggregatesFilter<"User"> | $Enums.UserStatus
   enabledModules?: Prisma.JsonWithAggregatesFilter<"User">
   baleUserId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  baleLinkCode?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  baleLinkChatId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  baleLinkExpires?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -372,6 +408,9 @@ export type UserCreateInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -409,6 +448,9 @@ export type UserUncheckedCreateInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -446,6 +488,9 @@ export type UserUpdateInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -483,6 +528,9 @@ export type UserUncheckedUpdateInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -520,6 +568,9 @@ export type UserCreateManyInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -534,6 +585,9 @@ export type UserUpdateManyMutationInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -548,6 +602,9 @@ export type UserUncheckedUpdateManyInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -562,6 +619,9 @@ export type UserCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   enabledModules?: Prisma.SortOrder
   baleUserId?: Prisma.SortOrder
+  baleLinkCode?: Prisma.SortOrder
+  baleLinkChatId?: Prisma.SortOrder
+  baleLinkExpires?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -575,6 +635,9 @@ export type UserMaxOrderByAggregateInput = {
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
   baleUserId?: Prisma.SortOrder
+  baleLinkCode?: Prisma.SortOrder
+  baleLinkChatId?: Prisma.SortOrder
+  baleLinkExpires?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -588,6 +651,9 @@ export type UserMinOrderByAggregateInput = {
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
   baleUserId?: Prisma.SortOrder
+  baleLinkCode?: Prisma.SortOrder
+  baleLinkChatId?: Prisma.SortOrder
+  baleLinkExpires?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -616,6 +682,10 @@ export type EnumUserRoleFieldUpdateOperationsInput = {
 
 export type EnumUserStatusFieldUpdateOperationsInput = {
   set?: $Enums.UserStatus
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
 }
 
 export type DateTimeFieldUpdateOperationsInput = {
@@ -956,6 +1026,9 @@ export type UserCreateWithoutAccountsInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
@@ -992,6 +1065,9 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
@@ -1044,6 +1120,9 @@ export type UserUpdateWithoutAccountsInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
@@ -1080,6 +1159,9 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
@@ -1116,6 +1198,9 @@ export type UserCreateWithoutSessionsInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -1152,6 +1237,9 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -1204,6 +1292,9 @@ export type UserUpdateWithoutSessionsInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -1240,6 +1331,9 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -1276,6 +1370,9 @@ export type UserCreateWithoutPasswordResetTokensInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -1312,6 +1409,9 @@ export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -1364,6 +1464,9 @@ export type UserUpdateWithoutPasswordResetTokensInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -1400,6 +1503,9 @@ export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -1436,6 +1542,9 @@ export type UserCreateWithoutPreferencesInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -1472,6 +1581,9 @@ export type UserUncheckedCreateWithoutPreferencesInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -1524,6 +1636,9 @@ export type UserUpdateWithoutPreferencesInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -1560,6 +1675,9 @@ export type UserUncheckedUpdateWithoutPreferencesInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -1596,6 +1714,9 @@ export type UserCreateWithoutTeamMembersInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -1632,6 +1753,9 @@ export type UserUncheckedCreateWithoutTeamMembersInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -1684,6 +1808,9 @@ export type UserUpdateWithoutTeamMembersInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -1720,6 +1847,9 @@ export type UserUncheckedUpdateWithoutTeamMembersInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -1756,6 +1886,9 @@ export type UserCreateWithoutProjectMembersInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -1792,6 +1925,9 @@ export type UserUncheckedCreateWithoutProjectMembersInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -1844,6 +1980,9 @@ export type UserUpdateWithoutProjectMembersInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -1880,6 +2019,9 @@ export type UserUncheckedUpdateWithoutProjectMembersInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -1916,6 +2058,9 @@ export type UserCreateWithoutAssignedTasksInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -1952,6 +2097,9 @@ export type UserUncheckedCreateWithoutAssignedTasksInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -1993,6 +2141,9 @@ export type UserCreateWithoutCreatedTasksInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -2029,6 +2180,9 @@ export type UserUncheckedCreateWithoutCreatedTasksInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -2081,6 +2235,9 @@ export type UserUpdateWithoutAssignedTasksInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -2117,6 +2274,9 @@ export type UserUncheckedUpdateWithoutAssignedTasksInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -2164,6 +2324,9 @@ export type UserUpdateWithoutCreatedTasksInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -2200,6 +2363,9 @@ export type UserUncheckedUpdateWithoutCreatedTasksInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -2236,6 +2402,9 @@ export type UserCreateWithoutCommentsInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -2272,6 +2441,9 @@ export type UserUncheckedCreateWithoutCommentsInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -2324,6 +2496,9 @@ export type UserUpdateWithoutCommentsInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -2360,6 +2535,9 @@ export type UserUncheckedUpdateWithoutCommentsInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -2396,6 +2574,9 @@ export type UserCreateWithoutNotificationsInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -2432,6 +2613,9 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -2484,6 +2668,9 @@ export type UserUpdateWithoutNotificationsInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -2520,6 +2707,9 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -2556,6 +2746,9 @@ export type UserCreateWithoutActivityLogsInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -2592,6 +2785,9 @@ export type UserUncheckedCreateWithoutActivityLogsInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -2644,6 +2840,9 @@ export type UserUpdateWithoutActivityLogsInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -2680,6 +2879,9 @@ export type UserUncheckedUpdateWithoutActivityLogsInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -2716,6 +2918,9 @@ export type UserCreateWithoutWorkLogsInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -2752,6 +2957,9 @@ export type UserUncheckedCreateWithoutWorkLogsInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -2804,6 +3012,9 @@ export type UserUpdateWithoutWorkLogsInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -2840,6 +3051,9 @@ export type UserUncheckedUpdateWithoutWorkLogsInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -2876,6 +3090,9 @@ export type UserCreateWithoutHabitsInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -2912,6 +3129,9 @@ export type UserUncheckedCreateWithoutHabitsInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -2964,6 +3184,9 @@ export type UserUpdateWithoutHabitsInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -3000,6 +3223,9 @@ export type UserUncheckedUpdateWithoutHabitsInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -3036,6 +3262,9 @@ export type UserCreateWithoutDocsInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -3072,6 +3301,9 @@ export type UserUncheckedCreateWithoutDocsInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -3124,6 +3356,9 @@ export type UserUpdateWithoutDocsInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -3160,6 +3395,9 @@ export type UserUncheckedUpdateWithoutDocsInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -3196,6 +3434,9 @@ export type UserCreateWithoutDocFoldersInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -3232,6 +3473,9 @@ export type UserUncheckedCreateWithoutDocFoldersInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -3284,6 +3528,9 @@ export type UserUpdateWithoutDocFoldersInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -3320,6 +3567,9 @@ export type UserUncheckedUpdateWithoutDocFoldersInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -3356,6 +3606,9 @@ export type UserCreateWithoutDocTagsInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -3392,6 +3645,9 @@ export type UserUncheckedCreateWithoutDocTagsInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -3444,6 +3700,9 @@ export type UserUpdateWithoutDocTagsInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -3480,6 +3739,9 @@ export type UserUncheckedUpdateWithoutDocTagsInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -3516,6 +3778,9 @@ export type UserCreateWithoutLangProfileInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -3552,6 +3817,9 @@ export type UserUncheckedCreateWithoutLangProfileInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -3604,6 +3872,9 @@ export type UserUpdateWithoutLangProfileInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -3640,6 +3911,9 @@ export type UserUncheckedUpdateWithoutLangProfileInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -3676,6 +3950,9 @@ export type UserCreateWithoutLangSessionsInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -3712,6 +3989,9 @@ export type UserUncheckedCreateWithoutLangSessionsInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -3764,6 +4044,9 @@ export type UserUpdateWithoutLangSessionsInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -3800,6 +4083,9 @@ export type UserUncheckedUpdateWithoutLangSessionsInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -3836,6 +4122,9 @@ export type UserCreateWithoutLangListeningClipsInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -3872,6 +4161,9 @@ export type UserUncheckedCreateWithoutLangListeningClipsInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -3924,6 +4216,9 @@ export type UserUpdateWithoutLangListeningClipsInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -3960,6 +4255,9 @@ export type UserUncheckedUpdateWithoutLangListeningClipsInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -3996,6 +4294,9 @@ export type UserCreateWithoutLangCardsInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -4032,6 +4333,9 @@ export type UserUncheckedCreateWithoutLangCardsInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -4084,6 +4388,9 @@ export type UserUpdateWithoutLangCardsInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -4120,6 +4427,9 @@ export type UserUncheckedUpdateWithoutLangCardsInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -4156,6 +4466,9 @@ export type UserCreateWithoutLangVocabDaysInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -4192,6 +4505,9 @@ export type UserUncheckedCreateWithoutLangVocabDaysInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -4244,6 +4560,9 @@ export type UserUpdateWithoutLangVocabDaysInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -4280,6 +4599,9 @@ export type UserUncheckedUpdateWithoutLangVocabDaysInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -4316,6 +4638,9 @@ export type UserCreateWithoutExamTracksInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -4352,6 +4677,9 @@ export type UserUncheckedCreateWithoutExamTracksInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -4404,6 +4732,9 @@ export type UserUpdateWithoutExamTracksInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -4440,6 +4771,9 @@ export type UserUncheckedUpdateWithoutExamTracksInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -4476,6 +4810,9 @@ export type UserCreateWithoutMockAttemptsInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -4512,6 +4849,9 @@ export type UserUncheckedCreateWithoutMockAttemptsInput = {
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -4564,6 +4904,9 @@ export type UserUpdateWithoutMockAttemptsInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -4600,6 +4943,9 @@ export type UserUncheckedUpdateWithoutMockAttemptsInput = {
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -4847,6 +5193,9 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   status?: boolean
   enabledModules?: boolean
   baleUserId?: boolean
+  baleLinkCode?: boolean
+  baleLinkChatId?: boolean
+  baleLinkExpires?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
@@ -4885,6 +5234,9 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   status?: boolean
   enabledModules?: boolean
   baleUserId?: boolean
+  baleLinkCode?: boolean
+  baleLinkChatId?: boolean
+  baleLinkExpires?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -4899,6 +5251,9 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   status?: boolean
   enabledModules?: boolean
   baleUserId?: boolean
+  baleLinkCode?: boolean
+  baleLinkChatId?: boolean
+  baleLinkExpires?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -4913,11 +5268,14 @@ export type UserSelectScalar = {
   status?: boolean
   enabledModules?: boolean
   baleUserId?: boolean
+  baleLinkCode?: boolean
+  baleLinkChatId?: boolean
+  baleLinkExpires?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "password" | "avatar" | "role" | "status" | "enabledModules" | "baleUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "password" | "avatar" | "role" | "status" | "enabledModules" | "baleUserId" | "baleLinkCode" | "baleLinkChatId" | "baleLinkExpires" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   activityLogs?: boolean | Prisma.User$activityLogsArgs<ExtArgs>
@@ -4988,6 +5346,9 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
      */
     enabledModules: runtime.JsonValue
     baleUserId: string | null
+    baleLinkCode: string | null
+    baleLinkChatId: string | null
+    baleLinkExpires: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>
@@ -5445,6 +5806,9 @@ export interface UserFieldRefs {
   readonly status: Prisma.FieldRef<"User", 'UserStatus'>
   readonly enabledModules: Prisma.FieldRef<"User", 'Json'>
   readonly baleUserId: Prisma.FieldRef<"User", 'String'>
+  readonly baleLinkCode: Prisma.FieldRef<"User", 'String'>
+  readonly baleLinkChatId: Prisma.FieldRef<"User", 'String'>
+  readonly baleLinkExpires: Prisma.FieldRef<"User", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }

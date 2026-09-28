@@ -92,7 +92,10 @@ export const ModelName = {
   LangCard: 'LangCard',
   LangVocabDay: 'LangVocabDay',
   ExamTrack: 'ExamTrack',
-  MockAttempt: 'MockAttempt'
+  MockAttempt: 'MockAttempt',
+  BaleConfig: 'BaleConfig',
+  BaleDelivery: 'BaleDelivery',
+  BaleOutbound: 'BaleOutbound'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -121,6 +124,9 @@ export const UserScalarFieldEnum = {
   status: 'status',
   enabledModules: 'enabledModules',
   baleUserId: 'baleUserId',
+  baleLinkCode: 'baleLinkCode',
+  baleLinkChatId: 'baleLinkChatId',
+  baleLinkExpires: 'baleLinkExpires',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -192,6 +198,10 @@ export const UserPreferencesScalarFieldEnum = {
   notifySprintEnded: 'notifySprintEnded',
   notifyDeadlineApproaching: 'notifyDeadlineApproaching',
   notifyStatusChanged: 'notifyStatusChanged',
+  baleDigestHour: 'baleDigestHour',
+  baleHabitHour: 'baleHabitHour',
+  baleDigestSentOn: 'baleDigestSentOn',
+  baleHabitSentOn: 'baleHabitSentOn',
   todayFocusDate: 'todayFocusDate',
   todayFocusIds: 'todayFocusIds',
   onboardingCompletedAt: 'onboardingCompletedAt',
@@ -681,6 +691,59 @@ export const MockAttemptScalarFieldEnum = {
 } as const
 
 export type MockAttemptScalarFieldEnum = (typeof MockAttemptScalarFieldEnum)[keyof typeof MockAttemptScalarFieldEnum]
+
+
+export const BaleConfigScalarFieldEnum = {
+  id: 'id',
+  enabled: 'enabled',
+  botToken: 'botToken',
+  baseUrl: 'baseUrl',
+  adminChatId: 'adminChatId',
+  tasksChannelId: 'tasksChannelId',
+  notifyChannel: 'notifyChannel',
+  notifyCreated: 'notifyCreated',
+  notifyUpdated: 'notifyUpdated',
+  notifyStatus: 'notifyStatus',
+  notifyAssigned: 'notifyAssigned',
+  notifyComment: 'notifyComment',
+  notifyWorkLog: 'notifyWorkLog',
+  notifyDeadline: 'notifyDeadline',
+  notifyVocab: 'notifyVocab',
+  notifyDmAssigned: 'notifyDmAssigned',
+  notifyDmStatus: 'notifyDmStatus',
+  notifyDmComment: 'notifyDmComment',
+  notifyDueChange: 'notifyDueChange',
+  notifyDigest: 'notifyDigest',
+  notifyHabits: 'notifyHabits',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BaleConfigScalarFieldEnum = (typeof BaleConfigScalarFieldEnum)[keyof typeof BaleConfigScalarFieldEnum]
+
+
+export const BaleDeliveryScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  kind: 'kind',
+  chatId: 'chatId',
+  ok: 'ok',
+  error: 'error',
+  preview: 'preview'
+} as const
+
+export type BaleDeliveryScalarFieldEnum = (typeof BaleDeliveryScalarFieldEnum)[keyof typeof BaleDeliveryScalarFieldEnum]
+
+
+export const BaleOutboundScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  chatId: 'chatId',
+  messageId: 'messageId',
+  taskId: 'taskId',
+  kind: 'kind'
+} as const
+
+export type BaleOutboundScalarFieldEnum = (typeof BaleOutboundScalarFieldEnum)[keyof typeof BaleOutboundScalarFieldEnum]
 
 
 export const SortOrder = {
