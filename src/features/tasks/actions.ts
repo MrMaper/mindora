@@ -10,6 +10,7 @@ import { isAreaBucketId } from "@/lib/area-projects";
 import { spawnNextIfRecurring, newRecurrenceSeriesId } from "@/features/life/recurrence";
 import { updateRecurrenceSeries } from "@/features/life/recurrence";
 import { formatJalaliShort, parseLocalDate, resolveBoardPlanningStatus } from "@/lib/life";
+import { isHubArea } from "@/lib/project-namespace";
 import { isBoardStatus } from "@/features/kanban/types";
 import { notify } from "@/lib/notify";
 import type { LifeArea, RecurrenceInterval } from "@/types/db";
@@ -142,7 +143,17 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
       ? Math.min(24 * 60, Math.round(durationParsed))
       : null;
 
-  const status = resolveBoardPlanningStatus(parsed.data.status, dueDate);
+  const waitingOn =
+    parsed.data.waitingOn === "1" ||
+    parsed.data.waitingOn === "true" ||
+    parsed.data.waitingOn === "on";
+
+  let status = isHubArea(area)
+    ? parsed.data.status
+    : resolveBoardPlanningStatus(parsed.data.status, dueDate);
+  if (waitingOn && status !== "DONE" && status !== "IN_PROGRESS") {
+    status = "BACKLOG";
+  }
 
   const task = await db.task.create({
     data: {
@@ -154,6 +165,7 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
       assignedToId,
       dueDate,
       durationMinutes,
+      waitingOn,
       projectId,
       area,
       recurrence,
@@ -291,12 +303,24 @@ export async function updateTask(
     durationParsed > 0
       ? Math.min(24 * 60, Math.round(durationParsed))
       : null;
+  const waitingOn =
+    parsed.data.waitingOn === "1" ||
+    parsed.data.waitingOn === "true" ||
+    parsed.data.waitingOn === "on";
   // Personal OS: members cannot reassign tasks to other users.
   const nextAssignedToId = isAdmin
     ? parsed.data.assignedToId || null
     : session.user.id;
 
-  const nextStatus = resolveBoardPlanningStatus(parsed.data.status, nextDueDate);
+  let nextStatus = isHubArea(nextArea)
+    ? parsed.data.status
+    : resolveBoardPlanningStatus(parsed.data.status, nextDueDate);
+  if (waitingOn && nextStatus !== "DONE" && nextStatus !== "IN_PROGRESS") {
+    nextStatus = "BACKLOG";
+  }
+  if (nextStatus === "DONE") {
+    // Done clears the waiting park.
+  }
 
   const applySeries =
     parsed.data.applyRecurrenceToSeries === "1" ||
@@ -327,6 +351,7 @@ export async function updateTask(
       assignedToId: nextAssignedToId,
       dueDate: nextDueDate,
       durationMinutes: nextDurationMinutes,
+      waitingOn: nextStatus === "DONE" ? false : waitingOn,
       projectId,
       area: nextArea,
       labels: {

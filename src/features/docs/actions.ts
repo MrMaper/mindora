@@ -606,7 +606,23 @@ export async function updateDocSource(
     },
   });
 
-  revalidateDocs(source.docId);
+  if (input.readingStatus !== undefined) {
+    const { ensureSourceContinuityAction } = await import(
+      "@/features/research/actions"
+    );
+    await ensureSourceContinuityAction(id, { createReadingCard: true });
+
+    const { syncResearchLinksFromSourceReading } = await import(
+      "@/features/research/sync-links"
+    );
+    await syncResearchLinksFromSourceReading(id, input.readingStatus);
+  }
+
+  const refreshed = await db.docSource.findFirst({
+    where: { id },
+    select: { docId: true },
+  });
+  revalidateDocs(refreshed?.docId ?? source.docId, { research: true });
   return { success: true, data: { id } };
 }
 

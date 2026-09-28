@@ -11,8 +11,9 @@ import { addDays, formatJalaliShort, parseLocalDate, startOfDay, toDateKey } fro
 import { cn, formatNumber } from "@/lib/utils";
 import type { LifeArea, RecurrenceInterval } from "@/types/db";
 import { universalCapture } from "@/features/capture/actions";
-import { parseCapture } from "@/features/capture/parse";
+import { captureProduct, parseCapture } from "@/features/capture/parse";
 import { formatDurationLabel } from "@/components/ui-kit/forms/time-roller";
+import { RESEARCH_SCOPE_STORAGE } from "@/features/research/scope-cookie";
 
 const AREAS: LifeArea[] = ["PHD", "WORK", "LIFE", "LANG"];
 
@@ -30,8 +31,12 @@ export function CaptureDialog({
   const [areaLock, setAreaLock] = React.useState<LifeArea | null>(null);
   const [pending, startTransition] = React.useTransition();
   const parsed = parseCapture(text);
+  const product = captureProduct(parsed);
   const area = areaLock ?? parsed.area;
-  const dateKey = parsed.dateKey ?? (parsed.kind === "task" ? fallbackDate : undefined);
+  const showSchedule =
+    product === "task" || product === "source" || product === "research";
+  const dateKey =
+    parsed.dateKey ?? (showSchedule ? fallbackDate : undefined);
 
   function areaLabel(value: LifeArea) {
     if (value === "PHD") return t.dashboard.areaPhd;
@@ -57,22 +62,44 @@ export function CaptureDialog({
   }
 
   const kindLabel =
-    parsed.kind === "note"
+    product === "note"
       ? t.dashboard.captureKindNote
-      : parsed.kind === "habit"
+      : product === "habit"
         ? t.dashboard.captureKindHabit
-        : t.dashboard.captureKindTask;
+        : product === "source"
+          ? t.dashboard.captureKindSource
+          : product === "research"
+            ? t.dashboard.captureKindResearch
+            : t.dashboard.captureKindTask;
+
+  let pathChip: string | null = null;
+  if (product === "source" || product === "research") {
+    try {
+      const scope =
+        typeof window !== "undefined"
+          ? localStorage.getItem(RESEARCH_SCOPE_STORAGE)
+          : null;
+      if (!scope || scope === "all" || scope === "inbox") {
+        pathChip = t.dashboard.capturePathInbox;
+      } else {
+        pathChip = t.dashboard.capturePathActive;
+      }
+    } catch {
+      pathChip = t.dashboard.capturePathInbox;
+    }
+  }
 
   const chips = [
     ...new Set(
       [
         kindLabel,
         areaLabel(area),
-        parsed.kind === "task" ? dateLabel(dateKey) : null,
-        parsed.kind === "task" && parsed.time
+        pathChip,
+        showSchedule ? dateLabel(dateKey) : null,
+        showSchedule && parsed.time
           ? formatNumber(parsed.time, language)
           : null,
-        parsed.kind === "task" && parsed.durationMinutes
+        showSchedule && parsed.durationMinutes
           ? formatDurationLabel(
               parsed.durationMinutes,
               language === "EN" ? "EN" : "FA",
@@ -90,7 +117,7 @@ export function CaptureDialog({
       const result = await universalCapture({
         text,
         areaOverride: areaLock,
-        dueDateFallback: parsed.kind === "task" ? fallbackDate : undefined,
+        dueDateFallback: showSchedule ? fallbackDate : undefined,
       });
       if (!result.success || !result.data) {
         toast.error(result.error ?? t.common.error);
@@ -100,6 +127,10 @@ export function CaptureDialog({
       onClose();
       if (result.data.kind === "note") {
         router.push(`/docs?id=${result.data.id}`);
+        return;
+      }
+      if (result.data.product === "source" || result.data.product === "research") {
+        router.push("/research?tab=library");
         return;
       }
       router.refresh();
@@ -170,7 +201,7 @@ export function CaptureDialog({
                   {chip}
                 </span>
               ))}
-              {parsed.kind === "task" && !parsed.dateKey && fallbackDate ? (
+              {showSchedule && !parsed.dateKey && fallbackDate ? (
                 <span className="rounded-full border border-dashed px-2 py-0.5 text-xs text-muted-foreground">
                   {t.dashboard.captureDefault}
                 </span>

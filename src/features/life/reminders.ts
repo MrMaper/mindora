@@ -196,6 +196,7 @@ export async function ensureDeadlineReminders(userId?: string): Promise<void> {
     select: {
       notifications: true,
       notifyDeadlineApproaching: true,
+      batchDeadlineReminders: true,
       language: true,
     },
   });
@@ -206,6 +207,8 @@ export async function ensureDeadlineReminders(userId?: string): Promise<void> {
   const today = startOfDay();
   const horizon = endOfDay(addDays(today, 2));
   const language = prefs?.language === "EN" ? "EN" : "FA";
+  const batch = prefs?.batchDeadlineReminders === true;
+  const dayKey = toDateKey(today);
 
   const mine = {
     OR: [{ assignedToId: uid }, { createdById: uid, assignedToId: null }],
@@ -222,7 +225,10 @@ export async function ensureDeadlineReminders(userId?: string): Promise<void> {
     take: 50,
   });
 
-  if (tasks.length === 0) return;
+  if (tasks.length === 0) {
+    await ensureTimedDueReminders(uid);
+    return;
+  }
 
   const recent = await db.notification.findMany({
     where: {
@@ -236,65 +242,146 @@ export async function ensureDeadlineReminders(userId?: string): Promise<void> {
   const already = new Set(
     recent
       .map(n => {
-        const data = n.data as { taskId?: string; bucket?: string } | null;
+        const data = n.data as {
+          taskId?: string;
+          taskIds?: string[];
+          bucket?: string;
+        } | null;
+        if (!data?.bucket) return null;
+        if (data.bucket.startsWith("batch:")) {
+          return `batch:${data.bucket}`;
+        }
         if (!data?.taskId) return null;
-        return `${data.taskId}:${data.bucket ?? "any"}`;
+        return `${data.taskId}:${data.bucket}`;
       })
       .filter((k): k is string => !!k),
   );
 
-  let created = 0;
+  type Eligible = {
+    id: string;
+    title: string;
+    dueDate: Date;
+    durationMinutes: number | null;
+    bucket: DeadlineBucket;
+  };
 
+  const eligible: Eligible[] = [];
   for (const task of tasks) {
     if (!task.dueDate) continue;
     const bucket = bucketForDue(new Date(task.dueDate), today);
+    if (bucket === "timed") continue;
     const key = `${task.id}:${bucket}`;
     if (already.has(key) || already.has(`${task.id}:any`)) continue;
+    eligible.push({
+      id: task.id,
+      title: task.title,
+      dueDate: new Date(task.dueDate),
+      durationMinutes: task.durationMinutes ?? null,
+      bucket,
+    });
+  }
 
-    const clockPart = formatClock(task.dueDate, language, task.durationMinutes);
-    const dueLabel = [formatJalaliShort(task.dueDate, language), clockPart]
-      .filter(Boolean)
-      .join(" ");
-    let title: string;
-    if (language === "EN") {
-      if (bucket === "overdue") title = `Overdue: ${task.title}`;
-      else if (bucket === "today")
-        title = clockPart
-          ? `Due today ${clockPart}: ${task.title}`
-          : `Due today: ${task.title}`;
-      else title = `Deadline ${dueLabel}: ${task.title}`;
-    } else {
-      if (bucket === "overdue") title = `عقب‌افتاده: ${task.title}`;
-      else if (bucket === "today")
-        title = clockPart
-          ? `مهلت امروز ${clockPart}: ${task.title}`
-          : `مهلت امروز: ${task.title}`;
-      else title = `مهلت ${dueLabel}: ${task.title}`;
+  if (batch && eligible.length > 0) {
+    const byBucket = new Map<DeadlineBucket, Eligible[]>();
+    for (const row of eligible) {
+      const list = byBucket.get(row.bucket) ?? [];
+      list.push(row);
+      byBucket.set(row.bucket, list);
     }
 
-    const href = `/tasks?search=${encodeURIComponent(task.title)}`;
+    for (const [bucket, rows] of byBucket) {
+      const batchBucket = `batch:${bucket}:${dayKey}`;
+      if (already.has(`batch:${batchBucket}`)) continue;
 
-    await notify({
-      userId: uid,
-      type: "DEADLINE_APPROACHING",
-      title,
-      data: {
-        taskId: task.id,
-        dueDate: toDateKey(task.dueDate),
-        bucket,
-        href,
-      },
-    });
+      const count = rows.length;
+      const titles = rows
+        .slice(0, 3)
+        .map(r => r.title)
+        .join(language === "EN" ? ", " : "، ");
+      const more =
+        count > 3
+          ? language === "EN"
+            ? ` +${count - 3} more`
+            : ` و ${count - 3} مورد دیگر`
+          : "";
 
-    await sendBaleDeadlineDm(uid, title, { id: task.id, title: task.title });
-    created += 1;
+      let title: string;
+      if (language === "EN") {
+        if (bucket === "overdue")
+          title = `${count} overdue · ${titles}${more}`;
+        else if (bucket === "today")
+          title = `${count} due today · ${titles}${more}`;
+        else title = `${count} upcoming deadlines · ${titles}${more}`;
+      } else {
+        if (bucket === "overdue")
+          title = `${count} عقب‌افتاده · ${titles}${more}`;
+        else if (bucket === "today")
+          title = `${count} مهلت امروز · ${titles}${more}`;
+        else title = `${count} مهلت نزدیک · ${titles}${more}`;
+      }
+
+      const href = "/dashboard";
+      await notify({
+        userId: uid,
+        type: "DEADLINE_APPROACHING",
+        title,
+        data: {
+          taskIds: rows.map(r => r.id),
+          bucket: batchBucket,
+          href,
+        },
+      });
+      await sendBaleDeadlineDm(uid, title, {
+        id: rows[0]!.id,
+        title: rows[0]!.title,
+      });
+      already.add(`batch:${batchBucket}`);
+    }
+  } else {
+    for (const row of eligible) {
+      const key = `${row.id}:${row.bucket}`;
+      if (already.has(key)) continue;
+
+      const clockPart = formatClock(row.dueDate, language, row.durationMinutes);
+      const dueLabel = [formatJalaliShort(row.dueDate, language), clockPart]
+        .filter(Boolean)
+        .join(" ");
+      let title: string;
+      if (language === "EN") {
+        if (row.bucket === "overdue") title = `Overdue: ${row.title}`;
+        else if (row.bucket === "today")
+          title = clockPart
+            ? `Due today ${clockPart}: ${row.title}`
+            : `Due today: ${row.title}`;
+        else title = `Deadline ${dueLabel}: ${row.title}`;
+      } else {
+        if (row.bucket === "overdue") title = `عقب‌افتاده: ${row.title}`;
+        else if (row.bucket === "today")
+          title = clockPart
+            ? `مهلت امروز ${clockPart}: ${row.title}`
+            : `مهلت امروز: ${row.title}`;
+        else title = `مهلت ${dueLabel}: ${row.title}`;
+      }
+
+      const href = `/tasks?search=${encodeURIComponent(row.title)}`;
+      await notify({
+        userId: uid,
+        type: "DEADLINE_APPROACHING",
+        title,
+        data: {
+          taskId: row.id,
+          dueDate: toDateKey(row.dueDate),
+          bucket: row.bucket,
+          href,
+        },
+      });
+      await sendBaleDeadlineDm(uid, title, { id: row.id, title: row.title });
+      already.add(key);
+    }
   }
 
   // Also fire clock-accurate reminders when due is imminent.
   await ensureTimedDueReminders(uid);
-
-  // Do not revalidatePath here — this helper runs during RSC render
-  // (dashboard via ensureDailyRemindersCached). Cron does not need it.
 }
 
 /** Run deadline reminders for all eligible users (cron). */

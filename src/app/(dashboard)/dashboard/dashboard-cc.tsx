@@ -52,7 +52,7 @@ import type { LabelRow } from "@/features/labels/types";
 import type { ProjectRow } from "@/features/projects/types";
 import type { LifeArea } from "@/types/db";
 
-type SideTab = "inbox" | "overdue" | "week";
+type SideTab = "inbox" | "waiting" | "overdue" | "week";
 
 interface DashboardCCProps {
   userName: string;
@@ -61,6 +61,7 @@ interface DashboardCCProps {
   today: TaskRow[];
   week: TaskRow[];
   inbox: TaskRow[];
+  waiting: TaskRow[];
   yesterdayLeftover: TaskRow[];
   focusTasks: (TaskRow | null)[];
   focusIds: string[];
@@ -140,9 +141,25 @@ function AttentionToday({
     chips.push({
       key: "sources",
       node: (
-        <Link href="/research" className={chipClass}>
+        <Link href="/research?tab=library" className={chipClass}>
           <span className="size-2 rounded-full bg-blue-500" />
           {countPhrase(attention.sourcesToRead, t.dashboard.attentionSourceOne, t.dashboard.attentionSources, language)}
+        </Link>
+      ),
+    });
+  }
+  if (modules.research && attention.phdDrafting > 0) {
+    chips.push({
+      key: "writing",
+      node: (
+        <Link href="/research?tab=writing" className={chipClass}>
+          <span className="size-2 rounded-full bg-sky-600" />
+          {countPhrase(
+            attention.phdDrafting,
+            t.dashboard.attentionWritingOne,
+            t.dashboard.attentionWritingMany,
+            language,
+          )}
         </Link>
       ),
     });
@@ -384,6 +401,7 @@ export function DashboardCC({
   today,
   week,
   inbox,
+  waiting,
   yesterdayLeftover,
   focusTasks,
   focusIds,
@@ -406,7 +424,13 @@ export function DashboardCC({
   const language = useLanguage();
   const router = useRouter();
   const [sideTab, setSideTab] = React.useState<SideTab>(
-    overdue.length > 0 ? "overdue" : inbox.length > 0 ? "inbox" : "week",
+    overdue.length > 0
+      ? "overdue"
+      : waiting.length > 0
+        ? "waiting"
+        : inbox.length > 0
+          ? "inbox"
+          : "week",
   );
   const [draggingTitle, setDraggingTitle] = React.useState<string | null>(null);
   const [pending, startTransition] = React.useTransition();
@@ -472,9 +496,14 @@ export function DashboardCC({
 
   function onFocusDragStart(event: DragStartEvent) {
     const id = String(event.active.id).replace(/^task:/, "");
-    const task = [...focusTasks, ...today, ...overdue, ...week, ...inbox].find(
-      item => item?.id === id,
-    );
+    const task = [
+      ...focusTasks,
+      ...today,
+      ...overdue,
+      ...week,
+      ...inbox,
+      ...waiting,
+    ].find(item => item?.id === id);
     setDraggingTitle(task?.title ?? null);
   }
 
@@ -486,9 +515,14 @@ export function DashboardCC({
     const activeId = String(event.active.id);
     if (!activeId.startsWith("task:") || Number.isNaN(index)) return;
     const taskId = activeId.slice("task:".length);
-    const task = [...focusTasks, ...today, ...overdue, ...week, ...inbox].find(
-      item => item?.id === taskId,
-    );
+    const task = [
+      ...focusTasks,
+      ...today,
+      ...overdue,
+      ...week,
+      ...inbox,
+      ...waiting,
+    ].find(item => item?.id === taskId);
     const alreadyPinned = focusTasks.some(item => item?.id === taskId);
     if (task && !alreadyPinned && !isTodayFocusCandidate(task, todayKey)) {
       toast.error(t.dashboard.focusPickLimit);
@@ -522,12 +556,19 @@ export function DashboardCC({
 
   const sideTabs: { id: SideTab; label: string; count: number }[] = [
     { id: "inbox", label: t.dashboard.tabInbox, count: inbox.length },
+    { id: "waiting", label: t.dashboard.tabWaiting, count: waiting.length },
     { id: "overdue", label: t.dashboard.tabOverdue, count: overdue.length },
     { id: "week", label: t.dashboard.tabWeek, count: week.length },
   ];
 
   const sideTasks = (
-    sideTab === "inbox" ? inbox : sideTab === "overdue" ? overdue : week
+    sideTab === "inbox"
+      ? inbox
+      : sideTab === "waiting"
+        ? waiting
+        : sideTab === "overdue"
+          ? overdue
+          : week
   ).filter(task => !today.some(item => item.id === task.id));
 
   const sideEmpty =
@@ -537,6 +578,11 @@ export function DashboardCC({
         hint={t.dashboard.noInboxHint}
         cta={t.dashboard.noInboxCta}
         onCta={() => openCapture()}
+      />
+    ) : sideTab === "waiting" ? (
+      <EmptyQueue
+        title={t.dashboard.noWaiting}
+        hint={t.dashboard.noWaitingHint}
       />
     ) : sideTab === "overdue" ? (
       <EmptyQueue title={t.dashboard.noOverdue} />

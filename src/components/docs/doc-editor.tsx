@@ -17,6 +17,7 @@ import {
 import { Footnote } from "@/features/docs/extensions/footnote";
 import { Button } from "@/components/ui-kit/forms/button";
 import { Icon } from "@/components/ui-kit/foundation/icon";
+import { Menu } from "@/components/ui-kit/overlays/menu";
 import { cn } from "@/lib/utils";
 import { formatJalaliDate } from "@/lib/life";
 import {
@@ -78,6 +79,7 @@ export type DocToolbarLabels = {
   tableDelete: string;
   image: string;
   footnote: string;
+  more: string;
 };
 
 const DEFAULT_TOOLBAR_LABELS: DocToolbarLabels = {
@@ -102,6 +104,7 @@ const DEFAULT_TOOLBAR_LABELS: DocToolbarLabels = {
   tableDelete: "Delete table",
   image: "Insert image",
   footnote: "Insert footnote",
+  more: "More",
 };
 
 type SlashState = {
@@ -579,14 +582,6 @@ export function DocEditor({
           />
           <span className="mx-1 h-5 w-px bg-border" />
           <ToolbarButton
-            active={editor.isActive("heading", { level: 1 })}
-            onClick={() =>
-              editor.chain().focus().toggleHeading({ level: 1 }).run()
-            }
-            label="H1"
-            title={tb.h1}
-          />
-          <ToolbarButton
             active={editor.isActive("heading", { level: 2 })}
             onClick={() =>
               editor.chain().focus().toggleHeading({ level: 2 }).run()
@@ -594,15 +589,25 @@ export function DocEditor({
             label="H2"
             title={tb.h2}
           />
-          <ToolbarButton
-            active={editor.isActive("heading", { level: 3 })}
-            onClick={() =>
-              editor.chain().focus().toggleHeading({ level: 3 }).run()
-            }
-            label="H3"
-            title={tb.h3}
-          />
-          <span className="mx-1 h-5 w-px bg-border" />
+          <span className="hidden sm:contents">
+            <ToolbarButton
+              active={editor.isActive("heading", { level: 1 })}
+              onClick={() =>
+                editor.chain().focus().toggleHeading({ level: 1 }).run()
+              }
+              label="H1"
+              title={tb.h1}
+            />
+            <ToolbarButton
+              active={editor.isActive("heading", { level: 3 })}
+              onClick={() =>
+                editor.chain().focus().toggleHeading({ level: 3 }).run()
+              }
+              label="H3"
+              title={tb.h3}
+            />
+          </span>
+          <span className="mx-1 hidden h-5 w-px bg-border sm:inline-block" />
           <ToolbarButton
             active={editor.isActive("bulletList")}
             onClick={() => editor.chain().focus().toggleBulletList().run()}
@@ -621,132 +626,196 @@ export function DocEditor({
             label="☑"
             title={tb.taskList}
           />
-          <ToolbarButton
-            active={editor.isActive("blockquote")}
-            onClick={() => editor.chain().focus().toggleBlockquote().run()}
-            label="❝"
-            title={tb.blockquote}
-          />
-          <ToolbarButton
-            active={editor.isActive("codeBlock")}
-            onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-            label="{}"
-            title={tb.codeBlock}
-          />
-          <ToolbarButton
-            active={editor.isActive("link")}
-            onClick={setLink}
-            icon="link"
-            title={tb.link}
-          />
-          <span className="mx-1 h-5 w-px bg-border" />
-          <div className="relative" ref={tablePickerRef}>
+          <span className="hidden sm:contents">
             <ToolbarButton
-              active={editor.isActive("table") || tablePickerOpen}
-              onClick={() => {
-                setTableHover({ rows: 0, cols: 0 });
-                setTablePickerOpen(v => !v);
-              }}
-              label="▦"
-              title={tb.table}
+              active={editor.isActive("blockquote")}
+              onClick={() => editor.chain().focus().toggleBlockquote().run()}
+              label="❝"
+              title={tb.blockquote}
             />
-            {tablePickerOpen && (
-              <div
-                className={cn(
-                  "absolute top-full z-40 mt-1 w-max min-w-[9.5rem] rounded-lg border bg-popover p-2.5 shadow-md",
-                  dir === "rtl" ? "right-0" : "left-0",
-                )}
-                role="dialog"
-                aria-label={tb.table}
-              >
-                <p className="mb-2 whitespace-nowrap text-[11px] text-muted-foreground">
-                  {tb.tableHint}
-                  {tableHover.rows > 0
-                    ? ` — ${tableHover.rows}×${tableHover.cols}`
-                    : ""}
-                </p>
+            <ToolbarButton
+              active={editor.isActive("codeBlock")}
+              onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+              label="{}"
+              title={tb.codeBlock}
+            />
+            <ToolbarButton
+              active={editor.isActive("link")}
+              onClick={setLink}
+              icon="link"
+              title={tb.link}
+            />
+            <span className="mx-1 h-5 w-px bg-border" />
+            <div className="relative" ref={tablePickerRef}>
+              <ToolbarButton
+                active={editor.isActive("table") || tablePickerOpen}
+                onClick={() => {
+                  setTableHover({ rows: 0, cols: 0 });
+                  setTablePickerOpen(v => !v);
+                }}
+                label="▦"
+                title={tb.table}
+              />
+              {tablePickerOpen && (
                 <div
-                  className="grid w-max gap-1"
-                  style={{
-                    gridTemplateColumns: `repeat(${TABLE_PICKER_MAX}, 18px)`,
-                    gridTemplateRows: `repeat(${TABLE_PICKER_MAX}, 18px)`,
-                  }}
-                  onMouseLeave={() => setTableHover({ rows: 0, cols: 0 })}
-                >
-                  {Array.from(
-                    { length: TABLE_PICKER_MAX * TABLE_PICKER_MAX },
-                    (_, i) => {
-                      const rows = Math.floor(i / TABLE_PICKER_MAX) + 1;
-                      const cols = (i % TABLE_PICKER_MAX) + 1;
-                      const hot =
-                        tableHover.rows > 0 &&
-                        rows <= tableHover.rows &&
-                        cols <= tableHover.cols;
-                      return (
-                        <button
-                          key={`${rows}x${cols}`}
-                          type="button"
-                          className={cn(
-                            "size-[18px] shrink-0 rounded-[2px] border transition-colors",
-                            hot
-                              ? "border-primary bg-primary/30"
-                              : "border-border bg-muted/50 hover:border-primary/60",
-                          )}
-                          aria-label={`${rows}×${cols}`}
-                          onMouseEnter={() => setTableHover({ rows, cols })}
-                          onClick={() => insertTableAt(rows, cols)}
-                        />
-                      );
-                    },
+                  className={cn(
+                    "absolute top-full z-40 mt-1 w-max min-w-[9.5rem] rounded-lg border bg-popover p-2.5 shadow-md",
+                    dir === "rtl" ? "right-0" : "left-0",
                   )}
+                  role="dialog"
+                  aria-label={tb.table}
+                >
+                  <p className="mb-2 whitespace-nowrap text-[11px] text-muted-foreground">
+                    {tb.tableHint}
+                    {tableHover.rows > 0
+                      ? ` — ${tableHover.rows}×${tableHover.cols}`
+                      : ""}
+                  </p>
+                  <div
+                    className="grid w-max gap-1"
+                    style={{
+                      gridTemplateColumns: `repeat(${TABLE_PICKER_MAX}, 18px)`,
+                      gridTemplateRows: `repeat(${TABLE_PICKER_MAX}, 18px)`,
+                    }}
+                    onMouseLeave={() => setTableHover({ rows: 0, cols: 0 })}
+                  >
+                    {Array.from(
+                      { length: TABLE_PICKER_MAX * TABLE_PICKER_MAX },
+                      (_, i) => {
+                        const rows = Math.floor(i / TABLE_PICKER_MAX) + 1;
+                        const cols = (i % TABLE_PICKER_MAX) + 1;
+                        const hot =
+                          tableHover.rows > 0 &&
+                          rows <= tableHover.rows &&
+                          cols <= tableHover.cols;
+                        return (
+                          <button
+                            key={`${rows}x${cols}`}
+                            type="button"
+                            className={cn(
+                              "size-[18px] shrink-0 rounded-[2px] border transition-colors",
+                              hot
+                                ? "border-primary bg-primary/30"
+                                : "border-border bg-muted/50 hover:border-primary/60",
+                            )}
+                            aria-label={`${rows}×${cols}`}
+                            onMouseEnter={() => setTableHover({ rows, cols })}
+                            onClick={() => insertTableAt(rows, cols)}
+                          />
+                        );
+                      },
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
+            </div>
+            {editor.isActive("table") && (
+              <>
+                <ToolbarButton
+                  onClick={() => editor.chain().focus().addRowAfter().run()}
+                  label="+↕"
+                  title={tb.tableAddRow}
+                />
+                <ToolbarButton
+                  onClick={() => editor.chain().focus().addColumnAfter().run()}
+                  label="+↔"
+                  title={tb.tableAddCol}
+                />
+                <ToolbarButton
+                  onClick={() => editor.chain().focus().deleteRow().run()}
+                  label="−↕"
+                  title={tb.tableDelRow}
+                />
+                <ToolbarButton
+                  onClick={() => editor.chain().focus().deleteColumn().run()}
+                  label="−↔"
+                  title={tb.tableDelCol}
+                />
+                <ToolbarButton
+                  onClick={() => editor.chain().focus().deleteTable().run()}
+                  label="⌫"
+                  title={tb.tableDelete}
+                />
+              </>
             )}
-          </div>
-          {editor.isActive("table") && (
-            <>
-              <ToolbarButton
-                onClick={() => editor.chain().focus().addRowAfter().run()}
-                label="+↕"
-                title={tb.tableAddRow}
-              />
-              <ToolbarButton
-                onClick={() => editor.chain().focus().addColumnAfter().run()}
-                label="+↔"
-                title={tb.tableAddCol}
-              />
-              <ToolbarButton
-                onClick={() => editor.chain().focus().deleteRow().run()}
-                label="−↕"
-                title={tb.tableDelRow}
-              />
-              <ToolbarButton
-                onClick={() => editor.chain().focus().deleteColumn().run()}
-                label="−↔"
-                title={tb.tableDelCol}
-              />
-              <ToolbarButton
-                onClick={() => editor.chain().focus().deleteTable().run()}
-                label="⌫"
-                title={tb.tableDelete}
-              />
-            </>
-          )}
-          <ToolbarButton
-            active={false}
-            onClick={() => imageInputRef.current?.click()}
-            label="🖼"
-            title={tb.image}
-          />
-          <ToolbarButton
-            active={editor.isActive("footnote")}
-            onClick={() => {
-              const text = window.prompt(footnotePromptLabel) || "";
-              editor.chain().focus().insertFootnote(text || undefined).run();
-            }}
-            label="¹"
-            title={tb.footnote}
-          />
+            <ToolbarButton
+              active={false}
+              onClick={() => imageInputRef.current?.click()}
+              label="🖼"
+              title={tb.image}
+            />
+            <ToolbarButton
+              active={editor.isActive("footnote")}
+              onClick={() => {
+                const text = window.prompt(footnotePromptLabel) || "";
+                editor.chain().focus().insertFootnote(text || undefined).run();
+              }}
+              label="¹"
+              title={tb.footnote}
+            />
+          </span>
+          <span className="ms-auto sm:hidden">
+            <Menu
+              align="end"
+              trigger={
+                <button
+                  type="button"
+                  className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent"
+                  title={tb.more}
+                  aria-label={tb.more}
+                >
+                  <Icon name="more-horizontal" size={16} />
+                </button>
+              }
+              items={[
+                {
+                  label: tb.h1,
+                  onClick: () =>
+                    editor.chain().focus().toggleHeading({ level: 1 }).run(),
+                },
+                {
+                  label: tb.h3,
+                  onClick: () =>
+                    editor.chain().focus().toggleHeading({ level: 3 }).run(),
+                },
+                { divider: true },
+                {
+                  label: tb.blockquote,
+                  onClick: () =>
+                    editor.chain().focus().toggleBlockquote().run(),
+                },
+                {
+                  label: tb.codeBlock,
+                  onClick: () =>
+                    editor.chain().focus().toggleCodeBlock().run(),
+                },
+                { label: tb.link, icon: "link", onClick: setLink },
+                { divider: true },
+                {
+                  label: tb.table,
+                  onClick: () => {
+                    setTableHover({ rows: 0, cols: 0 });
+                    setTablePickerOpen(true);
+                  },
+                },
+                {
+                  label: tb.image,
+                  onClick: () => imageInputRef.current?.click(),
+                },
+                {
+                  label: tb.footnote,
+                  onClick: () => {
+                    const text = window.prompt(footnotePromptLabel) || "";
+                    editor
+                      .chain()
+                      .focus()
+                      .insertFootnote(text || undefined)
+                      .run();
+                  },
+                },
+              ]}
+            />
+          </span>
         </div>
       )}
       <input

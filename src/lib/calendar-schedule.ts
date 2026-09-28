@@ -1,8 +1,10 @@
 /** Shared calendar schedule math (15-minute grid). */
 
 export const SNAP_MINUTES = 15;
-export const HOUR_HEIGHT_PX = 48;
+/** Pixels per hour — keep divisible by 4 so each 15‑minute slot is an even height. */
+export const HOUR_HEIGHT_PX = 64;
 export const DAY_MINUTES = 24 * 60;
+export const SLOT_HEIGHT_PX = HOUR_HEIGHT_PX / (60 / SNAP_MINUTES);
 export const CLOCK_TIME_RE = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
 /** Parse `HH:mm` into hours/minutes, or null if invalid. */
@@ -50,6 +52,24 @@ export function yToMinutes(y: number, columnHeight: number): number {
 
 export function minutesToY(minutes: number, columnHeight = HOUR_HEIGHT_PX * 24): number {
   return (minutes / DAY_MINUTES) * columnHeight;
+}
+
+/**
+ * Map pointer Y to a block start time, preserving where the user grabbed
+ * the block (grabOffsetPx from the top of the event).
+ */
+export function startMinutesFromPointer(
+  clientY: number,
+  columnTop: number,
+  columnHeight: number,
+  grabOffsetPx: number,
+  durationMinutes: number,
+): number {
+  const duration = Math.max(SNAP_MINUTES, durationMinutes);
+  const topY = clientY - Math.max(0, grabOffsetPx) - columnTop;
+  const start = yToMinutes(topY, columnHeight);
+  const maxStart = DAY_MINUTES - duration;
+  return Math.min(Math.max(0, start), Math.max(0, maxStart));
 }
 
 export function durationToHeight(durationMinutes: number): number {

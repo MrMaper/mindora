@@ -556,7 +556,8 @@ export async function rescheduleTaskSchedule(
 }
 
 /**
- * When the calendar week of a due date arrives, move Inbox → This Week.
+ * Align Inbox ↔ This Week from due dates for personal (non-hub) tasks only.
+ * PhD / Language pipeline stages are never remapped by due date.
  * Far-dated This Week cards with a due after this week go back to Inbox.
  * Legacy scrum columns (Feedback / Testing / Waiting) fold into In Progress.
  * Does not touch undated This Week cards (manual plan).
@@ -570,6 +571,7 @@ export async function syncPlanningStatusesForUser(userId: string): Promise<void>
       { createdById: userId, assignedToId: null },
     ],
   };
+  const lifeOnly = { AND: [mine, taskWhereExcludeHub()] };
 
   await Promise.all([
     db.task.updateMany({
@@ -584,8 +586,9 @@ export async function syncPlanningStatusesForUser(userId: string): Promise<void>
     db.task.updateMany({
       where: {
         AND: [
-          mine,
+          lifeOnly,
           { status: "BACKLOG" },
+          { waitingOn: false },
           { dueDate: { not: null, lte: weekEnd } },
         ],
       },
@@ -594,9 +597,20 @@ export async function syncPlanningStatusesForUser(userId: string): Promise<void>
     db.task.updateMany({
       where: {
         AND: [
-          mine,
+          lifeOnly,
           { status: "TODO" },
           { dueDate: { gt: weekEnd } },
+        ],
+      },
+      data: { status: "BACKLOG" },
+    }),
+    // Waiting follow-ups stay parked in Inbox until cleared.
+    db.task.updateMany({
+      where: {
+        AND: [
+          lifeOnly,
+          { waitingOn: true },
+          { status: { in: ["TODO"] } },
         ],
       },
       data: { status: "BACKLOG" },

@@ -585,6 +585,11 @@ function NotificationSettingsSection({
     { key: "notifySprintStarted", label: t.settings.notifySprintStarted },
     { key: "notifySprintEnded", label: t.settings.notifySprintEnded },
     { key: "notifyDeadlineApproaching", label: t.settings.notifyDeadlineApproaching },
+    {
+      key: "batchDeadlineReminders",
+      label: t.settings.batchDeadlineReminders,
+      hint: t.settings.batchDeadlineRemindersHint,
+    },
     { key: "notifyStatusChanged", label: t.settings.notifyStatusChanged },
   ] as const;
 
@@ -673,6 +678,7 @@ function NotificationSettingsSection({
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
+              gap: "var(--space-3)",
               padding: "var(--space-3) var(--space-4)",
               borderRadius: "var(--radius-md)",
               background: "var(--surface-default)",
@@ -682,8 +688,22 @@ function NotificationSettingsSection({
               transition: "all 0.15s ease",
             }}
           >
-            <span style={{ fontSize: "var(--text-sm)", color: "var(--text-primary)" }}>
-              {pref.label}
+            <span style={{ minWidth: 0 }}>
+              <span style={{ display: "block", fontSize: "var(--text-sm)", color: "var(--text-primary)" }}>
+                {pref.label}
+              </span>
+              {"hint" in pref && pref.hint ? (
+                <span
+                  style={{
+                    display: "block",
+                    fontSize: "var(--text-xs)",
+                    color: "var(--text-tertiary)",
+                    marginTop: 4,
+                  }}
+                >
+                  {pref.hint}
+                </span>
+              ) : null}
             </span>
             <input
               type="checkbox"
@@ -691,13 +711,17 @@ function NotificationSettingsSection({
                 (preferences?.[
                   pref.key as keyof UserPreferencesData
                 ] as boolean | undefined) ??
-                (pref.key === "soundNotifs" ? false : true)
+                (pref.key === "soundNotifs" ||
+                pref.key === "batchDeadlineReminders"
+                  ? false
+                  : true)
               }
               onChange={(e) => onNotifyChange(pref.key, e.target.checked)}
               disabled={notifyPending}
               style={{
                 width: 20,
                 height: 20,
+                flexShrink: 0,
                 accentColor: "var(--action-primary)",
               }}
             />

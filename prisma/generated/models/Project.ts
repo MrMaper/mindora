@@ -261,6 +261,7 @@ export type ProjectWhereInput = {
   tasks?: Prisma.TaskListRelationFilter
   members?: Prisma.ProjectMemberListRelationFilter
   docs?: Prisma.DocListRelationFilter
+  sources?: Prisma.DocSourceListRelationFilter
   langSessions?: Prisma.LangSessionListRelationFilter
   langCards?: Prisma.LangCardListRelationFilter
   langListeningClips?: Prisma.LangListeningClipListRelationFilter
@@ -284,6 +285,7 @@ export type ProjectOrderByWithRelationInput = {
   tasks?: Prisma.TaskOrderByRelationAggregateInput
   members?: Prisma.ProjectMemberOrderByRelationAggregateInput
   docs?: Prisma.DocOrderByRelationAggregateInput
+  sources?: Prisma.DocSourceOrderByRelationAggregateInput
   langSessions?: Prisma.LangSessionOrderByRelationAggregateInput
   langCards?: Prisma.LangCardOrderByRelationAggregateInput
   langListeningClips?: Prisma.LangListeningClipOrderByRelationAggregateInput
@@ -310,6 +312,7 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   tasks?: Prisma.TaskListRelationFilter
   members?: Prisma.ProjectMemberListRelationFilter
   docs?: Prisma.DocListRelationFilter
+  sources?: Prisma.DocSourceListRelationFilter
   langSessions?: Prisma.LangSessionListRelationFilter
   langCards?: Prisma.LangCardListRelationFilter
   langListeningClips?: Prisma.LangListeningClipListRelationFilter
@@ -366,6 +369,7 @@ export type ProjectCreateInput = {
   tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
   docs?: Prisma.DocCreateNestedManyWithoutProjectInput
+  sources?: Prisma.DocSourceCreateNestedManyWithoutProjectInput
   langSessions?: Prisma.LangSessionCreateNestedManyWithoutProjectInput
   langCards?: Prisma.LangCardCreateNestedManyWithoutProjectInput
   langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutProjectInput
@@ -388,6 +392,7 @@ export type ProjectUncheckedCreateInput = {
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
   docs?: Prisma.DocUncheckedCreateNestedManyWithoutProjectInput
+  sources?: Prisma.DocSourceUncheckedCreateNestedManyWithoutProjectInput
   langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutProjectInput
   langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutProjectInput
   langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutProjectInput
@@ -410,6 +415,7 @@ export type ProjectUpdateInput = {
   tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
   docs?: Prisma.DocUpdateManyWithoutProjectNestedInput
+  sources?: Prisma.DocSourceUpdateManyWithoutProjectNestedInput
   langSessions?: Prisma.LangSessionUpdateManyWithoutProjectNestedInput
   langCards?: Prisma.LangCardUpdateManyWithoutProjectNestedInput
   langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutProjectNestedInput
@@ -432,6 +438,7 @@ export type ProjectUncheckedUpdateInput = {
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
   docs?: Prisma.DocUncheckedUpdateManyWithoutProjectNestedInput
+  sources?: Prisma.DocSourceUncheckedUpdateManyWithoutProjectNestedInput
   langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutProjectNestedInput
   langCards?: Prisma.LangCardUncheckedUpdateManyWithoutProjectNestedInput
   langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutProjectNestedInput
@@ -654,6 +661,22 @@ export type ProjectUpdateOneWithoutDocsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutDocsInput, Prisma.ProjectUpdateWithoutDocsInput>, Prisma.ProjectUncheckedUpdateWithoutDocsInput>
 }
 
+export type ProjectCreateNestedOneWithoutSourcesInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutSourcesInput, Prisma.ProjectUncheckedCreateWithoutSourcesInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutSourcesInput
+  connect?: Prisma.ProjectWhereUniqueInput
+}
+
+export type ProjectUpdateOneWithoutSourcesNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutSourcesInput, Prisma.ProjectUncheckedCreateWithoutSourcesInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutSourcesInput
+  upsert?: Prisma.ProjectUpsertWithoutSourcesInput
+  disconnect?: Prisma.ProjectWhereInput | boolean
+  delete?: Prisma.ProjectWhereInput | boolean
+  connect?: Prisma.ProjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutSourcesInput, Prisma.ProjectUpdateWithoutSourcesInput>, Prisma.ProjectUncheckedUpdateWithoutSourcesInput>
+}
+
 export type ProjectCreateNestedOneWithoutLangSessionsInput = {
   create?: Prisma.XOR<Prisma.ProjectCreateWithoutLangSessionsInput, Prisma.ProjectUncheckedCreateWithoutLangSessionsInput>
   connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutLangSessionsInput
@@ -748,6 +771,7 @@ export type ProjectCreateWithoutTeamInput = {
   tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
   docs?: Prisma.DocCreateNestedManyWithoutProjectInput
+  sources?: Prisma.DocSourceCreateNestedManyWithoutProjectInput
   langSessions?: Prisma.LangSessionCreateNestedManyWithoutProjectInput
   langCards?: Prisma.LangCardCreateNestedManyWithoutProjectInput
   langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutProjectInput
@@ -769,6 +793,7 @@ export type ProjectUncheckedCreateWithoutTeamInput = {
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
   docs?: Prisma.DocUncheckedCreateNestedManyWithoutProjectInput
+  sources?: Prisma.DocSourceUncheckedCreateNestedManyWithoutProjectInput
   langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutProjectInput
   langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutProjectInput
   langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutProjectInput
@@ -832,6 +857,7 @@ export type ProjectCreateWithoutMembersInput = {
   sprints?: Prisma.SprintCreateNestedManyWithoutProjectInput
   tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
   docs?: Prisma.DocCreateNestedManyWithoutProjectInput
+  sources?: Prisma.DocSourceCreateNestedManyWithoutProjectInput
   langSessions?: Prisma.LangSessionCreateNestedManyWithoutProjectInput
   langCards?: Prisma.LangCardCreateNestedManyWithoutProjectInput
   langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutProjectInput
@@ -853,6 +879,7 @@ export type ProjectUncheckedCreateWithoutMembersInput = {
   sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
   docs?: Prisma.DocUncheckedCreateNestedManyWithoutProjectInput
+  sources?: Prisma.DocSourceUncheckedCreateNestedManyWithoutProjectInput
   langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutProjectInput
   langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutProjectInput
   langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutProjectInput
@@ -890,6 +917,7 @@ export type ProjectUpdateWithoutMembersInput = {
   sprints?: Prisma.SprintUpdateManyWithoutProjectNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
   docs?: Prisma.DocUpdateManyWithoutProjectNestedInput
+  sources?: Prisma.DocSourceUpdateManyWithoutProjectNestedInput
   langSessions?: Prisma.LangSessionUpdateManyWithoutProjectNestedInput
   langCards?: Prisma.LangCardUpdateManyWithoutProjectNestedInput
   langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutProjectNestedInput
@@ -911,6 +939,7 @@ export type ProjectUncheckedUpdateWithoutMembersInput = {
   sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
   docs?: Prisma.DocUncheckedUpdateManyWithoutProjectNestedInput
+  sources?: Prisma.DocSourceUncheckedUpdateManyWithoutProjectNestedInput
   langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutProjectNestedInput
   langCards?: Prisma.LangCardUncheckedUpdateManyWithoutProjectNestedInput
   langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutProjectNestedInput
@@ -932,6 +961,7 @@ export type ProjectCreateWithoutSprintsInput = {
   tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
   docs?: Prisma.DocCreateNestedManyWithoutProjectInput
+  sources?: Prisma.DocSourceCreateNestedManyWithoutProjectInput
   langSessions?: Prisma.LangSessionCreateNestedManyWithoutProjectInput
   langCards?: Prisma.LangCardCreateNestedManyWithoutProjectInput
   langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutProjectInput
@@ -953,6 +983,7 @@ export type ProjectUncheckedCreateWithoutSprintsInput = {
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
   docs?: Prisma.DocUncheckedCreateNestedManyWithoutProjectInput
+  sources?: Prisma.DocSourceUncheckedCreateNestedManyWithoutProjectInput
   langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutProjectInput
   langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutProjectInput
   langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutProjectInput
@@ -990,6 +1021,7 @@ export type ProjectUpdateWithoutSprintsInput = {
   tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
   docs?: Prisma.DocUpdateManyWithoutProjectNestedInput
+  sources?: Prisma.DocSourceUpdateManyWithoutProjectNestedInput
   langSessions?: Prisma.LangSessionUpdateManyWithoutProjectNestedInput
   langCards?: Prisma.LangCardUpdateManyWithoutProjectNestedInput
   langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutProjectNestedInput
@@ -1011,6 +1043,7 @@ export type ProjectUncheckedUpdateWithoutSprintsInput = {
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
   docs?: Prisma.DocUncheckedUpdateManyWithoutProjectNestedInput
+  sources?: Prisma.DocSourceUncheckedUpdateManyWithoutProjectNestedInput
   langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutProjectNestedInput
   langCards?: Prisma.LangCardUncheckedUpdateManyWithoutProjectNestedInput
   langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutProjectNestedInput
@@ -1032,6 +1065,7 @@ export type ProjectCreateWithoutTasksInput = {
   sprints?: Prisma.SprintCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
   docs?: Prisma.DocCreateNestedManyWithoutProjectInput
+  sources?: Prisma.DocSourceCreateNestedManyWithoutProjectInput
   langSessions?: Prisma.LangSessionCreateNestedManyWithoutProjectInput
   langCards?: Prisma.LangCardCreateNestedManyWithoutProjectInput
   langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutProjectInput
@@ -1053,6 +1087,7 @@ export type ProjectUncheckedCreateWithoutTasksInput = {
   sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
   docs?: Prisma.DocUncheckedCreateNestedManyWithoutProjectInput
+  sources?: Prisma.DocSourceUncheckedCreateNestedManyWithoutProjectInput
   langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutProjectInput
   langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutProjectInput
   langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutProjectInput
@@ -1090,6 +1125,7 @@ export type ProjectUpdateWithoutTasksInput = {
   sprints?: Prisma.SprintUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
   docs?: Prisma.DocUpdateManyWithoutProjectNestedInput
+  sources?: Prisma.DocSourceUpdateManyWithoutProjectNestedInput
   langSessions?: Prisma.LangSessionUpdateManyWithoutProjectNestedInput
   langCards?: Prisma.LangCardUpdateManyWithoutProjectNestedInput
   langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutProjectNestedInput
@@ -1111,6 +1147,7 @@ export type ProjectUncheckedUpdateWithoutTasksInput = {
   sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
   docs?: Prisma.DocUncheckedUpdateManyWithoutProjectNestedInput
+  sources?: Prisma.DocSourceUncheckedUpdateManyWithoutProjectNestedInput
   langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutProjectNestedInput
   langCards?: Prisma.LangCardUncheckedUpdateManyWithoutProjectNestedInput
   langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutProjectNestedInput
@@ -1132,6 +1169,7 @@ export type ProjectCreateWithoutDocsInput = {
   sprints?: Prisma.SprintCreateNestedManyWithoutProjectInput
   tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
+  sources?: Prisma.DocSourceCreateNestedManyWithoutProjectInput
   langSessions?: Prisma.LangSessionCreateNestedManyWithoutProjectInput
   langCards?: Prisma.LangCardCreateNestedManyWithoutProjectInput
   langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutProjectInput
@@ -1153,6 +1191,7 @@ export type ProjectUncheckedCreateWithoutDocsInput = {
   sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
+  sources?: Prisma.DocSourceUncheckedCreateNestedManyWithoutProjectInput
   langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutProjectInput
   langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutProjectInput
   langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutProjectInput
@@ -1190,6 +1229,7 @@ export type ProjectUpdateWithoutDocsInput = {
   sprints?: Prisma.SprintUpdateManyWithoutProjectNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
+  sources?: Prisma.DocSourceUpdateManyWithoutProjectNestedInput
   langSessions?: Prisma.LangSessionUpdateManyWithoutProjectNestedInput
   langCards?: Prisma.LangCardUpdateManyWithoutProjectNestedInput
   langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutProjectNestedInput
@@ -1211,6 +1251,111 @@ export type ProjectUncheckedUpdateWithoutDocsInput = {
   sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
+  sources?: Prisma.DocSourceUncheckedUpdateManyWithoutProjectNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutProjectNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutProjectNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutProjectNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutProjectNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectCreateWithoutSourcesInput = {
+  id?: string
+  name: string
+  description?: string | null
+  status?: $Enums.ProjectStatus
+  area?: $Enums.LifeArea
+  pinned?: boolean
+  sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
+  sprints?: Prisma.SprintCreateNestedManyWithoutProjectInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
+  members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
+  docs?: Prisma.DocCreateNestedManyWithoutProjectInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutProjectInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutProjectInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutProjectInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutProjectInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectUncheckedCreateWithoutSourcesInput = {
+  id?: string
+  teamId?: string | null
+  name: string
+  description?: string | null
+  status?: $Enums.ProjectStatus
+  area?: $Enums.LifeArea
+  pinned?: boolean
+  sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
+  members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutProjectInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutProjectInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutProjectInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutProjectInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutProjectInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectCreateOrConnectWithoutSourcesInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutSourcesInput, Prisma.ProjectUncheckedCreateWithoutSourcesInput>
+}
+
+export type ProjectUpsertWithoutSourcesInput = {
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutSourcesInput, Prisma.ProjectUncheckedUpdateWithoutSourcesInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutSourcesInput, Prisma.ProjectUncheckedCreateWithoutSourcesInput>
+  where?: Prisma.ProjectWhereInput
+}
+
+export type ProjectUpdateToOneWithWhereWithoutSourcesInput = {
+  where?: Prisma.ProjectWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutSourcesInput, Prisma.ProjectUncheckedUpdateWithoutSourcesInput>
+}
+
+export type ProjectUpdateWithoutSourcesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
+  sprints?: Prisma.SprintUpdateManyWithoutProjectNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
+  members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
+  docs?: Prisma.DocUpdateManyWithoutProjectNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutProjectNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutProjectNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutProjectNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutProjectNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutSourcesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
+  members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutProjectNestedInput
   langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutProjectNestedInput
   langCards?: Prisma.LangCardUncheckedUpdateManyWithoutProjectNestedInput
   langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutProjectNestedInput
@@ -1233,6 +1378,7 @@ export type ProjectCreateWithoutLangSessionsInput = {
   tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
   docs?: Prisma.DocCreateNestedManyWithoutProjectInput
+  sources?: Prisma.DocSourceCreateNestedManyWithoutProjectInput
   langCards?: Prisma.LangCardCreateNestedManyWithoutProjectInput
   langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutProjectInput
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutProjectInput
@@ -1254,6 +1400,7 @@ export type ProjectUncheckedCreateWithoutLangSessionsInput = {
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
   docs?: Prisma.DocUncheckedCreateNestedManyWithoutProjectInput
+  sources?: Prisma.DocSourceUncheckedCreateNestedManyWithoutProjectInput
   langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutProjectInput
   langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutProjectInput
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutProjectInput
@@ -1291,6 +1438,7 @@ export type ProjectUpdateWithoutLangSessionsInput = {
   tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
   docs?: Prisma.DocUpdateManyWithoutProjectNestedInput
+  sources?: Prisma.DocSourceUpdateManyWithoutProjectNestedInput
   langCards?: Prisma.LangCardUpdateManyWithoutProjectNestedInput
   langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutProjectNestedInput
   examTracks?: Prisma.ExamTrackUpdateManyWithoutProjectNestedInput
@@ -1312,6 +1460,7 @@ export type ProjectUncheckedUpdateWithoutLangSessionsInput = {
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
   docs?: Prisma.DocUncheckedUpdateManyWithoutProjectNestedInput
+  sources?: Prisma.DocSourceUncheckedUpdateManyWithoutProjectNestedInput
   langCards?: Prisma.LangCardUncheckedUpdateManyWithoutProjectNestedInput
   langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutProjectNestedInput
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutProjectNestedInput
@@ -1333,6 +1482,7 @@ export type ProjectCreateWithoutLangListeningClipsInput = {
   tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
   docs?: Prisma.DocCreateNestedManyWithoutProjectInput
+  sources?: Prisma.DocSourceCreateNestedManyWithoutProjectInput
   langSessions?: Prisma.LangSessionCreateNestedManyWithoutProjectInput
   langCards?: Prisma.LangCardCreateNestedManyWithoutProjectInput
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutProjectInput
@@ -1354,6 +1504,7 @@ export type ProjectUncheckedCreateWithoutLangListeningClipsInput = {
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
   docs?: Prisma.DocUncheckedCreateNestedManyWithoutProjectInput
+  sources?: Prisma.DocSourceUncheckedCreateNestedManyWithoutProjectInput
   langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutProjectInput
   langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutProjectInput
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutProjectInput
@@ -1391,6 +1542,7 @@ export type ProjectUpdateWithoutLangListeningClipsInput = {
   tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
   docs?: Prisma.DocUpdateManyWithoutProjectNestedInput
+  sources?: Prisma.DocSourceUpdateManyWithoutProjectNestedInput
   langSessions?: Prisma.LangSessionUpdateManyWithoutProjectNestedInput
   langCards?: Prisma.LangCardUpdateManyWithoutProjectNestedInput
   examTracks?: Prisma.ExamTrackUpdateManyWithoutProjectNestedInput
@@ -1412,6 +1564,7 @@ export type ProjectUncheckedUpdateWithoutLangListeningClipsInput = {
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
   docs?: Prisma.DocUncheckedUpdateManyWithoutProjectNestedInput
+  sources?: Prisma.DocSourceUncheckedUpdateManyWithoutProjectNestedInput
   langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutProjectNestedInput
   langCards?: Prisma.LangCardUncheckedUpdateManyWithoutProjectNestedInput
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutProjectNestedInput
@@ -1433,6 +1586,7 @@ export type ProjectCreateWithoutLangCardsInput = {
   tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
   docs?: Prisma.DocCreateNestedManyWithoutProjectInput
+  sources?: Prisma.DocSourceCreateNestedManyWithoutProjectInput
   langSessions?: Prisma.LangSessionCreateNestedManyWithoutProjectInput
   langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutProjectInput
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutProjectInput
@@ -1454,6 +1608,7 @@ export type ProjectUncheckedCreateWithoutLangCardsInput = {
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
   docs?: Prisma.DocUncheckedCreateNestedManyWithoutProjectInput
+  sources?: Prisma.DocSourceUncheckedCreateNestedManyWithoutProjectInput
   langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutProjectInput
   langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutProjectInput
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutProjectInput
@@ -1491,6 +1646,7 @@ export type ProjectUpdateWithoutLangCardsInput = {
   tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
   docs?: Prisma.DocUpdateManyWithoutProjectNestedInput
+  sources?: Prisma.DocSourceUpdateManyWithoutProjectNestedInput
   langSessions?: Prisma.LangSessionUpdateManyWithoutProjectNestedInput
   langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutProjectNestedInput
   examTracks?: Prisma.ExamTrackUpdateManyWithoutProjectNestedInput
@@ -1512,6 +1668,7 @@ export type ProjectUncheckedUpdateWithoutLangCardsInput = {
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
   docs?: Prisma.DocUncheckedUpdateManyWithoutProjectNestedInput
+  sources?: Prisma.DocSourceUncheckedUpdateManyWithoutProjectNestedInput
   langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutProjectNestedInput
   langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutProjectNestedInput
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutProjectNestedInput
@@ -1533,6 +1690,7 @@ export type ProjectCreateWithoutExamTracksInput = {
   tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
   docs?: Prisma.DocCreateNestedManyWithoutProjectInput
+  sources?: Prisma.DocSourceCreateNestedManyWithoutProjectInput
   langSessions?: Prisma.LangSessionCreateNestedManyWithoutProjectInput
   langCards?: Prisma.LangCardCreateNestedManyWithoutProjectInput
   langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutProjectInput
@@ -1554,6 +1712,7 @@ export type ProjectUncheckedCreateWithoutExamTracksInput = {
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
   docs?: Prisma.DocUncheckedCreateNestedManyWithoutProjectInput
+  sources?: Prisma.DocSourceUncheckedCreateNestedManyWithoutProjectInput
   langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutProjectInput
   langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutProjectInput
   langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutProjectInput
@@ -1591,6 +1750,7 @@ export type ProjectUpdateWithoutExamTracksInput = {
   tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
   docs?: Prisma.DocUpdateManyWithoutProjectNestedInput
+  sources?: Prisma.DocSourceUpdateManyWithoutProjectNestedInput
   langSessions?: Prisma.LangSessionUpdateManyWithoutProjectNestedInput
   langCards?: Prisma.LangCardUpdateManyWithoutProjectNestedInput
   langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutProjectNestedInput
@@ -1612,6 +1772,7 @@ export type ProjectUncheckedUpdateWithoutExamTracksInput = {
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
   docs?: Prisma.DocUncheckedUpdateManyWithoutProjectNestedInput
+  sources?: Prisma.DocSourceUncheckedUpdateManyWithoutProjectNestedInput
   langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutProjectNestedInput
   langCards?: Prisma.LangCardUncheckedUpdateManyWithoutProjectNestedInput
   langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutProjectNestedInput
@@ -1633,6 +1794,7 @@ export type ProjectCreateWithoutMockAttemptsInput = {
   tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
   docs?: Prisma.DocCreateNestedManyWithoutProjectInput
+  sources?: Prisma.DocSourceCreateNestedManyWithoutProjectInput
   langSessions?: Prisma.LangSessionCreateNestedManyWithoutProjectInput
   langCards?: Prisma.LangCardCreateNestedManyWithoutProjectInput
   langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutProjectInput
@@ -1654,6 +1816,7 @@ export type ProjectUncheckedCreateWithoutMockAttemptsInput = {
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
   docs?: Prisma.DocUncheckedCreateNestedManyWithoutProjectInput
+  sources?: Prisma.DocSourceUncheckedCreateNestedManyWithoutProjectInput
   langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutProjectInput
   langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutProjectInput
   langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutProjectInput
@@ -1691,6 +1854,7 @@ export type ProjectUpdateWithoutMockAttemptsInput = {
   tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
   docs?: Prisma.DocUpdateManyWithoutProjectNestedInput
+  sources?: Prisma.DocSourceUpdateManyWithoutProjectNestedInput
   langSessions?: Prisma.LangSessionUpdateManyWithoutProjectNestedInput
   langCards?: Prisma.LangCardUpdateManyWithoutProjectNestedInput
   langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutProjectNestedInput
@@ -1712,6 +1876,7 @@ export type ProjectUncheckedUpdateWithoutMockAttemptsInput = {
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
   docs?: Prisma.DocUncheckedUpdateManyWithoutProjectNestedInput
+  sources?: Prisma.DocSourceUncheckedUpdateManyWithoutProjectNestedInput
   langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutProjectNestedInput
   langCards?: Prisma.LangCardUncheckedUpdateManyWithoutProjectNestedInput
   langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutProjectNestedInput
@@ -1744,6 +1909,7 @@ export type ProjectUpdateWithoutTeamInput = {
   tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
   docs?: Prisma.DocUpdateManyWithoutProjectNestedInput
+  sources?: Prisma.DocSourceUpdateManyWithoutProjectNestedInput
   langSessions?: Prisma.LangSessionUpdateManyWithoutProjectNestedInput
   langCards?: Prisma.LangCardUpdateManyWithoutProjectNestedInput
   langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutProjectNestedInput
@@ -1765,6 +1931,7 @@ export type ProjectUncheckedUpdateWithoutTeamInput = {
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
   docs?: Prisma.DocUncheckedUpdateManyWithoutProjectNestedInput
+  sources?: Prisma.DocSourceUncheckedUpdateManyWithoutProjectNestedInput
   langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutProjectNestedInput
   langCards?: Prisma.LangCardUncheckedUpdateManyWithoutProjectNestedInput
   langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutProjectNestedInput
@@ -1794,6 +1961,7 @@ export type ProjectCountOutputType = {
   tasks: number
   members: number
   docs: number
+  sources: number
   langSessions: number
   langCards: number
   langListeningClips: number
@@ -1806,6 +1974,7 @@ export type ProjectCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   tasks?: boolean | ProjectCountOutputTypeCountTasksArgs
   members?: boolean | ProjectCountOutputTypeCountMembersArgs
   docs?: boolean | ProjectCountOutputTypeCountDocsArgs
+  sources?: boolean | ProjectCountOutputTypeCountSourcesArgs
   langSessions?: boolean | ProjectCountOutputTypeCountLangSessionsArgs
   langCards?: boolean | ProjectCountOutputTypeCountLangCardsArgs
   langListeningClips?: boolean | ProjectCountOutputTypeCountLangListeningClipsArgs
@@ -1849,6 +2018,13 @@ export type ProjectCountOutputTypeCountMembersArgs<ExtArgs extends runtime.Types
  */
 export type ProjectCountOutputTypeCountDocsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.DocWhereInput
+}
+
+/**
+ * ProjectCountOutputType without action
+ */
+export type ProjectCountOutputTypeCountSourcesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DocSourceWhereInput
 }
 
 /**
@@ -1903,6 +2079,7 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   tasks?: boolean | Prisma.Project$tasksArgs<ExtArgs>
   members?: boolean | Prisma.Project$membersArgs<ExtArgs>
   docs?: boolean | Prisma.Project$docsArgs<ExtArgs>
+  sources?: boolean | Prisma.Project$sourcesArgs<ExtArgs>
   langSessions?: boolean | Prisma.Project$langSessionsArgs<ExtArgs>
   langCards?: boolean | Prisma.Project$langCardsArgs<ExtArgs>
   langListeningClips?: boolean | Prisma.Project$langListeningClipsArgs<ExtArgs>
@@ -1959,6 +2136,7 @@ export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   tasks?: boolean | Prisma.Project$tasksArgs<ExtArgs>
   members?: boolean | Prisma.Project$membersArgs<ExtArgs>
   docs?: boolean | Prisma.Project$docsArgs<ExtArgs>
+  sources?: boolean | Prisma.Project$sourcesArgs<ExtArgs>
   langSessions?: boolean | Prisma.Project$langSessionsArgs<ExtArgs>
   langCards?: boolean | Prisma.Project$langCardsArgs<ExtArgs>
   langListeningClips?: boolean | Prisma.Project$langListeningClipsArgs<ExtArgs>
@@ -1981,6 +2159,7 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     tasks: Prisma.$TaskPayload<ExtArgs>[]
     members: Prisma.$ProjectMemberPayload<ExtArgs>[]
     docs: Prisma.$DocPayload<ExtArgs>[]
+    sources: Prisma.$DocSourcePayload<ExtArgs>[]
     langSessions: Prisma.$LangSessionPayload<ExtArgs>[]
     langCards: Prisma.$LangCardPayload<ExtArgs>[]
     langListeningClips: Prisma.$LangListeningClipPayload<ExtArgs>[]
@@ -2403,6 +2582,7 @@ export interface Prisma__ProjectClient<T, Null = never, ExtArgs extends runtime.
   tasks<T extends Prisma.Project$tasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$tasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   members<T extends Prisma.Project$membersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$membersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   docs<T extends Prisma.Project$docsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$docsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DocPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  sources<T extends Prisma.Project$sourcesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$sourcesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DocSourcePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   langSessions<T extends Prisma.Project$langSessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$langSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LangSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   langCards<T extends Prisma.Project$langCardsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$langCardsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LangCardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   langListeningClips<T extends Prisma.Project$langListeningClipsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$langListeningClipsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LangListeningClipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2960,6 +3140,30 @@ export type Project$docsArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
   take?: number
   skip?: number
   distinct?: Prisma.DocScalarFieldEnum | Prisma.DocScalarFieldEnum[]
+}
+
+/**
+ * Project.sources
+ */
+export type Project$sourcesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DocSource
+   */
+  select?: Prisma.DocSourceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DocSource
+   */
+  omit?: Prisma.DocSourceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DocSourceInclude<ExtArgs> | null
+  where?: Prisma.DocSourceWhereInput
+  orderBy?: Prisma.DocSourceOrderByWithRelationInput | Prisma.DocSourceOrderByWithRelationInput[]
+  cursor?: Prisma.DocSourceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DocSourceScalarFieldEnum | Prisma.DocSourceScalarFieldEnum[]
 }
 
 /**

@@ -18,7 +18,15 @@ import type {
   ResearchSourceItem,
 } from "./types";
 import { formatApaLike, normalizeDoi } from "./cite";
-import { isUserAreaBucket } from "@/lib/life";
+import { isUserAreaBucket, personalAreaProjectId } from "@/lib/life";
+import {
+  ensurePersonalWorkspace,
+} from "@/features/life/workspace";
+import {
+  isLibraryBinderSystemKey,
+  SOURCE_READING_TO_DOC,
+  SOURCE_READING_TO_TASK,
+} from "./status-sync";
 
 export interface ActionResult {
   success: boolean;
@@ -224,28 +232,15 @@ export async function ensurePhdFolderTreeAction(opts?: {
   return { success: true };
 }
 
-export async function createSourceNoteFromSourceAction(
-  sourceId: string,
-): Promise<ActionResult> {
-  const session = await auth();
-  if (!session?.user) return { success: false, error: "غیرمجاز" };
-
-  const source = await db.docSource.findFirst({
-    where: { id: sourceId, doc: { userId: session.user.id } },
-    select: {
-      id: true,
-      title: true,
-      authors: true,
-      url: true,
-      year: true,
-      doi: true,
-      notes: true,
-      docId: true,
-    },
-  });
-  if (!source) return { success: false, error: "منبع پیدا نشد" };
-
-  const template = getDocTemplate("sourceNote");
+function buildSourceNoteHtml(source: {
+  id: string;
+  title: string;
+  authors: string | null;
+  url: string | null;
+  year: string | null;
+  doi: string | null;
+  notes: string | null;
+}): string {
   const meta = [
     `<p><strong>عنوان:</strong> ${escapeHtml(source.title)}</p>`,
     source.authors
@@ -263,40 +258,268 @@ export async function createSourceNoteFromSourceAction(
     source.notes
       ? `<h3>یادداشت</h3><p>${escapeHtml(source.notes)}</p>`
       : "",
+    `<p class="doc-source-ref" data-source-id="${source.id}"><em>${escapeHtml(formatApaLike(source))}</em></p>`,
   ]
     .filter(Boolean)
     .join("");
 
-  const content = ensureHeadingIds(
+  return ensureHeadingIds(
     `<h2>منبع</h2>${meta}<h3>خلاصه</h3><p></p><h3>نکات کلیدی</h3><ul><li></li></ul><h3>نقل‌قول‌ها</h3><blockquote><p></p></blockquote>`,
   );
+}
 
+/** True when the host is a real per-paper note (not a path binder index). */
+function isPerPaperSourceNote(doc: {
+  templateKey: string | null;
+  systemKey: string | null;
+}): boolean {
+  return (
+    doc.templateKey === "sourceNote" &&
+    !isLibraryBinderSystemKey(doc.systemKey)
+  );
+}
+
+async function createPerPaperSourceNoteDoc(
+  userId: string,
+  source: {
+    id: string;
+    title: string;
+    authors: string | null;
+    url: string | null;
+    year: string | null;
+    doi: string | null;
+    notes: string | null;
+  },
+  projectId: string | null,
+  readingStatus: SourceReadingStatus = "TO_READ",
+): Promise<string> {
+  const template = getDocTemplate("sourceNote");
+  const content = buildSourceNoteHtml(source);
   const doc = await db.doc.create({
     data: {
       title: `${template.titleFa}: ${source.title}`.slice(0, 120),
       content,
       contentText: htmlToPlainText(content),
       area: "PHD" satisfies LifeArea,
-      status: "DRAFTING",
+      status: SOURCE_READING_TO_DOC[readingStatus] ?? "IDEA",
       templateKey: "sourceNote",
-      userId: session.user.id,
-      sources: {
-        create: {
-          title: source.title,
-          authors: source.authors,
-          url: source.url,
-          year: source.year,
-          doi: source.doi,
-          notes: source.notes,
-          readingStatus: "READING",
-        },
-      },
+      projectId,
+      userId,
     },
     select: { id: true },
   });
+  return doc.id;
+}
 
-  revalidateResearch({ docs: true, docId: doc.id });
-  return { success: true, data: { id: doc.id } };
+/** Enforce one PhD pipeline card per source note. */
+async function replacePhdDocTaskLinks(
+  noteDocId: string,
+  taskId: string,
+): Promise<void> {
+  const existing = await db.docTask.findMany({
+    where: {
+      docId: noteDocId,
+      task: { area: "PHD" },
+    },
+    select: { taskId: true },
+  });
+  const stale = existing.filter(e => e.taskId !== taskId).map(e => e.taskId);
+  if (stale.length > 0) {
+    await db.docTask.deleteMany({
+      where: { docId: noteDocId, taskId: { in: stale } },
+    });
+  }
+  await db.docTask.upsert({
+    where: { docId_taskId: { docId: noteDocId, taskId } },
+    create: { docId: noteDocId, taskId },
+    update: {},
+  });
+}
+
+async function ensureReadingTaskForSourceNote(input: {
+  userId: string;
+  sourceTitle: string;
+  noteDocId: string;
+  researchProjectId: string | null;
+  readingStatus?: SourceReadingStatus;
+  dueDate?: Date | null;
+  durationMinutes?: number | null;
+}): Promise<{ taskId: string; created: boolean }> {
+  const { teamId } = await ensurePersonalWorkspace(input.userId);
+  const taskProjectId =
+    input.researchProjectId ?? personalAreaProjectId(input.userId, "PHD");
+
+  const existing = await db.docTask.findFirst({
+    where: {
+      docId: input.noteDocId,
+      task: {
+        area: "PHD",
+        OR: [
+          { assignedToId: input.userId },
+          { createdById: input.userId },
+        ],
+      },
+    },
+    select: { taskId: true },
+  });
+  if (existing) {
+    await replacePhdDocTaskLinks(input.noteDocId, existing.taskId);
+    if (input.dueDate !== undefined) {
+      await db.task.update({
+        where: { id: existing.taskId },
+        data: {
+          dueDate: input.dueDate,
+          durationMinutes: input.durationMinutes ?? null,
+        },
+      });
+    }
+    return { taskId: existing.taskId, created: false };
+  }
+
+  const reading = input.readingStatus ?? "TO_READ";
+  const status = SOURCE_READING_TO_TASK[reading] ?? "BACKLOG";
+
+  const task = await db.task.create({
+    data: {
+      title: input.sourceTitle.slice(0, 200),
+      status,
+      priority: "NONE",
+      type: "TASK",
+      area: "PHD",
+      projectId: taskProjectId,
+      teamId,
+      createdById: input.userId,
+      assignedToId: input.userId,
+      dueDate: input.dueDate ?? null,
+      durationMinutes: input.durationMinutes ?? null,
+      docs: { create: { docId: input.noteDocId } },
+    },
+    select: { id: true },
+  });
+  return { taskId: task.id, created: true };
+}
+
+/**
+ * Ensure source lives on a per-paper note with exactly one reading card.
+ * Used by open-note, reading toggles, quotes, and link actions.
+ */
+export async function ensureSourceContinuityAction(
+  sourceId: string,
+  opts?: { createReadingCard?: boolean },
+): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
+
+  const noteResult = await createSourceNoteFromSourceAction(sourceId);
+  if (!noteResult.success || !noteResult.data?.id) {
+    return {
+      success: false,
+      error: noteResult.error ?? "یادداشت منبع ساخته نشد",
+    };
+  }
+  const docId = String(noteResult.data.id);
+
+  const source = await db.docSource.findFirst({
+    where: { id: sourceId, doc: { userId: session.user.id } },
+    select: {
+      title: true,
+      projectId: true,
+      readingStatus: true,
+      doc: { select: { projectId: true, status: true } },
+    },
+  });
+  if (!source) return { success: false, error: "منبع پیدا نشد" };
+
+  // Align note status with reading if still mismatched.
+  const wantDoc = SOURCE_READING_TO_DOC[source.readingStatus];
+  if (wantDoc && source.doc.status !== wantDoc) {
+    await db.doc.update({
+      where: { id: docId },
+      data: { status: wantDoc },
+    });
+  }
+
+  let taskId: string | undefined;
+  let created = false;
+  if (opts?.createReadingCard !== false) {
+    const card = await ensureReadingTaskForSourceNote({
+      userId: session.user.id,
+      sourceTitle: source.title,
+      noteDocId: docId,
+      researchProjectId: source.projectId ?? source.doc.projectId ?? null,
+      readingStatus: source.readingStatus,
+    });
+    taskId = card.taskId;
+    created = card.created;
+  }
+
+  revalidateResearch({ docs: true, docId });
+  revalidatePath("/kanban");
+  return {
+    success: true,
+    data: {
+      id: docId,
+      docId,
+      taskId,
+      created,
+      reused: noteResult.data.reused === true && !created,
+    },
+  };
+}
+
+export async function createSourceNoteFromSourceAction(
+  sourceId: string,
+): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
+
+  const source = await db.docSource.findFirst({
+    where: { id: sourceId, doc: { userId: session.user.id } },
+    select: {
+      id: true,
+      title: true,
+      authors: true,
+      url: true,
+      year: true,
+      doi: true,
+      notes: true,
+      docId: true,
+      projectId: true,
+      readingStatus: true,
+      doc: {
+        select: {
+          id: true,
+          projectId: true,
+          templateKey: true,
+          systemKey: true,
+        },
+      },
+    },
+  });
+  if (!source) return { success: false, error: "منبع پیدا نشد" };
+
+  // Already on a real per-paper note — open it (never fork DocSource).
+  if (isPerPaperSourceNote(source.doc)) {
+    revalidateResearch({ docs: true, docId: source.docId });
+    return { success: true, data: { id: source.docId, reused: true } };
+  }
+
+  const projectId = source.projectId ?? source.doc.projectId ?? null;
+  const noteId = await createPerPaperSourceNoteDoc(
+    session.user.id,
+    source,
+    projectId,
+    source.readingStatus,
+  );
+
+  // Move the canonical source off the binder onto the per-paper note.
+  await db.docSource.update({
+    where: { id: source.id },
+    data: { docId: noteId },
+  });
+
+  revalidateResearch({ docs: true, docId: noteId });
+  return { success: true, data: { id: noteId, reused: false } };
 }
 
 export async function lookupDoiAction(doiRaw: string): Promise<ActionResult> {
@@ -376,8 +599,17 @@ export async function addPhdSourceAction(input: {
   doi?: string;
   notes?: string;
   readingStatus?: SourceReadingStatus;
-  /** Prefer docs in this research project; null = inbox (no project) */
+  /**
+   * Research path. Required (null = inbox). Omit/undefined is rejected so
+   * scope=all cannot silently dump into inbox.
+   */
   projectId?: string | null;
+  /** Default true: create reading card + DocTask on the per-paper note. */
+  createReadingCard?: boolean;
+  /** Optional due clock for the reading card (capture). */
+  dueDate?: string;
+  time?: string | null;
+  durationMinutes?: number | null;
 }): Promise<ActionResult> {
   const session = await auth();
   if (!session?.user) return { success: false, error: "غیرمجاز" };
@@ -385,69 +617,208 @@ export async function addPhdSourceAction(input: {
   const title = input.title.trim();
   if (!title) return { success: false, error: "عنوان منبع لازم است" };
 
+  if (input.projectId === undefined) {
+    return {
+      success: false,
+      error: "مسیر پژوهش را انتخاب کنید (یا صندوق)",
+    };
+  }
+  const projectId = input.projectId;
+  const readingStatus = input.readingStatus ?? "TO_READ";
+
+  let due: Date | null = null;
+  if (input.dueDate && /^\d{4}-\d{2}-\d{2}$/.test(input.dueDate)) {
+    const [y, m, d] = input.dueDate.split("-").map(Number);
+    const hhmm = input.time?.match(/^(\d{1,2}):(\d{2})$/);
+    const hours = hhmm ? Number(hhmm[1]) : 12;
+    const minutes = hhmm ? Number(hhmm[2]) : 0;
+    due = new Date(y!, m! - 1, d!, hours, minutes, 0, 0);
+  }
+  const durationMinutes =
+    due && input.time && input.durationMinutes && input.durationMinutes > 0
+      ? Math.min(24 * 60, Math.round(input.durationMinutes))
+      : null;
+
   let docId = input.docId;
-  if (!docId) {
-    const latest = await db.doc.findFirst({
-      where: {
-        userId: session.user.id,
-        area: "PHD",
-        deletedAt: null,
-        archived: false,
-        ...(input.projectId !== undefined
-          ? { projectId: input.projectId }
-          : {}),
-      },
-      orderBy: { updatedAt: "desc" },
-      select: { id: true },
-    });
-    if (!latest) {
-      const template = getDocTemplate("sourceNote");
-      const content = ensureHeadingIds(template.content);
-      const created = await db.doc.create({
-        data: {
-          title: template.titleFa,
-          content,
-          contentText: htmlToPlainText(content),
-          area: "PHD",
-          status: "DRAFTING",
-          templateKey: template.key,
-          projectId:
-            input.projectId === undefined ? null : input.projectId,
-          userId: session.user.id,
-        },
-        select: { id: true },
-      });
-      docId = created.id;
-    } else {
-      docId = latest.id;
-    }
-  } else {
+  if (docId) {
     const owned = await db.doc.findFirst({
       where: { id: docId, userId: session.user.id, deletedAt: null },
-      select: { id: true },
+      select: { id: true, templateKey: true, systemKey: true },
     });
     if (!owned) return { success: false, error: "سند پیدا نشد" };
+    if (!isPerPaperSourceNote(owned)) {
+      docId = undefined;
+    }
+  }
+
+  // Create per-paper note first (no binder hop), then attach canonical source.
+  if (!docId) {
+    const template = getDocTemplate("sourceNote");
+    const shell = await db.doc.create({
+      data: {
+        title: `${template.titleFa}: ${title}`.slice(0, 120),
+        content: "<p></p>",
+        contentText: "",
+        area: "PHD",
+        status: SOURCE_READING_TO_DOC[readingStatus] ?? "IDEA",
+        templateKey: "sourceNote",
+        projectId,
+        userId: session.user.id,
+      },
+      select: { id: true },
+    });
+    docId = shell.id;
   }
 
   const source = await db.docSource.create({
     data: {
       docId,
+      projectId,
       title,
       authors: input.authors?.trim() || null,
       url: input.url?.trim() || null,
       year: input.year?.trim() || null,
       doi: input.doi ? normalizeDoi(input.doi) : null,
       notes: input.notes?.trim() || null,
-      readingStatus: input.readingStatus ?? "TO_READ",
+      readingStatus,
     },
-    select: { id: true },
+    select: {
+      id: true,
+      title: true,
+      authors: true,
+      url: true,
+      year: true,
+      doi: true,
+      notes: true,
+    },
   });
 
-  revalidateResearch({ docs: true, docId: docId });
-  return { success: true, data: { id: source.id, docId } };
+  const content = buildSourceNoteHtml(source);
+  await db.doc.update({
+    where: { id: docId },
+    data: {
+      content,
+      contentText: htmlToPlainText(content),
+      status: SOURCE_READING_TO_DOC[readingStatus] ?? "IDEA",
+    },
+  });
+
+  let taskId: string | undefined;
+  if (input.createReadingCard !== false) {
+    const card = await ensureReadingTaskForSourceNote({
+      userId: session.user.id,
+      sourceTitle: title,
+      noteDocId: docId,
+      researchProjectId: projectId,
+      readingStatus,
+      dueDate: due,
+      durationMinutes,
+    });
+    taskId = card.taskId;
+  }
+
+  revalidateResearch({ docs: true, docId });
+  revalidatePath("/kanban");
+  return { success: true, data: { id: source.id, docId, taskId } };
 }
 
-/** Append APA-like citation to a doc and ensure a linked DocSource on that doc. */
+/** Link an existing pipeline card to this source (one card per note). */
+export async function linkSourceToTaskAction(input: {
+  sourceId: string;
+  taskId: string;
+}): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
+
+  const task = await db.task.findFirst({
+    where: {
+      id: input.taskId,
+      OR: [
+        { assignedToId: session.user.id },
+        { createdById: session.user.id },
+      ],
+    },
+    select: { id: true, status: true, area: true },
+  });
+  if (!task) return { success: false, error: "کار پیدا نشد" };
+
+  const continuity = await ensureSourceContinuityAction(input.sourceId, {
+    createReadingCard: false,
+  });
+  if (!continuity.success || !continuity.data?.docId) {
+    return {
+      success: false,
+      error: continuity.error ?? "یادداشت منبع ساخته نشد",
+    };
+  }
+  const docId = String(continuity.data.docId);
+
+  await replacePhdDocTaskLinks(docId, task.id);
+
+  // Align source + note to the card's pipeline stage.
+  const { syncResearchLinksFromTaskStatus } = await import("./sync-links");
+  await syncResearchLinksFromTaskStatus(task.id, task.status);
+
+  revalidateResearch({ docs: true, docId });
+  revalidatePath("/kanban");
+  return { success: true, data: { docId, taskId: task.id } };
+}
+
+/** Create a PhD reading card for a source that has no DocTask yet. */
+export async function createReadingCardForSourceAction(
+  sourceId: string,
+): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
+
+  const result = await ensureSourceContinuityAction(sourceId, {
+    createReadingCard: true,
+  });
+  if (!result.success) return result;
+
+  return {
+    success: true,
+    data: {
+      docId: result.data?.docId,
+      taskId: result.data?.taskId,
+      created: result.data?.created === true,
+      reused: result.data?.created !== true,
+    },
+  };
+}
+
+export async function attachSourceToTaskAction(input: {
+  taskId: string;
+  sourceId: string;
+}): Promise<ActionResult> {
+  return linkSourceToTaskAction(input);
+}
+
+export async function searchPhdTasksForLinkAction(
+  query: string,
+): Promise<{ id: string; title: string }[]> {
+  const session = await auth();
+  if (!session?.user) return [];
+  const q = query.trim();
+  if (q.length < 1) return [];
+
+  return db.task.findMany({
+    where: {
+      area: "PHD",
+      status: { not: "DONE" },
+      title: { contains: q, mode: "insensitive" },
+      OR: [
+        { assignedToId: session.user.id },
+        { createdById: session.user.id },
+      ],
+    },
+    take: 8,
+    orderBy: { updatedAt: "desc" },
+    select: { id: true, title: true },
+  });
+}
+
+/** Append APA-like citation to a doc. Reuses the canonical DocSource — never forks. */
 export async function insertCitationIntoDocAction(input: {
   sourceId: string;
   docId: string;
@@ -480,46 +851,8 @@ export async function insertCitationIntoDocAction(input: {
   });
   if (!doc) return { success: false, error: "سند پیدا نشد" };
 
-  let linkedSourceId = source.id;
-  if (source.docId !== doc.id) {
-    const existing = await db.docSource.findFirst({
-      where: {
-        docId: doc.id,
-        OR: [
-          ...(source.doi
-            ? [{ doi: source.doi }]
-            : []),
-          {
-            title: source.title,
-            authors: source.authors,
-            year: source.year,
-          },
-        ],
-      },
-      select: { id: true },
-    });
-    if (existing) {
-      linkedSourceId = existing.id;
-    } else {
-      const copied = await db.docSource.create({
-        data: {
-          docId: doc.id,
-          title: source.title,
-          authors: source.authors,
-          url: source.url,
-          year: source.year,
-          doi: source.doi,
-          notes: source.notes,
-          readingStatus: "READING",
-        },
-        select: { id: true },
-      });
-      linkedSourceId = copied.id;
-    }
-  }
-
   const citation = formatApaLike(source);
-  const citeHtml = `<p class="doc-citation" data-source-id="${linkedSourceId}"><em>${escapeHtml(citation)}</em></p><p></p>`;
+  const citeHtml = `<p class="doc-citation" data-source-id="${source.id}"><em>${escapeHtml(citation)}</em></p><p></p>`;
   const base = (doc.content || "").trim();
   const nextContent = ensureHeadingIds(
     base && base !== "<p></p>" ? `${base}${citeHtml}` : citeHtml,
@@ -536,14 +869,14 @@ export async function insertCitationIntoDocAction(input: {
   await db.docQuote.create({
     data: {
       docId: doc.id,
-      sourceId: linkedSourceId,
+      sourceId: source.id,
       text: citation,
       note: "citation",
     },
   });
 
   revalidateResearch({ docs: true, docId: doc.id });
-  return { success: true, data: { id: doc.id, sourceId: linkedSourceId } };
+  return { success: true, data: { id: doc.id, sourceId: source.id } };
 }
 
 function escapeHtml(s: string): string {
@@ -558,6 +891,8 @@ export async function annotateSourceQuoteAction(input: {
   sourceId: string;
   text: string;
   note?: string;
+  /** When set, also append the quote into this writing doc. */
+  insertIntoDocId?: string;
 }): Promise<ActionResult> {
   const session = await auth();
   if (!session?.user) return { success: false, error: "غیرمجاز" };
@@ -565,15 +900,59 @@ export async function annotateSourceQuoteAction(input: {
   const text = input.text.trim();
   if (!text) return { success: false, error: "متن نقل‌قول خالی است" };
 
+  // Promote off binder + ensure reading card so quotes land on the real note.
+  const continuity = await ensureSourceContinuityAction(input.sourceId, {
+    createReadingCard: true,
+  });
+  if (!continuity.success) {
+    return {
+      success: false,
+      error: continuity.error ?? "منبع آماده نشد",
+    };
+  }
+
   const source = await db.docSource.findFirst({
     where: { id: input.sourceId, doc: { userId: session.user.id } },
-    select: { id: true, docId: true },
+    select: { id: true, docId: true, title: true },
   });
   if (!source) return { success: false, error: "منبع پیدا نشد" };
 
+  let targetDocId = source.docId;
+  if (input.insertIntoDocId) {
+    const target = await db.doc.findFirst({
+      where: {
+        id: input.insertIntoDocId,
+        userId: session.user.id,
+        deletedAt: null,
+      },
+      select: { id: true, content: true },
+    });
+    if (!target) return { success: false, error: "سند پیدا نشد" };
+    targetDocId = target.id;
+
+    const attribution = source.title
+      ? `<footer>— ${escapeHtml(source.title)}</footer>`
+      : "";
+    const noteHtml = input.note?.trim()
+      ? `<p><em>${escapeHtml(input.note.trim())}</em></p>`
+      : "";
+    const block = `<blockquote data-source-id="${source.id}"><p>${escapeHtml(text)}</p>${attribution}${noteHtml}</blockquote><p></p>`;
+    const base = (target.content || "").trim();
+    const nextContent = ensureHeadingIds(
+      base && base !== "<p></p>" ? `${base}${block}` : block,
+    );
+    await db.doc.update({
+      where: { id: target.id },
+      data: {
+        content: nextContent,
+        contentText: htmlToPlainText(nextContent),
+      },
+    });
+  }
+
   const quote = await db.docQuote.create({
     data: {
-      docId: source.docId,
+      docId: targetDocId,
       sourceId: source.id,
       text,
       note: input.note?.trim() || null,
@@ -581,8 +960,11 @@ export async function annotateSourceQuoteAction(input: {
     select: { id: true },
   });
 
-  revalidateResearch({ docs: true, docId: source.docId });
-  return { success: true, data: { id: quote.id, docId: source.docId } };
+  revalidateResearch({ docs: true, docId: targetDocId });
+  return {
+    success: true,
+    data: { id: quote.id, docId: targetDocId },
+  };
 }
 
 function stripJats(html: string): string {

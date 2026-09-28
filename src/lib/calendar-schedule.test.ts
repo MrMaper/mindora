@@ -11,6 +11,7 @@ import {
   parseClockTime,
   rangesOverlap,
   snapMinutes,
+  startMinutesFromPointer,
   taskSpan,
   yToMinutes,
 } from "./calendar-schedule";
@@ -57,6 +58,25 @@ describe("yToMinutes / applyMinutesToDay", () => {
     expect(d.getDate()).toBe(28);
     expect(d.getHours()).toBe(2);
     expect(d.getMinutes()).toBe(30);
+  });
+});
+
+describe("startMinutesFromPointer", () => {
+  it("preserves grab offset and snaps to 15 minutes", () => {
+    const col = HOUR_HEIGHT_PX * 24;
+    // Pointer at 10:00, grabbed 30 minutes (half hour) into the block → start 9:30
+    const pointerAt10 = HOUR_HEIGHT_PX * 10;
+    const grabHalfHour = HOUR_HEIGHT_PX / 2;
+    expect(
+      startMinutesFromPointer(pointerAt10, 0, col, grabHalfHour, 60),
+    ).toBe(9 * 60 + 30);
+  });
+
+  it("clamps so the block stays inside the day", () => {
+    const col = HOUR_HEIGHT_PX * 24;
+    expect(
+      startMinutesFromPointer(col, 0, col, 0, 60),
+    ).toBe(DAY_MINUTES - 60);
   });
 });
 

@@ -21,6 +21,7 @@ export function toTaskRow(task: {
   type: string;
   dueDate: Date | null;
   durationMinutes?: number | null;
+  waitingOn?: boolean;
   position: number;
   createdAt: Date;
   updatedAt: Date;
@@ -42,6 +43,7 @@ export function toTaskRow(task: {
     type: task.type as TaskRow["type"],
     dueDate: task.dueDate,
     durationMinutes: task.durationMinutes ?? null,
+    waitingOn: task.waitingOn ?? false,
     position: task.position,
     createdAt: task.createdAt,
     updatedAt: task.updatedAt,
@@ -128,6 +130,7 @@ export async function getTasks(
     type: true,
     dueDate: true,
     durationMinutes: true,
+    waitingOn: true,
     position: true,
     createdAt: true,
     updatedAt: true,
@@ -201,6 +204,7 @@ export async function getTaskById(id: string): Promise<TaskDetail | null> {
       type: true,
       dueDate: true,
       durationMinutes: true,
+      waitingOn: true,
       position: true,
       createdAt: true,
       updatedAt: true,

@@ -22,6 +22,7 @@ import {
   minutesFromMidnight,
   minutesToY,
   snapMinutes,
+  startMinutesFromPointer,
   taskSpan,
   yToMinutes,
 } from "@/lib/calendar-schedule";
@@ -29,7 +30,15 @@ import { AREA_VISUAL } from "@/lib/area-visual";
 import type { TaskRow } from "@/features/tasks/types";
 import type { LifeArea } from "@/types/db";
 
+export type HourDragPreview = {
+  dateKey: string;
+  startMin: number;
+  durationMin: number;
+  title?: string;
+};
+
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
+const SLOTS_PER_DAY = DAY_MINUTES / SNAP_MINUTES;
 const COLUMN_HEIGHT = HOUR_HEIGHT_PX * 24;
 
 const AREA_CHIP: Record<LifeArea, string> = {
@@ -271,15 +280,29 @@ function AllDayDropZone({
 
 function HoursDropZone({
   dateKey,
+  preview,
   children,
 }: {
   dateKey: string;
+  preview?: HourDragPreview | null;
   children: React.ReactNode;
 }) {
   const { setNodeRef, isOver } = useDroppable({
     id: hoursDropId(dateKey),
     data: { type: "hours" as const, dateKey },
   });
+
+  const showPreview = preview && preview.dateKey === dateKey;
+  const previewTop = showPreview
+    ? minutesToY(preview.startMin, COLUMN_HEIGHT)
+    : 0;
+  const previewHeight = showPreview
+    ? clampBlockHeight(
+        previewTop,
+        durationToHeight(preview.durationMin),
+        COLUMN_HEIGHT,
+      )
+    : 0;
 
   return (
     <div
@@ -291,14 +314,38 @@ function HoursDropZone({
       )}
       style={{ height: COLUMN_HEIGHT }}
     >
-      {HOURS.map(hour => (
-        <div
-          key={hour}
-          className="absolute inset-x-0 border-b border-border/60 pointer-events-none"
-          style={{ top: hour * HOUR_HEIGHT_PX, height: HOUR_HEIGHT_PX }}
-        />
-      ))}
+      {Array.from({ length: SLOTS_PER_DAY }, (_, i) => {
+        const minutes = i * SNAP_MINUTES;
+        const isHour = minutes % 60 === 0;
+        const isHalf = minutes % 60 === 30;
+        return (
+          <div
+            key={minutes}
+            aria-hidden
+            className={cn(
+              "absolute inset-x-0 pointer-events-none border-t",
+              isHour
+                ? "border-border/70"
+                : isHalf
+                  ? "border-border/40"
+                  : "border-border/20",
+            )}
+            style={{ top: minutesToY(minutes, COLUMN_HEIGHT) }}
+          />
+        );
+      })}
       {children}
+      {showPreview ? (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0.5 z-[3] overflow-hidden rounded-md border-2 border-primary bg-primary/20 px-1 py-0.5 text-[11px] font-medium text-primary shadow-sm"
+          style={{ top: previewTop, height: previewHeight }}
+        >
+          {preview.title ? (
+            <span className="line-clamp-2 opacity-90">{preview.title}</span>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -313,6 +360,7 @@ function DayColumn({
   dayNumber,
   today,
   wide,
+  dragPreview,
   onSelect,
   onOpenTask,
   onResizePreview,
@@ -327,6 +375,7 @@ function DayColumn({
   dayNumber: string;
   today: Date;
   wide?: boolean;
+  dragPreview?: HourDragPreview | null;
   onSelect: () => void;
   onOpenTask: (task: TaskRow) => void;
   onResizePreview: (taskId: string, durationMinutes: number) => void;
@@ -388,7 +437,7 @@ function DayColumn({
         ))}
       </AllDayDropZone>
 
-      <HoursDropZone dateKey={key}>
+      <HoursDropZone dateKey={key} preview={dragPreview}>
         {timed.map(task => (
           <TimedBlock
             key={task.id}
@@ -435,6 +484,7 @@ export function WeekHourGrid({
   weekdays,
   language,
   mode = "week",
+  dragPreview = null,
   onSelectDay,
   onOpenTask,
   onResizePreview,
@@ -447,6 +497,7 @@ export function WeekHourGrid({
   weekdays: string[];
   language: "FA" | "EN";
   mode?: "week" | "day";
+  dragPreview?: HourDragPreview | null;
   onSelectDay: (date: Date) => void;
   onOpenTask: (task: TaskRow, date: Date) => void;
   onResizePreview: (taskId: string, durationMinutes: number) => void;
@@ -499,7 +550,7 @@ export function WeekHourGrid({
         ))}
       </div>
 
-      <div ref={scrollRef} className="min-h-0 flex-1 overflow-auto">
+      <div ref={scrollRef} data-hour-scroll className="min-h-0 flex-1 overflow-auto">
         <div className={cn("grid", gridCols)}>
           <TimeGutter language={language} />
           {visibleCells.map((date, index) => {
@@ -517,6 +568,7 @@ export function WeekHourGrid({
                 dayNumber={formatNumber(jalali.jd, language)}
                 today={today}
                 wide={mode === "day"}
+                dragPreview={dragPreview}
                 onSelect={() => onSelectDay(date)}
                 onOpenTask={task => onOpenTask(task, date)}
                 onResizePreview={onResizePreview}
@@ -539,7 +591,25 @@ export function minutesFromClientY(
   return yToMinutes(clientY - columnTop, columnHeight);
 }
 
-/** @deprecated prefer minutesFromClientY with over.rect */
+/** Find the hours column under a pointer (scroll-accurate). */
+export function findHoursColumnAtPoint(
+  clientX: number,
+  clientY: number,
+): { dateKey: string; rect: DOMRect } | null {
+  if (typeof document === "undefined") return null;
+  const stack = document.elementsFromPoint(clientX, clientY);
+  for (const el of stack) {
+    if (!(el instanceof Element)) continue;
+    const col = el.closest("[data-day-hours]") as HTMLElement | null;
+    const dateKey = col?.dataset.dayHours;
+    if (col && dateKey) {
+      return { dateKey, rect: col.getBoundingClientRect() };
+    }
+  }
+  return null;
+}
+
+/** @deprecated prefer findHoursColumnAtPoint + startMinutesFromPointer */
 export function minutesFromDragEnd(
   dateKey: string,
   clientY: number,
@@ -551,3 +621,5 @@ export function minutesFromDragEnd(
   const rect = el.getBoundingClientRect();
   return minutesFromClientY(clientY, rect.top, rect.height);
 }
+
+export { startMinutesFromPointer };

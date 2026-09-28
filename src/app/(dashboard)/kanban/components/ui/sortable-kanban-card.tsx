@@ -117,6 +117,11 @@ export function SortableKanbanCard({
           onClick={onClick}
         />
       </div>
+      {task.waitingOn ? (
+        <span className="mx-1 inline-flex w-fit rounded border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-400">
+          {t.tasks.waitingOn}
+        </span>
+      ) : null}
 
       <div
         className="flex items-center gap-1 px-1"

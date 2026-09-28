@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui-kit/forms/textarea";
 import { Select } from "@/components/ui-kit/forms/select";
 import type { SelectOption } from "@/components/ui-kit/forms/select";
 import { DatePicker } from "@/components/ui-kit/forms/date-picker";
+import { Checkbox } from "@/components/ui-kit/forms/checkbox";
 import {
   DURATION_PRESETS,
   formatDurationLabel,
@@ -328,6 +329,22 @@ export function TaskFormFields({
               />
             );
           }}
+        />
+        <Controller
+          name="waitingOn"
+          control={control}
+          render={({ field }) => (
+            <div className="col-span-2 flex flex-col gap-1 rounded-lg border border-dashed px-3 py-2">
+              <Checkbox
+                checked={field.value === "1" || field.value === "true"}
+                onChange={checked => field.onChange(checked ? "1" : "")}
+                label={t.tasks.waitingOn}
+              />
+              <p className="text-[11px] text-muted-foreground leading-snug ps-6">
+                {t.tasks.waitingOnHint}
+              </p>
+            </div>
+          )}
         />
         {showDuration ? (
           <Controller

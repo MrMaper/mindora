@@ -6,6 +6,7 @@ import { prisma as db } from "@/lib/db";
 import { notify } from "@/lib/notify";
 import type { BoardStatus } from "./types";
 import { spawnNextIfRecurring } from "@/features/life/recurrence";
+import { syncResearchLinksFromTaskStatus } from "@/features/research/sync-links";
 
 export interface ActionResult {
   success: boolean;
@@ -68,6 +69,8 @@ export async function moveTask(params: {
       newValue: { status: params.toStatus },
     });
 
+    await syncResearchLinksFromTaskStatus(params.taskId, params.toStatus);
+
     if (params.toStatus === "DONE") {
       await spawnNextIfRecurring(params.taskId, session.user.id);
     }
@@ -85,5 +88,6 @@ export async function moveTask(params: {
   revalidatePath("/kanban");
   revalidatePath("/tasks");
   revalidatePath("/dashboard");
+  revalidatePath("/research");
   return { success: true };
 }

@@ -36,6 +36,7 @@ export type DocSourceMinAggregateOutputType = {
   fileUrl: string | null
   fileName: string | null
   readingStatus: $Enums.SourceReadingStatus | null
+  projectId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -52,6 +53,7 @@ export type DocSourceMaxAggregateOutputType = {
   fileUrl: string | null
   fileName: string | null
   readingStatus: $Enums.SourceReadingStatus | null
+  projectId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -68,6 +70,7 @@ export type DocSourceCountAggregateOutputType = {
   fileUrl: number
   fileName: number
   readingStatus: number
+  projectId: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -86,6 +89,7 @@ export type DocSourceMinAggregateInputType = {
   fileUrl?: true
   fileName?: true
   readingStatus?: true
+  projectId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -102,6 +106,7 @@ export type DocSourceMaxAggregateInputType = {
   fileUrl?: true
   fileName?: true
   readingStatus?: true
+  projectId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -118,6 +123,7 @@ export type DocSourceCountAggregateInputType = {
   fileUrl?: true
   fileName?: true
   readingStatus?: true
+  projectId?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -207,6 +213,7 @@ export type DocSourceGroupByOutputType = {
   fileUrl: string | null
   fileName: string | null
   readingStatus: $Enums.SourceReadingStatus
+  projectId: string | null
   createdAt: Date
   updatedAt: Date
   _count: DocSourceCountAggregateOutputType | null
@@ -244,9 +251,11 @@ export type DocSourceWhereInput = {
   fileUrl?: Prisma.StringNullableFilter<"DocSource"> | string | null
   fileName?: Prisma.StringNullableFilter<"DocSource"> | string | null
   readingStatus?: Prisma.EnumSourceReadingStatusFilter<"DocSource"> | $Enums.SourceReadingStatus
+  projectId?: Prisma.StringNullableFilter<"DocSource"> | string | null
   createdAt?: Prisma.DateTimeFilter<"DocSource"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DocSource"> | Date | string
   doc?: Prisma.XOR<Prisma.DocScalarRelationFilter, Prisma.DocWhereInput>
+  project?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
   quotes?: Prisma.DocQuoteListRelationFilter
 }
 
@@ -262,9 +271,11 @@ export type DocSourceOrderByWithRelationInput = {
   fileUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   fileName?: Prisma.SortOrderInput | Prisma.SortOrder
   readingStatus?: Prisma.SortOrder
+  projectId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   doc?: Prisma.DocOrderByWithRelationInput
+  project?: Prisma.ProjectOrderByWithRelationInput
   quotes?: Prisma.DocQuoteOrderByRelationAggregateInput
 }
 
@@ -283,9 +294,11 @@ export type DocSourceWhereUniqueInput = Prisma.AtLeast<{
   fileUrl?: Prisma.StringNullableFilter<"DocSource"> | string | null
   fileName?: Prisma.StringNullableFilter<"DocSource"> | string | null
   readingStatus?: Prisma.EnumSourceReadingStatusFilter<"DocSource"> | $Enums.SourceReadingStatus
+  projectId?: Prisma.StringNullableFilter<"DocSource"> | string | null
   createdAt?: Prisma.DateTimeFilter<"DocSource"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DocSource"> | Date | string
   doc?: Prisma.XOR<Prisma.DocScalarRelationFilter, Prisma.DocWhereInput>
+  project?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
   quotes?: Prisma.DocQuoteListRelationFilter
 }, "id">
 
@@ -301,6 +314,7 @@ export type DocSourceOrderByWithAggregationInput = {
   fileUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   fileName?: Prisma.SortOrderInput | Prisma.SortOrder
   readingStatus?: Prisma.SortOrder
+  projectId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.DocSourceCountOrderByAggregateInput
@@ -323,6 +337,7 @@ export type DocSourceScalarWhereWithAggregatesInput = {
   fileUrl?: Prisma.StringNullableWithAggregatesFilter<"DocSource"> | string | null
   fileName?: Prisma.StringNullableWithAggregatesFilter<"DocSource"> | string | null
   readingStatus?: Prisma.EnumSourceReadingStatusWithAggregatesFilter<"DocSource"> | $Enums.SourceReadingStatus
+  projectId?: Prisma.StringNullableWithAggregatesFilter<"DocSource"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"DocSource"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"DocSource"> | Date | string
 }
@@ -341,6 +356,7 @@ export type DocSourceCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   doc: Prisma.DocCreateNestedOneWithoutSourcesInput
+  project?: Prisma.ProjectCreateNestedOneWithoutSourcesInput
   quotes?: Prisma.DocQuoteCreateNestedManyWithoutSourceInput
 }
 
@@ -356,6 +372,7 @@ export type DocSourceUncheckedCreateInput = {
   fileUrl?: string | null
   fileName?: string | null
   readingStatus?: $Enums.SourceReadingStatus
+  projectId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   quotes?: Prisma.DocQuoteUncheckedCreateNestedManyWithoutSourceInput
@@ -375,6 +392,7 @@ export type DocSourceUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   doc?: Prisma.DocUpdateOneRequiredWithoutSourcesNestedInput
+  project?: Prisma.ProjectUpdateOneWithoutSourcesNestedInput
   quotes?: Prisma.DocQuoteUpdateManyWithoutSourceNestedInput
 }
 
@@ -390,6 +408,7 @@ export type DocSourceUncheckedUpdateInput = {
   fileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   readingStatus?: Prisma.EnumSourceReadingStatusFieldUpdateOperationsInput | $Enums.SourceReadingStatus
+  projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   quotes?: Prisma.DocQuoteUncheckedUpdateManyWithoutSourceNestedInput
@@ -407,6 +426,7 @@ export type DocSourceCreateManyInput = {
   fileUrl?: string | null
   fileName?: string | null
   readingStatus?: $Enums.SourceReadingStatus
+  projectId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -438,6 +458,7 @@ export type DocSourceUncheckedUpdateManyInput = {
   fileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   readingStatus?: Prisma.EnumSourceReadingStatusFieldUpdateOperationsInput | $Enums.SourceReadingStatus
+  projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -464,6 +485,7 @@ export type DocSourceCountOrderByAggregateInput = {
   fileUrl?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
   readingStatus?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -480,6 +502,7 @@ export type DocSourceMaxOrderByAggregateInput = {
   fileUrl?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
   readingStatus?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -496,6 +519,7 @@ export type DocSourceMinOrderByAggregateInput = {
   fileUrl?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
   readingStatus?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -503,6 +527,48 @@ export type DocSourceMinOrderByAggregateInput = {
 export type DocSourceNullableScalarRelationFilter = {
   is?: Prisma.DocSourceWhereInput | null
   isNot?: Prisma.DocSourceWhereInput | null
+}
+
+export type DocSourceCreateNestedManyWithoutProjectInput = {
+  create?: Prisma.XOR<Prisma.DocSourceCreateWithoutProjectInput, Prisma.DocSourceUncheckedCreateWithoutProjectInput> | Prisma.DocSourceCreateWithoutProjectInput[] | Prisma.DocSourceUncheckedCreateWithoutProjectInput[]
+  connectOrCreate?: Prisma.DocSourceCreateOrConnectWithoutProjectInput | Prisma.DocSourceCreateOrConnectWithoutProjectInput[]
+  createMany?: Prisma.DocSourceCreateManyProjectInputEnvelope
+  connect?: Prisma.DocSourceWhereUniqueInput | Prisma.DocSourceWhereUniqueInput[]
+}
+
+export type DocSourceUncheckedCreateNestedManyWithoutProjectInput = {
+  create?: Prisma.XOR<Prisma.DocSourceCreateWithoutProjectInput, Prisma.DocSourceUncheckedCreateWithoutProjectInput> | Prisma.DocSourceCreateWithoutProjectInput[] | Prisma.DocSourceUncheckedCreateWithoutProjectInput[]
+  connectOrCreate?: Prisma.DocSourceCreateOrConnectWithoutProjectInput | Prisma.DocSourceCreateOrConnectWithoutProjectInput[]
+  createMany?: Prisma.DocSourceCreateManyProjectInputEnvelope
+  connect?: Prisma.DocSourceWhereUniqueInput | Prisma.DocSourceWhereUniqueInput[]
+}
+
+export type DocSourceUpdateManyWithoutProjectNestedInput = {
+  create?: Prisma.XOR<Prisma.DocSourceCreateWithoutProjectInput, Prisma.DocSourceUncheckedCreateWithoutProjectInput> | Prisma.DocSourceCreateWithoutProjectInput[] | Prisma.DocSourceUncheckedCreateWithoutProjectInput[]
+  connectOrCreate?: Prisma.DocSourceCreateOrConnectWithoutProjectInput | Prisma.DocSourceCreateOrConnectWithoutProjectInput[]
+  upsert?: Prisma.DocSourceUpsertWithWhereUniqueWithoutProjectInput | Prisma.DocSourceUpsertWithWhereUniqueWithoutProjectInput[]
+  createMany?: Prisma.DocSourceCreateManyProjectInputEnvelope
+  set?: Prisma.DocSourceWhereUniqueInput | Prisma.DocSourceWhereUniqueInput[]
+  disconnect?: Prisma.DocSourceWhereUniqueInput | Prisma.DocSourceWhereUniqueInput[]
+  delete?: Prisma.DocSourceWhereUniqueInput | Prisma.DocSourceWhereUniqueInput[]
+  connect?: Prisma.DocSourceWhereUniqueInput | Prisma.DocSourceWhereUniqueInput[]
+  update?: Prisma.DocSourceUpdateWithWhereUniqueWithoutProjectInput | Prisma.DocSourceUpdateWithWhereUniqueWithoutProjectInput[]
+  updateMany?: Prisma.DocSourceUpdateManyWithWhereWithoutProjectInput | Prisma.DocSourceUpdateManyWithWhereWithoutProjectInput[]
+  deleteMany?: Prisma.DocSourceScalarWhereInput | Prisma.DocSourceScalarWhereInput[]
+}
+
+export type DocSourceUncheckedUpdateManyWithoutProjectNestedInput = {
+  create?: Prisma.XOR<Prisma.DocSourceCreateWithoutProjectInput, Prisma.DocSourceUncheckedCreateWithoutProjectInput> | Prisma.DocSourceCreateWithoutProjectInput[] | Prisma.DocSourceUncheckedCreateWithoutProjectInput[]
+  connectOrCreate?: Prisma.DocSourceCreateOrConnectWithoutProjectInput | Prisma.DocSourceCreateOrConnectWithoutProjectInput[]
+  upsert?: Prisma.DocSourceUpsertWithWhereUniqueWithoutProjectInput | Prisma.DocSourceUpsertWithWhereUniqueWithoutProjectInput[]
+  createMany?: Prisma.DocSourceCreateManyProjectInputEnvelope
+  set?: Prisma.DocSourceWhereUniqueInput | Prisma.DocSourceWhereUniqueInput[]
+  disconnect?: Prisma.DocSourceWhereUniqueInput | Prisma.DocSourceWhereUniqueInput[]
+  delete?: Prisma.DocSourceWhereUniqueInput | Prisma.DocSourceWhereUniqueInput[]
+  connect?: Prisma.DocSourceWhereUniqueInput | Prisma.DocSourceWhereUniqueInput[]
+  update?: Prisma.DocSourceUpdateWithWhereUniqueWithoutProjectInput | Prisma.DocSourceUpdateWithWhereUniqueWithoutProjectInput[]
+  updateMany?: Prisma.DocSourceUpdateManyWithWhereWithoutProjectInput | Prisma.DocSourceUpdateManyWithWhereWithoutProjectInput[]
+  deleteMany?: Prisma.DocSourceScalarWhereInput | Prisma.DocSourceScalarWhereInput[]
 }
 
 export type DocSourceCreateNestedManyWithoutDocInput = {
@@ -567,6 +633,86 @@ export type DocSourceUpdateOneWithoutQuotesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.DocSourceUpdateToOneWithWhereWithoutQuotesInput, Prisma.DocSourceUpdateWithoutQuotesInput>, Prisma.DocSourceUncheckedUpdateWithoutQuotesInput>
 }
 
+export type DocSourceCreateWithoutProjectInput = {
+  id?: string
+  title: string
+  authors?: string | null
+  url?: string | null
+  year?: string | null
+  doi?: string | null
+  notes?: string | null
+  fileUrl?: string | null
+  fileName?: string | null
+  readingStatus?: $Enums.SourceReadingStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  doc: Prisma.DocCreateNestedOneWithoutSourcesInput
+  quotes?: Prisma.DocQuoteCreateNestedManyWithoutSourceInput
+}
+
+export type DocSourceUncheckedCreateWithoutProjectInput = {
+  id?: string
+  docId: string
+  title: string
+  authors?: string | null
+  url?: string | null
+  year?: string | null
+  doi?: string | null
+  notes?: string | null
+  fileUrl?: string | null
+  fileName?: string | null
+  readingStatus?: $Enums.SourceReadingStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  quotes?: Prisma.DocQuoteUncheckedCreateNestedManyWithoutSourceInput
+}
+
+export type DocSourceCreateOrConnectWithoutProjectInput = {
+  where: Prisma.DocSourceWhereUniqueInput
+  create: Prisma.XOR<Prisma.DocSourceCreateWithoutProjectInput, Prisma.DocSourceUncheckedCreateWithoutProjectInput>
+}
+
+export type DocSourceCreateManyProjectInputEnvelope = {
+  data: Prisma.DocSourceCreateManyProjectInput | Prisma.DocSourceCreateManyProjectInput[]
+  skipDuplicates?: boolean
+}
+
+export type DocSourceUpsertWithWhereUniqueWithoutProjectInput = {
+  where: Prisma.DocSourceWhereUniqueInput
+  update: Prisma.XOR<Prisma.DocSourceUpdateWithoutProjectInput, Prisma.DocSourceUncheckedUpdateWithoutProjectInput>
+  create: Prisma.XOR<Prisma.DocSourceCreateWithoutProjectInput, Prisma.DocSourceUncheckedCreateWithoutProjectInput>
+}
+
+export type DocSourceUpdateWithWhereUniqueWithoutProjectInput = {
+  where: Prisma.DocSourceWhereUniqueInput
+  data: Prisma.XOR<Prisma.DocSourceUpdateWithoutProjectInput, Prisma.DocSourceUncheckedUpdateWithoutProjectInput>
+}
+
+export type DocSourceUpdateManyWithWhereWithoutProjectInput = {
+  where: Prisma.DocSourceScalarWhereInput
+  data: Prisma.XOR<Prisma.DocSourceUpdateManyMutationInput, Prisma.DocSourceUncheckedUpdateManyWithoutProjectInput>
+}
+
+export type DocSourceScalarWhereInput = {
+  AND?: Prisma.DocSourceScalarWhereInput | Prisma.DocSourceScalarWhereInput[]
+  OR?: Prisma.DocSourceScalarWhereInput[]
+  NOT?: Prisma.DocSourceScalarWhereInput | Prisma.DocSourceScalarWhereInput[]
+  id?: Prisma.StringFilter<"DocSource"> | string
+  docId?: Prisma.StringFilter<"DocSource"> | string
+  title?: Prisma.StringFilter<"DocSource"> | string
+  authors?: Prisma.StringNullableFilter<"DocSource"> | string | null
+  url?: Prisma.StringNullableFilter<"DocSource"> | string | null
+  year?: Prisma.StringNullableFilter<"DocSource"> | string | null
+  doi?: Prisma.StringNullableFilter<"DocSource"> | string | null
+  notes?: Prisma.StringNullableFilter<"DocSource"> | string | null
+  fileUrl?: Prisma.StringNullableFilter<"DocSource"> | string | null
+  fileName?: Prisma.StringNullableFilter<"DocSource"> | string | null
+  readingStatus?: Prisma.EnumSourceReadingStatusFilter<"DocSource"> | $Enums.SourceReadingStatus
+  projectId?: Prisma.StringNullableFilter<"DocSource"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"DocSource"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"DocSource"> | Date | string
+}
+
 export type DocSourceCreateWithoutDocInput = {
   id?: string
   title: string
@@ -580,6 +726,7 @@ export type DocSourceCreateWithoutDocInput = {
   readingStatus?: $Enums.SourceReadingStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  project?: Prisma.ProjectCreateNestedOneWithoutSourcesInput
   quotes?: Prisma.DocQuoteCreateNestedManyWithoutSourceInput
 }
 
@@ -594,6 +741,7 @@ export type DocSourceUncheckedCreateWithoutDocInput = {
   fileUrl?: string | null
   fileName?: string | null
   readingStatus?: $Enums.SourceReadingStatus
+  projectId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   quotes?: Prisma.DocQuoteUncheckedCreateNestedManyWithoutSourceInput
@@ -625,25 +773,6 @@ export type DocSourceUpdateManyWithWhereWithoutDocInput = {
   data: Prisma.XOR<Prisma.DocSourceUpdateManyMutationInput, Prisma.DocSourceUncheckedUpdateManyWithoutDocInput>
 }
 
-export type DocSourceScalarWhereInput = {
-  AND?: Prisma.DocSourceScalarWhereInput | Prisma.DocSourceScalarWhereInput[]
-  OR?: Prisma.DocSourceScalarWhereInput[]
-  NOT?: Prisma.DocSourceScalarWhereInput | Prisma.DocSourceScalarWhereInput[]
-  id?: Prisma.StringFilter<"DocSource"> | string
-  docId?: Prisma.StringFilter<"DocSource"> | string
-  title?: Prisma.StringFilter<"DocSource"> | string
-  authors?: Prisma.StringNullableFilter<"DocSource"> | string | null
-  url?: Prisma.StringNullableFilter<"DocSource"> | string | null
-  year?: Prisma.StringNullableFilter<"DocSource"> | string | null
-  doi?: Prisma.StringNullableFilter<"DocSource"> | string | null
-  notes?: Prisma.StringNullableFilter<"DocSource"> | string | null
-  fileUrl?: Prisma.StringNullableFilter<"DocSource"> | string | null
-  fileName?: Prisma.StringNullableFilter<"DocSource"> | string | null
-  readingStatus?: Prisma.EnumSourceReadingStatusFilter<"DocSource"> | $Enums.SourceReadingStatus
-  createdAt?: Prisma.DateTimeFilter<"DocSource"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"DocSource"> | Date | string
-}
-
 export type DocSourceCreateWithoutQuotesInput = {
   id?: string
   title: string
@@ -658,6 +787,7 @@ export type DocSourceCreateWithoutQuotesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   doc: Prisma.DocCreateNestedOneWithoutSourcesInput
+  project?: Prisma.ProjectCreateNestedOneWithoutSourcesInput
 }
 
 export type DocSourceUncheckedCreateWithoutQuotesInput = {
@@ -672,6 +802,7 @@ export type DocSourceUncheckedCreateWithoutQuotesInput = {
   fileUrl?: string | null
   fileName?: string | null
   readingStatus?: $Enums.SourceReadingStatus
+  projectId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -706,9 +837,77 @@ export type DocSourceUpdateWithoutQuotesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   doc?: Prisma.DocUpdateOneRequiredWithoutSourcesNestedInput
+  project?: Prisma.ProjectUpdateOneWithoutSourcesNestedInput
 }
 
 export type DocSourceUncheckedUpdateWithoutQuotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  docId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  authors?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  year?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  doi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  readingStatus?: Prisma.EnumSourceReadingStatusFieldUpdateOperationsInput | $Enums.SourceReadingStatus
+  projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type DocSourceCreateManyProjectInput = {
+  id?: string
+  docId: string
+  title: string
+  authors?: string | null
+  url?: string | null
+  year?: string | null
+  doi?: string | null
+  notes?: string | null
+  fileUrl?: string | null
+  fileName?: string | null
+  readingStatus?: $Enums.SourceReadingStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type DocSourceUpdateWithoutProjectInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  authors?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  year?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  doi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  readingStatus?: Prisma.EnumSourceReadingStatusFieldUpdateOperationsInput | $Enums.SourceReadingStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  doc?: Prisma.DocUpdateOneRequiredWithoutSourcesNestedInput
+  quotes?: Prisma.DocQuoteUpdateManyWithoutSourceNestedInput
+}
+
+export type DocSourceUncheckedUpdateWithoutProjectInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  docId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  authors?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  year?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  doi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  readingStatus?: Prisma.EnumSourceReadingStatusFieldUpdateOperationsInput | $Enums.SourceReadingStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  quotes?: Prisma.DocQuoteUncheckedUpdateManyWithoutSourceNestedInput
+}
+
+export type DocSourceUncheckedUpdateManyWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   docId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
@@ -735,6 +934,7 @@ export type DocSourceCreateManyDocInput = {
   fileUrl?: string | null
   fileName?: string | null
   readingStatus?: $Enums.SourceReadingStatus
+  projectId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -752,6 +952,7 @@ export type DocSourceUpdateWithoutDocInput = {
   readingStatus?: Prisma.EnumSourceReadingStatusFieldUpdateOperationsInput | $Enums.SourceReadingStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  project?: Prisma.ProjectUpdateOneWithoutSourcesNestedInput
   quotes?: Prisma.DocQuoteUpdateManyWithoutSourceNestedInput
 }
 
@@ -766,6 +967,7 @@ export type DocSourceUncheckedUpdateWithoutDocInput = {
   fileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   readingStatus?: Prisma.EnumSourceReadingStatusFieldUpdateOperationsInput | $Enums.SourceReadingStatus
+  projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   quotes?: Prisma.DocQuoteUncheckedUpdateManyWithoutSourceNestedInput
@@ -782,6 +984,7 @@ export type DocSourceUncheckedUpdateManyWithoutDocInput = {
   fileUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   readingStatus?: Prisma.EnumSourceReadingStatusFieldUpdateOperationsInput | $Enums.SourceReadingStatus
+  projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -829,9 +1032,11 @@ export type DocSourceSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   fileUrl?: boolean
   fileName?: boolean
   readingStatus?: boolean
+  projectId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   doc?: boolean | Prisma.DocDefaultArgs<ExtArgs>
+  project?: boolean | Prisma.DocSource$projectArgs<ExtArgs>
   quotes?: boolean | Prisma.DocSource$quotesArgs<ExtArgs>
   _count?: boolean | Prisma.DocSourceCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["docSource"]>
@@ -848,9 +1053,11 @@ export type DocSourceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   fileUrl?: boolean
   fileName?: boolean
   readingStatus?: boolean
+  projectId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   doc?: boolean | Prisma.DocDefaultArgs<ExtArgs>
+  project?: boolean | Prisma.DocSource$projectArgs<ExtArgs>
 }, ExtArgs["result"]["docSource"]>
 
 export type DocSourceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -865,9 +1072,11 @@ export type DocSourceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   fileUrl?: boolean
   fileName?: boolean
   readingStatus?: boolean
+  projectId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   doc?: boolean | Prisma.DocDefaultArgs<ExtArgs>
+  project?: boolean | Prisma.DocSource$projectArgs<ExtArgs>
 }, ExtArgs["result"]["docSource"]>
 
 export type DocSourceSelectScalar = {
@@ -882,27 +1091,32 @@ export type DocSourceSelectScalar = {
   fileUrl?: boolean
   fileName?: boolean
   readingStatus?: boolean
+  projectId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type DocSourceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "docId" | "title" | "authors" | "url" | "year" | "doi" | "notes" | "fileUrl" | "fileName" | "readingStatus" | "createdAt" | "updatedAt", ExtArgs["result"]["docSource"]>
+export type DocSourceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "docId" | "title" | "authors" | "url" | "year" | "doi" | "notes" | "fileUrl" | "fileName" | "readingStatus" | "projectId" | "createdAt" | "updatedAt", ExtArgs["result"]["docSource"]>
 export type DocSourceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   doc?: boolean | Prisma.DocDefaultArgs<ExtArgs>
+  project?: boolean | Prisma.DocSource$projectArgs<ExtArgs>
   quotes?: boolean | Prisma.DocSource$quotesArgs<ExtArgs>
   _count?: boolean | Prisma.DocSourceCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type DocSourceIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   doc?: boolean | Prisma.DocDefaultArgs<ExtArgs>
+  project?: boolean | Prisma.DocSource$projectArgs<ExtArgs>
 }
 export type DocSourceIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   doc?: boolean | Prisma.DocDefaultArgs<ExtArgs>
+  project?: boolean | Prisma.DocSource$projectArgs<ExtArgs>
 }
 
 export type $DocSourcePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "DocSource"
   objects: {
     doc: Prisma.$DocPayload<ExtArgs>
+    project: Prisma.$ProjectPayload<ExtArgs> | null
     quotes: Prisma.$DocQuotePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -920,6 +1134,10 @@ export type $DocSourcePayload<ExtArgs extends runtime.Types.Extensions.InternalA
     fileUrl: string | null
     fileName: string | null
     readingStatus: $Enums.SourceReadingStatus
+    /**
+     * Research path this source belongs to (null = PhD inbox). Independent of host doc.
+     */
+    projectId: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["docSource"]>
@@ -1317,6 +1535,7 @@ readonly fields: DocSourceFieldRefs;
 export interface Prisma__DocSourceClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   doc<T extends Prisma.DocDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DocDefaultArgs<ExtArgs>>): Prisma.Prisma__DocClient<runtime.Types.Result.GetResult<Prisma.$DocPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  project<T extends Prisma.DocSource$projectArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DocSource$projectArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   quotes<T extends Prisma.DocSource$quotesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DocSource$quotesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DocQuotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1358,6 +1577,7 @@ export interface DocSourceFieldRefs {
   readonly fileUrl: Prisma.FieldRef<"DocSource", 'String'>
   readonly fileName: Prisma.FieldRef<"DocSource", 'String'>
   readonly readingStatus: Prisma.FieldRef<"DocSource", 'SourceReadingStatus'>
+  readonly projectId: Prisma.FieldRef<"DocSource", 'String'>
   readonly createdAt: Prisma.FieldRef<"DocSource", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"DocSource", 'DateTime'>
 }
@@ -1758,6 +1978,25 @@ export type DocSourceDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Limit how many DocSources to delete.
    */
   limit?: number
+}
+
+/**
+ * DocSource.project
+ */
+export type DocSource$projectArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Project
+   */
+  select?: Prisma.ProjectSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Project
+   */
+  omit?: Prisma.ProjectOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectInclude<ExtArgs> | null
+  where?: Prisma.ProjectWhereInput
 }
 
 /**

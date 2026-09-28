@@ -17,6 +17,7 @@ export interface UserPreferencesData {
   notifySprintEnded: boolean;
   notifyDeadlineApproaching: boolean;
   notifyStatusChanged: boolean;
+  batchDeadlineReminders: boolean;
   baleDigestHour: number;
   baleHabitHour: number;
   onboardingCompletedAt: Date | null;
@@ -46,6 +47,7 @@ export async function getUserPreferences(
       notifySprintEnded: true,
       notifyDeadlineApproaching: true,
       notifyStatusChanged: true,
+      batchDeadlineReminders: true,
       baleDigestHour: true,
       baleHabitHour: true,
       onboardingCompletedAt: true,

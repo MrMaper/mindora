@@ -3983,6 +3983,7 @@ export const UserPreferencesScalarFieldEnum = {
   todayFocusDate: 'todayFocusDate',
   todayFocusIds: 'todayFocusIds',
   onboardingCompletedAt: 'onboardingCompletedAt',
+  batchDeadlineReminders: 'batchDeadlineReminders',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -4117,6 +4118,7 @@ export const TaskScalarFieldEnum = {
   estimate: 'estimate',
   dueDate: 'dueDate',
   durationMinutes: 'durationMinutes',
+  waitingOn: 'waitingOn',
   position: 'position',
   area: 'area',
   recurrence: 'recurrence',
@@ -4349,6 +4351,7 @@ export const DocSourceScalarFieldEnum = {
   fileUrl: 'fileUrl',
   fileName: 'fileName',
   readingStatus: 'readingStatus',
+  projectId: 'projectId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

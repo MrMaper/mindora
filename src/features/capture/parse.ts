@@ -2,7 +2,7 @@ import { addDays, startOfDay, toDateKey } from "@/lib/life";
 import type { LifeArea, RecurrenceInterval } from "@/types/db";
 
 export type CaptureKind = "task" | "note" | "habit";
-export type CaptureCommand = "task" | "note" | "research" | "habit";
+export type CaptureCommand = "task" | "note" | "research" | "source" | "habit";
 
 export interface ParsedCapture {
   kind: CaptureKind;
@@ -16,6 +16,10 @@ export interface ParsedCapture {
   /** Meeting length in minutes when the sentence names one. */
   durationMinutes: number | null;
   recurrence: RecurrenceInterval;
+  /** DOI extracted when the sentence looks like a paper/source capture. */
+  doi: string | null;
+  /** URL extracted for source capture. */
+  url: string | null;
 }
 
 const DIGIT_MAP: Record<string, string> = {
@@ -61,10 +65,12 @@ const COMMANDS: Record<string, CaptureCommand> = {
   note: "note",
   idea: "note",
   research: "research",
+  source: "source",
   habit: "habit",
   یادداشت: "note",
   ایده: "note",
   پژوهش: "research",
+  منبع: "source",
   عادت: "habit",
 };
 
@@ -347,7 +353,7 @@ function detectArea(scan: string): LifeArea {
 
 function takeCommand(pair: Pair): { pair: Pair; command: CaptureCommand | null } {
   const match = pair.scan.match(
-    /^\/(task|note|idea|research|habit|یادداشت|ایده|پژوهش|عادت)(?=\s|$)/i,
+    /^\/(task|note|idea|research|source|habit|یادداشت|ایده|پژوهش|منبع|عادت)(?=\s|$)/i,
   );
   if (!match || match.index === undefined || !match[1]) return { pair, command: null };
   const command = COMMANDS[match[1].toLowerCase()] ?? null;
@@ -420,7 +426,22 @@ export function parseCapture(input: string, now = new Date()): ParsedCapture {
     recurrence = recurring.recurrence === "NONE" ? "DAILY" : recurring.recurrence;
   }
 
-  const area = command === "research" ? "PHD" : detectArea(pair.scan);
+  const area =
+    command === "research" || command === "source"
+      ? "PHD"
+      : detectArea(pair.scan);
+
+  const doiMatch = pair.scan.match(
+    /\b(?:doi:\s*)?(10\.\d{4,9}\/[^\s]+)/i,
+  );
+  const doi: string | null = doiMatch?.[1]
+    ? doiMatch[1].replace(/[.,;:]+$/, "")
+    : null;
+  let url: string | null = null;
+  const urlMatch = pair.raw.match(/https?:\/\/[^\s]+/i);
+  if (urlMatch) {
+    url = urlMatch[0].replace(/[.,;:)+]+$/, "");
+  }
 
   return {
     kind,
@@ -431,5 +452,21 @@ export function parseCapture(input: string, now = new Date()): ParsedCapture {
     time,
     durationMinutes,
     recurrence,
+    doi,
+    url,
   };
+}
+
+/** What Capture will actually create (preview + server must agree). */
+export type CaptureProduct = "task" | "note" | "habit" | "source" | "research";
+
+export function captureProduct(parsed: ParsedCapture): CaptureProduct {
+  if (parsed.kind === "note") return "note";
+  if (parsed.kind === "habit") return "habit";
+  // Explicit source command, or research command with a DOI.
+  // A bare PhD-area guess + DOI must NOT steal a dated task into a source.
+  if (parsed.command === "source") return "source";
+  if (parsed.command === "research" && parsed.doi) return "source";
+  if (parsed.command === "research") return "research";
+  return "task";
 }

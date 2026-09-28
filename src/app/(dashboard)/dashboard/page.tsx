@@ -52,6 +52,7 @@ export default async function DashboardPage() {
       today={data.today}
       week={data.week}
       inbox={data.inbox}
+      waiting={data.waiting}
       yesterdayLeftover={data.yesterdayLeftover}
       focusTasks={data.focusTasks}
       focusIds={data.focusIds}

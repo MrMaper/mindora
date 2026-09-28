@@ -30,8 +30,8 @@ export function generateMetadata(): Promise<Metadata> {
 
 export default async function ResearchPage({
   searchParams,
-}:  {
-  searchParams: Promise<{ project?: string }>;
+}: {
+  searchParams: Promise<{ project?: string; tab?: string }>;
 }) {
   await requireModule("research");
   const session = await auth();
@@ -42,7 +42,7 @@ export default async function ResearchPage({
   const language = prefs?.language ?? "FA";
   const t = await getTranslationsAsync(language);
 
-  const { project: projectParam } = await searchParams;
+  const { project: projectParam, tab: tabParam } = await searchParams;
   const cookieStore = await cookies();
   const cookieScope = cookieStore.get(RESEARCH_SCOPE_COOKIE)?.value;
 
@@ -50,6 +50,11 @@ export default async function ResearchPage({
   const requested = parseResearchProjectScope(
     projectParam ?? (cookieScope && cookieScope !== "all" ? cookieScope : null),
   );
+
+  const initialTab =
+    tabParam === "library" || tabParam === "writing" || tabParam === "pipeline"
+      ? tabParam
+      : "pipeline";
 
   const phdProjects = await listPhdResearchProjects(session.user.id);
 
@@ -62,7 +67,9 @@ export default async function ResearchPage({
 
   // Align URL before loading the board so the first paint matches the scope.
   if (!projectParam && safeScope !== "all") {
-    redirect(`/research?project=${encodeURIComponent(safeScope)}`);
+    const tabQs =
+      initialTab !== "pipeline" ? `&tab=${encodeURIComponent(initialTab)}` : "";
+    redirect(`/research?project=${encodeURIComponent(safeScope)}${tabQs}`);
   }
 
   const boardProjectIds = await resolveResearchTaskProjectIds(
@@ -149,6 +156,7 @@ export default async function ResearchPage({
         IN_PROGRESS: t.life.researchWriting,
         DONE: t.life.researchDone,
       }}
+      initialTab={initialTab}
     />
   );
 }

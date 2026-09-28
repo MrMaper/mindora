@@ -24,6 +24,7 @@ const taskSelect = {
   type: true,
   dueDate: true,
   durationMinutes: true,
+  waitingOn: true,
   position: true,
   createdAt: true,
   updatedAt: true,
@@ -83,6 +84,7 @@ export async function getPersonalDashboard(userId: string) {
     today,
     week,
     inbox,
+    waiting,
     yesterdayLeftover,
     hoursAgg,
     doneThisWeek,
@@ -100,6 +102,7 @@ export async function getPersonalDashboard(userId: string) {
       where: {
         ...lifeOnly,
         status: { not: "DONE" },
+        waitingOn: false,
         dueDate: { lt: todayStart },
       },
       orderBy: { dueDate: "asc" },
@@ -110,6 +113,7 @@ export async function getPersonalDashboard(userId: string) {
       where: {
         ...lifeOnly,
         status: { not: "DONE" },
+        waitingOn: false,
         dueDate: { gte: todayStart, lte: todayEnd },
       },
       orderBy: [{ priority: "asc" }, { dueDate: "asc" }],
@@ -120,6 +124,7 @@ export async function getPersonalDashboard(userId: string) {
       where: {
         ...lifeOnly,
         status: { not: "DONE" },
+        waitingOn: false,
         dueDate: { gte: todayStart, lte: weekEnd },
       },
       orderBy: { dueDate: "asc" },
@@ -127,7 +132,7 @@ export async function getPersonalDashboard(userId: string) {
       select: taskSelect,
     }),
     db.task.findMany({
-      where: { ...lifeOnly, status: "BACKLOG" },
+      where: { ...lifeOnly, status: "BACKLOG", waitingOn: false },
       orderBy: { createdAt: "desc" },
       take: 12,
       select: taskSelect,
@@ -135,7 +140,18 @@ export async function getPersonalDashboard(userId: string) {
     db.task.findMany({
       where: {
         ...lifeOnly,
+        waitingOn: true,
         status: { not: "DONE" },
+      },
+      orderBy: { updatedAt: "desc" },
+      take: 20,
+      select: taskSelect,
+    }),
+    db.task.findMany({
+      where: {
+        ...lifeOnly,
+        status: { not: "DONE" },
+        waitingOn: false,
         dueDate: { gte: yesterdayStart, lte: yesterdayEnd },
       },
       orderBy: { priority: "asc" },
@@ -169,6 +185,7 @@ export async function getPersonalDashboard(userId: string) {
       where: {
         ...lifeOnly,
         status: { not: "DONE" },
+        waitingOn: false,
         OR: [
           { dueDate: null },
           { dueDate: { lte: todayEnd } },
@@ -224,6 +241,10 @@ export async function getPersonalDashboard(userId: string) {
         deletedAt: null,
         archived: false,
         status: { in: ["IDEA", "DRAFTING", "REVIEW"] },
+        OR: [
+          { systemKey: null },
+          { NOT: { systemKey: { startsWith: "phd-library:" } } },
+        ],
       },
     }),
   ]);
@@ -275,6 +296,7 @@ export async function getPersonalDashboard(userId: string) {
       return key !== todayKey && !focusIdSet.has(t.id);
     }),
     inbox: inbox.map(withArea).filter(task => !focusIdSet.has(task.id)),
+    waiting: waiting.map(withArea).filter(task => !focusIdSet.has(task.id)),
     yesterdayLeftover: yesterdayLeftover.map(withArea),
     focusIds: focusTasks.flatMap(task => (task ? [task.id] : [])),
     focusTasks,
@@ -284,7 +306,8 @@ export async function getPersonalDashboard(userId: string) {
     weekDays,
     hoursThisWeek: hoursAgg._sum.hours ?? 0,
     doneThisWeek,
-    openCount: overdueRows.length + todayRows.length + inbox.length,
+    openCount:
+      overdueRows.length + todayRows.length + inbox.length + waiting.length,
     areas: areaRows.map(row => ({
       id: row.id,
       name: row.name,
@@ -347,7 +370,7 @@ export async function getWeeklyReview(userId: string) {
       select: taskSelect,
     }),
     db.task.findMany({
-      where: { ...lifeOnly, status: "BACKLOG" },
+      where: { ...lifeOnly, status: "BACKLOG", waitingOn: false },
       orderBy: { createdAt: "desc" },
       take: 20,
       select: taskSelect,

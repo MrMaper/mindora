@@ -12,6 +12,7 @@ import type {
   ResearchSourceItem,
 } from "./types";
 import type { SourceReadingStatus } from "@/types/db";
+import { isLibraryBinderSystemKey } from "./status-sync";
 
 function docProjectFilter(scope: ResearchProjectScope): {
   projectId?: string | null | "NONE";
@@ -86,6 +87,10 @@ export async function getRecentPhdQuotes(
         area: "PHD",
         deletedAt: null,
         archived: false,
+        OR: [
+          { systemKey: null },
+          { NOT: { systemKey: { startsWith: "phd-library:" } } },
+        ],
         ...(projectFilter.projectId === "NONE"
           ? { projectId: null }
           : projectFilter.projectId
@@ -142,12 +147,24 @@ export async function getAggregatedPhdSources(
         userId,
         area: "PHD",
         deletedAt: null,
-        ...(opts?.projectId === "NONE"
-          ? { projectId: null }
-          : opts?.projectId
-            ? { projectId: opts.projectId }
-            : {}),
+        archived: false,
+        ...(opts?.projectId === "NONE" ? { projectId: null } : {}),
       },
+      ...(opts?.projectId === "NONE"
+        ? { projectId: null }
+        : opts?.projectId
+          ? {
+              OR: [
+                { projectId: opts.projectId },
+                {
+                  AND: [
+                    { projectId: null },
+                    { doc: { projectId: opts.projectId } },
+                  ],
+                },
+              ],
+            }
+          : {}),
       ...(status ? { readingStatus: status } : {}),
       ...(search
         ? {
@@ -173,31 +190,55 @@ export async function getAggregatedPhdSources(
       fileUrl: true,
       fileName: true,
       readingStatus: true,
+      projectId: true,
       createdAt: true,
       updatedAt: true,
       docId: true,
-      doc: { select: { title: true } },
+      doc: {
+        select: {
+          title: true,
+          projectId: true,
+          systemKey: true,
+          templateKey: true,
+          tasks: {
+            where: { task: { area: "PHD" } },
+            take: 1,
+            select: {
+              task: { select: { id: true, title: true } },
+            },
+          },
+        },
+      },
       _count: { select: { quotes: true } },
     },
   });
 
-  return rows.map(s => ({
-    id: s.id,
-    title: s.title,
-    authors: s.authors,
-    url: s.url,
-    year: s.year,
-    doi: s.doi,
-    notes: s.notes,
-    fileUrl: s.fileUrl,
-    fileName: s.fileName,
-    readingStatus: s.readingStatus,
-    createdAt: s.createdAt,
-    updatedAt: s.updatedAt,
-    docId: s.docId,
-    docTitle: s.doc.title,
-    quoteCount: s._count.quotes,
-  }));
+  return rows.map(s => {
+    const linked = s.doc.tasks[0]?.task ?? null;
+    const binder = isLibraryBinderSystemKey(s.doc.systemKey);
+    return {
+      id: s.id,
+      title: s.title,
+      authors: s.authors,
+      url: s.url,
+      year: s.year,
+      doi: s.doi,
+      notes: s.notes,
+      fileUrl: s.fileUrl,
+      fileName: s.fileName,
+      readingStatus: s.readingStatus,
+      projectId: s.projectId ?? s.doc.projectId ?? null,
+      createdAt: s.createdAt,
+      updatedAt: s.updatedAt,
+      docId: s.docId,
+      docTitle: binder ? s.title : s.doc.title,
+      quoteCount: s._count.quotes,
+      isBinderHost: binder,
+      linkedTaskId: linked?.id ?? null,
+      linkedTaskTitle: linked?.title ?? null,
+      hasSyncLink: !!linked,
+    };
+  });
 }
 
 export function parseResearchProjectScope(

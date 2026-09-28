@@ -40,7 +40,7 @@ export function BoardColumn({
     labelOverride ?? (t.tasks[labelKey as keyof typeof t.tasks] as string);
 
   return (
-    <div className="w-[min(17.5rem,78vw)] sm:w-70 flex-none flex flex-col max-h-full">
+    <div className="w-[min(15rem,82vw)] sm:w-70 flex-none flex flex-col max-h-full">
       <div className="flex items-center gap-2 px-1 py-2.5 flex-nowrap">
         <span
           className="size-2.5 rounded-full flex-none"
@@ -53,7 +53,7 @@ export function BoardColumn({
       </div>
       <div
         ref={setNodeRef}
-        className={`flex flex-col gap-2 overflow-y-auto py-0.5 min-h-[40px] rounded-md transition-colors max-h-[calc(100vh-240px)] ${
+        className={`flex flex-col gap-2 overflow-y-auto py-0.5 min-h-[40px] rounded-md transition-colors max-h-[calc(100dvh-14rem)] sm:max-h-[calc(100vh-240px)] ${
           isOver ? "bg-accent" : ""
         }`}
       >

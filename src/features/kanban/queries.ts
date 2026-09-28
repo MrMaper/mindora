@@ -58,6 +58,7 @@ export async function getBoardColumns(
       type: true,
       dueDate: true,
       durationMinutes: true,
+      waitingOn: true,
       position: true,
       createdAt: true,
       updatedAt: true,

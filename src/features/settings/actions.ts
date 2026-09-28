@@ -24,6 +24,7 @@ export interface UpdatePreferencesInput {
   notifySprintEnded?: boolean;
   notifyDeadlineApproaching?: boolean;
   notifyStatusChanged?: boolean;
+  batchDeadlineReminders?: boolean;
 }
 
 export async function updateUserPreferences(
@@ -46,6 +47,7 @@ export async function updateUserPreferences(
     if (input.notifySprintEnded !== undefined) updateData.notifySprintEnded = input.notifySprintEnded;
     if (input.notifyDeadlineApproaching !== undefined) updateData.notifyDeadlineApproaching = input.notifyDeadlineApproaching;
     if (input.notifyStatusChanged !== undefined) updateData.notifyStatusChanged = input.notifyStatusChanged;
+    if (input.batchDeadlineReminders !== undefined) updateData.batchDeadlineReminders = input.batchDeadlineReminders;
 
     await db.userPreferences.upsert({
       where: { userId: session.user.id },
@@ -64,6 +66,7 @@ export async function updateUserPreferences(
         notifySprintEnded: input.notifySprintEnded ?? true,
         notifyDeadlineApproaching: input.notifyDeadlineApproaching ?? true,
         notifyStatusChanged: input.notifyStatusChanged ?? true,
+        batchDeadlineReminders: input.batchDeadlineReminders ?? false,
       },
       update: updateData,
     });

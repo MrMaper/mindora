@@ -40,6 +40,7 @@ export function useLifeTaskEdit() {
       assignedToId: "",
       dueDate: "",
       durationMinutes: "",
+      waitingOn: "",
       area: "LIFE",
       recurrence: "NONE",
     },
@@ -74,6 +75,7 @@ export function useLifeTaskEdit() {
         detail.durationMinutes && detail.durationMinutes > 0
           ? String(detail.durationMinutes)
           : "",
+      waitingOn: detail.waitingOn ? "1" : "",
       area,
       recurrence: detail.recurrence ?? "NONE",
     });
@@ -109,6 +111,7 @@ export function useLifeTaskEdit() {
       fd.append("assignedToId", data.assignedToId ?? "");
       fd.append("dueDate", data.dueDate ?? "");
       fd.append("durationMinutes", data.durationMinutes ?? "");
+      fd.append("waitingOn", data.waitingOn === "1" || data.waitingOn === "true" ? "1" : "");
       fd.append("area", area);
       fd.append("recurrence", data.recurrence ?? "NONE");
       fd.append("labelIds", JSON.stringify(selectedLabelIds));

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import Link from "next/link";
@@ -6,12 +6,16 @@ import { useRouter } from "next/navigation";
 import { useLanguage, useTranslation } from "@/i18n/provider";
 import { Button } from "@/components/ui-kit/forms/button";
 import { Input } from "@/components/ui-kit/forms/input";
+import { Menu } from "@/components/ui-kit/overlays/menu";
 import {
   addPhdSourceAction,
   annotateSourceQuoteAction,
+  createReadingCardForSourceAction,
   createSourceNoteFromSourceAction,
   insertCitationIntoDocAction,
+  linkSourceToTaskAction,
   lookupDoiAction,
+  searchPhdTasksForLinkAction,
 } from "@/features/research/actions";
 import {
   attachDocSourcePdf,
@@ -19,7 +23,7 @@ import {
   updateDocSource,
 } from "@/features/docs/actions";
 import { formatApaLike, sourcesToBibTeX } from "@/features/research/cite";
-import type { ResearchSourceItem } from "@/features/research/types";
+import type { ResearchProjectItem, ResearchSourceItem } from "@/features/research/types";
 import type { DocListItem } from "@/features/docs/types";
 import type { SourceReadingStatus } from "@/types/db";
 import { cn } from "@/lib/utils";
@@ -32,10 +36,12 @@ export function ResearchLibraryPanel({
   initialSources,
   projectId,
   citeDocs = [],
+  projects = [],
 }: {
   initialSources: ResearchSourceItem[];
   projectId?: string | null;
   citeDocs?: DocListItem[];
+  projects?: ResearchProjectItem[];
 }) {
   const t = useTranslation();
   const language = useLanguage();
@@ -45,16 +51,25 @@ export function ResearchLibraryPanel({
   const [statusFilter, setStatusFilter] = React.useState<
     SourceReadingStatus | "ALL"
   >("ALL");
-  const [pending, setPending] = React.useState(false);
+  const [pendingId, setPendingId] = React.useState<string | null>(null);
+  const pending = pendingId !== null;
   const [doiInput, setDoiInput] = React.useState("");
   const [citeFor, setCiteFor] = React.useState<string | null>(null);
   const [citeDocId, setCiteDocId] = React.useState("");
   const [quoteFor, setQuoteFor] = React.useState<string | null>(null);
   const [quoteText, setQuoteText] = React.useState("");
   const [quoteNote, setQuoteNote] = React.useState("");
+  const [quoteDocId, setQuoteDocId] = React.useState("");
   const [annotating, setAnnotating] = React.useState<ResearchSourceItem | null>(
     null,
   );
+  const [annotatorDraftId, setAnnotatorDraftId] = React.useState("");
+  const [pathPick, setPathPick] = React.useState<string>("");
+  const [linkFor, setLinkFor] = React.useState<string | null>(null);
+  const [linkQuery, setLinkQuery] = React.useState("");
+  const [linkHits, setLinkHits] = React.useState<
+    { id: string; title: string }[]
+  >([]);
   const fileInputRefs = React.useRef<Record<string, HTMLInputElement | null>>(
     {},
   );
@@ -68,13 +83,47 @@ export function ResearchLibraryPanel({
   });
   const [flash, setFlash] = React.useState<string | null>(null);
 
+  const needsPathPick = projectId === undefined;
+
   React.useEffect(() => {
     setSources(initialSources);
   }, [initialSources]);
 
   React.useEffect(() => {
     if (citeDocs[0] && !citeDocId) setCiteDocId(citeDocs[0].id);
-  }, [citeDocs, citeDocId]);
+    if (citeDocs[0] && !quoteDocId) setQuoteDocId(citeDocs[0].id);
+    if (citeDocs[0] && !annotatorDraftId) setAnnotatorDraftId(citeDocs[0].id);
+    try {
+      const pref = sessionStorage.getItem("research-cite-doc");
+      if (pref && citeDocs.some(d => d.id === pref)) {
+        setCiteDocId(pref);
+        setAnnotatorDraftId(pref);
+        setQuoteDocId(pref);
+        sessionStorage.removeItem("research-cite-doc");
+        // Open cite UI on the first visible source when arriving from Writing.
+        if (initialSources[0]) setCiteFor(initialSources[0].id);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, [citeDocs, citeDocId, quoteDocId, annotatorDraftId, initialSources]);
+
+  React.useEffect(() => {
+    if (!linkFor || linkQuery.trim().length < 1) {
+      setLinkHits([]);
+      return;
+    }
+    let cancelled = false;
+    const handle = window.setTimeout(() => {
+      void searchPhdTasksForLinkAction(linkQuery).then(rows => {
+        if (!cancelled) setLinkHits(rows);
+      });
+    }, 200);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(handle);
+    };
+  }, [linkFor, linkQuery]);
 
   const filtered = sources.filter(s => {
     if (statusFilter !== "ALL" && s.readingStatus !== statusFilter) return false;
@@ -96,13 +145,19 @@ export function ResearchLibraryPanel({
 
   function resolveProjectId(): string | null | undefined {
     if (projectId !== undefined) return projectId;
+    if (pathPick === "inbox") return null;
+    if (pathPick) return pathPick;
     return projectIdForCreate();
   }
 
   async function onAdd() {
     if (!form.title.trim()) return;
-    setPending(true);
     const pid = resolveProjectId();
+    if (pid === undefined) {
+      window.alert(t.life.pickPathRequired);
+      return;
+    }
+    setPendingId("add");
     const result = await addPhdSourceAction({
       title: form.title,
       authors: form.authors || undefined,
@@ -110,9 +165,10 @@ export function ResearchLibraryPanel({
       url: form.url || undefined,
       doi: form.doi || undefined,
       notes: form.notes || undefined,
-      ...(pid !== undefined ? { projectId: pid } : {}),
+      projectId: pid,
+      createReadingCard: true,
     });
-    setPending(false);
+    setPendingId(null);
     if (result.success) {
       setForm({ title: "", authors: "", year: "", url: "", doi: "", notes: "" });
       setFlash(t.life.sourceAdded);
@@ -125,9 +181,9 @@ export function ResearchLibraryPanel({
 
   async function onLookupDoi() {
     if (!doiInput.trim()) return;
-    setPending(true);
+    setPendingId("doi");
     const result = await lookupDoiAction(doiInput);
-    setPending(false);
+    setPendingId(null);
     if (!result.success || !result.data) {
       window.alert(result.error ?? t.life.doiFailed);
       return;
@@ -161,11 +217,43 @@ export function ResearchLibraryPanel({
   }
 
   async function openNote(id: string) {
-    setPending(true);
+    setPendingId(id);
     const result = await createSourceNoteFromSourceAction(id);
-    setPending(false);
+    setPendingId(null);
     if (result.success && result.data?.id) {
       router.push(`/docs?id=${String(result.data.id)}`);
+    } else if (result.error) {
+      window.alert(result.error);
+    }
+  }
+
+  async function createReadingCard(id: string) {
+    setPendingId(id);
+    const result = await createReadingCardForSourceAction(id);
+    setPendingId(null);
+    if (result.success) {
+      setFlash(
+        result.data?.created === true
+          ? t.life.readingCardCreated
+          : t.life.readingCardExists,
+      );
+      router.refresh();
+      setTimeout(() => setFlash(null), 1500);
+    } else if (result.error) {
+      window.alert(result.error);
+    }
+  }
+
+  async function linkToCard(sourceId: string, taskId: string) {
+    setPendingId(sourceId);
+    const result = await linkSourceToTaskAction({ sourceId, taskId });
+    setPendingId(null);
+    if (result.success) {
+      setLinkFor(null);
+      setLinkQuery("");
+      setFlash(t.life.sourceLinked);
+      router.refresh();
+      setTimeout(() => setFlash(null), 1500);
     } else if (result.error) {
       window.alert(result.error);
     }
@@ -195,12 +283,12 @@ export function ResearchLibraryPanel({
       window.alert(t.life.pickCiteDoc);
       return;
     }
-    setPending(true);
+    setPendingId(sourceId);
     const result = await insertCitationIntoDocAction({
       sourceId,
       docId: targetId,
     });
-    setPending(false);
+    setPendingId(null);
     setCiteFor(null);
     if (result.success && result.data?.id) {
       setFlash(t.life.citationInserted);
@@ -211,11 +299,11 @@ export function ResearchLibraryPanel({
   }
 
   async function onAttachPdf(sourceId: string, file: File) {
-    setPending(true);
+    setPendingId(sourceId);
     const fd = new FormData();
     fd.set("file", file);
     const result = await attachDocSourcePdf(sourceId, fd);
-    setPending(false);
+    setPendingId(null);
     if (result.success) {
       const fileUrl = String(result.data?.fileUrl ?? "");
       const fileName = String(result.data?.fileName ?? file.name);
@@ -233,9 +321,9 @@ export function ResearchLibraryPanel({
   }
 
   async function onClearPdf(sourceId: string) {
-    setPending(true);
+    setPendingId(sourceId);
     const result = await clearDocSourcePdf(sourceId);
-    setPending(false);
+    setPendingId(null);
     if (result.success) {
       setSources(prev =>
         prev.map(s =>
@@ -250,15 +338,16 @@ export function ResearchLibraryPanel({
     }
   }
 
-  async function onSaveQuote(sourceId: string) {
+  async function onSaveQuote(sourceId: string, intoDoc: boolean) {
     if (!quoteText.trim()) return;
-    setPending(true);
+    setPendingId(sourceId);
     const result = await annotateSourceQuoteAction({
       sourceId,
       text: quoteText,
       note: quoteNote || undefined,
+      insertIntoDocId: intoDoc && quoteDocId ? quoteDocId : undefined,
     });
-    setPending(false);
+    setPendingId(null);
     if (result.success) {
       setQuoteFor(null);
       setQuoteText("");
@@ -268,7 +357,13 @@ export function ResearchLibraryPanel({
           s.id === sourceId ? { ...s, quoteCount: s.quoteCount + 1 } : s,
         ),
       );
-      setFlash(t.life.annotateQuoteSaved);
+      setFlash(
+        intoDoc ? t.life.annotateQuoteInserted : t.life.annotateQuoteSaved,
+      );
+      if (intoDoc && result.data?.docId) {
+        router.push(`/docs?id=${String(result.data.docId)}`);
+        return;
+      }
       router.refresh();
       setTimeout(() => setFlash(null), 1500);
     } else if (result.error) {
@@ -338,6 +433,26 @@ export function ResearchLibraryPanel({
             </Button>
           </div>
           <div className="grid sm:grid-cols-2 gap-2">
+            {needsPathPick ? (
+              <div className="sm:col-span-2">
+                <label className="text-[11px] text-muted-foreground">
+                  {t.life.pickPathRequired}
+                </label>
+                <select
+                  className="mt-1 h-9 w-full rounded-lg border bg-background px-2 text-sm"
+                  value={pathPick}
+                  onChange={e => setPathPick(e.target.value)}
+                >
+                  <option value="">{t.life.pickPathRequired}</option>
+                  <option value="inbox">{t.life.pathInbox}</option>
+                  {projects.map(p => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : null}
             <Input
               value={form.title}
               onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
@@ -391,7 +506,9 @@ export function ResearchLibraryPanel({
           </p>
         ) : (
           <ul className="flex flex-col gap-2">
-            {filtered.map(s => (
+            {filtered.map(s => {
+              const rowBusy = pendingId === s.id;
+              return (
               <li
                 key={s.id}
                 className="rounded-lg border px-3 py-2.5 flex flex-col gap-2"
@@ -402,15 +519,38 @@ export function ResearchLibraryPanel({
                     <div className="text-[11px] text-muted-foreground mt-0.5">
                       {[s.authors, s.year, s.doi].filter(Boolean).join(" · ")}
                     </div>
-                    <div className="text-[11px] text-muted-foreground mt-0.5">
+                    <div className="text-[11px] text-muted-foreground mt-0.5 flex flex-wrap items-center gap-x-1 gap-y-0.5">
                       <Link
                         href={`/docs?id=${s.docId}`}
                         className="hover:underline"
                       >
                         {s.docTitle}
                       </Link>
-                      {" · "}
-                      {s.quoteCount} {t.life.quoteCount}
+                      <span>·</span>
+                      <span>
+                        {s.quoteCount} {t.life.quoteCount}
+                      </span>
+                      {s.hasSyncLink && s.linkedTaskTitle ? (
+                        <>
+                          <span>·</span>
+                          <span className="text-emerald-700 dark:text-emerald-400">
+                            {t.life.linkedToCard}: {s.linkedTaskTitle}
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span>·</span>
+                          <span className="text-amber-700 dark:text-amber-400">
+                            {t.life.syncInactive}
+                          </span>
+                        </>
+                      )}
+                      {s.isBinderHost ? (
+                        <>
+                          <span>·</span>
+                          <span>{t.life.binderHostHint}</span>
+                        </>
+                      ) : null}
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-1">
@@ -418,6 +558,7 @@ export function ResearchLibraryPanel({
                       <button
                         key={st}
                         type="button"
+                        disabled={rowBusy}
                         onClick={() => void setReading(s.id, st)}
                         className={cn(
                           "rounded border px-1.5 py-0.5 text-[10px]",
@@ -440,22 +581,38 @@ export function ResearchLibraryPanel({
                   <Button
                     size="sm"
                     variant="ghost"
-                    disabled={pending}
+                    disabled={rowBusy}
                     onClick={() => void openNote(s.id)}
                   >
                     {t.life.openSourceNote}
                   </Button>
+                  {!s.hasSyncLink ? (
+                    <Button
+                      size="sm"
+                      variant="subtle"
+                      disabled={rowBusy}
+                      onClick={() => void createReadingCard(s.id)}
+                    >
+                      {t.life.createReadingCard}
+                    </Button>
+                  ) : null}
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={() => copyCitation(s)}
+                    disabled={rowBusy}
+                    onClick={() => {
+                      setLinkFor(linkFor === s.id ? null : s.id);
+                      setLinkQuery("");
+                      setCiteFor(null);
+                      setQuoteFor(null);
+                    }}
                   >
-                    {t.life.copyCitation}
+                    {t.life.linkSourceToCard}
                   </Button>
                   <Button
                     size="sm"
                     variant="subtle"
-                    disabled={pending || citeDocs.length === 0}
+                    disabled={rowBusy || citeDocs.length === 0}
                     onClick={() =>
                       setCiteFor(citeFor === s.id ? null : s.id)
                     }
@@ -475,64 +632,71 @@ export function ResearchLibraryPanel({
                       if (file) void onAttachPdf(s.id, file);
                     }}
                   />
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    disabled={pending}
-                    onClick={() => fileInputRefs.current[s.id]?.click()}
-                  >
-                    {s.fileUrl ? t.life.replacePdf : t.life.attachPdf}
-                  </Button>
-                  {s.fileUrl && (
-                    <>
-                      <Button
-                        size="sm"
-                        variant="subtle"
-                        disabled={pending}
-                        onClick={() => setAnnotating(s)}
-                      >
-                        {t.life.annotateInApp}
+                  <Menu
+                    align="end"
+                    trigger={
+                      <Button size="sm" variant="ghost" disabled={rowBusy}>
+                        ⋯
                       </Button>
-                      <a
-                        href={s.fileUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex h-8 items-center px-2 text-xs text-primary hover:underline"
-                      >
-                        {s.fileName || t.life.openPdf}
-                      </a>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        disabled={pending}
-                        onClick={() => void onClearPdf(s.id)}
-                      >
-                        {t.life.removePdf}
-                      </Button>
-                    </>
-                  )}
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    disabled={pending}
-                    onClick={() => {
-                      setQuoteFor(quoteFor === s.id ? null : s.id);
-                      setQuoteText("");
-                      setQuoteNote("");
-                    }}
-                  >
-                    {t.life.annotateQuote}
-                  </Button>
-                  {s.url && (
-                    <a
-                      href={s.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex h-8 items-center px-2 text-xs text-primary hover:underline"
-                    >
-                      {language === "FA" ? "لینک" : "URL"}
-                    </a>
-                  )}
+                    }
+                    items={[
+                      {
+                        label: t.life.copyCitation,
+                        onClick: () => copyCitation(s),
+                      },
+                      {
+                        label: s.fileUrl ? t.life.replacePdf : t.life.attachPdf,
+                        disabled: rowBusy,
+                        onClick: () => fileInputRefs.current[s.id]?.click(),
+                      },
+                      ...(s.fileUrl
+                        ? [
+                            {
+                              label: t.life.annotateInApp,
+                              disabled: rowBusy,
+                              onClick: () => setAnnotating(s),
+                            },
+                            {
+                              label: t.life.openPdf,
+                              onClick: () =>
+                                window.open(s.fileUrl!, "_blank", "noreferrer"),
+                            },
+                            {
+                              label: t.life.removePdf,
+                              disabled: rowBusy,
+                              onClick: () => void onClearPdf(s.id),
+                            },
+                          ]
+                        : []),
+                      {
+                        label: t.life.annotateQuote,
+                        disabled: rowBusy,
+                        onClick: () => {
+                          setQuoteFor(quoteFor === s.id ? null : s.id);
+                          setQuoteText("");
+                          setQuoteNote("");
+                        },
+                      },
+                      ...(s.url
+                        ? [
+                            {
+                              label: language === "FA" ? "لینک" : "URL",
+                              onClick: () =>
+                                window.open(s.url!, "_blank", "noreferrer"),
+                            },
+                          ]
+                        : []),
+                      ...(s.hasSyncLink
+                        ? [
+                            {
+                              label: t.life.createReadingCard,
+                              disabled: rowBusy,
+                              onClick: () => void createReadingCard(s.id),
+                            },
+                          ]
+                        : []),
+                    ]}
+                  />
                 </div>
                 {quoteFor === s.id && (
                   <div className="flex flex-col gap-2 rounded-lg bg-muted/40 p-2">
@@ -547,13 +711,41 @@ export function ResearchLibraryPanel({
                       onChange={e => setQuoteNote(e.target.value)}
                       placeholder={t.docs.quoteNote}
                     />
-                    <div className="flex gap-2">
+                    {citeDocs.length > 0 ? (
+                      <div className="min-w-0">
+                        <label className="text-[10px] text-muted-foreground">
+                          {t.life.insertQuoteIntoDoc}
+                        </label>
+                        <select
+                          className="mt-0.5 h-8 w-full rounded-md border bg-background px-2 text-xs"
+                          value={quoteDocId}
+                          onChange={e => setQuoteDocId(e.target.value)}
+                        >
+                          {citeDocs.map(d => (
+                            <option key={d.id} value={d.id}>
+                              {d.title}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    ) : null}
+                    <div className="flex flex-wrap gap-2">
                       <Button
                         size="sm"
-                        disabled={pending || !quoteText.trim()}
-                        onClick={() => void onSaveQuote(s.id)}
+                        disabled={rowBusy || !quoteText.trim()}
+                        onClick={() => void onSaveQuote(s.id, false)}
                       >
                         {t.life.saveQuote}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="subtle"
+                        disabled={
+                          rowBusy || !quoteText.trim() || !quoteDocId
+                        }
+                        onClick={() => void onSaveQuote(s.id, true)}
+                      >
+                        {t.life.insertQuoteIntoDoc}
                       </Button>
                       <Button
                         size="sm"
@@ -563,37 +755,83 @@ export function ResearchLibraryPanel({
                         {t.common.cancel}
                       </Button>
                     </div>
+                    {citeDocs.length === 0 ? (
+                      <p className="text-[11px] text-muted-foreground">
+                        {t.life.noDraftForInsert}
+                      </p>
+                    ) : null}
                   </div>
                 )}
                 {citeFor === s.id && (
-                  <div className="flex flex-wrap items-end gap-2 rounded-lg bg-muted/40 p-2">
-                    <div className="min-w-[10rem] flex-1">
-                      <label className="text-[10px] text-muted-foreground">
-                        {t.life.pickCiteDoc}
-                      </label>
-                      <select
-                        className="h-8 w-full rounded-md border bg-background px-2 text-xs"
-                        value={citeDocId}
-                        onChange={e => setCiteDocId(e.target.value)}
-                      >
-                        {citeDocs.map(d => (
-                          <option key={d.id} value={d.id}>
-                            {d.title}
-                          </option>
+                  <div className="flex flex-col gap-2 rounded-lg bg-muted/40 p-2">
+                    {citeDocs.length === 0 ? (
+                      <p className="text-[11px] text-muted-foreground">
+                        {t.life.noDraftForInsert}
+                      </p>
+                    ) : (
+                      <div className="flex flex-wrap items-end gap-2">
+                        <div className="min-w-[10rem] flex-1">
+                          <label className="text-[10px] text-muted-foreground">
+                            {t.life.pickCiteDoc}
+                          </label>
+                          <select
+                            className="h-8 w-full rounded-md border bg-background px-2 text-xs"
+                            value={citeDocId}
+                            onChange={e => setCiteDocId(e.target.value)}
+                          >
+                            {citeDocs.map(d => (
+                              <option key={d.id} value={d.id}>
+                                {d.title}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <Button
+                          size="sm"
+                          disabled={rowBusy || !citeDocId}
+                          onClick={() => void insertCitation(s.id)}
+                        >
+                          {t.life.insertCitation}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {linkFor === s.id && (
+                  <div className="flex flex-col gap-2 rounded-lg bg-muted/40 p-2">
+                    <p className="text-[10px] text-muted-foreground">
+                      {t.life.linkReplacesCard}
+                    </p>
+                    <Input
+                      value={linkQuery}
+                      onChange={e => setLinkQuery(e.target.value)}
+                      placeholder={t.life.searchPhdCard}
+                    />
+                    {linkHits.length > 0 ? (
+                      <ul className="flex flex-col gap-1">
+                        {linkHits.map(hit => (
+                          <li key={hit.id}>
+                            <button
+                              type="button"
+                              disabled={rowBusy}
+                              className="w-full rounded-md border px-2 py-1.5 text-start text-xs hover:bg-accent"
+                              onClick={() => void linkToCard(s.id, hit.id)}
+                            >
+                              {hit.title}
+                            </button>
+                          </li>
                         ))}
-                      </select>
-                    </div>
-                    <Button
-                      size="sm"
-                      disabled={pending || !citeDocId}
-                      onClick={() => void insertCitation(s.id)}
-                    >
-                      {t.life.insertCitation}
-                    </Button>
+                      </ul>
+                    ) : linkQuery.trim() ? (
+                      <p className="text-[11px] text-muted-foreground">
+                        {t.life.noCardMatch}
+                      </p>
+                    ) : null}
                   </div>
                 )}
               </li>
-            ))}
+              );
+            })}
           </ul>
         )}
       </section>
@@ -603,6 +841,9 @@ export function ResearchLibraryPanel({
           open
           fileUrl={annotating.fileUrl}
           sourceTitle={annotating.title}
+          draftDocs={citeDocs.map(d => ({ id: d.id, title: d.title }))}
+          insertIntoDocId={annotatorDraftId || undefined}
+          onInsertIntoDocIdChange={setAnnotatorDraftId}
           labels={{
             title: t.life.pdfAnnotatorTitle,
             loading: t.life.pdfAnnotatorLoading,
@@ -618,13 +859,17 @@ export function ResearchLibraryPanel({
             cancel: t.common.cancel,
             saved: t.life.annotateQuoteSaved,
             close: t.life.pdfAnnotatorClose,
+            insertIntoDraft: t.life.insertIntoDraft,
+            pickDraftDoc: t.life.pickDraftDoc,
+            noDraftHint: t.life.noDraftForInsert,
           }}
           onClose={() => setAnnotating(null)}
-          onSaveQuote={async ({ text, note }) => {
+          onSaveQuote={async ({ text, note, insertIntoDocId }) => {
             const result = await annotateSourceQuoteAction({
               sourceId: annotating.id,
               text,
               note,
+              insertIntoDocId,
             });
             if (!result.success) {
               window.alert(result.error ?? "Error");
@@ -637,6 +882,12 @@ export function ResearchLibraryPanel({
                   : s,
               ),
             );
+            if (insertIntoDocId) {
+              setFlash(t.life.annotateQuoteInserted);
+              setAnnotating(null);
+              router.push(`/docs?id=${insertIntoDocId}`);
+              return;
+            }
             router.refresh();
           }}
         />

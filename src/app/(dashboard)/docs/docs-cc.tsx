@@ -1182,6 +1182,7 @@ export function DocsCC({
                     tableDelete: t.docs.toolbarTableDelete,
                     image: t.docs.toolbarImage,
                     footnote: t.docs.toolbarFootnote,
+                    more: t.docs.toolbarMore,
                   }}
                   footnotePromptLabel={t.docs.footnotePrompt}
                   slashHint={t.docs.slashHint}

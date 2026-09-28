@@ -101,6 +101,8 @@ export function useKanban(
       projectId: "",
       assignedToId: "",
       dueDate: "",
+      durationMinutes: "",
+      waitingOn: "",
       area: "LIFE",
       recurrence: "NONE",
       recurrenceEndsAt: "",
@@ -119,6 +121,8 @@ export function useKanban(
       projectId: "",
       assignedToId: "",
       dueDate: "",
+      durationMinutes: "",
+      waitingOn: "",
       area: "LIFE",
       recurrence: "NONE",
       recurrenceEndsAt: "",
@@ -223,6 +227,11 @@ export function useKanban(
       projectId: detail.projectId ?? "",
       assignedToId: detail.assignedTo?.id ?? "",
       dueDate: dueDateToFormValue(detail.dueDate),
+      durationMinutes:
+        detail.durationMinutes && detail.durationMinutes > 0
+          ? String(detail.durationMinutes)
+          : "",
+      waitingOn: detail.waitingOn ? "1" : "",
       area: coerceLifeArea(detail.area),
       recurrence: detail.recurrence ?? "NONE",
       recurrenceEndsAt: detail.recurrenceEndsAt
@@ -253,6 +262,8 @@ export function useKanban(
       projectId,
       assignedToId: "",
       dueDate: "",
+      durationMinutes: "",
+      waitingOn: "",
       area,
       recurrence: "NONE",
       recurrenceEndsAt: "",
@@ -296,6 +307,11 @@ export function useKanban(
       );
       fd.append("assignedToId", data.assignedToId ?? "");
       fd.append("dueDate", data.dueDate ?? "");
+      fd.append("durationMinutes", data.durationMinutes ?? "");
+      fd.append(
+        "waitingOn",
+        data.waitingOn === "1" || data.waitingOn === "true" ? "1" : "",
+      );
       fd.append("area", data.area || "LIFE");
       fd.append("recurrence", data.recurrence ?? "NONE");
       if (data.recurrenceEndsAt) fd.append("recurrenceEndsAt", data.recurrenceEndsAt);
@@ -326,6 +342,11 @@ export function useKanban(
       fd.append("projectId", data.projectId ?? "");
       fd.append("assignedToId", data.assignedToId ?? "");
       fd.append("dueDate", data.dueDate ?? "");
+      fd.append("durationMinutes", data.durationMinutes ?? "");
+      fd.append(
+        "waitingOn",
+        data.waitingOn === "1" || data.waitingOn === "true" ? "1" : "",
+      );
       fd.append("area", data.area ?? "LIFE");
       fd.append("recurrence", data.recurrence ?? "NONE");
       if (data.recurrenceEndsAt) fd.append("recurrenceEndsAt", data.recurrenceEndsAt);

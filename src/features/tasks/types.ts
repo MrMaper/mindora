@@ -22,6 +22,7 @@ export interface TaskRow {
   type: TaskType;
   dueDate: Date | null;
   durationMinutes?: number | null;
+  waitingOn?: boolean;
   position: number;
   createdAt: Date;
   updatedAt: Date;

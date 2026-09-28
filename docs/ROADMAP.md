@@ -83,15 +83,18 @@ Goal: every member surface is usable one-handed on a phone — no clipped filter
 - Guide + CAPTURE updated for hour-grid calendar behavior
 
 ### Still to do (polish)
-1. Research pipeline: further phone board density
-2. Docs editor toolbar: secondary tools behind a menu on xs
-3. Users admin table card rows (if admins use phones)
-4. Pass each page in a real phone viewport and fix leftover horizontal scroll
+1. Pass each page in a real phone viewport and fix leftover horizontal scroll
+2. Users admin table card rows (if admins use phones)
+
+### Shipped later in mobile polish
+- Docs editor: secondary toolbar tools behind a ⋯ menu on xs
+- Research: pipeline aside collapsed under a disclosure on phone; library secondary actions in a menu; tighter board columns
 
 ### Reminders (shipped)
 - Day buckets (overdue / today / approaching) + **timed** reminders (~15 min before clock dues)
 - In-app + Bale (when linked) + optional browser Notification while shell is open
 - Cron `/api/cron/deadline-reminders` should run every 5–10 minutes (not only daily)
+- Optional **batch deadline reminders** (`UserPreferences.batchDeadlineReminders`, off by default) merges same-day deadline alerts into one notification; timed reminders stay per-task
 
 ---
 
@@ -103,3 +106,18 @@ Goal: every member surface is usable one-handed on a phone — no clipped filter
 - External calendar ICS sync — LF2
 - Orphan admin routes cleanup (users / teams / reporting)
 - Offline vocab PWA
+
+## Research continuity (shipped)
+
+- Due-date planning sync / create-update no longer remaps PhD/Language pipeline stages
+- `DocSource.projectId` + path library binders (index-only; filtered from Writing/cite/Today)
+- Per-paper source notes; add-source creates note + reading card + DocTask by default (status-aligned; no binder hop)
+- Explicit link: library → card (`linkSourceToTask` replaces prior card), card → attach source
+- Reading toggle auto-promotes binder hosts + ensures a card so sync is never inert
+- Citations/quotes reference canonical sources (no DocSource fork); quotes promote off binder first
+- Quote → draft insert from library + PDF annotator «بریز در پیش‌نویس» (empty-draft hint)
+- Pipeline ↔ Doc.status ↔ readingStatus sync via DocTask links (one card per note)
+- Capture: `/research` links a doc; `/source` or `/research`+DOI builds source + card with due; preview matches product; path from research cookie
+- Writing desk: truncated resume + cite-from-here opens library cite panel
+- Path required when library scope=all; binders filtered from Writing/cite/Today
+- Research tabs in URL (`?tab=library|writing`); Today chips for sources + drafts

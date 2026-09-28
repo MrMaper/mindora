@@ -1,22 +1,60 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { auth } from "@/auth";
 import { createDoc } from "@/features/docs/actions";
 import { createHabitAction } from "@/features/habits/actions";
 import { quickCapture } from "@/features/life/actions";
 import { ensurePersonalWorkspace, projectIdForArea } from "@/features/life/workspace";
+import {
+  addPhdSourceAction,
+  createDocLinkedToTask,
+  lookupDoiAction,
+} from "@/features/research/actions";
+import { RESEARCH_SCOPE_COOKIE } from "@/features/research/scope-cookie";
+import { prisma as db } from "@/lib/db";
 import { hasModule } from "@/lib/modules";
 import { getUserModuleFlags } from "@/lib/require-role";
 import { toDateKey } from "@/lib/life";
 import type { LifeArea } from "@/types/db";
-import { parseCapture, type CaptureKind } from "./parse";
+import {
+  captureProduct,
+  parseCapture,
+  type CaptureKind,
+} from "./parse";
 
 const AREAS = new Set<LifeArea>(["PHD", "WORK", "LIFE", "LANG"]);
 
 export interface CaptureResult {
   success: boolean;
   error?: string;
-  data?: { id: string; kind: CaptureKind };
+  data?: { id: string; kind: CaptureKind; product?: string };
+}
+
+/** Last research path from cookie; null = inbox. Rejects invalid project ids. */
+async function resolveCaptureResearchProjectId(
+  userId: string,
+): Promise<string | null> {
+  const jar = await cookies();
+  const raw = jar.get(RESEARCH_SCOPE_COOKIE)?.value;
+  if (!raw) return null;
+  let scope = raw;
+  try {
+    scope = decodeURIComponent(raw);
+  } catch {
+    /* keep raw */
+  }
+  if (!scope || scope === "all" || scope === "inbox") return null;
+
+  const member = await db.projectMember.findFirst({
+    where: {
+      userId,
+      projectId: scope,
+      project: { area: "PHD", status: { not: "ARCHIVED" } },
+    },
+    select: { id: true },
+  });
+  return member ? scope : null;
 }
 
 export async function universalCapture(input: {
@@ -39,6 +77,7 @@ export async function universalCapture(input: {
       ? input.areaOverride
       : parsed.area;
   const flags = await getUserModuleFlags(session.user.id);
+  const product = captureProduct(parsed);
 
   if (parsed.kind === "note") {
     if (!hasModule(flags, "docs")) {
@@ -55,7 +94,10 @@ export async function universalCapture(input: {
     if (!created.success || !created.data?.id) {
       return { success: false, error: created.error ?? "خطا" };
     }
-    return { success: true, data: { id: created.data.id, kind: "note" } };
+    return {
+      success: true,
+      data: { id: created.data.id, kind: "note", product: "note" },
+    };
   }
 
   if (parsed.kind === "habit") {
@@ -68,7 +110,7 @@ export async function universalCapture(input: {
     if (!created.success || !id) {
       return { success: false, error: created.error ?? "خطا" };
     }
-    return { success: true, data: { id, kind: "habit" } };
+    return { success: true, data: { id, kind: "habit", product: "habit" } };
   }
 
   if (!hasModule(flags, "tasks")) {
@@ -82,6 +124,58 @@ export async function universalCapture(input: {
   const dueDate =
     parsed.dateKey ?? fallback ?? (parsed.time ? toDateKey(new Date()) : undefined);
 
+  // Explicit /source, or /research + DOI → library source + reading card
+  if (product === "source" && hasModule(flags, "research")) {
+    let sourceTitle = title;
+    let authors: string | undefined;
+    let year: string | undefined;
+    let url = parsed.url ?? undefined;
+    let doi = parsed.doi ?? undefined;
+    let notes: string | undefined;
+
+    if (doi) {
+      const looked = await lookupDoiAction(doi);
+      if (looked.success && looked.data) {
+        const d = looked.data;
+        sourceTitle =
+          (typeof d.title === "string" && d.title.trim()) || sourceTitle;
+        if (typeof d.authors === "string" && d.authors) authors = d.authors;
+        if (typeof d.year === "string" && d.year) year = d.year;
+        if (typeof d.url === "string" && d.url) url = d.url;
+        if (typeof d.doi === "string" && d.doi) doi = d.doi;
+        if (typeof d.notes === "string" && d.notes) notes = d.notes;
+      }
+    }
+
+    const projectId = await resolveCaptureResearchProjectId(session.user.id);
+    const created = await addPhdSourceAction({
+      title: sourceTitle,
+      authors,
+      year,
+      url,
+      doi,
+      notes,
+      projectId,
+      createReadingCard: true,
+      dueDate,
+      time: parsed.time,
+      durationMinutes: parsed.durationMinutes,
+    });
+    if (!created.success || !created.data?.id) {
+      return { success: false, error: created.error ?? "خطا" };
+    }
+    const taskId =
+      typeof created.data.taskId === "string" ? created.data.taskId : null;
+    return {
+      success: true,
+      data: {
+        id: taskId ?? String(created.data.id),
+        kind: "task",
+        product: "source",
+      },
+    };
+  }
+
   const created = await quickCapture({
     title,
     area,
@@ -93,5 +187,26 @@ export async function universalCapture(input: {
   if (!created.success || !created.data?.id) {
     return { success: false, error: created.error ?? "خطا" };
   }
-  return { success: true, data: { id: created.data.id, kind: "task" } };
+
+  // Only explicit /research (no DOI) attaches a writing doc — not every PhD-area guess.
+  if (
+    product === "research" &&
+    hasModule(flags, "research") &&
+    hasModule(flags, "docs")
+  ) {
+    await createDocLinkedToTask({
+      taskId: created.data.id,
+      title,
+      templateKey: "researchIdea",
+    });
+  }
+
+  return {
+    success: true,
+    data: {
+      id: created.data.id,
+      kind: "task",
+      product: product === "research" ? "research" : "task",
+    },
+  };
 }

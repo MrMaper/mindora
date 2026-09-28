@@ -70,11 +70,15 @@ import type { ProjectRow } from "@/features/projects/types";
 import { useLifeTaskEdit } from "@/features/life/use-life-task-edit";
 import {
   WeekHourGrid,
-  minutesFromClientY,
-  minutesFromDragEnd,
+  findHoursColumnAtPoint,
   parseHoursDropId,
+  type HourDragPreview,
 } from "./week-hour-grid";
-import { parseClockTime, SNAP_MINUTES } from "@/lib/calendar-schedule";
+import {
+  SNAP_MINUTES,
+  parseClockTime,
+  startMinutesFromPointer,
+} from "@/lib/calendar-schedule";
 
 import { AREA_VISUAL } from "@/lib/area-visual";
 
@@ -112,8 +116,10 @@ type CalendarView = "month" | "week" | "day";
 
 const calendarCollision: CollisionDetection = args => {
   const hits = pointerWithin(args);
-  if (hits.length > 0) return hits;
-  return closestCenter(args);
+  if (hits.length === 0) return closestCenter(args);
+  const hours = hits.filter(h => String(h.id).startsWith("hours:"));
+  if (hours.length > 0) return hours;
+  return hits;
 };
 
 function taskArea(task: TaskRow): LifeArea {
@@ -420,8 +426,21 @@ export function CalendarCC({
     () => new Set(["WORK", "LIFE"]),
   );
   const [activeDrag, setActiveDrag] = React.useState<TaskRow | null>(null);
+  const [hourDragPreview, setHourDragPreview] =
+    React.useState<HourDragPreview | null>(null);
   const loadedRanges = React.useRef(new Set<string>());
-  const lastPointerY = React.useRef<number | null>(null);
+  const lastPointer = React.useRef<{ x: number; y: number } | null>(null);
+  const grabOffsetPx = React.useRef(0);
+  const dragDurationRef = React.useRef(60);
+  const dragTitleRef = React.useRef("");
+  const pointerTrackCleanup = React.useRef<(() => void) | null>(null);
+
+  React.useEffect(() => {
+    return () => {
+      pointerTrackCleanup.current?.();
+      pointerTrackCleanup.current = null;
+    };
+  }, []);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -586,20 +605,96 @@ export function CalendarCC({
     setAreaFilter(new Set(LIFE_AREAS));
   }
 
+  function clearHourDragTracking() {
+    pointerTrackCleanup.current?.();
+    pointerTrackCleanup.current = null;
+    setHourDragPreview(null);
+  }
+
+  function updateHourPreviewFromPointer(clientX: number, clientY: number) {
+    const scroller = document.querySelector(
+      "[data-hour-scroll]",
+    ) as HTMLElement | null;
+    if (scroller) {
+      const rect = scroller.getBoundingClientRect();
+      const edge = 48;
+      if (clientY < rect.top + edge) {
+        scroller.scrollTop -= 16;
+      } else if (clientY > rect.bottom - edge) {
+        scroller.scrollTop += 16;
+      }
+    }
+
+    const hit = findHoursColumnAtPoint(clientX, clientY);
+    if (!hit) {
+      setHourDragPreview(null);
+      return;
+    }
+    const startMin = startMinutesFromPointer(
+      clientY,
+      hit.rect.top,
+      hit.rect.height,
+      grabOffsetPx.current,
+      dragDurationRef.current,
+    );
+    setHourDragPreview({
+      dateKey: hit.dateKey,
+      startMin,
+      durationMin: dragDurationRef.current,
+      title: dragTitleRef.current,
+    });
+  }
+
   function onDragStart(event: DragStartEvent) {
     const task = event.active.data.current?.task as TaskRow | undefined;
-    setActiveDrag(task ?? tasks.find(t => t.id === event.active.id) ?? null);
+    const resolved =
+      task ?? tasks.find(t => t.id === event.active.id) ?? null;
+    setActiveDrag(resolved);
+
+    const duration = Math.max(
+      SNAP_MINUTES,
+      resolved?.durationMinutes && resolved.durationMinutes > 0
+        ? resolved.durationMinutes
+        : 60,
+    );
+    dragDurationRef.current = duration;
+    dragTitleRef.current = resolved?.title ?? "";
+
     const ae = event.activatorEvent;
-    if (ae && "clientY" in ae) {
-      lastPointerY.current = (ae as PointerEvent).clientY;
+    const initial = event.active.rect.current.initial;
+    if (ae && "clientY" in ae && "clientX" in ae) {
+      const pointer = ae as PointerEvent;
+      lastPointer.current = { x: pointer.clientX, y: pointer.clientY };
+      grabOffsetPx.current =
+        initial != null
+          ? Math.max(0, pointer.clientY - initial.top)
+          : 0;
+    } else {
+      lastPointer.current = null;
+      grabOffsetPx.current = 0;
+    }
+
+    function onPointerMove(ev: PointerEvent) {
+      lastPointer.current = { x: ev.clientX, y: ev.clientY };
+      updateHourPreviewFromPointer(ev.clientX, ev.clientY);
+    }
+    window.addEventListener("pointermove", onPointerMove);
+    pointerTrackCleanup.current = () => {
+      window.removeEventListener("pointermove", onPointerMove);
+    };
+
+    if (lastPointer.current) {
+      updateHourPreviewFromPointer(
+        lastPointer.current.x,
+        lastPointer.current.y,
+      );
     }
   }
 
-  function onDragMove(event: { activatorEvent: Event; delta: { y: number } }) {
-    const ae = event.activatorEvent;
-    if (ae && "clientY" in ae) {
-      lastPointerY.current = (ae as PointerEvent).clientY + event.delta.y;
-    }
+  function onDragCancel() {
+    clearHourDragTracking();
+    setActiveDrag(null);
+    lastPointer.current = null;
   }
 
   async function applySchedule(
@@ -699,47 +794,91 @@ export function CalendarCC({
   }
 
   async function onDragEnd(event: DragEndEvent) {
+    const preview = hourDragPreview;
+    const pointer = lastPointer.current;
+    const grab = grabOffsetPx.current;
+    clearHourDragTracking();
     setActiveDrag(null);
+
     const { active, over } = event;
-    if (!over) return;
     const taskId = String(active.id);
+    const task = tasks.find(t => t.id === taskId);
+    if (!task?.dueDate) {
+      lastPointer.current = null;
+      return;
+    }
+
+    const duration = Math.max(
+      SNAP_MINUTES,
+      task.durationMinutes && task.durationMinutes > 0
+        ? task.durationMinutes
+        : 60,
+    );
+
+    // Prefer live snapped preview (grab-offset aware) over dnd-kit's over target.
+    if (preview) {
+      const hh = String(Math.floor(preview.startMin / 60)).padStart(2, "0");
+      const mm = String(preview.startMin % 60).padStart(2, "0");
+      await applySchedule(taskId, preview.dateKey, `${hh}:${mm}`, duration);
+      lastPointer.current = null;
+      return;
+    }
+
+    if (pointer) {
+      const hit = findHoursColumnAtPoint(pointer.x, pointer.y);
+      if (hit) {
+        const minutes = startMinutesFromPointer(
+          pointer.y,
+          hit.rect.top,
+          hit.rect.height,
+          grab,
+          duration,
+        );
+        const hh = String(Math.floor(minutes / 60)).padStart(2, "0");
+        const mm = String(minutes % 60).padStart(2, "0");
+        await applySchedule(taskId, hit.dateKey, `${hh}:${mm}`, duration);
+        lastPointer.current = null;
+        return;
+      }
+    }
+
+    if (!over) {
+      lastPointer.current = null;
+      return;
+    }
+
     const overId = String(over.id);
     const hoursKey = parseHoursDropId(overId);
     const overData = over.data.current as
       | { type?: string; dateKey?: string }
       | undefined;
 
-    const task = tasks.find(t => t.id === taskId);
-    if (!task?.dueDate) return;
-
     if (hoursKey || overData?.type === "hours") {
       const dueDateKey = hoursKey ?? overData?.dateKey;
-      if (!dueDateKey) return;
-      const clientY = lastPointerY.current;
-      let minutes: number | null = null;
-      if (clientY != null && over.rect.height > 0) {
-        minutes = minutesFromClientY(clientY, over.rect.top, over.rect.height);
+      if (!dueDateKey) {
+        lastPointer.current = null;
+        return;
       }
-      if (minutes == null && clientY != null) {
-        minutes = minutesFromDragEnd(dueDateKey, clientY);
+      const el = document.querySelector(
+        `[data-day-hours="${dueDateKey}"]`,
+      ) as HTMLElement | null;
+      const rect = el?.getBoundingClientRect();
+      let startMin =
+        new Date(task.dueDate).getHours() * 60 +
+        new Date(task.dueDate).getMinutes();
+      if (rect && pointer) {
+        startMin = startMinutesFromPointer(
+          pointer.y,
+          rect.top,
+          rect.height,
+          grab,
+          duration,
+        );
       }
-      if (minutes == null) {
-        minutes =
-          Math.floor(
-            (new Date(task.dueDate).getHours() * 60 +
-              new Date(task.dueDate).getMinutes()) /
-              SNAP_MINUTES,
-          ) * SNAP_MINUTES;
-      }
-      const hh = String(Math.floor(minutes / 60)).padStart(2, "0");
-      const mm = String(minutes % 60).padStart(2, "0");
-      await applySchedule(
-        taskId,
-        dueDateKey,
-        `${hh}:${mm}`,
-        task.durationMinutes ?? 60,
-      );
-      lastPointerY.current = null;
+      const hh = String(Math.floor(startMin / 60)).padStart(2, "0");
+      const mm = String(startMin % 60).padStart(2, "0");
+      await applySchedule(taskId, dueDateKey, `${hh}:${mm}`, duration);
+      lastPointer.current = null;
       return;
     }
 
@@ -753,6 +892,7 @@ export function CalendarCC({
       dueDateKey = overId;
       time = undefined;
     } else {
+      lastPointer.current = null;
       return;
     }
 
@@ -772,6 +912,7 @@ export function CalendarCC({
       new Date(previousDue).getTime() === nextDue.getTime() &&
       (previousDuration ?? null) === (nextDuration ?? null)
     ) {
+      lastPointer.current = null;
       return;
     }
 
@@ -800,6 +941,7 @@ export function CalendarCC({
       );
       edit.syncDueFromCalendar(taskId, new Date(previousDue), previousDuration);
     }
+    lastPointer.current = null;
   }
 
   const weekdays = language === "FA" ? PERSIAN_WEEKDAYS_SAT : WEEKDAYS_EN;
@@ -933,7 +1075,7 @@ export function CalendarCC({
           sensors={sensors}
           collisionDetection={calendarCollision}
           onDragStart={onDragStart}
-          onDragMove={onDragMove}
+          onDragCancel={onDragCancel}
           onDragEnd={onDragEnd}
         >
           <div className="grid xl:grid-cols-[minmax(0,1fr)_min(100%,300px)] gap-3 sm:gap-4 flex-1 min-h-0">
@@ -947,6 +1089,7 @@ export function CalendarCC({
                   weekdays={weekdays}
                   language={language}
                   mode={view === "day" ? "day" : "week"}
+                  dragPreview={hourDragPreview}
                   onSelectDay={date => selectDay(date)}
                   onOpenTask={(task, date) => openTaskOnDay(task, date)}
                   onResizePreview={onResizePreview}
@@ -1047,7 +1190,7 @@ export function CalendarCC({
             </aside>
           </div>
           <DragOverlay dropAnimation={null}>
-            {activeDrag ? (
+            {activeDrag && !hourDragPreview ? (
               <div className="w-40 cursor-grabbing opacity-95 shadow-lg">
                 <TaskChipContent
                   task={activeDrag}

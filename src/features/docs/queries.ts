@@ -9,6 +9,7 @@ import type {
 } from "./types";
 import { TRASH_RETENTION_DAYS } from "./types";
 import { countWords } from "./utils";
+import { excludeLibraryBindersWhere } from "@/features/research/status-sync";
 
 function previewFromText(text: string): string {
   const clean = text.replace(/\s+/g, " ").trim();
@@ -77,6 +78,7 @@ export async function getDocs(
         ? { deletedAt: { not: null } }
         : { deletedAt: null, archived: archived ?? false }),
       ...(area ? { area } : {}),
+      AND: [excludeLibraryBindersWhere],
       ...(opts?.folderId === "NONE"
         ? { folderId: null }
         : opts?.folderId
@@ -382,6 +384,7 @@ export async function getWritingPulse(
       deletedAt: null,
       archived: false,
       status: { in: ["IDEA", "DRAFTING", "REVIEW"] },
+      AND: [excludeLibraryBindersWhere],
       ...(opts?.area ? { area: opts.area } : {}),
       ...(opts?.projectId === "NONE"
         ? { projectId: null }

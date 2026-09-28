@@ -21,6 +21,9 @@ export interface PdfAnnotatorLabels {
   cancel: string;
   saved: string;
   close: string;
+  insertIntoDraft?: string;
+  pickDraftDoc?: string;
+  noDraftHint?: string;
 }
 
 interface PdfAnnotatorDialogProps {
@@ -29,10 +32,14 @@ interface PdfAnnotatorDialogProps {
   sourceTitle: string;
   labels: PdfAnnotatorLabels;
   onClose: () => void;
+  draftDocs?: { id: string; title: string }[];
+  insertIntoDocId?: string;
+  onInsertIntoDocIdChange?: (id: string) => void;
   onSaveQuote: (input: {
     text: string;
     note?: string;
     page: number;
+    insertIntoDocId?: string;
   }) => Promise<void>;
 }
 
@@ -44,6 +51,9 @@ export function PdfAnnotatorDialog({
   sourceTitle,
   labels,
   onClose,
+  draftDocs = [],
+  insertIntoDocId,
+  onInsertIntoDocIdChange,
   onSaveQuote,
 }: PdfAnnotatorDialogProps) {
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
@@ -192,15 +202,17 @@ export function PdfAnnotatorDialog({
     }
   }
 
-  async function handleSave() {
+  async function handleSave(intoDraft: boolean) {
     const text = selection.trim();
     if (!text || busy) return;
+    if (intoDraft && !insertIntoDocId) return;
     setBusy(true);
     try {
       await onSaveQuote({
         text,
         note: note.trim() || undefined,
         page,
+        insertIntoDocId: intoDraft ? insertIntoDocId : undefined,
       });
       setFlash(labels.saved);
       setSelection("");
@@ -299,14 +311,44 @@ export function PdfAnnotatorDialog({
             onChange={e => setNote(e.target.value)}
             placeholder={labels.quoteNote}
           />
-          <div className="flex gap-2">
+          {draftDocs.length > 0 && labels.insertIntoDraft ? (
+            <div>
+              <label className="text-[10px] text-muted-foreground">
+                {labels.pickDraftDoc ?? labels.insertIntoDraft}
+              </label>
+              <select
+                className="mt-0.5 h-8 w-full rounded-md border bg-background px-2 text-xs"
+                value={insertIntoDocId ?? ""}
+                onChange={e => onInsertIntoDocIdChange?.(e.target.value)}
+              >
+                {draftDocs.map(d => (
+                  <option key={d.id} value={d.id}>
+                    {d.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : labels.noDraftHint ? (
+            <p className="text-[11px] text-muted-foreground">{labels.noDraftHint}</p>
+          ) : null}
+          <div className="flex flex-wrap gap-2">
             <Button
               size="sm"
               disabled={busy || !selection.trim()}
-              onClick={() => void handleSave()}
+              onClick={() => void handleSave(false)}
             >
               {labels.saveQuote}
             </Button>
+            {draftDocs.length > 0 && labels.insertIntoDraft ? (
+              <Button
+                size="sm"
+                variant="subtle"
+                disabled={busy || !selection.trim() || !insertIntoDocId}
+                onClick={() => void handleSave(true)}
+              >
+                {labels.insertIntoDraft}
+              </Button>
+            ) : null}
             <Button
               size="sm"
               variant="ghost"

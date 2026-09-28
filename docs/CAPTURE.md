@@ -18,8 +18,9 @@ The server parses the text again. The dialog preview uses the same rules.
 | --- | --- |
 | `فردا ساعت ۱۰ مقاله STT را بررسی کنم` | Task, tomorrow, 10:00, area PhD (دکتری) |
 | `ایده: …` or `یادداشت:` / `note:` / `idea:` | Doc with status IDEA |
-| `/task` `/note` `/idea` `/research` `/habit` | Forces that kind. Persian aliases: `/یادداشت` `/ایده` `/پژوهش` `/عادت` |
-| `/research` or words like مقاله، پژوهش، phd, paper | Task in the PhD area. This is not a separate research-pipeline item. |
+| `/task` `/note` `/idea` `/research` `/source` `/habit` | Forces that kind. Persian aliases: `/یادداشت` `/ایده` `/پژوهش` `/منبع` `/عادت` |
+| `/research` (no DOI) | PhD task **plus** a linked research idea doc. Path follows the last research scope cookie (or inbox). |
+| `/source` or `/منبع`, or `/research` + a DOI | Library source + per-paper note + reading card. Due date/time from the sentence are kept on the card. Crossref fills metadata when DOI is present. A bare PhD keyword + DOI without `/source` or `/research` stays a normal dated task. |
 | `عادت:` or `/habit` | Habit. `هر هفته` / weekly → weekly; otherwise daily. |
 | `هر روز` `هر هفته` `هر ماه` | Task recurrence. |
 | امروز / فردا / پس‌فردا, today / tomorrow, weekday names, `تا جمعه` | Due day. A named day wins over the page default. |
@@ -27,7 +28,7 @@ The server parses the text again. The dialog preview uses the same rules.
 | `امشب` | Today at 21:00. |
 | `صبح` / `ظهر` / `عصر` / `شب` with no clock | 09:00, 12:00, 17:00, 21:00. An explicit `ساعت …` wins. |
 | `ساعت ۱۰`, `ساعت ده و نیم`, `۱۰:۳۰`, `at 10`, `شب` / `عصر` | Clock time on the task due date. Without a time, a dated task stays at noon. Lists and calendar chips show that clock beside the day; noon stays date-only. In the task form, pick a day first, then optionally tap «افزودن ساعت» — the clock uses a 24h scroll roller. |
-| `۲٫۵ ساعت`, `برای ۲ ساعت`, `90 دقیقه`, `for 2.5 hours` | Optional duration on a timed task (meeting length). Form presets cover 30m–4h. Calendar week/day views use a 24h hour grid: drag onto the grid (15‑minute snap) to set the clock; drag the block’s bottom edge to change duration; overlapping timed blocks show a conflict mark. Drop on the all-day strip to clear the clock. Phone defaults to day view. |
+| `۲٫۵ ساعت`, `برای ۲ ساعت`, `90 دقیقه`, `for 2.5 hours` | Optional duration on a timed task (meeting length). Form presets cover 30m–4h. Calendar week/day views use a 24h hour grid: drag onto the grid (15‑minute snap, live ghost preview, grab-point preserved) to set the clock; drag the block’s bottom edge to change duration; overlapping timed blocks show a conflict mark. Drop on the all-day strip to clear the clock. Phone defaults to day view. |
 
 Area chips in the dialog override the guess. Life is the default area. The bare word «کار» does not switch the area to work; شغل، اداره، دفتر، work, and job do. The dialog lists these rules under «چطور جمله را می‌خواند؟» and shows the title that will be stored.
 

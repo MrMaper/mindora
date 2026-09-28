@@ -230,6 +230,11 @@ export function LifeTaskList({
                       {task.title}
                     </div>
                   )}
+                  {task.waitingOn ? (
+                    <span className="shrink-0 rounded border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-400">
+                      {t.tasks.waitingOn}
+                    </span>
+                  ) : null}
 
                   {!compact ? null : (
                     <div className="flex shrink-0 items-center gap-0.5">
