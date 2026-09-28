@@ -442,26 +442,26 @@ export function DashboardCC({
 
         <div className="grid items-start gap-4 lg:grid-cols-2">
           <div className="order-1 flex min-w-0 flex-col gap-4">
-        <div className="grid grid-cols-7 gap-1">
+        <div className="grid grid-cols-7 gap-0.5 sm:gap-1 overflow-x-auto">
               {weekDays.map((day, i) => (
                 <Link
                   key={day.dateKey}
                   href="/calendar"
                   className={cn(
-                    "min-w-0 rounded-md border border-border-default bg-bg-surface px-0.5 py-1.5 text-center hover:bg-bg-hover transition-colors",
+                    "min-w-0 rounded-md border border-border-default bg-bg-surface px-0.5 py-1 sm:py-1.5 text-center hover:bg-bg-hover transition-colors",
                     day.isToday && "border-primary bg-primary/5",
                     day.isPast && !day.isToday && "opacity-70",
                   )}
                 >
-                  <div className="text-[10px] text-muted-foreground truncate">
+                  <div className="text-[9px] sm:text-[10px] text-muted-foreground truncate">
                     {weekdayLabels[i]}
                   </div>
-                  <div className="text-xs font-medium leading-tight mt-0.5">
+                  <div className="text-[11px] sm:text-xs font-medium leading-tight mt-0.5">
                     {formatJalaliShort(day.date, language).split(" ")[0]}
                   </div>
                   <div
                     className={cn(
-                      "text-[10px] mt-0.5",
+                      "text-[9px] sm:text-[10px] mt-0.5",
                       day.count > 0
                         ? "text-foreground"
                         : "text-muted-foreground",

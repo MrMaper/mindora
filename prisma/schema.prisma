@@ -47,6 +47,7 @@ model User {
   examTracks          ExamTrack[]
   mockAttempts        MockAttempt[]
   habits              Habit[]
+  areaPreferences     UserAreaPreference[]
 
   @@map("users")
 }
@@ -207,6 +208,10 @@ model Project {
   description String?
   status      ProjectStatus   @default(ACTIVE)
   area        LifeArea        @default(LIFE)
+  /// Pin on hub / Today shortcuts
+  pinned      Boolean         @default(false)
+  /// Order within an area (lower first); pinned still sorts above
+  sortOrder   Int             @default(0)
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
   team        Team?           @relation(fields: [teamId], references: [id], onDelete: SetNull)
@@ -220,7 +225,27 @@ model Project {
   examTracks  ExamTrack[]
   mockAttempts MockAttempt[]
 
+  @@index([area, pinned, sortOrder])
   @@map("projects")
+}
+
+/// Per-user overrides for the four fixed LifeArea buckets (color, icon, order, hide).
+model UserAreaPreference {
+  id        String   @id @default(cuid())
+  userId    String
+  area      LifeArea
+  /// Preset key (review, orange, …) or #hex
+  color     String?
+  /// IconName from the UI kit, or emoji string
+  icon      String?
+  sortOrder Int      @default(0)
+  archived  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, area])
+  @@map("user_area_preferences")
 }
 
 model ProjectMember {
@@ -265,6 +290,8 @@ model Task {
   storyPoints  Int?
   estimate     Int?
   dueDate      DateTime?
+  /// Scheduled length in minutes from dueDate. Null = point-in-time / day-only.
+  durationMinutes Int?
   position     Int          @default(0)
   area         LifeArea?
   recurrence   RecurrenceInterval @default(NONE)
@@ -445,6 +472,8 @@ enum ProjectStatus {
   ACTIVE
   ARCHIVED
   ON_HOLD
+  PLANNED
+  COMPLETED
 }
 
 enum ProjectRole {

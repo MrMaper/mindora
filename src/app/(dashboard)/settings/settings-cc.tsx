@@ -30,8 +30,8 @@ export function SettingsCC({ currentLanguage, currentTheme, preferences }: Setti
   ];
 
   return (
-    <div style={{ maxWidth: 720 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", marginBottom: "var(--space-6)" }}>
+    <div style={{ maxWidth: 720 }} className="min-w-0 w-full overflow-x-hidden">
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", marginBottom: "var(--space-6)" }} className="flex-wrap">
         <span
           style={{
             fontSize: "var(--text-xl)",
@@ -588,8 +588,17 @@ function NotificationSettingsSection({
     { key: "notifyStatusChanged", label: t.settings.notifyStatusChanged },
   ] as const;
 
+  const [browserPerm, setBrowserPerm] = React.useState<string>("unsupported");
+  React.useEffect(() => {
+    if (typeof window === "undefined" || !("Notification" in window)) {
+      setBrowserPerm("unsupported");
+      return;
+    }
+    setBrowserPerm(Notification.permission);
+  }, []);
+
   return (
-    <section>
+    <section className="min-w-0 overflow-x-hidden">
       <div
         style={{
           fontSize: "var(--text-2xs)",
@@ -602,6 +611,53 @@ function NotificationSettingsSection({
       >
         {t.settings.notifications}
       </div>
+
+      {browserPerm !== "unsupported" ? (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "var(--space-3)",
+            padding: "var(--space-3) var(--space-4)",
+            borderRadius: "var(--radius-md)",
+            background: "var(--surface-default)",
+            border: "1px solid var(--border-subtle)",
+            marginBottom: "var(--space-3)",
+          }}
+        >
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: "var(--text-sm)", color: "var(--text-primary)" }}>
+              {t.settings.browserReminders}
+            </div>
+            <div style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", marginTop: 4 }}>
+              {t.settings.browserRemindersHint}
+            </div>
+          </div>
+          <button
+            type="button"
+            disabled={browserPerm === "granted"}
+            onClick={async () => {
+              const next = await Notification.requestPermission();
+              setBrowserPerm(next);
+            }}
+            style={{
+              flexShrink: 0,
+              fontSize: "var(--text-xs)",
+              padding: "6px 10px",
+              borderRadius: "var(--radius-md)",
+              border: "1px solid var(--border-subtle)",
+              background: browserPerm === "granted" ? "var(--action-primary)" : "transparent",
+              color: browserPerm === "granted" ? "#fff" : "var(--text-primary)",
+              cursor: browserPerm === "granted" ? "default" : "pointer",
+            }}
+          >
+            {browserPerm === "granted"
+              ? t.settings.browserRemindersOn
+              : t.settings.browserRemindersEnable}
+          </button>
+        </div>
+      ) : null}
 
       <div
         style={{

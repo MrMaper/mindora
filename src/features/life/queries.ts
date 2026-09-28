@@ -23,6 +23,7 @@ const taskSelect = {
   priority: true,
   type: true,
   dueDate: true,
+  durationMinutes: true,
   position: true,
   createdAt: true,
   updatedAt: true,

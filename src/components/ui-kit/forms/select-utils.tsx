@@ -60,6 +60,8 @@ export function getProjectStatusLabel(t: Translations, value: string): string {
     ACTIVE: "active",
     ARCHIVED: "archived",
     ON_HOLD: "onHold",
+    PLANNED: "planned",
+    COMPLETED: "completed",
   };
   const key = keyMap[value];
   return key ? t.projects[key] : value;
@@ -175,6 +177,8 @@ export function getAllOptionsWithLabels(
     ACTIVE: "active",
     ARCHIVED: "archived",
     ON_HOLD: "onHold",
+    PLANNED: "planned",
+    COMPLETED: "completed",
   };
 
   const projectRoleMap: Record<string, keyof typeof t.projects> = {

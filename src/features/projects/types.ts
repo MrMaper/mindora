@@ -1,13 +1,27 @@
+export type ProjectStatus =
+  | "ACTIVE"
+  | "ARCHIVED"
+  | "ON_HOLD"
+  | "PLANNED"
+  | "COMPLETED";
+
 export interface ProjectRow {
   id: string;
   name: string;
   description: string | null;
-  status: "ACTIVE" | "ARCHIVED" | "ON_HOLD";
+  status: ProjectStatus;
   area: "PHD" | "WORK" | "LIFE" | "LANG";
   teamId: string | null;
   teamName: string | null;
   memberCount: number;
   createdAt: Date;
+  pinned: boolean;
+  sortOrder: number;
+  /** Hub list stats (optional; filled by getProjectsHub). */
+  openTaskCount?: number;
+  doneTaskCount?: number;
+  totalTaskCount?: number;
+  nextActionTitle?: string | null;
 }
 
 export interface GetProjectsResult {
@@ -17,27 +31,71 @@ export interface GetProjectsResult {
   totalPages: number;
 }
 
+export interface AreaPrefRow {
+  area: ProjectRow["area"];
+  color: string | null;
+  icon: string | null;
+  sortOrder: number;
+  archived: boolean;
+}
+
 export interface AreaHubSection {
   area: ProjectRow["area"];
   bucket: ProjectRow;
   paths: ProjectRow[];
+  /** Open (non-DONE) tasks across bucket + paths in this area. */
+  openTaskCount: number;
+  activePathCount: number;
+  pref: AreaPrefRow;
 }
 
 export interface ProjectsHubData {
   sections: AreaHubSection[];
   search: string;
+  /** Pinned paths across all areas (for shortcuts). */
+  pinnedPaths: ProjectRow[];
+}
+
+export interface AreaDashboardData {
+  area: ProjectRow["area"];
+  bucket: ProjectRow;
+  pref: AreaPrefRow;
+  paths: ProjectRow[];
+  openTaskCount: number;
+  doneTaskCount: number;
+  activePathCount: number;
+  /** Open tasks due or updated this week (for “this week” strip). */
+  weekOpenTasks: {
+    id: string;
+    title: string;
+    status: string;
+    dueDate: Date | null;
+    projectId: string | null;
+    projectName: string | null;
+  }[];
+  nextActions: { pathId: string; pathName: string; title: string }[];
+  /** Soft metrics */
+  stats: {
+    pathsTotal: number;
+    pathsCompleted: number;
+    pathsOnHold: number;
+    tasksOpen: number;
+    tasksDone: number;
+  };
 }
 
 export interface ProjectDetail {
   id: string;
   name: string;
   description: string | null;
-  status: "ACTIVE" | "ARCHIVED" | "ON_HOLD";
+  status: ProjectStatus;
   area: "PHD" | "WORK" | "LIFE" | "LANG";
   teamId: string | null;
   teamName: string | null;
   createdAt: Date;
   updatedAt: Date;
+  pinned: boolean;
+  sortOrder: number;
   members: ProjectMemberRow[];
   _count: {
     tasks: number;

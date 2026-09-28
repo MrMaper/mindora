@@ -13,6 +13,8 @@ export interface ParsedCapture {
   dateKey: string | null;
   /** 24-hour HH:mm. Null when the sentence names no clock time. */
   time: string | null;
+  /** Meeting length in minutes when the sentence names one. */
+  durationMinutes: number | null;
   recurrence: RecurrenceInterval;
 }
 
@@ -140,6 +142,61 @@ function takeTime(pair: Pair): { pair: Pair; time: string | null } {
   }
 
   return { pair, time: null };
+}
+
+const DURATION_WORDS: Record<string, number> = {
+  یک: 1,
+  دو: 2,
+  سه: 3,
+  چهار: 4,
+  پنج: 5,
+};
+
+function takeDuration(pair: Pair): { pair: Pair; durationMinutes: number | null } {
+  // ۲٫۵ ساعت / 2.5 ساعت / 2 ساعت و نیم
+  const decimal = pair.scan.match(
+    /(?:^|\s)(?:به\s*مدت\s*|برای\s*|for\s+)?(\d+(?:[.,٫]\d+)?)\s*(?:ساعت|hours?|hrs?)(?:\s+و\s+نیم)?(?=\s|$)/i,
+  );
+  if (decimal?.index !== undefined) {
+    let hours = Number(decimal[1]!.replace(/[٫,]/g, "."));
+    if (/و\s*نیم/i.test(decimal[0]!)) hours += 0.5;
+    if (hours > 0 && hours <= 12) {
+      return {
+        pair: cut(pair, decimal.index, decimal[0]!.length),
+        durationMinutes: Math.round(hours * 60),
+      };
+    }
+  }
+
+  const word = pair.scan.match(
+    /(?:^|\s)(?:به\s*مدت\s*|برای\s*)?(یک|دو|سه|چهار|پنج)\s+ساعت(?:\s+و\s+(نیم|ربع))?(?=\s|$)/,
+  );
+  if (word?.index !== undefined && word[1]) {
+    let hours = DURATION_WORDS[word[1]] ?? 0;
+    if (word[2] === "نیم") hours += 0.5;
+    if (word[2] === "ربع") hours += 0.25;
+    if (hours > 0) {
+      return {
+        pair: cut(pair, word.index, word[0]!.length),
+        durationMinutes: Math.round(hours * 60),
+      };
+    }
+  }
+
+  const minutesOnly = pair.scan.match(
+    /(?:^|\s)(?:به\s*مدت\s*|برای\s*)?(\d{1,3})\s*(?:دقیقه|minutes?|mins?)(?=\s|$)/i,
+  );
+  if (minutesOnly?.index !== undefined) {
+    const mins = Number(minutesOnly[1]);
+    if (mins > 0 && mins <= 720) {
+      return {
+        pair: cut(pair, minutesOnly.index, minutesOnly[0]!.length),
+        durationMinutes: mins,
+      };
+    }
+  }
+
+  return { pair, durationMinutes: null };
 }
 
 function takeRecurrence(
@@ -335,6 +392,7 @@ export function parseCapture(input: string, now = new Date()): ParsedCapture {
 
   let dateKey: string | null = null;
   let time: string | null = null;
+  let durationMinutes: number | null = null;
   let recurrence: RecurrenceInterval = "NONE";
 
   if (kind === "task") {
@@ -350,6 +408,9 @@ export function parseCapture(input: string, now = new Date()): ParsedCapture {
       pair = part.pair;
       time = part.time;
     }
+    const lasting = takeDuration(pair);
+    pair = lasting.pair;
+    durationMinutes = lasting.durationMinutes;
     const recurring = takeRecurrence(pair, true);
     pair = recurring.pair;
     recurrence = recurring.recurrence;
@@ -368,6 +429,7 @@ export function parseCapture(input: string, now = new Date()): ParsedCapture {
     area,
     dateKey,
     time,
+    durationMinutes,
     recurrence,
   };
 }

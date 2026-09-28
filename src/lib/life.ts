@@ -136,14 +136,98 @@ export function formatJalaliDate(date: Date, language: "FA" | "EN" = "FA"): stri
   return `${weekday} ${jd} ${PERSIAN_MONTHS[jm - 1]} ${jy}`;
 }
 
-/** Clock label when a due date has a real time. Noon is the dateless default. */
-export function formatClock(date: Date, language: "FA" | "EN" = "FA"): string | null {
-  const value = new Date(date);
-  if (value.getHours() === 12 && value.getMinutes() === 0) return null;
+function clockDigits(date: Date, language: "FA" | "EN"): string {
   return formatNumber(
-    `${String(value.getHours()).padStart(2, "0")}:${String(value.getMinutes()).padStart(2, "0")}`,
+    `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`,
     language,
   );
+}
+
+/** Clock label when a due date has a real time. Noon is the date-only default. */
+export function formatClock(
+  date: Date,
+  language: "FA" | "EN" = "FA",
+  durationMinutes?: number | null,
+): string | null {
+  if (!hasDueTime(date, durationMinutes)) return null;
+  const start = new Date(date);
+  const startLabel = clockDigits(start, language);
+  if (durationMinutes != null && durationMinutes > 0) {
+    const end = new Date(start);
+    end.setMinutes(end.getMinutes() + durationMinutes);
+    return `${startLabel}–${clockDigits(end, language)}`;
+  }
+  return startLabel;
+}
+
+/** Noon means “day only” unless a duration marks a real noon meeting. */
+export function hasDueTime(
+  date: Date,
+  durationMinutes?: number | null,
+): boolean {
+  if (durationMinutes != null && durationMinutes > 0) return true;
+  const value = new Date(date);
+  return !(value.getHours() === 12 && value.getMinutes() === 0);
+}
+
+/** Force the date-only sentinel (local noon). */
+export function withDateOnly(date: Date): Date {
+  const d = new Date(date);
+  d.setHours(12, 0, 0, 0);
+  return d;
+}
+
+/**
+ * Move a due to another calendar day.
+ * Keeps the clock when the task already had one; otherwise stays noon.
+ */
+export function moveDueToDay(
+  existing: Date | null | undefined,
+  dayKey: string,
+  durationMinutes?: number | null,
+): Date {
+  const next = parseLocalDate(dayKey);
+  if (existing && hasDueTime(existing, durationMinutes)) {
+    next.setHours(existing.getHours(), existing.getMinutes(), 0, 0);
+  }
+  return next;
+}
+
+/** Set a due to a calendar day at an explicit local clock (24h). */
+export function setDueDateTime(
+  dayKey: string,
+  hours: number,
+  minutes = 0,
+): Date {
+  const next = parseLocalDate(dayKey);
+  next.setHours(
+    Math.min(23, Math.max(0, Math.round(hours))),
+    Math.min(59, Math.max(0, Math.round(minutes))),
+    0,
+    0,
+  );
+  return next;
+}
+
+/** Drop target id for a week-grid hour cell: `YYYY-MM-DDTHH`. */
+export function weekHourDropId(dayKey: string, hour: number): string {
+  return `${dayKey}T${String(hour).padStart(2, "0")}`;
+}
+
+export function parseWeekHourDropId(
+  id: string,
+): { dateKey: string; hour: number } | null {
+  const match = id.match(/^(\d{4}-\d{2}-\d{2})T(\d{2})$/);
+  if (!match) return null;
+  const hour = Number(match[2]);
+  if (hour < 0 || hour > 23) return null;
+  return { dateKey: match[1]!, hour };
+}
+
+/** Full ISO for form fields so the clock survives edit. */
+export function dueDateToFormValue(date: Date | null | undefined): string {
+  if (!date) return "";
+  return new Date(date).toISOString();
 }
 
 export function formatJalaliShort(date: Date, language: "FA" | "EN" = "FA"): string {
@@ -255,8 +339,10 @@ export function formatJalaliWeekRange(
 
 export function isOverdueTask(
   task: { dueDate: Date | null; status: string },
-  today = startOfDay(),
+  now = new Date(),
 ): boolean {
   if (!task.dueDate || task.status === "DONE") return false;
-  return startOfDay(new Date(task.dueDate)).getTime() < today.getTime();
+  const due = new Date(task.dueDate);
+  if (hasDueTime(due)) return due.getTime() < now.getTime();
+  return startOfDay(due).getTime() < startOfDay(now).getTime();
 }

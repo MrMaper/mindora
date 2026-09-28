@@ -90,19 +90,19 @@ export function WorkLogsCC({
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 min-w-0 overflow-x-hidden">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-text-primary">{t.workLogs.title}</h1>
-          <p className="text-text-secondary mt-1">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold text-text-primary">{t.workLogs.title}</h1>
+          <p className="text-text-secondary mt-1 text-sm">
             {t.workLogs.subtitle}
           </p>
         </div>
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
         <Card className="p-4">
           <div className="text-text-tertiary text-sm">{t.workLogs.totalHours}</div>
           <div className="text-3xl font-bold text-text-primary mt-1">

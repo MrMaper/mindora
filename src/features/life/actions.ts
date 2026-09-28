@@ -8,6 +8,7 @@ import {
   addDays,
   endOfDay,
   endOfWeek,
+  moveDueToDay,
   parseLocalDate,
   startOfDay,
   toDateKey,
@@ -60,6 +61,7 @@ export async function quickCapture(input: {
   recurrence?: RecurrenceInterval;
   dueDate?: string;
   time?: string | null;
+  durationMinutes?: number | null;
 }): Promise<ActionResult & { data?: { id: string } }> {
   const session = await auth();
   if (!session?.user) return { success: false, error: "غیرمجاز" };
@@ -73,6 +75,10 @@ export async function quickCapture(input: {
 
   const recurrence = input.recurrence ?? "NONE";
   const due = resolveDue(input.dueDate, input.time);
+  const durationMinutes =
+    due && input.time && input.durationMinutes && input.durationMinutes > 0
+      ? Math.min(24 * 60, Math.round(input.durationMinutes))
+      : null;
   const task = await db.task.create({
     data: {
       title,
@@ -84,6 +90,7 @@ export async function quickCapture(input: {
       recurrenceSeriesId:
         recurrence !== "NONE" ? newRecurrenceSeriesId() : null,
       dueDate: due,
+      durationMinutes,
       projectId,
       teamId,
       createdById: session.user.id,
@@ -121,8 +128,18 @@ export async function planTaskThisWeek(taskId: string): Promise<ActionResult> {
   const session = await auth();
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
+  const existing = await db.task.findUnique({
+    where: { id: taskId },
+    select: { dueDate: true, durationMinutes: true },
+  });
+  if (!existing) return { success: false, error: "کار پیدا نشد" };
+
   const weekEnd = endOfWeek(new Date());
-  const dueDate = parseLocalDate(toDateKey(weekEnd));
+  const dueDate = moveDueToDay(
+    existing.dueDate,
+    toDateKey(weekEnd),
+    existing.durationMinutes,
+  );
 
   await db.task.update({
     where: { id: taskId },
@@ -140,10 +157,15 @@ export async function planTaskForToday(taskId: string): Promise<ActionResult> {
   const session = await auth();
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
-  const dueDate = parseLocalDate(toDateKey(new Date()));
   const existing = await db.task.findUnique({
     where: { id: taskId },
-    select: { id: true, assignedToId: true, createdById: true },
+    select: {
+      id: true,
+      assignedToId: true,
+      createdById: true,
+      dueDate: true,
+      durationMinutes: true,
+    },
   });
   if (!existing) return { success: false, error: "کار پیدا نشد" };
 
@@ -152,6 +174,12 @@ export async function planTaskForToday(taskId: string): Promise<ActionResult> {
     existing.assignedToId === session.user.id ||
     existing.createdById === session.user.id;
   if (!allowed) return { success: false, error: "اجازه ویرایش ندارید" };
+
+  const dueDate = moveDueToDay(
+    existing.dueDate,
+    toDateKey(new Date()),
+    existing.durationMinutes,
+  );
 
   await db.task.update({
     where: { id: taskId },
@@ -169,7 +197,7 @@ export async function moveYesterdayToToday(): Promise<ActionResult & { data?: { 
   const todayStart = startOfDay();
   const yesterdayStart = addDays(todayStart, -1);
   const yesterdayEnd = endOfDay(yesterdayStart);
-  const dueDate = parseLocalDate(toDateKey(todayStart));
+  const todayKey = toDateKey(todayStart);
 
   const mine = {
     OR: [
@@ -178,18 +206,28 @@ export async function moveYesterdayToToday(): Promise<ActionResult & { data?: { 
     ],
   };
 
-  const result = await db.task.updateMany({
+  const rows = await db.task.findMany({
     where: {
       ...mine,
       ...taskWhereExcludeHub(),
       status: { not: "DONE" },
       dueDate: { gte: yesterdayStart, lte: yesterdayEnd },
     },
-    data: { status: "TODO", dueDate },
+    select: { id: true, dueDate: true, durationMinutes: true },
   });
 
+  for (const row of rows) {
+    await db.task.update({
+      where: { id: row.id },
+      data: {
+        status: "TODO",
+        dueDate: moveDueToDay(row.dueDate, todayKey, row.durationMinutes),
+      },
+    });
+  }
+
   revalidateLife();
-  return { success: true, data: { moved: result.count } };
+  return { success: true, data: { moved: rows.length } };
 }
 
 async function readFocusSlots(userId: string): Promise<(string | null)[]> {
@@ -412,6 +450,7 @@ export async function updateTaskRecurrenceSeriesAction(input: {
 export async function rescheduleTaskDueDate(
   taskId: string,
   dueDateKey: string,
+  time?: string | null,
 ): Promise<ActionResult> {
   const session = await auth();
   if (!session?.user) return { success: false, error: "غیرمجاز" };
@@ -422,7 +461,7 @@ export async function rescheduleTaskDueDate(
 
   const existing = await db.task.findUnique({
     where: { id: taskId },
-    select: { assignedToId: true, dueDate: true },
+    select: { assignedToId: true, dueDate: true, durationMinutes: true },
   });
   if (!existing) return { success: false, error: "کار پیدا نشد" };
 
@@ -432,10 +471,80 @@ export async function rescheduleTaskDueDate(
     return { success: false, error: "اجازه ویرایش ندارید" };
   }
 
-  const nextDue = parseLocalDate(dueDateKey);
+  let nextDue: Date;
+  if (time && /^(\d{2}):(\d{2})$/.test(time)) {
+    const [hours, minutes] = time.split(":").map(Number);
+    nextDue = parseLocalDate(dueDateKey);
+    nextDue.setHours(hours!, minutes!, 0, 0);
+  } else if (time === "") {
+    nextDue = parseLocalDate(dueDateKey);
+  } else {
+    nextDue = moveDueToDay(
+      existing.dueDate,
+      dueDateKey,
+      existing.durationMinutes,
+    );
+  }
+
   await db.task.update({
     where: { id: taskId },
-    data: { dueDate: nextDue },
+    data: {
+      dueDate: nextDue,
+      ...(time === "" ? { durationMinutes: null } : {}),
+    },
+  });
+
+  revalidateLife();
+  return { success: true };
+}
+
+/** Set exact clock and/or duration (week/day grid drag + resize). */
+export async function rescheduleTaskSchedule(
+  taskId: string,
+  input: {
+    dueDateKey: string;
+    time: string;
+    durationMinutes?: number | null;
+  },
+): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(input.dueDateKey)) {
+    return { success: false, error: "تاریخ نامعتبر است" };
+  }
+  if (!/^(\d{2}):(\d{2})$/.test(input.time)) {
+    return { success: false, error: "ساعت نامعتبر است" };
+  }
+
+  const existing = await db.task.findUnique({
+    where: { id: taskId },
+    select: { assignedToId: true },
+  });
+  if (!existing) return { success: false, error: "کار پیدا نشد" };
+
+  const isAdmin = session.user.role === "ADMIN";
+  const isAssignee = existing.assignedToId === session.user.id;
+  if (!isAdmin && !isAssignee) {
+    return { success: false, error: "اجازه ویرایش ندارید" };
+  }
+
+  const [hours, minutes] = input.time.split(":").map(Number);
+  const nextDue = parseLocalDate(input.dueDateKey);
+  nextDue.setHours(hours!, minutes!, 0, 0);
+
+  let durationMinutes: number | null | undefined = input.durationMinutes;
+  if (durationMinutes !== undefined && durationMinutes !== null) {
+    if (durationMinutes <= 0) durationMinutes = null;
+    else durationMinutes = Math.min(24 * 60, Math.round(durationMinutes));
+  }
+
+  await db.task.update({
+    where: { id: taskId },
+    data: {
+      dueDate: nextDue,
+      ...(durationMinutes !== undefined ? { durationMinutes } : {}),
+    },
   });
 
   revalidateLife();

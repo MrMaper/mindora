@@ -71,7 +71,9 @@ export type SprintStatus = (typeof SprintStatus)[keyof typeof SprintStatus]
 export const ProjectStatus = {
   ACTIVE: 'ACTIVE',
   ARCHIVED: 'ARCHIVED',
-  ON_HOLD: 'ON_HOLD'
+  ON_HOLD: 'ON_HOLD',
+  PLANNED: 'PLANNED',
+  COMPLETED: 'COMPLETED'
 } as const
 
 export type ProjectStatus = (typeof ProjectStatus)[keyof typeof ProjectStatus]

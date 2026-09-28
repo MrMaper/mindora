@@ -397,6 +397,7 @@ export const ModelName = {
   Team: 'Team',
   TeamMember: 'TeamMember',
   Project: 'Project',
+  UserAreaPreference: 'UserAreaPreference',
   ProjectMember: 'ProjectMember',
   Sprint: 'Sprint',
   Task: 'Task',
@@ -444,7 +445,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "account" | "session" | "verificationToken" | "passwordResetToken" | "userPreferences" | "role" | "permission" | "rolePermission" | "organization" | "team" | "teamMember" | "project" | "projectMember" | "sprint" | "task" | "label" | "taskLabel" | "comment" | "attachment" | "checklist" | "checklistItem" | "notification" | "activityLog" | "workLog" | "habit" | "habitLog" | "doc" | "docFolder" | "docTag" | "docTagOnDoc" | "docTask" | "docVersion" | "docSource" | "docQuote" | "langProfile" | "langSession" | "langListeningClip" | "langCard" | "langVocabDay" | "examTrack" | "mockAttempt" | "baleConfig" | "baleDelivery" | "baleOutbound"
+    modelProps: "user" | "account" | "session" | "verificationToken" | "passwordResetToken" | "userPreferences" | "role" | "permission" | "rolePermission" | "organization" | "team" | "teamMember" | "project" | "userAreaPreference" | "projectMember" | "sprint" | "task" | "label" | "taskLabel" | "comment" | "attachment" | "checklist" | "checklistItem" | "notification" | "activityLog" | "workLog" | "habit" | "habitLog" | "doc" | "docFolder" | "docTag" | "docTagOnDoc" | "docTask" | "docVersion" | "docSource" | "docQuote" | "langProfile" | "langSession" | "langListeningClip" | "langCard" | "langVocabDay" | "examTrack" | "mockAttempt" | "baleConfig" | "baleDelivery" | "baleOutbound"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1407,6 +1408,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ProjectCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ProjectCountAggregateOutputType> | number
+        }
+      }
+    }
+    UserAreaPreference: {
+      payload: Prisma.$UserAreaPreferencePayload<ExtArgs>
+      fields: Prisma.UserAreaPreferenceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.UserAreaPreferenceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAreaPreferencePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.UserAreaPreferenceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAreaPreferencePayload>
+        }
+        findFirst: {
+          args: Prisma.UserAreaPreferenceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAreaPreferencePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.UserAreaPreferenceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAreaPreferencePayload>
+        }
+        findMany: {
+          args: Prisma.UserAreaPreferenceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAreaPreferencePayload>[]
+        }
+        create: {
+          args: Prisma.UserAreaPreferenceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAreaPreferencePayload>
+        }
+        createMany: {
+          args: Prisma.UserAreaPreferenceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.UserAreaPreferenceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAreaPreferencePayload>[]
+        }
+        delete: {
+          args: Prisma.UserAreaPreferenceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAreaPreferencePayload>
+        }
+        update: {
+          args: Prisma.UserAreaPreferenceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAreaPreferencePayload>
+        }
+        deleteMany: {
+          args: Prisma.UserAreaPreferenceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.UserAreaPreferenceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.UserAreaPreferenceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAreaPreferencePayload>[]
+        }
+        upsert: {
+          args: Prisma.UserAreaPreferenceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAreaPreferencePayload>
+        }
+        aggregate: {
+          args: Prisma.UserAreaPreferenceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUserAreaPreference>
+        }
+        groupBy: {
+          args: Prisma.UserAreaPreferenceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserAreaPreferenceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.UserAreaPreferenceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserAreaPreferenceCountAggregateOutputType> | number
         }
       }
     }
@@ -3978,11 +4053,28 @@ export const ProjectScalarFieldEnum = {
   description: 'description',
   status: 'status',
   area: 'area',
+  pinned: 'pinned',
+  sortOrder: 'sortOrder',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
+
+
+export const UserAreaPreferenceScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  area: 'area',
+  color: 'color',
+  icon: 'icon',
+  sortOrder: 'sortOrder',
+  archived: 'archived',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserAreaPreferenceScalarFieldEnum = (typeof UserAreaPreferenceScalarFieldEnum)[keyof typeof UserAreaPreferenceScalarFieldEnum]
 
 
 export const ProjectMemberScalarFieldEnum = {
@@ -4024,6 +4116,7 @@ export const TaskScalarFieldEnum = {
   storyPoints: 'storyPoints',
   estimate: 'estimate',
   dueDate: 'dueDate',
+  durationMinutes: 'durationMinutes',
   position: 'position',
   area: 'area',
   recurrence: 'recurrence',
@@ -4953,6 +5046,7 @@ export type GlobalOmitConfig = {
   team?: Prisma.TeamOmit
   teamMember?: Prisma.TeamMemberOmit
   project?: Prisma.ProjectOmit
+  userAreaPreference?: Prisma.UserAreaPreferenceOmit
   projectMember?: Prisma.ProjectMemberOmit
   sprint?: Prisma.SprintOmit
   task?: Prisma.TaskOmit

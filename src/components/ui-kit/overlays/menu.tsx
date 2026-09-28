@@ -40,12 +40,20 @@ export function Menu({
   className = "",
   ...rest
 }: MenuProps): React.JSX.Element {
+  // Base UI Trigger is a <button>; merge into an existing button trigger
+  // (e.g. IconButton) so we never nest <button> inside <button>.
+  const triggerNode = React.isValidElement(trigger) ? (
+    <ShadcnDropdownMenuTrigger render={trigger} />
+  ) : (
+    <ShadcnDropdownMenuTrigger className="inline-flex cursor-pointer">
+      {trigger}
+    </ShadcnDropdownMenuTrigger>
+  );
+
   return (
     <span className={className} {...rest}>
       <ShadcnDropdownMenu open={controlledOpen} onOpenChange={onOpenChange}>
-        <ShadcnDropdownMenuTrigger>
-          <span className="inline-flex cursor-pointer">{trigger}</span>
-        </ShadcnDropdownMenuTrigger>
+        {triggerNode}
         <ShadcnDropdownMenuContent
           align={align === "end" ? "end" : "start"}
           sideOffset={4}

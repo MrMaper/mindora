@@ -46,7 +46,7 @@ export function useProjects(initialSearch: string) {
 
   const editForm = useForm<UpdateProjectInput>({
     resolver: zodResolver(updateProjectSchema),
-    defaultValues: { name: "", description: "" },
+    defaultValues: { name: "", description: "", status: "ACTIVE" },
   });
 
   const createForm = useForm<CreateProjectInput>({
@@ -79,6 +79,7 @@ export function useProjects(initialSearch: string) {
     editForm.reset({
       name: project.name,
       description: project.description ?? "",
+      status: project.status,
     });
     setEditingProject(project);
     setActionError(null);
@@ -129,6 +130,7 @@ export function useProjects(initialSearch: string) {
       const fd = new FormData();
       fd.append("name", data.name);
       fd.append("description", data.description ?? "");
+      if (data.status) fd.append("status", data.status);
       const result = await updateProject(editingProject.id, fd);
       if (!result.success) {
         setActionError(result.error ?? "Failed to update path.");

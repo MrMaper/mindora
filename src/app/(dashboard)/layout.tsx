@@ -20,6 +20,7 @@ import { hasModule } from "@/lib/modules";
 import { areaProjectIdsForUser } from "@/lib/area-projects";
 import { AreaBucketsProvider } from "@/components/area-buckets-provider";
 import { CaptureProvider } from "@/components/life/capture-provider";
+import { ReminderWatcher } from "@/components/life/reminder-watcher";
 
 export default async function DashboardLayout({
   children,
@@ -183,6 +184,7 @@ export default async function DashboardLayout({
       <DirectionSync language={language} />
       <AreaBucketsProvider ids={areaIds}>
         <CaptureProvider>
+          <ReminderWatcher />
           <DashboardShell
             captureEnabled
             language={language}

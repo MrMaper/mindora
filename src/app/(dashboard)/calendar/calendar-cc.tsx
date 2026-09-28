@@ -5,13 +5,19 @@ import {
   DndContext,
   DragOverlay,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   useDraggable,
   useDroppable,
   closestCenter,
+  pointerWithin,
 } from "@dnd-kit/core";
-import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
+import type {
+  CollisionDetection,
+  DragEndEvent,
+  DragStartEvent,
+} from "@dnd-kit/core";
 import { IconButton } from "@/components/ui-kit/forms/icon-button";
 import { Button } from "@/components/ui-kit/forms/button";
 import { Icon } from "@/components/ui-kit/foundation/icon";
@@ -31,7 +37,11 @@ import {
   formatJalaliDate,
   formatJalaliMonthYear,
   formatJalaliWeekRange,
+  formatClock,
   isOverdueTask,
+  moveDueToDay,
+  setDueDateTime,
+  withDateOnly,
   jalaliMonthBounds,
   jalaliMonthCells,
   jalaliOf,
@@ -46,6 +56,7 @@ import {
 import {
   loadCalendarRange,
   rescheduleTaskDueDate,
+  rescheduleTaskSchedule,
 } from "@/features/life/actions";
 import {
   STATUS_OPTIONS,
@@ -57,12 +68,21 @@ import type { UserRow } from "@/features/users/types";
 import type { LabelRow } from "@/features/labels/types";
 import type { ProjectRow } from "@/features/projects/types";
 import { useLifeTaskEdit } from "@/features/life/use-life-task-edit";
+import {
+  WeekHourGrid,
+  minutesFromClientY,
+  minutesFromDragEnd,
+  parseHoursDropId,
+} from "./week-hour-grid";
+import { parseClockTime, SNAP_MINUTES } from "@/lib/calendar-schedule";
+
+import { AREA_VISUAL } from "@/lib/area-visual";
 
 const AREA_CHIP: Record<LifeArea, string> = {
-  PHD: "bg-[var(--status-review)] text-white",
-  WORK: "bg-[var(--status-in-progress)] text-white",
-  LIFE: "bg-[var(--status-todo)] text-white",
-  LANG: "bg-emerald-600 text-white",
+  PHD: AREA_VISUAL.PHD.chip,
+  WORK: AREA_VISUAL.WORK.chip,
+  LIFE: AREA_VISUAL.LIFE.chip,
+  LANG: AREA_VISUAL.LANG.chip,
 };
 
 const AREA_ACCENT: Record<LifeArea, string> = {
@@ -80,15 +100,21 @@ const AREA_OVERDUE_WASH: Record<LifeArea, string> = {
 };
 
 const AREA_DOT: Record<LifeArea, string> = {
-  PHD: "bg-[var(--status-review)]",
-  WORK: "bg-[var(--status-in-progress)]",
-  LIFE: "bg-[var(--status-todo)]",
-  LANG: "bg-emerald-600",
+  PHD: AREA_VISUAL.PHD.dot,
+  WORK: AREA_VISUAL.WORK.dot,
+  LIFE: AREA_VISUAL.LIFE.dot,
+  LANG: AREA_VISUAL.LANG.dot,
 };
 
 const WEEKDAYS_EN = ["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"];
 
-type CalendarView = "month" | "week";
+type CalendarView = "month" | "week" | "day";
+
+const calendarCollision: CollisionDetection = args => {
+  const hits = pointerWithin(args);
+  if (hits.length > 0) return hits;
+  return closestCenter(args);
+};
 
 function taskArea(task: TaskRow): LifeArea {
   return coerceLifeArea(task.area);
@@ -119,12 +145,22 @@ function TaskChipContent({
   hasDoc?: boolean;
   className?: string;
 }) {
+  const language = useLanguage();
   const area = taskArea(task);
+  const clock =
+    task.dueDate != null
+      ? formatClock(
+          new Date(task.dueDate),
+          language === "EN" ? "EN" : "FA",
+          task.durationMinutes,
+        )
+      : null;
+  const titleWithClock = clock ? `${task.title} · ${clock}` : task.title;
 
   if (overdue) {
     return (
       <span
-        title={task.title}
+        title={titleWithClock}
         className={cn(
           "flex w-full min-h-[22px] min-w-0 items-center gap-1 truncate rounded-md border border-[var(--status-blocked-border)] px-1.5 py-[3px] text-start text-[11px] font-medium leading-4 text-[var(--status-blocked)] border-s-4",
           AREA_ACCENT[area],
@@ -140,6 +176,9 @@ function TaskChipContent({
           className="shrink-0 text-[var(--status-blocked)]"
         />
         <span className="min-w-0 truncate">{task.title}</span>
+        {clock ? (
+          <span className="shrink-0 tabular-nums opacity-80">{clock}</span>
+        ) : null}
         {hasDoc && <Icon name="file-text" size={10} className="shrink-0" />}
       </span>
     );
@@ -147,7 +186,7 @@ function TaskChipContent({
 
   return (
     <span
-      title={task.title}
+      title={titleWithClock}
       className={cn(
         "flex w-full min-h-[22px] min-w-0 items-center gap-1 truncate rounded-[5px] px-1.5 py-[3px] text-start text-[11px] font-medium leading-4 shadow-[0_1px_0_rgb(0_0_0/0.04)]",
         AREA_CHIP[area],
@@ -156,6 +195,9 @@ function TaskChipContent({
       )}
     >
       <span className="min-w-0 truncate">{task.title}</span>
+      {clock ? (
+        <span className="shrink-0 tabular-nums opacity-80">{clock}</span>
+      ) : null}
       {hasDoc && <Icon name="file-text" size={10} className="shrink-0 opacity-90" />}
     </span>
   );
@@ -212,6 +254,7 @@ function DroppableDay({
   moreLabel,
   overdueLabel,
   docsByTask,
+  today,
   onSelect,
   onOpenTask,
   onMore,
@@ -231,6 +274,7 @@ function DroppableDay({
   moreLabel: string;
   overdueLabel: string;
   docsByTask?: Record<string, { id: string; title: string }[]>;
+  today: Date;
   onSelect: () => void;
   onOpenTask: (task: TaskRow) => void;
   onMore: () => void;
@@ -238,7 +282,6 @@ function DroppableDay({
 }) {
   const key = toDateKey(date);
   const { setNodeRef, isOver } = useDroppable({ id: key });
-  const today = startOfDay();
   const overdueCount = dayTasks.filter(t => isOverdueTask(t, today)).length;
   const hasOverdue = overdueCount > 0;
   const extra = Math.max(0, dayTasks.length - visibleCount);
@@ -336,6 +379,8 @@ interface CalendarCCProps {
   userProjects: ProjectRow[];
   currentUserId: string;
   currentUserRole: string;
+  /** YYYY-MM-DD from the server so SSR and first client paint match. */
+  initialTodayKey: string;
 }
 
 export function CalendarCC({
@@ -345,17 +390,28 @@ export function CalendarCC({
   userProjects,
   currentUserId,
   currentUserRole,
+  initialTodayKey,
 }: CalendarCCProps) {
   const t = useTranslation();
   const language = useLanguage();
-  const today = startOfDay();
-  const todayJalali = jalaliOf(today);
   const edit = useLifeTaskEdit();
   const asideRef = React.useRef<HTMLElement>(null);
+  const mobileDefaultApplied = React.useRef(false);
 
+  // Stable across SSR → hydrate; refresh to client-local midnight after mount.
+  const [today, setToday] = React.useState(() =>
+    startOfDay(parseLocalDate(initialTodayKey)),
+  );
+  const todayJalali = jalaliOf(today);
+
+  // Always start as month so SSR and hydrate match (no matchMedia in useState).
   const [view, setView] = React.useState<CalendarView>("month");
-  const [anchor, setAnchor] = React.useState(today);
-  const [selected, setSelected] = React.useState<Date>(today);
+  const [anchor, setAnchor] = React.useState(() =>
+    startOfDay(parseLocalDate(initialTodayKey)),
+  );
+  const [selected, setSelected] = React.useState(() =>
+    startOfDay(parseLocalDate(initialTodayKey)),
+  );
   const [tasks, setTasks] = React.useState(initialTasks);
   const [docsByTask, setDocsByTask] = React.useState<
     Record<string, { id: string; title: string }[]>
@@ -365,10 +421,33 @@ export function CalendarCC({
   );
   const [activeDrag, setActiveDrag] = React.useState<TaskRow | null>(null);
   const loadedRanges = React.useRef(new Set<string>());
+  const lastPointerY = React.useRef<number | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 180, tolerance: 8 },
+    }),
   );
+
+  React.useEffect(() => {
+    const localToday = startOfDay();
+    setToday(localToday);
+    setAnchor(prev =>
+      toDateKey(prev) === initialTodayKey ? localToday : prev,
+    );
+    setSelected(prev =>
+      toDateKey(prev) === initialTodayKey ? localToday : prev,
+    );
+  }, [initialTodayKey]);
+
+  React.useEffect(() => {
+    if (mobileDefaultApplied.current) return;
+    mobileDefaultApplied.current = true;
+    if (window.matchMedia("(max-width: 767px)").matches) {
+      setView("day");
+    }
+  }, []);
 
   React.useEffect(() => {
     setTasks(initialTasks);
@@ -395,8 +474,8 @@ export function CalendarCC({
     () =>
       view === "month"
         ? jalaliMonthCells(anchorJalali.jy, anchorJalali.jm)
-        : weekCells(anchor),
-    [view, anchor, anchorJalali.jy, anchorJalali.jm],
+        : weekCells(view === "day" ? selected : anchor),
+    [view, anchor, selected, anchorJalali.jy, anchorJalali.jm],
   );
 
   const filteredTasks = React.useMemo(
@@ -408,7 +487,9 @@ export function CalendarCC({
     const map = new Map<string, TaskRow[]>();
     for (const task of filteredTasks) {
       if (!task.dueDate) continue;
-      const key = toDateKey(new Date(task.dueDate));
+      const due = new Date(task.dueDate);
+      if (Number.isNaN(due.getTime())) continue;
+      const key = toDateKey(due);
       const list = map.get(key) ?? [];
       list.push(task);
       map.set(key, list);
@@ -423,6 +504,9 @@ export function CalendarCC({
       const bounds = jalaliMonthBounds(anchorJalali.jy, anchorJalali.jm);
       from = bounds.from;
       to = bounds.to;
+    } else if (view === "day") {
+      from = startOfWeek(selected);
+      to = endOfWeek(selected);
     } else {
       from = startOfWeek(anchor);
       to = endOfWeek(anchor);
@@ -442,11 +526,10 @@ export function CalendarCC({
     return () => {
       cancelled = true;
     };
-  }, [view, anchor, anchorJalali.jy, anchorJalali.jm]);
+  }, [view, anchor, selected, anchorJalali.jy, anchorJalali.jm]);
 
   const selectedTasks = byDay.get(toDateKey(selected)) ?? [];
   const selectedJalali = jalaliOf(selected);
-  const visibleCount = view === "month" ? 3 : 20;
 
   function go(delta: number) {
     if (view === "month") {
@@ -454,6 +537,12 @@ export function CalendarCC({
         const j = jalaliOf(prev);
         const n = addJalaliMonth(j.jy, j.jm, delta);
         return toGregorianDate(n.jy, n.jm, j.jd);
+      });
+    } else if (view === "day") {
+      setSelected(prev => {
+        const next = addDays(prev, delta);
+        setAnchor(next);
+        return next;
       });
     } else {
       setAnchor(prev => addDays(prev, delta * 7));
@@ -467,7 +556,7 @@ export function CalendarCC({
 
   function selectDay(date: Date, focusPanel = false) {
     setSelected(date);
-    if (view === "week") setAnchor(date);
+    if (view === "week" || view === "day") setAnchor(date);
     if (focusPanel) {
       requestAnimationFrame(() => {
         asideRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -500,6 +589,113 @@ export function CalendarCC({
   function onDragStart(event: DragStartEvent) {
     const task = event.active.data.current?.task as TaskRow | undefined;
     setActiveDrag(task ?? tasks.find(t => t.id === event.active.id) ?? null);
+    const ae = event.activatorEvent;
+    if (ae && "clientY" in ae) {
+      lastPointerY.current = (ae as PointerEvent).clientY;
+    }
+  }
+
+  function onDragMove(event: { activatorEvent: Event; delta: { y: number } }) {
+    const ae = event.activatorEvent;
+    if (ae && "clientY" in ae) {
+      lastPointerY.current = (ae as PointerEvent).clientY + event.delta.y;
+    }
+  }
+
+  async function applySchedule(
+    taskId: string,
+    dueDateKey: string,
+    time: string,
+    durationMinutes: number | null | undefined,
+  ) {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task?.dueDate) return;
+    const clock = parseClockTime(time);
+    if (!clock || !/^\d{4}-\d{2}-\d{2}$/.test(dueDateKey)) return;
+    const previousDue = task.dueDate;
+    const previousDuration = task.durationMinutes ?? null;
+    const nextDue = setDueDateTime(dueDateKey, clock.hours, clock.minutes);
+    if (Number.isNaN(nextDue.getTime())) return;
+    const nextDuration =
+      durationMinutes === undefined
+        ? previousDuration
+        : durationMinutes != null && durationMinutes > 0
+          ? Math.min(24 * 60, Math.round(durationMinutes))
+          : null;
+
+    const sameInstant =
+      new Date(previousDue).getTime() === nextDue.getTime();
+    const sameDuration = (previousDuration ?? null) === (nextDuration ?? null);
+    if (sameInstant && sameDuration) return;
+
+    setTasks(prev =>
+      prev.map(t =>
+        t.id === taskId
+          ? { ...t, dueDate: nextDue, durationMinutes: nextDuration }
+          : t,
+      ),
+    );
+    setSelected(nextDue);
+    edit.syncDueFromCalendar(taskId, nextDue, nextDuration ?? null);
+
+    const result = await rescheduleTaskSchedule(taskId, {
+      dueDateKey,
+      time,
+      durationMinutes: nextDuration,
+    });
+    if (!result.success) {
+      setTasks(prev =>
+        prev.map(t =>
+          t.id === taskId
+            ? {
+                ...t,
+                dueDate: previousDue,
+                durationMinutes: previousDuration,
+              }
+            : t,
+        ),
+      );
+      edit.syncDueFromCalendar(taskId, new Date(previousDue), previousDuration);
+    }
+  }
+
+  function onResizePreview(taskId: string, durationMinutes: number) {
+    setTasks(prev =>
+      prev.map(t => (t.id === taskId ? { ...t, durationMinutes } : t)),
+    );
+  }
+
+  async function onResizeCommit(taskId: string, durationMinutes: number) {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task?.dueDate) return;
+    const due = new Date(task.dueDate);
+    if (Number.isNaN(due.getTime())) return;
+    const previousDuration = task.durationMinutes ?? null;
+    const dueDateKey = toDateKey(due);
+    const time = `${String(due.getHours()).padStart(2, "0")}:${String(due.getMinutes()).padStart(2, "0")}`;
+    const nextDuration = Math.min(
+      24 * 60,
+      Math.max(SNAP_MINUTES, Math.round(durationMinutes)),
+    );
+
+    setTasks(prev =>
+      prev.map(t => (t.id === taskId ? { ...t, durationMinutes: nextDuration } : t)),
+    );
+    edit.syncDueFromCalendar(taskId, due, nextDuration);
+
+    const result = await rescheduleTaskSchedule(taskId, {
+      dueDateKey,
+      time,
+      durationMinutes: nextDuration,
+    });
+    if (!result.success) {
+      setTasks(prev =>
+        prev.map(t =>
+          t.id === taskId ? { ...t, durationMinutes: previousDuration } : t,
+        ),
+      );
+      edit.syncDueFromCalendar(taskId, due, previousDuration);
+    }
   }
 
   async function onDragEnd(event: DragEndEvent) {
@@ -507,25 +703,102 @@ export function CalendarCC({
     const { active, over } = event;
     if (!over) return;
     const taskId = String(active.id);
-    const dueDateKey = String(over.id);
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(dueDateKey)) return;
+    const overId = String(over.id);
+    const hoursKey = parseHoursDropId(overId);
+    const overData = over.data.current as
+      | { type?: string; dateKey?: string }
+      | undefined;
 
     const task = tasks.find(t => t.id === taskId);
     if (!task?.dueDate) return;
-    if (toDateKey(new Date(task.dueDate)) === dueDateKey) return;
+
+    if (hoursKey || overData?.type === "hours") {
+      const dueDateKey = hoursKey ?? overData?.dateKey;
+      if (!dueDateKey) return;
+      const clientY = lastPointerY.current;
+      let minutes: number | null = null;
+      if (clientY != null && over.rect.height > 0) {
+        minutes = minutesFromClientY(clientY, over.rect.top, over.rect.height);
+      }
+      if (minutes == null && clientY != null) {
+        minutes = minutesFromDragEnd(dueDateKey, clientY);
+      }
+      if (minutes == null) {
+        minutes =
+          Math.floor(
+            (new Date(task.dueDate).getHours() * 60 +
+              new Date(task.dueDate).getMinutes()) /
+              SNAP_MINUTES,
+          ) * SNAP_MINUTES;
+      }
+      const hh = String(Math.floor(minutes / 60)).padStart(2, "0");
+      const mm = String(minutes % 60).padStart(2, "0");
+      await applySchedule(
+        taskId,
+        dueDateKey,
+        `${hh}:${mm}`,
+        task.durationMinutes ?? 60,
+      );
+      lastPointerY.current = null;
+      return;
+    }
+
+    let dueDateKey: string | null = null;
+    let time: string | null | undefined = undefined;
+
+    if (overData?.type === "allDay" && overData.dateKey) {
+      dueDateKey = overData.dateKey;
+      time = "";
+    } else if (/^\d{4}-\d{2}-\d{2}$/.test(overId)) {
+      dueDateKey = overId;
+      time = undefined;
+    } else {
+      return;
+    }
 
     const previousDue = task.dueDate;
-    const nextDue = parseLocalDate(dueDateKey);
+    const previousDuration = task.durationMinutes ?? null;
+
+    let nextDue: Date;
+    let nextDuration = previousDuration;
+    if (time === "") {
+      nextDue = withDateOnly(parseLocalDate(dueDateKey));
+      nextDuration = null;
+    } else {
+      nextDue = moveDueToDay(task.dueDate, dueDateKey, task.durationMinutes);
+    }
+
+    if (
+      new Date(previousDue).getTime() === nextDue.getTime() &&
+      (previousDuration ?? null) === (nextDuration ?? null)
+    ) {
+      return;
+    }
+
     setTasks(prev =>
-      prev.map(t => (t.id === taskId ? { ...t, dueDate: nextDue } : t)),
+      prev.map(t =>
+        t.id === taskId
+          ? { ...t, dueDate: nextDue, durationMinutes: nextDuration }
+          : t,
+      ),
     );
     setSelected(nextDue);
+    edit.syncDueFromCalendar(taskId, nextDue, nextDuration);
 
-    const result = await rescheduleTaskDueDate(taskId, dueDateKey);
+    const result = await rescheduleTaskDueDate(taskId, dueDateKey, time);
     if (!result.success) {
       setTasks(prev =>
-        prev.map(t => (t.id === taskId ? { ...t, dueDate: previousDue } : t)),
+        prev.map(t =>
+          t.id === taskId
+            ? {
+                ...t,
+                dueDate: previousDue,
+                durationMinutes: previousDuration,
+              }
+            : t,
+        ),
       );
+      edit.syncDueFromCalendar(taskId, new Date(previousDue), previousDuration);
     }
   }
 
@@ -533,7 +806,9 @@ export function CalendarCC({
   const titleLabel =
     view === "month"
       ? formatJalaliMonthYear(anchorJalali.jy, anchorJalali.jm, language)
-      : formatJalaliWeekRange(anchor, language);
+      : view === "day"
+        ? formatJalaliDate(selected, language)
+        : formatJalaliWeekRange(anchor, language);
 
   const userOptions = [
     { value: "", label: t.tasks.unassigned },
@@ -553,10 +828,11 @@ export function CalendarCC({
       <div className="flex flex-col gap-3 min-h-[calc(100dvh-3rem)]">
         <div className="flex flex-wrap items-center gap-3 shrink-0">
           <h1 className="text-xl font-semibold">{t.life.calendarTitle}</h1>
-          <div className="flex items-center gap-1 rounded-lg border p-0.5">
+          <div className="flex items-center gap-0.5 rounded-lg border p-0.5 overflow-x-auto max-w-full">
             <Button
               size="sm"
               variant={view === "month" ? "primary" : "ghost"}
+              className="shrink-0"
               onClick={() => setView("month")}
             >
               {t.life.monthView}
@@ -564,6 +840,7 @@ export function CalendarCC({
             <Button
               size="sm"
               variant={view === "week" ? "primary" : "ghost"}
+              className="shrink-0"
               onClick={() => {
                 setView("week");
                 setAnchor(selected);
@@ -571,21 +848,42 @@ export function CalendarCC({
             >
               {t.life.weekView}
             </Button>
+            <Button
+              size="sm"
+              variant={view === "day" ? "primary" : "ghost"}
+              className="shrink-0"
+              onClick={() => {
+                setView("day");
+                setAnchor(selected);
+              }}
+            >
+              {t.life.dayView}
+            </Button>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 min-w-0">
             <IconButton
               icon={language === "FA" ? "chevron-right" : "chevron-left"}
               aria-label={
-                view === "month" ? t.life.previousMonth : t.life.previousWeek
+                view === "month"
+                  ? t.life.previousMonth
+                  : view === "day"
+                    ? t.life.previousDay
+                    : t.life.previousWeek
               }
               onClick={() => go(-1)}
             />
-            <h2 className="min-w-48 text-center text-lg font-semibold tracking-tight">
+            <h2 className="min-w-0 flex-1 sm:min-w-48 text-center text-base sm:text-lg font-semibold tracking-tight truncate">
               {titleLabel}
             </h2>
             <IconButton
               icon={language === "FA" ? "chevron-left" : "chevron-right"}
-              aria-label={view === "month" ? t.life.nextMonth : t.life.nextWeek}
+              aria-label={
+                view === "month"
+                  ? t.life.nextMonth
+                  : view === "day"
+                    ? t.life.nextDay
+                    : t.life.nextWeek
+              }
               onClick={() => go(1)}
             />
           </div>
@@ -633,12 +931,29 @@ export function CalendarCC({
 
         <DndContext
           sensors={sensors}
-          collisionDetection={closestCenter}
+          collisionDetection={calendarCollision}
           onDragStart={onDragStart}
+          onDragMove={onDragMove}
           onDragEnd={onDragEnd}
         >
-          <div className="grid xl:grid-cols-[minmax(0,1fr)_300px] gap-4 flex-1 min-h-0">
-            <div className="rounded-2xl border bg-card shadow-sm overflow-hidden flex flex-col min-h-[22rem] sm:min-h-[640px] xl:min-h-0 xl:h-full">
+          <div className="grid xl:grid-cols-[minmax(0,1fr)_min(100%,300px)] gap-3 sm:gap-4 flex-1 min-h-0">
+            <div className="rounded-2xl border bg-card shadow-sm overflow-hidden flex flex-col min-h-[18rem] sm:min-h-[640px] xl:min-h-0 xl:h-full">
+              {view === "week" || view === "day" ? (
+                <WeekHourGrid
+                  cells={cells}
+                  byDay={byDay}
+                  selected={selected}
+                  today={today}
+                  weekdays={weekdays}
+                  language={language}
+                  mode={view === "day" ? "day" : "week"}
+                  onSelectDay={date => selectDay(date)}
+                  onOpenTask={(task, date) => openTaskOnDay(task, date)}
+                  onResizePreview={onResizePreview}
+                  onResizeCommit={onResizeCommit}
+                />
+              ) : (
+                <>
               <div className="grid grid-cols-7 border-b bg-muted/30">
                 {weekdays.map((day, index) => (
                   <div
@@ -655,20 +970,16 @@ export function CalendarCC({
               <div
                 className={cn(
                   "grid grid-cols-7 flex-1 min-h-0",
-                  view === "month"
-                    ? "grid-rows-[repeat(6,minmax(4.25rem,1fr))] sm:grid-rows-[repeat(6,minmax(108px,1fr))]"
-                    : "grid-rows-1 min-h-[18rem] sm:min-h-[480px]",
+                  "grid-rows-[repeat(6,minmax(4.25rem,1fr))] sm:grid-rows-[repeat(6,minmax(108px,1fr))]",
                 )}
               >
                 {cells.map((date, index) => {
                   const jalali = jalaliOf(date);
-                  const inMonth =
-                    view === "week" || jalali.jm === anchorJalali.jm;
+                  const inMonth = jalali.jm === anchorJalali.jm;
                   const key = toDateKey(date);
                   const dayTasks = byDay.get(key) ?? [];
                   const lastCol = index % 7 === 6;
-                  const lastRow =
-                    view === "week" ? true : index >= cells.length - 7;
+                  const lastRow = index >= cells.length - 7;
 
                   return (
                     <DroppableDay
@@ -683,11 +994,11 @@ export function CalendarCC({
                       dayNumber={formatNumber(jalali.jd, language)}
                       language={language}
                       dayTasks={dayTasks}
-                      visibleCount={visibleCount}
+                      visibleCount={3}
                       moreLabel={t.life.calendarMore}
                       overdueLabel={t.life.overdue}
                       docsByTask={docsByTask}
-                      tall={view === "week"}
+                      today={today}
                       onSelect={() => selectDay(date)}
                       onOpenTask={task => openTaskOnDay(task, date)}
                       onMore={() => selectDay(date, true)}
@@ -695,6 +1006,8 @@ export function CalendarCC({
                   );
                 })}
               </div>
+                </>
+              )}
             </div>
 
             <aside

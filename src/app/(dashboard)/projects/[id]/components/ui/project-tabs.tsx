@@ -27,8 +27,8 @@ export function ProjectTabs({
   ];
 
   return (
-    <div className="border-b border-border-default mb-4">
-      <nav className="flex gap-4" aria-label={t.projects.pathDetail}>
+    <div className="border-b border-border-default mb-4 -mx-1 px-1 overflow-x-auto">
+      <nav className="flex gap-3 sm:gap-4 min-w-max" aria-label={t.projects.pathDetail}>
         {tabs.map(tab => (
           <button
             key={tab.id}

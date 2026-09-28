@@ -294,8 +294,16 @@ export function LifeTaskList({
                   {task.dueDate ? (
                     <span className="shrink-0 text-[11px] text-muted-foreground">
                       {formatJalaliShort(new Date(task.dueDate), language)}
-                      {formatClock(new Date(task.dueDate), language)
-                        ? ` ${formatClock(new Date(task.dueDate), language)}`
+                      {formatClock(
+                        new Date(task.dueDate),
+                        language,
+                        task.durationMinutes,
+                      )
+                        ? ` ${formatClock(
+                            new Date(task.dueDate),
+                            language,
+                            task.durationMinutes,
+                          )}`
                         : ""}
                     </span>
                   ) : null}

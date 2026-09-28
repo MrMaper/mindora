@@ -8,12 +8,17 @@ import { Textarea } from "@/components/ui-kit/forms/textarea";
 import { Select } from "@/components/ui-kit/forms/select";
 import type { SelectOption } from "@/components/ui-kit/forms/select";
 import { DatePicker } from "@/components/ui-kit/forms/date-picker";
+import {
+  DURATION_PRESETS,
+  formatDurationLabel,
+} from "@/components/ui-kit/forms/time-roller";
 import { LabelPicker } from "@/app/(dashboard)/tasks/components/ui/label-picker";
 import { useTranslation } from "@/i18n/provider";
-import { LIFE_AREAS, coerceLifeArea } from "@/lib/life";
+import { LIFE_AREAS, coerceLifeArea, hasDueTime } from "@/lib/life";
 import { isAreaBucketId, lifeAreaFromBucketId, projectPickerLabel } from "@/lib/project-namespace";
 import { useAreaBuckets } from "@/components/area-buckets-provider";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/i18n/provider";
 import type { CreateTaskInput } from "@/schemas/tasks";
 import type { LabelRow } from "@/features/labels/types";
 import type { ProjectRow } from "@/features/projects/types";
@@ -75,6 +80,7 @@ export function TaskFormFields({
   showLabels,
 }: TaskFormFieldsProps) {
   const t = useTranslation();
+  const language = useLanguage();
   const areaIds = useAreaBuckets();
   const isAdmin = currentUserRole === "ADMIN";
   const lockedArea = lockedAreaForPreset(preset);
@@ -84,6 +90,22 @@ export function TaskFormFields({
 
   const watchedArea = useWatch({ control, name: "area" });
   const watchedProjectId = useWatch({ control, name: "projectId" });
+  const watchedDueDate = useWatch({ control, name: "dueDate" });
+  const watchedDuration = useWatch({ control, name: "durationMinutes" });
+
+  const dueDateValue = watchedDueDate ? new Date(watchedDueDate as string) : null;
+  const durationValue = watchedDuration
+    ? Number(watchedDuration)
+    : null;
+  const showDuration =
+    !!dueDateValue &&
+    !Number.isNaN(dueDateValue.getTime()) &&
+    hasDueTime(
+      dueDateValue,
+      Number.isFinite(durationValue) && (durationValue as number) > 0
+        ? (durationValue as number)
+        : null,
+    );
 
   const currentArea = coerceLifeArea(
     (watchedArea as string | undefined) ?? lockedArea ?? "LIFE",
@@ -268,19 +290,80 @@ export function TaskFormFields({
           control={control}
           render={({ field, fieldState }) => {
             const value = field.value ? new Date(field.value) : null;
+            const durationMins = watchedDuration
+              ? Number(watchedDuration)
+              : null;
             return (
               <DatePicker
                 value={value}
                 onChange={date => {
                   field.onChange(date ? date.toISOString() : "");
+                  if (!date) setValue("durationMinutes", "");
+                }}
+                onTimeEnabledChange={enabled => {
+                  if (!enabled) setValue("durationMinutes", "");
                 }}
                 mode="single"
+                language={language}
                 label={t.tasks.dueDate}
+                hint={t.tasks.dueDateHint}
+                timeOptional
+                durationMinutes={
+                  durationMins && durationMins > 0 ? durationMins : null
+                }
                 error={fieldState.error?.message}
               />
             );
           }}
         />
+        {showDuration ? (
+          <Controller
+            name="durationMinutes"
+            control={control}
+            render={({ field }) => {
+              const current = field.value ? Number(field.value) : 0;
+              return (
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-sm font-medium text-foreground">
+                    {t.tasks.duration}
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => field.onChange("")}
+                      className={cn(
+                        "rounded-md border px-2 py-1 text-xs transition-colors",
+                        !current
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "text-muted-foreground hover:bg-accent",
+                      )}
+                    >
+                      {t.tasks.durationNone}
+                    </button>
+                    {DURATION_PRESETS.map(preset => (
+                      <button
+                        key={preset.minutes}
+                        type="button"
+                        onClick={() => field.onChange(String(preset.minutes))}
+                        className={cn(
+                          "rounded-md border px-2 py-1 text-xs transition-colors",
+                          current === preset.minutes
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "text-muted-foreground hover:bg-accent",
+                        )}
+                      >
+                        {formatDurationLabel(
+                          preset.minutes,
+                          language === "EN" ? "EN" : "FA",
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              );
+            }}
+          />
+        ) : null}
         <Controller
           name="recurrence"
           control={control}

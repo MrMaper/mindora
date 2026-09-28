@@ -64,6 +64,7 @@ export const ModelName = {
   Team: 'Team',
   TeamMember: 'TeamMember',
   Project: 'Project',
+  UserAreaPreference: 'UserAreaPreference',
   ProjectMember: 'ProjectMember',
   Sprint: 'Sprint',
   Task: 'Task',
@@ -275,11 +276,28 @@ export const ProjectScalarFieldEnum = {
   description: 'description',
   status: 'status',
   area: 'area',
+  pinned: 'pinned',
+  sortOrder: 'sortOrder',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
+
+
+export const UserAreaPreferenceScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  area: 'area',
+  color: 'color',
+  icon: 'icon',
+  sortOrder: 'sortOrder',
+  archived: 'archived',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserAreaPreferenceScalarFieldEnum = (typeof UserAreaPreferenceScalarFieldEnum)[keyof typeof UserAreaPreferenceScalarFieldEnum]
 
 
 export const ProjectMemberScalarFieldEnum = {
@@ -321,6 +339,7 @@ export const TaskScalarFieldEnum = {
   storyPoints: 'storyPoints',
   estimate: 'estimate',
   dueDate: 'dueDate',
+  durationMinutes: 'durationMinutes',
   position: 'position',
   area: 'area',
   recurrence: 'recurrence',

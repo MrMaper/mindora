@@ -91,7 +91,10 @@ export function TasksCC({
 
   const dateLocale = language === "EN" ? "en-US" : "fa-IR";
 
-  function formatDate(date: Date | null): string {
+  function formatDate(
+    date: Date | null,
+    durationMinutes?: number | null,
+  ): string {
     if (!date) return "—";
     const value = new Date(date);
     const day = value.toLocaleDateString(dateLocale, {
@@ -99,7 +102,7 @@ export function TasksCC({
       day: "numeric",
       year: "numeric",
     });
-    const clock = formatClock(value, language);
+    const clock = formatClock(value, language, durationMinutes);
     return clock ? `${day} ${clock}` : day;
   }
 

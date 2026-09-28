@@ -88,6 +88,7 @@ export async function universalCapture(input: {
     recurrence: parsed.recurrence,
     dueDate,
     time: parsed.time,
+    durationMinutes: parsed.durationMinutes,
   });
   if (!created.success || !created.data?.id) {
     return { success: false, error: created.error ?? "خطا" };

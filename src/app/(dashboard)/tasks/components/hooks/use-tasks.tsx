@@ -22,16 +22,10 @@ import type {
   CreateLabelInput,
 } from "@/schemas/tasks";
 import type { TaskRow, TaskDetail } from "@/features/tasks/types";
-import { coerceLifeArea } from "@/lib/life";
+import { coerceLifeArea, dueDateToFormValue } from "@/lib/life";
 import { useAreaBuckets } from "@/components/area-buckets-provider";
 
 type DrawerMode = "none" | "create" | "edit";
-
-function toDateInputValue(date: Date | null): string {
-  if (!date) return "";
-  // return new Date(date).toISOString().slice(0, 10);
-  return new Date(date).toISOString();
-}
 
 export interface TaskFilters {
   search: string;
@@ -75,6 +69,7 @@ export function useTasks(initialFilters: TaskFilters) {
       type: "TASK",
       assignedToId: "",
       dueDate: "",
+      durationMinutes: "",
     },
   });
 
@@ -88,6 +83,7 @@ export function useTasks(initialFilters: TaskFilters) {
       type: "TASK",
       assignedToId: "",
       dueDate: "",
+      durationMinutes: "",
       area: "LIFE",
       recurrence: "NONE",
     },
@@ -108,6 +104,7 @@ export function useTasks(initialFilters: TaskFilters) {
       projectId: "",
       assignedToId: "",
       dueDate: "",
+      durationMinutes: "",
       area: "LIFE",
       recurrence: "NONE",
     });
@@ -143,7 +140,11 @@ export function useTasks(initialFilters: TaskFilters) {
       type: detail.type,
       projectId: detail.projectId ?? "",
       assignedToId: detail.assignedTo?.id ?? "",
-      dueDate: toDateInputValue(detail.dueDate),
+      dueDate: dueDateToFormValue(detail.dueDate),
+      durationMinutes:
+        detail.durationMinutes && detail.durationMinutes > 0
+          ? String(detail.durationMinutes)
+          : "",
       area: coerceLifeArea(detail.area),
       recurrence: detail.recurrence ?? "NONE",
     });
@@ -178,6 +179,7 @@ export function useTasks(initialFilters: TaskFilters) {
       fd.append("projectId", data.projectId || areaIds.LIFE);
       fd.append("assignedToId", data.assignedToId ?? "");
       fd.append("dueDate", data.dueDate ?? "");
+      fd.append("durationMinutes", data.durationMinutes ?? "");
       fd.append("area", data.area || "LIFE");
       fd.append("recurrence", data.recurrence ?? "NONE");
       fd.append("labelIds", JSON.stringify(selectedLabelIds));
@@ -204,6 +206,7 @@ export function useTasks(initialFilters: TaskFilters) {
       fd.append("projectId", data.projectId ?? "");
       fd.append("assignedToId", data.assignedToId ?? "");
       fd.append("dueDate", data.dueDate ?? "");
+      fd.append("durationMinutes", data.durationMinutes ?? "");
       fd.append("area", data.area ?? "LIFE");
       fd.append("recurrence", data.recurrence ?? "NONE");
       fd.append("labelIds", JSON.stringify(selectedLabelIds));

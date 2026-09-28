@@ -261,7 +261,7 @@ export function KanbanCC({
                     }
                   : undefined
               }
-              due={formatDate(k.activeTaskCard.dueDate, language)}
+              due={formatDate(k.activeTaskCard.dueDate, language, k.activeTaskCard.durationMinutes)}
               overdue={isOverdue(k.activeTaskCard)}
               state="dragging"
             />

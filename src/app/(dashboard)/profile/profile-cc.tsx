@@ -26,7 +26,7 @@ export function ProfileCC({ user, language, baleCode }: ProfileCCProps) {
   }, [user.name]);
 
   return (
-    <div style={{ maxWidth: 560 }}>
+    <div style={{ maxWidth: 560 }} className="min-w-0 w-full overflow-x-hidden px-0.5">
       <h1
         style={{
           fontSize: "var(--text-xl)",

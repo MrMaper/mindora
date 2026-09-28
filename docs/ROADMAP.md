@@ -47,6 +47,22 @@ Features intentionally **not** implemented yet. Do not start these unless the pr
 
 ---
 
+## Areas & paths hub (shipped)
+
+Overview at `/projects` + area dashboard at `/projects/areas/[area]`:
+- Compact empty cards + desktop **2×2** grid; DnD paths within and across areas; area reorder via menu
+- `Project.pinned` / `sortOrder`; pinned strip on hub
+- `UserAreaPreference`: color, icon, sortOrder, archived (per user, four fixed areas)
+- Path statuses: ACTIVE / PLANNED / ON_HOLD / COMPLETED / ARCHIVED
+- Area menu: open dashboard, edit, cycle color/icon, move up/down, archive area
+- Related-space links + shared `AREA_VISUAL`; progress / next action from tasks
+
+### Still deferred
+1. **Custom areas** beyond the four defaults (+ حوزه as a 5th LifeArea)
+2. Manual next-action override (derived from open tasks today)
+
+---
+
 ## Mobile UX (in progress)
 
 Goal: every member surface is usable one-handed on a phone — no clipped filters, no desktop-only tables, drawers that fit the screen, calendar that doesn’t force a huge empty scroll.
@@ -56,18 +72,26 @@ Goal: every member surface is usable one-handed on a phone — no clipped filter
 - Drawers: full width on small screens
 - Board + task filters: stack into a 1/2-column grid
 - Tasks: card rows on phones; table from `md` up
-- Calendar: shorter month/week cells on small screens
+- **Projects list:** card rows on phones; table from `md` up
+- Calendar: day view default on narrow screens; week/day hour grids; conflict badges; minute snap drag + resize duration (preview live, save on pointerup); TouchSensor
+- Calendar hydration: SSR always starts in month view (no `matchMedia` in `useState`); `initialTodayKey` from the server; client syncs local midnight after mount
+- Menu triggers: Base UI `render` merges into IconButton so menus are not nested `<button>`s
+- Schedule math covered by `src/lib/calendar-schedule.test.ts` (snap, conflicts, clock parse, clamp)
 - Language hub tabs: horizontal scroll instead of wrapping
+- Today week strip: tighter type on small screens
+- Review / work-logs / settings / profile / notifications / project tabs: overflow and wrap fixes
+- Guide + CAPTURE updated for hour-grid calendar behavior
 
-### Still to do (section by section)
-1. **Today dashboard** — week strip and attention cards: tighter type, no overflow
-2. **Research** — pipeline board + library panels stacked, tab bar scroll
-3. **Docs** — editor toolbar wraps; PDF annotator already stacks under `lg`
-4. **Projects** — list and detail tabs
-5. **Work logs / reporting / review** — forms full width
-6. **Profile, settings, notifications, users (admin)** — form fields and tables
-7. Pass each page in a real phone viewport and fix leftover horizontal scroll
+### Still to do (polish)
+1. Research pipeline: further phone board density
+2. Docs editor toolbar: secondary tools behind a menu on xs
+3. Users admin table card rows (if admins use phones)
+4. Pass each page in a real phone viewport and fix leftover horizontal scroll
 
+### Reminders (shipped)
+- Day buckets (overdue / today / approaching) + **timed** reminders (~15 min before clock dues)
+- In-app + Bale (when linked) + optional browser Notification while shell is open
+- Cron `/api/cron/deadline-reminders` should run every 5–10 minutes (not only daily)
 
 ---
 

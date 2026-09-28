@@ -103,6 +103,8 @@ export default async function ResearchPage({
       teamName: null,
       memberCount: 1,
       createdAt: new Date(0),
+      pinned: false,
+      sortOrder: 0,
     },
     ...phdProjects.map(p => ({
       id: p.id,
@@ -114,6 +116,8 @@ export default async function ResearchPage({
       teamName: null,
       memberCount: 1,
       createdAt: new Date(0),
+      pinned: false,
+      sortOrder: 0,
     })),
   ];
 

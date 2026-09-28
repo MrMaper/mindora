@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { faIR, enUS } from "date-fns/locale";
 import { toJalaali } from "jalaali-js";
 import { Clock as ClockIcon } from "lucide-react";
 
@@ -17,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useTranslation } from "@/i18n/provider";
+import { TimeRoller } from "@/components/ui-kit/forms/time-roller";
 
 const PERSIAN_MONTHS = [
   "فروردین",
@@ -77,6 +77,10 @@ function formatPersianDate(date: Date, showTime: boolean): string {
   return `${dateStr} ${hours}:${minutes}`;
 }
 
+function isDateOnly(d: Date | null): boolean {
+  return !!d && d.getHours() === 12 && d.getMinutes() === 0;
+}
+
 export type DatePickerMode = "single" | "range";
 
 interface DatePickerBaseProps {
@@ -98,7 +102,17 @@ export interface DatePickerSingleProps extends DatePickerBaseProps {
   mode?: "single";
   value?: Date | null;
   onChange?: (date: Date | null) => void;
+  /** Always show hour/minute inputs under the calendar. */
   showTimePicker?: boolean;
+  /**
+   * Low-clutter optional clock: hidden until the user adds time.
+   * Noon is treated as “no time” (date-only).
+   */
+  timeOptional?: boolean;
+  /** Keeps a noon meeting timed when duration is set. */
+  durationMinutes?: number | null;
+  /** Fires when optional time is turned on/off. */
+  onTimeEnabledChange?: (enabled: boolean) => void;
 }
 
 export interface DatePickerRangeProps extends DatePickerBaseProps {
@@ -106,6 +120,9 @@ export interface DatePickerRangeProps extends DatePickerBaseProps {
   value?: { from: Date | null; to: Date | null } | null;
   onChange?: (date: { from: Date | null; to: Date | null } | null) => void;
   showTimePicker?: never;
+  timeOptional?: never;
+  durationMinutes?: never;
+  onTimeEnabledChange?: never;
 }
 
 export type DatePickerProps = DatePickerSingleProps | DatePickerRangeProps;
@@ -127,6 +144,9 @@ export function DatePicker({
   value,
   onChange,
   showTimePicker = false,
+  timeOptional = false,
+  durationMinutes = null,
+  onTimeEnabledChange,
   numberOfMonths = 1,
   showOutsideDays = true,
 }: DatePickerProps): React.JSX.Element {
@@ -136,13 +156,14 @@ export function DatePicker({
   const errorId = `${fieldId}-error`;
 
   const [open, setOpen] = React.useState(false);
-
   const isPersian = language === "FA";
-  const dateLocale = isPersian ? faIR : enUS;
-
   const t = useTranslation();
-
   const CalendarComponent = isPersian ? CalendarPersian : GregorianCalendar;
+  const hasDuration =
+    typeof durationMinutes === "number" && durationMinutes > 0;
+
+  const isTimedDate = (d: Date | null) =>
+    !!d && (!isDateOnly(d) || hasDuration);
 
   const [localDate, setLocalDate] = React.useState<Date | null>(() => {
     if (mode === "range" || !value) return null;
@@ -163,8 +184,22 @@ export function DatePicker({
     return v.to ?? null;
   });
 
-  const [localHours, setLocalHours] = React.useState<number>(0);
-  const [localMinutes, setLocalMinutes] = React.useState<number>(0);
+  const [timeEnabled, setTimeEnabled] = React.useState(() => {
+    if (mode === "range" || !timeOptional) return showTimePicker;
+    const d = value instanceof Date ? value : null;
+    return isTimedDate(d);
+  });
+
+  const [localHours, setLocalHours] = React.useState<number>(() => {
+    const d = mode === "single" && value instanceof Date ? value : null;
+    if (d && isTimedDate(d)) return d.getHours();
+    return 9;
+  });
+  const [localMinutes, setLocalMinutes] = React.useState<number>(() => {
+    const d = mode === "single" && value instanceof Date ? value : null;
+    if (d && isTimedDate(d)) return d.getMinutes();
+    return 0;
+  });
 
   React.useEffect(() => {
     if (mode === "single") {
@@ -172,25 +207,50 @@ export function DatePicker({
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setLocalDate(d);
       if (d) {
-        setLocalHours(d.getHours());
-        setLocalMinutes(d.getMinutes());
+        if (!isTimedDate(d)) {
+          if (timeOptional) setTimeEnabled(false);
+        } else {
+          setLocalHours(d.getHours());
+          setLocalMinutes(d.getMinutes());
+          if (timeOptional) setTimeEnabled(true);
+        }
+      } else if (timeOptional) {
+        setTimeEnabled(false);
       }
     } else {
       const v = value as { from: Date | null; to: Date | null } | null;
       setLocalRangeFrom(v?.from ?? null);
       setLocalRangeTo(v?.to ?? null);
     }
-  }, [value, mode]);
+  }, [value, mode, timeOptional, hasDuration]);
+
+  const emitSingle = (date: Date | null) => {
+    (onChange as ((date: Date | null) => void) | undefined)?.(date);
+  };
+
+  const applyClock = (base: Date, hours: number, minutes: number) => {
+    const next = new Date(base);
+    if (timeOptional && !timeEnabled) {
+      next.setHours(12, 0, 0, 0);
+    } else if (showTimePicker || (timeOptional && timeEnabled)) {
+      next.setHours(hours, minutes, 0, 0);
+    } else {
+      next.setHours(12, 0, 0, 0);
+    }
+    return next;
+  };
 
   const handleSingleSelect = (date: Date | undefined) => {
     if (mode !== "single") return;
-    const newDate = date ?? null;
-    if (newDate) {
-      newDate.setHours(localHours, localMinutes, 0, 0);
+    if (!date) {
+      setLocalDate(null);
+      emitSingle(null);
+      return;
     }
+    const newDate = applyClock(date, localHours, localMinutes);
     setLocalDate(newDate);
-    (onChange as ((date: Date | null) => void) | undefined)?.(newDate);
-    if (date) setOpen(false);
+    emitSingle(newDate);
+    setOpen(false);
   };
 
   const handleRangeSelect = (
@@ -204,39 +264,55 @@ export function DatePicker({
     (
       onChange as (date: { from: Date | null; to: Date | null } | null) => void
     )?.({ from: newFrom, to: newTo });
-    // Don't auto-close - let user close via clicking outside or ESC
   };
 
-  const handleTimeChange = (type: "hours" | "minutes", raw: string) => {
-    const num = parseInt(raw, 10);
-    if (isNaN(num)) return;
-
-    if (type === "hours") {
-      const clamped = Math.min(23, Math.max(0, num));
-      setLocalHours(clamped);
-      if (localDate) {
-        const newDate = new Date(localDate);
-        newDate.setHours(clamped, localMinutes, 0, 0);
-        setLocalDate(newDate);
-        (onChange as ((date: Date | null) => void) | undefined)?.(newDate);
-      }
-    } else {
-      const clamped = Math.min(59, Math.max(0, num));
-      setLocalMinutes(clamped);
-      if (localDate) {
-        const newDate = new Date(localDate);
-        newDate.setHours(localHours, clamped, 0, 0);
-        setLocalDate(newDate);
-        (onChange as ((date: Date | null) => void) | undefined)?.(newDate);
-      }
+  const handleTimeChange = (hours: number, minutes: number) => {
+    setLocalHours(hours);
+    setLocalMinutes(minutes);
+    if (localDate) {
+      const newDate = applyClock(localDate, hours, minutes);
+      setLocalDate(newDate);
+      emitSingle(newDate);
     }
   };
 
+  const enableTime = () => {
+    setTimeEnabled(true);
+    onTimeEnabledChange?.(true);
+    const hours = 9;
+    const minutes = 0;
+    setLocalHours(hours);
+    setLocalMinutes(minutes);
+    if (localDate) {
+      const newDate = new Date(localDate);
+      newDate.setHours(hours, minutes, 0, 0);
+      setLocalDate(newDate);
+      emitSingle(newDate);
+    }
+  };
+
+  const clearTime = () => {
+    setTimeEnabled(false);
+    onTimeEnabledChange?.(false);
+    setLocalHours(9);
+    setLocalMinutes(0);
+    if (localDate) {
+      const newDate = new Date(localDate);
+      newDate.setHours(12, 0, 0, 0);
+      setLocalDate(newDate);
+      emitSingle(newDate);
+    }
+  };
+
+  const showClockInLabel =
+    mode === "single" &&
+    (showTimePicker ||
+      (timeOptional && timeEnabled && !!localDate && isTimedDate(localDate)));
+
   const formatDateForDisplay = (date: Date | null): string => {
     if (!date) return "";
-    if (isPersian)
-      return formatPersianDate(date, mode === "single" && showTimePicker);
-    return formatGregorianDate(date, mode === "single" && showTimePicker);
+    if (isPersian) return formatPersianDate(date, showClockInLabel);
+    return formatGregorianDate(date, showClockInLabel);
   };
 
   const formatRangeForDisplay = (): string => {
@@ -253,6 +329,11 @@ export function DatePicker({
       ? formatRangeForDisplay()
       : formatDateForDisplay(localDate);
 
+  const showTimeRow =
+    mode === "single" && (showTimePicker || (timeOptional && timeEnabled));
+  const showAddTime =
+    mode === "single" && timeOptional && !timeEnabled && !!localDate;
+
   return (
     <div className="w-full">
       {label && (
@@ -266,24 +347,20 @@ export function DatePicker({
         </Label>
       )}
       <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger>
-          <Input
-            id={fieldId}
-            type="text"
-            readOnly
-            placeholder={placeholder ?? t.tasks.selectDate}
-            value={displayValue}
-            className={cn(
-              "cursor-pointer",
-              error &&
-                "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/30",
-              className,
-            )}
-            aria-invalid={!!error}
-            aria-describedby={error ? errorId : hint ? hintId : undefined}
-            disabled={disabled}
-          />
-        </PopoverTrigger>
+        <PopoverTrigger
+          render={
+            <Input
+              id={fieldId}
+              readOnly
+              value={displayValue}
+              placeholder={placeholder ?? t.tasks.selectDate}
+              className={cn("cursor-pointer", className)}
+              aria-invalid={!!error}
+              aria-describedby={error ? errorId : hint ? hintId : undefined}
+              disabled={disabled}
+            />
+          }
+        />
         <PopoverContent className="w-auto p-0" sideOffset={5}>
           {mode === "single" ? (
             <CalendarComponent
@@ -314,34 +391,40 @@ export function DatePicker({
               showOutsideDays={showOutsideDays}
             />
           )}
-          {mode === "single" && showTimePicker && (
-            <div className="flex items-center gap-2 border-t border-border p-3">
-              <ClockIcon className="size-4 shrink-0 text-muted-foreground" />
-              <div className="flex items-center gap-1" dir="ltr">
-                <Input
-                  type="number"
-                  min={0}
-                  max={23}
-                  value={String(localHours).padStart(2, "0")}
-                  onChange={e => handleTimeChange("hours", e.target.value)}
-                  className="w-14 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          {showAddTime ? (
+            <div className="border-t border-border px-3 py-2">
+              <button
+                type="button"
+                className="inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground"
+                onClick={enableTime}
+              >
+                <ClockIcon className="size-3.5" />
+                {t.tasks.addDueTime}
+              </button>
+            </div>
+          ) : null}
+          {showTimeRow ? (
+            <div className="flex flex-col gap-2 border-t border-border p-3">
+              <div className="flex items-center gap-2">
+                <ClockIcon className="size-4 shrink-0 text-muted-foreground" />
+                <TimeRoller
+                  hours={localHours}
+                  minutes={localMinutes}
+                  onChange={handleTimeChange}
                   disabled={!localDate}
-                  aria-label="Hours"
                 />
-                <span className="text-muted-foreground select-none">:</span>
-                <Input
-                  type="number"
-                  min={0}
-                  max={59}
-                  value={String(localMinutes).padStart(2, "0")}
-                  onChange={e => handleTimeChange("minutes", e.target.value)}
-                  className="w-14 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                  disabled={!localDate}
-                  aria-label="Minutes"
-                />
+                {timeOptional ? (
+                  <button
+                    type="button"
+                    className="ms-auto self-start text-xs text-muted-foreground hover:text-foreground"
+                    onClick={clearTime}
+                  >
+                    {t.tasks.clearDueTime}
+                  </button>
+                ) : null}
               </div>
             </div>
-          )}
+          ) : null}
         </PopoverContent>
       </Popover>
       {(hint || error) && (

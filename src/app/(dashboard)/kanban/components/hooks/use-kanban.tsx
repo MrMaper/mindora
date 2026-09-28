@@ -24,7 +24,7 @@ import type { BoardColumns, BoardStatus } from "@/features/kanban/types";
 import type { CreateTaskInput, UpdateTaskInput } from "@/schemas/tasks";
 import type { TaskRow, TaskDetail } from "@/features/tasks/types";
 import type { LifeArea } from "@/types/db";
-import { coerceLifeArea } from "@/lib/life";
+import { coerceLifeArea, dueDateToFormValue } from "@/lib/life";
 import { useAreaBuckets } from "@/components/area-buckets-provider";
 
 interface KanbanFilters {
@@ -42,7 +42,7 @@ export interface KanbanCreateDefaults {
   status?: CreateTaskInput["status"];
 }
 
-function toDateInputValue(date: Date | null): string {
+function toDateOnlyValue(date: Date | null): string {
   if (!date) return "";
   return new Date(date).toISOString().slice(0, 10);
 }
@@ -221,11 +221,11 @@ export function useKanban(
       type: detail.type,
       projectId: detail.projectId ?? "",
       assignedToId: detail.assignedTo?.id ?? "",
-      dueDate: toDateInputValue(detail.dueDate),
+      dueDate: dueDateToFormValue(detail.dueDate),
       area: coerceLifeArea(detail.area),
       recurrence: detail.recurrence ?? "NONE",
       recurrenceEndsAt: detail.recurrenceEndsAt
-        ? toDateInputValue(detail.recurrenceEndsAt)
+        ? toDateOnlyValue(detail.recurrenceEndsAt)
         : "",
       applyRecurrenceToSeries: detail.recurrenceSeriesId ? "1" : "",
     });

@@ -6,16 +6,11 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { updateTaskSchema } from "@/schemas/tasks";
 import { updateTask, getTaskDetailAction } from "@/features/tasks/actions";
-import { coerceLifeArea } from "@/lib/life";
+import { coerceLifeArea, dueDateToFormValue } from "@/lib/life";
 import { useAreaBuckets } from "@/components/area-buckets-provider";
 import type { UpdateTaskInput } from "@/schemas/tasks";
 import type { TaskRow, TaskDetail } from "@/features/tasks/types";
 import type { LifeArea } from "@/types/db";
-
-function toDateInputValue(date: Date | null): string {
-  if (!date) return "";
-  return new Date(date).toISOString().slice(0, 10);
-}
 
 function resolveArea(task: TaskRow | TaskDetail): LifeArea {
   return coerceLifeArea(task.area);
@@ -43,6 +38,7 @@ export function useLifeTaskEdit() {
       projectId: "",
       assignedToId: "",
       dueDate: "",
+      durationMinutes: "",
       area: "LIFE",
       recurrence: "NONE",
     },
@@ -72,7 +68,11 @@ export function useLifeTaskEdit() {
       type: detail.type,
       projectId: detail.projectId ?? areaIds[area],
       assignedToId: detail.assignedTo?.id ?? "",
-      dueDate: toDateInputValue(detail.dueDate),
+      dueDate: dueDateToFormValue(detail.dueDate),
+      durationMinutes:
+        detail.durationMinutes && detail.durationMinutes > 0
+          ? String(detail.durationMinutes)
+          : "",
       area,
       recurrence: detail.recurrence ?? "NONE",
     });
@@ -107,6 +107,7 @@ export function useLifeTaskEdit() {
       fd.append("projectId", data.projectId || areaIds[area]);
       fd.append("assignedToId", data.assignedToId ?? "");
       fd.append("dueDate", data.dueDate ?? "");
+      fd.append("durationMinutes", data.durationMinutes ?? "");
       fd.append("area", area);
       fd.append("recurrence", data.recurrence ?? "NONE");
       fd.append("labelIds", JSON.stringify(selectedLabelIds));
@@ -120,6 +121,24 @@ export function useLifeTaskEdit() {
     });
   });
 
+  function syncDueFromCalendar(
+    taskId: string,
+    dueDate: Date,
+    durationMinutes: number | null,
+  ) {
+    if (editingTaskId !== taskId) return;
+    editForm.setValue("dueDate", dueDateToFormValue(dueDate));
+    editForm.setValue(
+      "durationMinutes",
+      durationMinutes && durationMinutes > 0 ? String(durationMinutes) : "",
+    );
+    setActiveTask(prev =>
+      prev && prev.id === taskId
+        ? { ...prev, dueDate, durationMinutes }
+        : prev,
+    );
+  }
+
   return {
     editingTaskId,
     activeTask,
@@ -132,5 +151,6 @@ export function useLifeTaskEdit() {
     openTask,
     closeDrawer,
     onEditSubmit,
+    syncDueFromCalendar,
   };
 }

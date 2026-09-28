@@ -11,9 +11,13 @@ import { useLanguage, useTranslation } from "@/i18n/provider";
 import { createDocLinkedToTask } from "@/features/research/actions";
 import { Icon } from "@/components/ui-kit/foundation/icon";
 import { cn } from "@/lib/utils";
-import { formatClock } from "@/lib/life";
+import { formatClock, isOverdueTask } from "@/lib/life";
 
-export function formatDate(date: Date | null, language: "EN" | "FA"): string | undefined {
+export function formatDate(
+  date: Date | null,
+  language: "EN" | "FA",
+  durationMinutes?: number | null,
+): string | undefined {
   if (!date) return undefined;
   const locale = language === "FA" ? "fa-IR" : "en-US";
   const value = new Date(date);
@@ -21,16 +25,12 @@ export function formatDate(date: Date | null, language: "EN" | "FA"): string | u
     month: "short",
     day: "numeric",
   });
-  const clock = formatClock(value, language);
+  const clock = formatClock(value, language, durationMinutes);
   return clock ? `${day} ${clock}` : day;
 }
 
 export function isOverdue(task: TaskRow): boolean {
-  return (
-    !!task.dueDate &&
-    new Date(task.dueDate) < new Date() &&
-    task.status !== "DONE"
-  );
+  return isOverdueTask(task);
 }
 
 export function SortableKanbanCard({
@@ -110,7 +110,7 @@ export function SortableKanbanCard({
                 }
               : undefined
           }
-          due={formatDate(task.dueDate, language)}
+          due={formatDate(task.dueDate, language, task.durationMinutes)}
           overdue={isOverdue(task)}
           attachments={linkedDocs.length > 0 ? linkedDocs.length : undefined}
           state={selected ? "selected" : undefined}

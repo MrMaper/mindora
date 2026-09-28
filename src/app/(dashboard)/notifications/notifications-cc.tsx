@@ -45,8 +45,8 @@ export function NotificationsCC({ initialData, page, language }: NotificationsCC
 
   return (
     <>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "var(--space-5)" }}>
-        <div>
+      <div className="min-w-0 overflow-x-hidden" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "var(--space-5)", gap: 12, flexWrap: "wrap" }}>
+        <div className="min-w-0">
           <h1 style={{ fontSize: "var(--text-xl)", fontWeight: "var(--weight-semibold)", color: "var(--text-primary)" }}>
             {t.notifications.title}
           </h1>

@@ -20,8 +20,18 @@ export type ProjectModel = runtime.Types.Result.DefaultSelection<Prisma.$Project
 
 export type AggregateProject = {
   _count: ProjectCountAggregateOutputType | null
+  _avg: ProjectAvgAggregateOutputType | null
+  _sum: ProjectSumAggregateOutputType | null
   _min: ProjectMinAggregateOutputType | null
   _max: ProjectMaxAggregateOutputType | null
+}
+
+export type ProjectAvgAggregateOutputType = {
+  sortOrder: number | null
+}
+
+export type ProjectSumAggregateOutputType = {
+  sortOrder: number | null
 }
 
 export type ProjectMinAggregateOutputType = {
@@ -31,6 +41,8 @@ export type ProjectMinAggregateOutputType = {
   description: string | null
   status: $Enums.ProjectStatus | null
   area: $Enums.LifeArea | null
+  pinned: boolean | null
+  sortOrder: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -42,6 +54,8 @@ export type ProjectMaxAggregateOutputType = {
   description: string | null
   status: $Enums.ProjectStatus | null
   area: $Enums.LifeArea | null
+  pinned: boolean | null
+  sortOrder: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -53,11 +67,21 @@ export type ProjectCountAggregateOutputType = {
   description: number
   status: number
   area: number
+  pinned: number
+  sortOrder: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
+
+export type ProjectAvgAggregateInputType = {
+  sortOrder?: true
+}
+
+export type ProjectSumAggregateInputType = {
+  sortOrder?: true
+}
 
 export type ProjectMinAggregateInputType = {
   id?: true
@@ -66,6 +90,8 @@ export type ProjectMinAggregateInputType = {
   description?: true
   status?: true
   area?: true
+  pinned?: true
+  sortOrder?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -77,6 +103,8 @@ export type ProjectMaxAggregateInputType = {
   description?: true
   status?: true
   area?: true
+  pinned?: true
+  sortOrder?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -88,6 +116,8 @@ export type ProjectCountAggregateInputType = {
   description?: true
   status?: true
   area?: true
+  pinned?: true
+  sortOrder?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -131,6 +161,18 @@ export type ProjectAggregateArgs<ExtArgs extends runtime.Types.Extensions.Intern
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: ProjectAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: ProjectSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: ProjectMinAggregateInputType
@@ -161,6 +203,8 @@ export type ProjectGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   _count?: ProjectCountAggregateInputType | true
+  _avg?: ProjectAvgAggregateInputType
+  _sum?: ProjectSumAggregateInputType
   _min?: ProjectMinAggregateInputType
   _max?: ProjectMaxAggregateInputType
 }
@@ -172,9 +216,13 @@ export type ProjectGroupByOutputType = {
   description: string | null
   status: $Enums.ProjectStatus
   area: $Enums.LifeArea
+  pinned: boolean
+  sortOrder: number
   createdAt: Date
   updatedAt: Date
   _count: ProjectCountAggregateOutputType | null
+  _avg: ProjectAvgAggregateOutputType | null
+  _sum: ProjectSumAggregateOutputType | null
   _min: ProjectMinAggregateOutputType | null
   _max: ProjectMaxAggregateOutputType | null
 }
@@ -204,6 +252,8 @@ export type ProjectWhereInput = {
   description?: Prisma.StringNullableFilter<"Project"> | string | null
   status?: Prisma.EnumProjectStatusFilter<"Project"> | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFilter<"Project"> | $Enums.LifeArea
+  pinned?: Prisma.BoolFilter<"Project"> | boolean
+  sortOrder?: Prisma.IntFilter<"Project"> | number
   createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   team?: Prisma.XOR<Prisma.TeamNullableScalarRelationFilter, Prisma.TeamWhereInput> | null
@@ -225,6 +275,8 @@ export type ProjectOrderByWithRelationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   area?: Prisma.SortOrder
+  pinned?: Prisma.SortOrder
+  sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   team?: Prisma.TeamOrderByWithRelationInput
@@ -249,6 +301,8 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   description?: Prisma.StringNullableFilter<"Project"> | string | null
   status?: Prisma.EnumProjectStatusFilter<"Project"> | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFilter<"Project"> | $Enums.LifeArea
+  pinned?: Prisma.BoolFilter<"Project"> | boolean
+  sortOrder?: Prisma.IntFilter<"Project"> | number
   createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   team?: Prisma.XOR<Prisma.TeamNullableScalarRelationFilter, Prisma.TeamWhereInput> | null
@@ -270,11 +324,15 @@ export type ProjectOrderByWithAggregationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   area?: Prisma.SortOrder
+  pinned?: Prisma.SortOrder
+  sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ProjectCountOrderByAggregateInput
+  _avg?: Prisma.ProjectAvgOrderByAggregateInput
   _max?: Prisma.ProjectMaxOrderByAggregateInput
   _min?: Prisma.ProjectMinOrderByAggregateInput
+  _sum?: Prisma.ProjectSumOrderByAggregateInput
 }
 
 export type ProjectScalarWhereWithAggregatesInput = {
@@ -287,6 +345,8 @@ export type ProjectScalarWhereWithAggregatesInput = {
   description?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   status?: Prisma.EnumProjectStatusWithAggregatesFilter<"Project"> | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaWithAggregatesFilter<"Project"> | $Enums.LifeArea
+  pinned?: Prisma.BoolWithAggregatesFilter<"Project"> | boolean
+  sortOrder?: Prisma.IntWithAggregatesFilter<"Project"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Project"> | Date | string
 }
@@ -297,6 +357,8 @@ export type ProjectCreateInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  pinned?: boolean
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
@@ -318,6 +380,8 @@ export type ProjectUncheckedCreateInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  pinned?: boolean
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
@@ -337,6 +401,8 @@ export type ProjectUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
@@ -358,6 +424,8 @@ export type ProjectUncheckedUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
@@ -378,6 +446,8 @@ export type ProjectCreateManyInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  pinned?: boolean
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -388,6 +458,8 @@ export type ProjectUpdateManyMutationInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -399,6 +471,8 @@ export type ProjectUncheckedUpdateManyInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -420,8 +494,14 @@ export type ProjectCountOrderByAggregateInput = {
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
   area?: Prisma.SortOrder
+  pinned?: Prisma.SortOrder
+  sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type ProjectAvgOrderByAggregateInput = {
+  sortOrder?: Prisma.SortOrder
 }
 
 export type ProjectMaxOrderByAggregateInput = {
@@ -431,6 +511,8 @@ export type ProjectMaxOrderByAggregateInput = {
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
   area?: Prisma.SortOrder
+  pinned?: Prisma.SortOrder
+  sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -442,8 +524,14 @@ export type ProjectMinOrderByAggregateInput = {
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
   area?: Prisma.SortOrder
+  pinned?: Prisma.SortOrder
+  sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type ProjectSumOrderByAggregateInput = {
+  sortOrder?: Prisma.SortOrder
 }
 
 export type ProjectScalarRelationFilter = {
@@ -652,6 +740,8 @@ export type ProjectCreateWithoutTeamInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  pinned?: boolean
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   sprints?: Prisma.SprintCreateNestedManyWithoutProjectInput
@@ -671,6 +761,8 @@ export type ProjectUncheckedCreateWithoutTeamInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  pinned?: boolean
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
@@ -720,6 +812,8 @@ export type ProjectScalarWhereInput = {
   description?: Prisma.StringNullableFilter<"Project"> | string | null
   status?: Prisma.EnumProjectStatusFilter<"Project"> | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFilter<"Project"> | $Enums.LifeArea
+  pinned?: Prisma.BoolFilter<"Project"> | boolean
+  sortOrder?: Prisma.IntFilter<"Project"> | number
   createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
 }
@@ -730,6 +824,8 @@ export type ProjectCreateWithoutMembersInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  pinned?: boolean
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
@@ -750,6 +846,8 @@ export type ProjectUncheckedCreateWithoutMembersInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  pinned?: boolean
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
@@ -784,6 +882,8 @@ export type ProjectUpdateWithoutMembersInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
@@ -804,6 +904,8 @@ export type ProjectUncheckedUpdateWithoutMembersInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
@@ -822,6 +924,8 @@ export type ProjectCreateWithoutSprintsInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  pinned?: boolean
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
@@ -842,6 +946,8 @@ export type ProjectUncheckedCreateWithoutSprintsInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  pinned?: boolean
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
@@ -876,6 +982,8 @@ export type ProjectUpdateWithoutSprintsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
@@ -896,6 +1004,8 @@ export type ProjectUncheckedUpdateWithoutSprintsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
@@ -914,6 +1024,8 @@ export type ProjectCreateWithoutTasksInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  pinned?: boolean
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
@@ -934,6 +1046,8 @@ export type ProjectUncheckedCreateWithoutTasksInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  pinned?: boolean
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
@@ -968,6 +1082,8 @@ export type ProjectUpdateWithoutTasksInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
@@ -988,6 +1104,8 @@ export type ProjectUncheckedUpdateWithoutTasksInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
@@ -1006,6 +1124,8 @@ export type ProjectCreateWithoutDocsInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  pinned?: boolean
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
@@ -1026,6 +1146,8 @@ export type ProjectUncheckedCreateWithoutDocsInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  pinned?: boolean
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
@@ -1060,6 +1182,8 @@ export type ProjectUpdateWithoutDocsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
@@ -1080,6 +1204,8 @@ export type ProjectUncheckedUpdateWithoutDocsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
@@ -1098,6 +1224,8 @@ export type ProjectCreateWithoutLangSessionsInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  pinned?: boolean
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
@@ -1118,6 +1246,8 @@ export type ProjectUncheckedCreateWithoutLangSessionsInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  pinned?: boolean
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
@@ -1152,6 +1282,8 @@ export type ProjectUpdateWithoutLangSessionsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
@@ -1172,6 +1304,8 @@ export type ProjectUncheckedUpdateWithoutLangSessionsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
@@ -1190,6 +1324,8 @@ export type ProjectCreateWithoutLangListeningClipsInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  pinned?: boolean
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
@@ -1210,6 +1346,8 @@ export type ProjectUncheckedCreateWithoutLangListeningClipsInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  pinned?: boolean
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
@@ -1244,6 +1382,8 @@ export type ProjectUpdateWithoutLangListeningClipsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
@@ -1264,6 +1404,8 @@ export type ProjectUncheckedUpdateWithoutLangListeningClipsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
@@ -1282,6 +1424,8 @@ export type ProjectCreateWithoutLangCardsInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  pinned?: boolean
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
@@ -1302,6 +1446,8 @@ export type ProjectUncheckedCreateWithoutLangCardsInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  pinned?: boolean
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
@@ -1336,6 +1482,8 @@ export type ProjectUpdateWithoutLangCardsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
@@ -1356,6 +1504,8 @@ export type ProjectUncheckedUpdateWithoutLangCardsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
@@ -1374,6 +1524,8 @@ export type ProjectCreateWithoutExamTracksInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  pinned?: boolean
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
@@ -1394,6 +1546,8 @@ export type ProjectUncheckedCreateWithoutExamTracksInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  pinned?: boolean
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
@@ -1428,6 +1582,8 @@ export type ProjectUpdateWithoutExamTracksInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
@@ -1448,6 +1604,8 @@ export type ProjectUncheckedUpdateWithoutExamTracksInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
@@ -1466,6 +1624,8 @@ export type ProjectCreateWithoutMockAttemptsInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  pinned?: boolean
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
@@ -1486,6 +1646,8 @@ export type ProjectUncheckedCreateWithoutMockAttemptsInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  pinned?: boolean
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
@@ -1520,6 +1682,8 @@ export type ProjectUpdateWithoutMockAttemptsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
@@ -1540,6 +1704,8 @@ export type ProjectUncheckedUpdateWithoutMockAttemptsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
@@ -1558,6 +1724,8 @@ export type ProjectCreateManyTeamInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  pinned?: boolean
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1568,6 +1736,8 @@ export type ProjectUpdateWithoutTeamInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sprints?: Prisma.SprintUpdateManyWithoutProjectNestedInput
@@ -1587,6 +1757,8 @@ export type ProjectUncheckedUpdateWithoutTeamInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
@@ -1606,6 +1778,8 @@ export type ProjectUncheckedUpdateManyWithoutTeamInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1720,6 +1894,8 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   description?: boolean
   status?: boolean
   area?: boolean
+  pinned?: boolean
+  sortOrder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   team?: boolean | Prisma.Project$teamArgs<ExtArgs>
@@ -1742,6 +1918,8 @@ export type ProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   description?: boolean
   status?: boolean
   area?: boolean
+  pinned?: boolean
+  sortOrder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   team?: boolean | Prisma.Project$teamArgs<ExtArgs>
@@ -1754,6 +1932,8 @@ export type ProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   description?: boolean
   status?: boolean
   area?: boolean
+  pinned?: boolean
+  sortOrder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   team?: boolean | Prisma.Project$teamArgs<ExtArgs>
@@ -1766,11 +1946,13 @@ export type ProjectSelectScalar = {
   description?: boolean
   status?: boolean
   area?: boolean
+  pinned?: boolean
+  sortOrder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "teamId" | "name" | "description" | "status" | "area" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
+export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "teamId" | "name" | "description" | "status" | "area" | "pinned" | "sortOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
 export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   team?: boolean | Prisma.Project$teamArgs<ExtArgs>
   sprints?: boolean | Prisma.Project$sprintsArgs<ExtArgs>
@@ -1812,6 +1994,14 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     description: string | null
     status: $Enums.ProjectStatus
     area: $Enums.LifeArea
+    /**
+     * Pin on hub / Today shortcuts
+     */
+    pinned: boolean
+    /**
+     * Order within an area (lower first); pinned still sorts above
+     */
+    sortOrder: number
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["project"]>
@@ -2253,6 +2443,8 @@ export interface ProjectFieldRefs {
   readonly description: Prisma.FieldRef<"Project", 'String'>
   readonly status: Prisma.FieldRef<"Project", 'ProjectStatus'>
   readonly area: Prisma.FieldRef<"Project", 'LifeArea'>
+  readonly pinned: Prisma.FieldRef<"Project", 'Boolean'>
+  readonly sortOrder: Prisma.FieldRef<"Project", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Project", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Project", 'DateTime'>
 }

@@ -131,6 +131,16 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
     ? parsed.data.assignedToId || session.user.id
     : session.user.id;
 
+  const dueDate = parsed.data.dueDate ? parseLocalDate(parsed.data.dueDate) : null;
+  const durationRaw = parsed.data.durationMinutes?.trim() || "";
+  const durationParsed = durationRaw ? Number(durationRaw) : NaN;
+  const durationMinutes =
+    dueDate &&
+    Number.isFinite(durationParsed) &&
+    durationParsed > 0
+      ? Math.min(24 * 60, Math.round(durationParsed))
+      : null;
+
   const task = await db.task.create({
     data: {
       title: parsed.data.title,
@@ -139,7 +149,8 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
       priority: parsed.data.priority,
       type: parsed.data.type,
       assignedToId,
-      dueDate: parsed.data.dueDate ? new Date(parsed.data.dueDate) : null,
+      dueDate,
+      durationMinutes,
       projectId,
       area,
       recurrence,
@@ -222,6 +233,7 @@ export async function updateTask(
       assignedToId: true,
       createdById: true,
       dueDate: true,
+      durationMinutes: true,
       projectId: true,
       area: true,
       recurrence: true,
@@ -268,6 +280,14 @@ export async function updateTask(
   const nextDueDate = parsed.data.dueDate
     ? parseLocalDate(parsed.data.dueDate)
     : null;
+  const durationRaw = parsed.data.durationMinutes?.trim() || "";
+  const durationParsed = durationRaw ? Number(durationRaw) : NaN;
+  const nextDurationMinutes =
+    nextDueDate &&
+    Number.isFinite(durationParsed) &&
+    durationParsed > 0
+      ? Math.min(24 * 60, Math.round(durationParsed))
+      : null;
   // Personal OS: members cannot reassign tasks to other users.
   const nextAssignedToId = isAdmin
     ? parsed.data.assignedToId || null
@@ -301,6 +321,7 @@ export async function updateTask(
       type: parsed.data.type,
       assignedToId: nextAssignedToId,
       dueDate: nextDueDate,
+      durationMinutes: nextDurationMinutes,
       projectId,
       area: nextArea,
       labels: {

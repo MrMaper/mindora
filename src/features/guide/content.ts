@@ -241,7 +241,7 @@ const fa: GuideCopy = {
             "عنوان را بنویس. توضیح را وقتی لازم شد اضافه کن.",
             "وضعیت و اولویت را انتخاب کن: فوری، بالا، متوسط، پایین، یا هیچ‌کدام.",
             "حوزه را مشخص کن و اگر مسیر ساخته‌ای، کار را به همان مسیر وصل کن.",
-            "سررسید را از تقویم انتخاب کن. تکرار می‌تواند هر روز، هر هفته یا هر ماه باشد.",
+            "سررسید را از تقویم انتخاب کن. اگر لازم بود با «افزودن ساعت» ساعت هم بگذار؛ روز بدون ساعت کافی است. تکرار می‌تواند هر روز، هر هفته یا هر ماه باشد.",
             "برچسب رنگی بساز یا از برچسب‌های قبلی انتخاب کن.",
             "ذخیره کن. بعداً از همان ردیف، کار را ویرایش یا حذف می‌کنی.",
           ],
@@ -279,7 +279,7 @@ const fa: GuideCopy = {
       group: "روزانه",
       title: "تقویم",
       summary:
-        "سررسید کارهای روزمره روی تقویم شمسی. نمای ماه برای تصویر کلی، نمای هفته برای چند روز نزدیک.",
+        "سررسید کارها روی تقویم شمسی، با ساعت و مدت اختیاری. ماه برای تصویر کلی؛ هفته و روز جدول ساعتی ۲۴ ساعته دارند (مثل گوگل).",
       href: "/calendar",
       module: "calendar",
       blocks: [
@@ -287,10 +287,10 @@ const fa: GuideCopy = {
           type: "steps",
           title: "روز را از روی تقویم بچین",
           items: [
-            "ماه یا هفته را انتخاب کن و با فلش‌ها جلو و عقب برو. «امروز» برمی‌گرداند به روز جاری.",
+            "ماه، هفته یا روز را انتخاب کن و با فلش‌ها جلو و عقب برو. روی موبایل پیش‌فرض نمای روز است. «امروز» برمی‌گرداند به روز جاری.",
             "به‌صورت پیش‌فرض فقط کار و زندگی روشن‌اند. فیلتر حوزه را روی همه، یا فقط یکی از چهار حوزه بگذار.",
-            "روی یک روز بزن. کارهایی که سررسیدشان همان روز است در کنار صفحه فهرست می‌شوند.",
-            "از ثبت سریع همان کنار، برای همان روز کار بساز.",
+            "در هفته/روز کار را روی شبکهٔ ساعت بکش (گام ۱۵ دقیقه) تا ساعت سررسید عوض شود؛ لبهٔ پایین بلاک را بکش تا مدت جلسه عوض شود. تداخل با حلقهٔ کهربایی مشخص می‌شود.",
+            "کارهای بدون ساعت در نوار بالای روز می‌مانند؛ انداختن روی آن نوار ساعت را پاک می‌کند. کنار صفحه هم فهرست همان روز و ثبت سریع هست.",
           ],
         },
         {
@@ -959,7 +959,7 @@ const en: GuideCopy = {
             "Write a title. Add a description when it helps.",
             "Set status and priority: urgent, high, medium, low, or none.",
             "Pick an area, and a path if you have made one.",
-            "Pick a due date. Repeat can be daily, weekly, or monthly.",
+            "Pick a due date. Add a clock only when you need one; a day alone is enough. Repeat can be daily, weekly, or monthly.",
             "Create a colored label or reuse one.",
             "Save. Edit or delete later from the same row.",
           ],
@@ -997,7 +997,7 @@ const en: GuideCopy = {
       group: "Daily",
       title: "Calendar",
       summary:
-        "Due dates for day-to-day work on a Jalali calendar. Month for the overview, week for the days right in front of you.",
+        "Due dates for day-to-day work on a Jalali calendar, with an optional clock and duration. Month for overview; week and day use a 24-hour grid like Google Calendar.",
       href: "/calendar",
       module: "calendar",
       blocks: [
@@ -1005,10 +1005,10 @@ const en: GuideCopy = {
           type: "steps",
           title: "Plan from the calendar",
           items: [
-            "Switch between month and week, move with the arrows, and jump back with Today.",
+            "Switch month, week, or day; move with the arrows; jump back with Today. Phones default to day view.",
             "By default only Work and Life are on. Filter by all areas, or only one of the four.",
-            "Select a day to list tasks due that day in the side panel.",
-            "Use quick capture beside that list to create a task for the same day.",
+            "In week/day, drag a task onto the hour grid (15-minute snap) to set the clock; drag the block’s bottom edge to change duration. Overlaps show an amber conflict ring.",
+            "Untimed tasks sit in the all-day strip; dropping there clears the clock. The side panel lists that day and offers quick capture.",
           ],
         },
         {

@@ -12,7 +12,7 @@ import type { TaskRow } from "@/features/tasks/types";
 import { STATUS_OPTIONS, statusToDisplay, priorityToDisplay } from "@/features/tasks/types";
 import { WorkLogButton } from "@/components/ui-kit/overlays/work-logs";
 import { isAreaBucketId } from "@/lib/area-projects";
-import { formatJalaliShort, parseLocalDate, toDateKey } from "@/lib/life";
+import { formatJalaliShort, parseLocalDate, toDateKey, isOverdueTask } from "@/lib/life";
 import { groupTasks, TASK_GROUP_NONE, type TaskGroupField } from "@/features/tasks/view";
 
 interface TasksTableProps {
@@ -34,7 +34,7 @@ interface TasksTableProps {
   onDelete: (task: TaskRow) => void;
   onCreate: () => void;
   onClearFilters: () => void;
-  formatDate: (date: Date | null) => string;
+  formatDate: (date: Date | null, durationMinutes?: number | null) => string;
 }
 
 const GRID =
@@ -50,8 +50,7 @@ function areaTitle(area: TaskRow["area"], t: TasksTableProps["t"]) {
 }
 
 function isOverdue(task: TaskRow): boolean {
-  if (!task.dueDate || task.status === "DONE") return false;
-  return toDateKey(new Date(task.dueDate)) < toDateKey(new Date());
+  return isOverdueTask(task);
 }
 
 function TaskPlace({ task, t }: { task: TaskRow; t: TasksTableProps["t"] }) {
@@ -262,7 +261,7 @@ function TaskLine({
   onEdit: (task: TaskRow) => void;
   onDelete: (task: TaskRow) => void;
   onLogTime: () => void;
-  formatDate: (date: Date | null) => string;
+  formatDate: (date: Date | null, durationMinutes?: number | null) => string;
 }) {
   const isAdmin = currentUserRole === "ADMIN";
   const isAssignee = task.assignedTo?.id === currentUserId;
@@ -316,7 +315,7 @@ function TaskLine({
           <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-text-tertiary">
             <StatusBadge status={statusToDisplay(task.status)} />
             <span className={cn(overdue && "font-medium text-destructive")}>
-              {formatDate(task.dueDate)}
+              {formatDate(task.dueDate, task.durationMinutes)}
             </span>
           </div>
         </div>
@@ -365,7 +364,7 @@ function TaskLine({
           )}
         </div>
         <span className={cn("text-xs text-text-tertiary", overdue && "font-medium text-destructive")}>
-          {formatDate(task.dueDate)}
+          {formatDate(task.dueDate, task.durationMinutes)}
         </span>
         <span onClick={event => event.stopPropagation()}>
           <Menu

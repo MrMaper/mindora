@@ -11,6 +11,7 @@ import {
   addJalaliMonth,
   jalaliMonthBounds,
   jalaliOf,
+  toDateKey,
 } from "@/lib/life";
 import { CalendarCC } from "./calendar-cc";
 import { localizedTitle } from "@/lib/page-title";
@@ -46,6 +47,7 @@ export default async function CalendarPage() {
       userProjects={userProjects}
       currentUserId={session.user.id}
       currentUserRole={session.user.role}
+      initialTodayKey={toDateKey(new Date())}
     />
   );
 }

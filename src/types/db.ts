@@ -23,6 +23,7 @@ export type {
   Language,
   Theme,
   LifeArea,
+  ProjectStatus,
   RecurrenceInterval,
   DocStatus,
   SourceReadingStatus,

@@ -12,6 +12,7 @@ import { cn, formatNumber } from "@/lib/utils";
 import type { LifeArea, RecurrenceInterval } from "@/types/db";
 import { universalCapture } from "@/features/capture/actions";
 import { parseCapture } from "@/features/capture/parse";
+import { formatDurationLabel } from "@/components/ui-kit/forms/time-roller";
 
 const AREAS: LifeArea[] = ["PHD", "WORK", "LIFE", "LANG"];
 
@@ -70,6 +71,12 @@ export function CaptureDialog({
         parsed.kind === "task" ? dateLabel(dateKey) : null,
         parsed.kind === "task" && parsed.time
           ? formatNumber(parsed.time, language)
+          : null,
+        parsed.kind === "task" && parsed.durationMinutes
+          ? formatDurationLabel(
+              parsed.durationMinutes,
+              language === "EN" ? "EN" : "FA",
+            )
           : null,
         recurrenceLabel(parsed.recurrence),
       ].filter((chip): chip is string => Boolean(chip)),

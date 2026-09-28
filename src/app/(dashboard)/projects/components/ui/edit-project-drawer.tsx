@@ -6,11 +6,12 @@ import { Drawer } from "@/components/ui-kit/overlays/drawer";
 import { Button } from "@/components/ui-kit/forms/button";
 import { Input } from "@/components/ui-kit/forms/input";
 import { useTranslation } from "@/i18n/provider";
+import type { ProjectStatus } from "@/features/projects/types";
 
 interface ProjectFormValues {
   name: string;
   description?: string;
-  status?: "ACTIVE" | "ARCHIVED" | "ON_HOLD" | undefined;
+  status?: ProjectStatus;
 }
 
 interface EditProjectDrawerProps {
@@ -29,6 +30,14 @@ interface EditProjectDrawerProps {
   isPending: boolean;
 }
 
+const STATUS_OPTIONS: ProjectStatus[] = [
+  "ACTIVE",
+  "PLANNED",
+  "ON_HOLD",
+  "COMPLETED",
+  "ARCHIVED",
+];
+
 export function EditProjectDrawer({
   isOpen,
   onClose,
@@ -39,6 +48,21 @@ export function EditProjectDrawer({
   isPending,
 }: EditProjectDrawerProps) {
   const t = useTranslation();
+
+  const statusLabel = (s: ProjectStatus) => {
+    switch (s) {
+      case "ACTIVE":
+        return t.projects.active;
+      case "PLANNED":
+        return t.projects.planned;
+      case "ON_HOLD":
+        return t.projects.onHold;
+      case "COMPLETED":
+        return t.projects.completed;
+      case "ARCHIVED":
+        return t.projects.archived;
+    }
+  };
 
   return (
     <Drawer
@@ -104,6 +128,30 @@ export function EditProjectDrawer({
               label={t.projects.description}
               error={fieldState.error?.message}
             />
+          )}
+        />
+        <Controller
+          name="status"
+          control={form.control}
+          render={({ field }) => (
+            <label className="flex flex-col gap-1.5">
+              <span className="text-xs font-medium text-muted-foreground">
+                {t.projects.status}
+              </span>
+              <select
+                className="h-9 rounded-md border border-border-default bg-bg-surface px-2 text-sm"
+                value={field.value ?? "ACTIVE"}
+                onChange={e =>
+                  field.onChange(e.target.value as ProjectStatus)
+                }
+              >
+                {STATUS_OPTIONS.map(s => (
+                  <option key={s} value={s}>
+                    {statusLabel(s)}
+                  </option>
+                ))}
+              </select>
+            </label>
           )}
         />
       </div>

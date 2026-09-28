@@ -7,12 +7,18 @@ import {
   createProjectSchema,
   updateProjectSchema,
   updateAreaBucketSchema,
+  updateAreaPreferenceSchema,
+  reorderAreasSchema,
+  reorderPathsSchema,
+  movePathSchema,
+  togglePinSchema,
   archiveProjectSchema,
   deleteProjectSchema,
 } from "@/schemas/projects";
 import { personalAreaProjectId } from "@/lib/area-projects";
 import { isAreaBucketId } from "@/lib/project-namespace";
 import { ensurePersonalWorkspace } from "@/features/life/workspace";
+import { LIFE_AREAS } from "@/lib/life";
 import type { LifeArea } from "@/types/db";
 
 export interface ActionResult {
@@ -69,6 +75,15 @@ export async function createProject(formData: FormData): Promise<ActionResult> {
 
   await ensurePersonalWorkspace(session.user.id);
 
+  const maxSort = await db.project.aggregate({
+    where: {
+      area,
+      members: { some: { userId: session.user.id } },
+      id: { not: { startsWith: "area-" } },
+    },
+    _max: { sortOrder: true },
+  });
+
   const org = await db.organization.findFirst();
   if (!org) return { success: false, error: "Organization not found" };
 
@@ -78,6 +93,7 @@ export async function createProject(formData: FormData): Promise<ActionResult> {
       description: description?.trim() || null,
       status: "ACTIVE",
       area,
+      sortOrder: (maxSort._max.sortOrder ?? -1) + 1,
       members: {
         create: {
           userId: session.user.id,
@@ -89,6 +105,7 @@ export async function createProject(formData: FormData): Promise<ActionResult> {
   });
 
   revalidatePath("/projects");
+  revalidatePath(`/projects/areas/${area}`);
   if (area === "PHD") revalidatePath("/research");
   if (area === "LANG") revalidatePath("/language");
   return { success: true, data: { projectId: project.id } };
@@ -125,8 +142,228 @@ export async function updateAreaBucket(formData: FormData): Promise<ActionResult
 
   revalidatePath("/projects");
   revalidatePath(`/projects/${bucketId}`);
+  revalidatePath(`/projects/areas/${area}`);
   revalidatePath("/tasks");
   revalidatePath("/kanban");
+  revalidatePath("/dashboard");
+  return { success: true };
+}
+
+function revalidateAreaSurfaces(area?: LifeArea) {
+  revalidatePath("/projects");
+  revalidatePath("/dashboard");
+  if (area) {
+    revalidatePath(`/projects/areas/${area}`);
+    if (area === "PHD") revalidatePath("/research");
+    if (area === "LANG") revalidatePath("/language");
+  }
+}
+
+// ─── Area preference (color / icon / archive / sort) ─────────────────────────
+
+export async function updateAreaPreference(
+  input: unknown,
+): Promise<ActionResult> {
+  const session = await requireAuth();
+  if (!session?.user) return { success: false, error: "Unauthorized" };
+
+  const parsed = updateAreaPreferenceSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message };
+  }
+
+  const { area, color, icon, sortOrder, archived } = parsed.data;
+  await ensurePersonalWorkspace(session.user.id);
+
+  await db.userAreaPreference.upsert({
+    where: {
+      userId_area: { userId: session.user.id, area },
+    },
+    create: {
+      userId: session.user.id,
+      area,
+      color: color === undefined ? null : color,
+      icon: icon === undefined ? null : icon,
+      sortOrder: sortOrder ?? LIFE_AREAS.indexOf(area),
+      archived: archived ?? false,
+    },
+    update: {
+      ...(color !== undefined ? { color } : {}),
+      ...(icon !== undefined ? { icon } : {}),
+      ...(sortOrder !== undefined ? { sortOrder } : {}),
+      ...(archived !== undefined ? { archived } : {}),
+    },
+  });
+
+  revalidateAreaSurfaces(area);
+  return { success: true };
+}
+
+export async function reorderAreas(orderedAreas: LifeArea[]): Promise<ActionResult> {
+  const session = await requireAuth();
+  if (!session?.user) return { success: false, error: "Unauthorized" };
+
+  const parsed = reorderAreasSchema.safeParse({ orderedAreas });
+  if (!parsed.success) {
+    return { success: false, error: "ترتیب حوزه‌ها نامعتبر است" };
+  }
+
+  const unique = new Set(parsed.data.orderedAreas);
+  if (unique.size !== 4 || !LIFE_AREAS.every(a => unique.has(a))) {
+    return { success: false, error: "ترتیب حوزه‌ها نامعتبر است" };
+  }
+
+  await ensurePersonalWorkspace(session.user.id);
+
+  await db.$transaction(
+    parsed.data.orderedAreas.map((area, index) =>
+      db.userAreaPreference.upsert({
+        where: {
+          userId_area: { userId: session.user.id, area },
+        },
+        create: {
+          userId: session.user.id,
+          area,
+          sortOrder: index,
+        },
+        update: { sortOrder: index },
+      }),
+    ),
+  );
+
+  revalidateAreaSurfaces();
+  return { success: true };
+}
+
+export async function reorderPathsInArea(
+  area: LifeArea,
+  orderedIds: string[],
+): Promise<ActionResult> {
+  const session = await requireAuth();
+  if (!session?.user) return { success: false, error: "Unauthorized" };
+
+  const parsed = reorderPathsSchema.safeParse({ area, orderedIds });
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message };
+  }
+
+  if (parsed.data.orderedIds.some(isAreaBucketId)) {
+    return { success: false, error: "Cannot reorder area buckets" };
+  }
+
+  const memberships = await db.projectMember.findMany({
+    where: {
+      userId: session.user.id,
+      projectId: { in: parsed.data.orderedIds },
+      project: { area },
+    },
+    select: { projectId: true },
+  });
+  if (memberships.length !== parsed.data.orderedIds.length) {
+    return { success: false, error: "دسترسی به بعضی مسیرها ندارید" };
+  }
+
+  await db.$transaction(
+    parsed.data.orderedIds.map((id, index) =>
+      db.project.update({
+        where: { id },
+        data: { sortOrder: index },
+      }),
+    ),
+  );
+
+  revalidateAreaSurfaces(area);
+  return { success: true };
+}
+
+export async function movePathToArea(input: {
+  pathId: string;
+  toArea: LifeArea;
+  toIndex?: number;
+}): Promise<ActionResult> {
+  const session = await requireAuth();
+  if (!session?.user) return { success: false, error: "Unauthorized" };
+
+  const parsed = movePathSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message };
+  }
+
+  const { pathId, toArea, toIndex } = parsed.data;
+  if (isAreaBucketId(pathId)) {
+    return { success: false, error: "Cannot move area buckets" };
+  }
+
+  const isAdmin = await requireProjectAdmin(pathId, session.user.id);
+  if (!isAdmin) return { success: false, error: "اجازه جابه‌جایی ندارید" };
+
+  const existing = await db.project.findUnique({
+    where: { id: pathId },
+    select: { area: true },
+  });
+  if (!existing) return { success: false, error: "مسیر پیدا نشد" };
+
+  const fromArea = existing.area;
+
+  let sortOrder = toIndex;
+  if (sortOrder === undefined) {
+    const maxSort = await db.project.aggregate({
+      where: {
+        area: toArea,
+        members: { some: { userId: session.user.id } },
+        id: { not: { startsWith: "area-" } },
+      },
+      _max: { sortOrder: true },
+    });
+    sortOrder = (maxSort._max.sortOrder ?? -1) + 1;
+  }
+
+  await db.$transaction([
+    db.project.update({
+      where: { id: pathId },
+      data: { area: toArea, sortOrder },
+    }),
+    db.task.updateMany({
+      where: { projectId: pathId },
+      data: { area: toArea },
+    }),
+  ]);
+
+  revalidateAreaSurfaces(fromArea);
+  revalidateAreaSurfaces(toArea);
+  revalidatePath(`/projects/${pathId}`);
+  revalidatePath("/tasks");
+  revalidatePath("/kanban");
+  revalidatePath("/calendar");
+  return { success: true };
+}
+
+export async function togglePathPin(
+  pathId: string,
+  pinned: boolean,
+): Promise<ActionResult> {
+  const session = await requireAuth();
+  if (!session?.user) return { success: false, error: "Unauthorized" };
+
+  const parsed = togglePinSchema.safeParse({ pathId, pinned });
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message };
+  }
+  if (isAreaBucketId(pathId)) {
+    return { success: false, error: "Cannot pin area buckets" };
+  }
+
+  const isAdmin = await requireProjectAdmin(pathId, session.user.id);
+  if (!isAdmin) return { success: false, error: "اجازه پین ندارید" };
+
+  const project = await db.project.update({
+    where: { id: pathId },
+    data: { pinned },
+    select: { area: true },
+  });
+
+  revalidateAreaSurfaces(project.area);
+  revalidatePath(`/projects/${pathId}`);
   revalidatePath("/dashboard");
   return { success: true };
 }

@@ -4,8 +4,8 @@ import { runVocabReviewRemindersForAllUsers } from "@/features/language/reminder
 import { runBaleDigestsForAllUsers } from "@/features/external/bots/bale/digest";
 
 /**
- * Secure cron endpoint for deadline + vocab reminders.
- * Call daily with header: Authorization: Bearer $CRON_SECRET
+ * Secure cron endpoint for deadline + timed due + vocab + Bale digests.
+ * Prefer every 5–10 minutes: Authorization: Bearer $CRON_SECRET
  */
 export async function GET(request: NextRequest) {
   const secret = process.env.CRON_SECRET;
@@ -24,6 +24,7 @@ export async function GET(request: NextRequest) {
     deadlines,
     vocab,
     bale,
+    note: "Schedule this route every 5–10 minutes so timed dues fire on time.",
   });
 }
 

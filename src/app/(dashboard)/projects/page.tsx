@@ -13,14 +13,20 @@ export function generateMetadata(): Promise<Metadata> {
 export default async function ProjectsPage({
   searchParams,
 }:  {
-  searchParams: Promise<{ search?: string }>;
+  searchParams: Promise<{ search?: string; create?: string }>;
 }) {
   await requireModule("projects");
   const session = await auth();
   if (!session?.user) redirect("/login");
 
-  const { search = "" } = await searchParams;
+  const { search = "", create } = await searchParams;
   const data = await getProjectsHub(session.user.id, search);
 
-  return <ProjectsCC initialData={data} search={search} />;
+  return (
+    <ProjectsCC
+      initialData={data}
+      search={search}
+      initialCreateArea={create?.toUpperCase()}
+    />
+  );
 }

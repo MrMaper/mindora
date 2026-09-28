@@ -1,6 +1,6 @@
 import { prisma as db } from "@/lib/db";
 import type { LifeArea } from "@/types/db";
-import { LIFE_AREAS } from "@/lib/life";
+import { LIFE_AREAS, startOfDay, startOfWeek, endOfWeek } from "@/lib/life";
 import { personalAreaProjectId } from "@/lib/area-projects";
 import {
   isAreaBucketId,
@@ -8,6 +8,7 @@ import {
   type ProjectListScope,
 } from "@/lib/project-namespace";
 import { ensurePersonalWorkspace } from "@/features/life/workspace";
+import { defaultAreaPref } from "@/lib/area-visual";
 import type {
   GetProjectsResult,
   ProjectRow,
@@ -17,6 +18,8 @@ import type {
   ProjectActivityRow,
   ProjectsHubData,
   AreaHubSection,
+  AreaPrefRow,
+  AreaDashboardData,
 } from "./types";
 
 const PAGE_SIZE = 15;
@@ -27,6 +30,8 @@ const projectListSelect = {
   description: true,
   status: true,
   area: true,
+  pinned: true,
+  sortOrder: true,
   teamId: true,
   team: { select: { name: true } },
   _count: { select: { members: true } },
@@ -39,6 +44,8 @@ function toProjectRow(p: {
   description: string | null;
   status: ProjectRow["status"];
   area: LifeArea;
+  pinned?: boolean;
+  sortOrder?: number;
   teamId: string | null;
   team: { name: string } | null;
   _count: { members: number };
@@ -54,33 +61,182 @@ function toProjectRow(p: {
     teamName: p.team?.name ?? null,
     memberCount: p._count.members,
     createdAt: p.createdAt,
+    pinned: p.pinned ?? false,
+    sortOrder: p.sortOrder ?? 0,
   };
+}
+
+function sortPaths(a: ProjectRow, b: ProjectRow): number {
+  if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+  if (a.sortOrder !== b.sortOrder) return a.sortOrder - b.sortOrder;
+  return a.name.localeCompare(b.name, "fa");
+}
+
+function isActivePathStatus(status: ProjectRow["status"]): boolean {
+  return status === "ACTIVE" || status === "PLANNED";
+}
+
+async function loadAreaPrefs(userId: string): Promise<Map<LifeArea, AreaPrefRow>> {
+  const rows = await db.userAreaPreference.findMany({
+    where: { userId },
+  });
+  const map = new Map<LifeArea, AreaPrefRow>();
+  for (const area of LIFE_AREAS) {
+    map.set(area, defaultAreaPref(area, LIFE_AREAS.indexOf(area)));
+  }
+  for (const row of rows) {
+    map.set(row.area, {
+      area: row.area,
+      color: row.color,
+      icon: row.icon,
+      sortOrder: row.sortOrder,
+      archived: row.archived,
+    });
+  }
+  return map;
+}
+
+async function attachTaskStats(rows: ProjectRow[]): Promise<ProjectRow[]> {
+  const projectIds = rows.map(p => p.id);
+  if (projectIds.length === 0) return rows;
+
+  type PathStats = {
+    open: number;
+    done: number;
+    total: number;
+    nextTitle: string | null;
+  };
+  const statsByProject = new Map<string, PathStats>();
+
+  const grouped = await db.task.groupBy({
+    by: ["projectId", "status"],
+    where: { projectId: { in: projectIds } },
+    _count: { _all: true },
+  });
+
+  for (const row of grouped) {
+    if (!row.projectId) continue;
+    const cur = statsByProject.get(row.projectId) ?? {
+      open: 0,
+      done: 0,
+      total: 0,
+      nextTitle: null,
+    };
+    const n = row._count._all;
+    cur.total += n;
+    if (row.status === "DONE") cur.done += n;
+    else cur.open += n;
+    statsByProject.set(row.projectId, cur);
+  }
+
+  const openTasks = await db.task.findMany({
+    where: {
+      projectId: { in: projectIds },
+      status: { not: "DONE" },
+    },
+    select: {
+      projectId: true,
+      title: true,
+      priority: true,
+      updatedAt: true,
+      status: true,
+    },
+    orderBy: [{ updatedAt: "desc" }],
+    take: 400,
+  });
+
+  const priorityRank: Record<string, number> = {
+    URGENT: 0,
+    HIGH: 1,
+    MEDIUM: 2,
+    LOW: 3,
+    NONE: 4,
+  };
+  const statusRank: Record<string, number> = {
+    IN_PROGRESS: 0,
+    TODO: 1,
+    REVIEW: 2,
+    TESTING: 3,
+    BLOCKED: 4,
+    BACKLOG: 5,
+  };
+
+  const bestByProject = new Map<
+    string,
+    { title: string; score: number; updatedAt: number }
+  >();
+  for (const task of openTasks) {
+    if (!task.projectId) continue;
+    const score =
+      (statusRank[task.status] ?? 9) * 10 + (priorityRank[task.priority] ?? 9);
+    const prev = bestByProject.get(task.projectId);
+    if (
+      !prev ||
+      score < prev.score ||
+      (score === prev.score && task.updatedAt.getTime() > prev.updatedAt)
+    ) {
+      bestByProject.set(task.projectId, {
+        title: task.title,
+        score,
+        updatedAt: task.updatedAt.getTime(),
+      });
+    }
+  }
+  for (const [id, best] of bestByProject) {
+    const cur = statsByProject.get(id) ?? {
+      open: 0,
+      done: 0,
+      total: 0,
+      nextTitle: null,
+    };
+    cur.nextTitle = best.title;
+    statsByProject.set(id, cur);
+  }
+
+  return rows.map(p => {
+    const s = statsByProject.get(p.id);
+    return {
+      ...p,
+      openTaskCount: s?.open ?? 0,
+      doneTaskCount: s?.done ?? 0,
+      totalTaskCount: s?.total ?? 0,
+      nextActionTitle: s?.nextTitle ?? null,
+    };
+  });
 }
 
 /** /projects hub: all areas with buckets + named paths for the user. */
 export async function getProjectsHub(
   userId: string,
   search = "",
+  opts?: { includeArchivedAreas?: boolean },
 ): Promise<ProjectsHubData> {
   await ensurePersonalWorkspace(userId);
 
-  const projects = await db.project.findMany({
-    where: {
-      status: { not: "ARCHIVED" },
-      members: { some: { userId } },
-    },
-    select: projectListSelect,
-    orderBy: { name: "asc" },
-  });
+  const [projects, prefMap] = await Promise.all([
+    db.project.findMany({
+      where: {
+        status: { not: "ARCHIVED" },
+        members: { some: { userId } },
+      },
+      select: projectListSelect,
+      orderBy: [{ pinned: "desc" }, { sortOrder: "asc" }, { name: "asc" }],
+    }),
+    loadAreaPrefs(userId),
+  ]);
 
-  const rows = projects.map(toProjectRow);
+  const rows = await attachTaskStats(projects.map(toProjectRow));
   const q = search.trim().toLowerCase();
 
-  const sections: AreaHubSection[] = LIFE_AREAS.map(area => {
+  const sectionsRaw: AreaHubSection[] = LIFE_AREAS.map(area => {
+    const pref = prefMap.get(area) ?? defaultAreaPref(area, LIFE_AREAS.indexOf(area));
     const list = rows.filter(p => p.area === area);
     const bucketId = personalAreaProjectId(userId, area);
     const bucket =
-      list.find(p => p.id === bucketId || isAreaBucketId(p.id) && p.area === area) ??
+      list.find(
+        p =>
+          p.id === bucketId || (isAreaBucketId(p.id) && p.area === area),
+      ) ??
       ({
         id: bucketId,
         name: area,
@@ -91,11 +247,15 @@ export async function getProjectsHub(
         teamName: null,
         memberCount: 1,
         createdAt: new Date(0),
+        pinned: false,
+        sortOrder: 0,
+        openTaskCount: 0,
+        doneTaskCount: 0,
+        totalTaskCount: 0,
+        nextActionTitle: null,
       } satisfies ProjectRow);
 
-    let paths = list
-      .filter(p => !isAreaBucketId(p.id))
-      .sort((a, b) => a.name.localeCompare(b.name, "fa"));
+    let paths = list.filter(p => !isAreaBucketId(p.id)).sort(sortPaths);
 
     if (q) {
       const bucketHit =
@@ -110,16 +270,124 @@ export async function getProjectsHub(
       }
     }
 
-    return { area, bucket, paths };
-  }).filter(section => {
-    if (!q) return true;
-    const bucketHit =
-      section.bucket.name.toLowerCase().includes(q) ||
-      (section.bucket.description ?? "").toLowerCase().includes(q);
-    return bucketHit || section.paths.length > 0;
+    const openTaskCount =
+      (bucket.openTaskCount ?? 0) +
+      paths.reduce((n, p) => n + (p.openTaskCount ?? 0), 0);
+    const activePathCount = paths.filter(p => isActivePathStatus(p.status)).length;
+
+    return { area, bucket, paths, openTaskCount, activePathCount, pref };
   });
 
-  return { sections, search };
+  let sections = sectionsRaw
+    .filter(section => {
+      if (!q) return true;
+      const bucketHit =
+        section.bucket.name.toLowerCase().includes(q) ||
+        (section.bucket.description ?? "").toLowerCase().includes(q);
+      return bucketHit || section.paths.length > 0;
+    })
+    .sort((a, b) => {
+      if (a.pref.archived !== b.pref.archived) {
+        return a.pref.archived ? 1 : -1;
+      }
+      return a.pref.sortOrder - b.pref.sortOrder;
+    });
+
+  // opts retained for callers that want to force-include (dashboard already does)
+  void opts;
+
+  const pinnedPaths = rows
+    .filter(p => p.pinned && !isAreaBucketId(p.id))
+    .sort(sortPaths);
+
+  return { sections, search, pinnedPaths };
+}
+
+/** Area context dashboard: `/projects/areas/[area]`. */
+export async function getAreaDashboard(
+  userId: string,
+  area: LifeArea,
+): Promise<AreaDashboardData | null> {
+  if (!LIFE_AREAS.includes(area)) return null;
+  await ensurePersonalWorkspace(userId);
+
+  const hub = await getProjectsHub(userId, "", { includeArchivedAreas: true });
+  const section = hub.sections.find(s => s.area === area);
+  if (!section) return null;
+
+  const pathIds = [
+    section.bucket.id,
+    ...section.paths.map(p => p.id),
+  ];
+
+  const weekStart = startOfWeek(startOfDay());
+  const weekEnd = endOfWeek(startOfDay());
+
+  const weekOpenTasks = await db.task.findMany({
+    where: {
+      projectId: { in: pathIds },
+      status: { not: "DONE" },
+      OR: [
+        { dueDate: { gte: weekStart, lte: weekEnd } },
+        {
+          AND: [
+            { updatedAt: { gte: weekStart } },
+            { status: { in: ["TODO", "IN_PROGRESS", "REVIEW"] } },
+          ],
+        },
+      ],
+    },
+    select: {
+      id: true,
+      title: true,
+      status: true,
+      dueDate: true,
+      projectId: true,
+      project: { select: { name: true } },
+    },
+    orderBy: [{ dueDate: "asc" }, { updatedAt: "desc" }],
+    take: 12,
+  });
+
+  const nextActions = section.paths
+    .filter(p => p.nextActionTitle && isActivePathStatus(p.status))
+    .slice(0, 8)
+    .map(p => ({
+      pathId: p.id,
+      pathName: p.name,
+      title: p.nextActionTitle!,
+    }));
+
+  const doneTaskCount = section.paths.reduce(
+    (n, p) => n + (p.doneTaskCount ?? 0),
+    0,
+  ) + (section.bucket.doneTaskCount ?? 0);
+
+  return {
+    area,
+    bucket: section.bucket,
+    pref: section.pref,
+    paths: section.paths,
+    openTaskCount: section.openTaskCount,
+    doneTaskCount,
+    activePathCount: section.activePathCount,
+    weekOpenTasks: weekOpenTasks.map(t => ({
+      id: t.id,
+      title: t.title,
+      status: t.status,
+      dueDate: t.dueDate,
+      projectId: t.projectId,
+      projectName: t.project?.name ?? null,
+    })),
+    nextActions,
+    stats: {
+      pathsTotal: section.paths.length,
+      pathsCompleted: section.paths.filter(p => p.status === "COMPLETED").length,
+      pathsOnHold: section.paths.filter(p => p.status === "ON_HOLD").length,
+      tasksOpen: section.openTaskCount,
+      tasksDone: doneTaskCount,
+    },
+  };
 }
 
 /**
@@ -226,6 +494,8 @@ export async function getProjectById(
       description: true,
       status: true,
       area: true,
+      pinned: true,
+      sortOrder: true,
       teamId: true,
       team: { select: { name: true } },
       createdAt: true,
@@ -256,6 +526,8 @@ export async function getProjectById(
     teamName: project.team?.name ?? null,
     createdAt: project.createdAt,
     updatedAt: project.updatedAt,
+    pinned: project.pinned,
+    sortOrder: project.sortOrder,
     members: project.members.map(m => ({
       id: m.id,
       userId: m.userId,

@@ -9,6 +9,7 @@ export const createTaskSchema = z.object({
   projectId: z.string().optional().or(z.literal("")),
   assignedToId: z.string().optional().or(z.literal("")),
   dueDate: z.string().optional().or(z.literal("")),
+  durationMinutes: z.string().optional().or(z.literal("")),
   labelIds: z.string().optional(),
   area: z.enum(["PHD", "WORK", "LIFE", "LANG"]).optional().or(z.literal("")),
   recurrence: z

@@ -83,6 +83,11 @@ export type TeamMember = Prisma.TeamMemberModel
  */
 export type Project = Prisma.ProjectModel
 /**
+ * Model UserAreaPreference
+ * Per-user overrides for the four fixed LifeArea buckets (color, icon, order, hide).
+ */
+export type UserAreaPreference = Prisma.UserAreaPreferenceModel
+/**
  * Model ProjectMember
  * 
  */

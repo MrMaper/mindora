@@ -112,7 +112,7 @@ export function ReviewCC({
 
   return (
     <>
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-5 min-w-0 overflow-x-hidden">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
             <h1 className="text-xl font-semibold text-text-primary">
@@ -138,7 +138,7 @@ export function ReviewCC({
           ) : null}
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
           {stats.map(stat => (
             <div
               key={stat.label}
