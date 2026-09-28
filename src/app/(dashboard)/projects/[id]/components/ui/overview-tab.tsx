@@ -15,22 +15,12 @@ interface OverviewTabProps {
 const STATUS_ROWS: {
   status: string;
   tone: "neutral" | "info" | "warning" | "success" | "danger";
-  labelKey:
-    | "backlog"
-    | "todo"
-    | "inProgress"
-    | "review"
-    | "testing"
-    | "done"
-    | "blocked";
+  labelKey: "backlog" | "todo" | "inProgress" | "done";
 }[] = [
   { status: "BACKLOG", tone: "neutral", labelKey: "backlog" },
   { status: "TODO", tone: "info", labelKey: "todo" },
   { status: "IN_PROGRESS", tone: "warning", labelKey: "inProgress" },
-  { status: "REVIEW", tone: "info", labelKey: "review" },
-  { status: "TESTING", tone: "info", labelKey: "testing" },
   { status: "DONE", tone: "success", labelKey: "done" },
-  { status: "BLOCKED", tone: "danger", labelKey: "blocked" },
 ];
 
 function startOfToday() {

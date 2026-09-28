@@ -25,10 +25,10 @@ const STATUS_RANK: Record<TaskStatus, number> = {
   BACKLOG: 0,
   TODO: 1,
   IN_PROGRESS: 2,
-  REVIEW: 3,
-  TESTING: 4,
-  DONE: 5,
-  BLOCKED: 6,
+  REVIEW: 2,
+  TESTING: 2,
+  BLOCKED: 2,
+  DONE: 3,
 };
 
 const PRIORITY_RANK: Record<TaskPriority, number> = {

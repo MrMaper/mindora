@@ -340,7 +340,7 @@ export async function getWeeklyReview(userId: string) {
     db.task.findMany({
       where: {
         ...lifeOnly,
-        status: { in: ["TODO", "IN_PROGRESS", "BLOCKED", "REVIEW", "TESTING"] },
+        status: { in: ["TODO", "IN_PROGRESS"] },
       },
       orderBy: [{ dueDate: "asc" }, { priority: "asc" }],
       take: 40,

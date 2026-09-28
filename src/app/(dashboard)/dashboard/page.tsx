@@ -5,6 +5,7 @@ import { getAssignableUsers } from "@/features/users/queries";
 import { getLabels } from "@/features/labels/queries";
 import { getUserProjects } from "@/features/projects/queries";
 import { listHabitsAction } from "@/features/habits/actions";
+import { syncPlanningStatusesForUser } from "@/features/life/actions";
 import {
   ensureDailyRemindersCached,
   ensurePersonalWorkspaceCached,
@@ -30,6 +31,7 @@ export default async function DashboardPage() {
 
   await ensurePersonalWorkspaceCached(session.user.id);
   await ensureDailyRemindersCached(session.user.id);
+  await syncPlanningStatusesForUser(session.user.id);
 
   const [data, users, labels, userProjects, habits, prefs] = await Promise.all([
     getPersonalDashboard(session.user.id),

@@ -78,10 +78,10 @@ const STATUS_TO_DISPLAY: Record<TaskStatus, DisplayStatus> = {
   BACKLOG: "backlog",
   TODO: "todo",
   IN_PROGRESS: "in-progress",
-  REVIEW: "review",
-  TESTING: "testing",
+  REVIEW: "in-progress",
+  TESTING: "in-progress",
   DONE: "done",
-  BLOCKED: "blocked",
+  BLOCKED: "in-progress",
 };
 
 export function statusToDisplay(status: TaskStatus): DisplayStatus {
@@ -92,15 +92,28 @@ export function priorityToDisplay(priority: TaskPriority): DisplayPriority {
   return priority.toLowerCase() as DisplayPriority;
 }
 
+/** Active board / form statuses — Inbox, This Week, In Progress, Done. */
 export const STATUS_OPTIONS: { value: TaskStatus; labelKey: string }[] = [
   { value: "BACKLOG", labelKey: "backlog" },
   { value: "TODO", labelKey: "todo" },
   { value: "IN_PROGRESS", labelKey: "inProgress" },
-  { value: "REVIEW", labelKey: "review" },
-  { value: "TESTING", labelKey: "testing" },
   { value: "DONE", labelKey: "done" },
-  { value: "BLOCKED", labelKey: "blocked" },
 ];
+
+export type FormTaskStatus = "BACKLOG" | "TODO" | "IN_PROGRESS" | "DONE";
+
+/** Map legacy scrum statuses into the active four for forms. */
+export function toFormStatus(status: TaskStatus): FormTaskStatus {
+  if (
+    status === "BACKLOG" ||
+    status === "TODO" ||
+    status === "IN_PROGRESS" ||
+    status === "DONE"
+  ) {
+    return status;
+  }
+  return "IN_PROGRESS";
+}
 
 export const PRIORITY_OPTIONS: { value: TaskPriority; labelKey: string }[] = [
   { value: "URGENT", labelKey: "urgent" },

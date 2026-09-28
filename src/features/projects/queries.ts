@@ -155,10 +155,7 @@ async function attachTaskStats(rows: ProjectRow[]): Promise<ProjectRow[]> {
   const statusRank: Record<string, number> = {
     IN_PROGRESS: 0,
     TODO: 1,
-    REVIEW: 2,
-    TESTING: 3,
-    BLOCKED: 4,
-    BACKLOG: 5,
+    BACKLOG: 2,
   };
 
   const bestByProject = new Map<
@@ -332,7 +329,7 @@ export async function getAreaDashboard(
         {
           AND: [
             { updatedAt: { gte: weekStart } },
-            { status: { in: ["TODO", "IN_PROGRESS", "REVIEW"] } },
+            { status: { in: ["TODO", "IN_PROGRESS"] } },
           ],
         },
       ],

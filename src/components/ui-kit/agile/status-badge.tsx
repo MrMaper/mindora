@@ -8,9 +8,10 @@ export type TaskStatus =
   | "backlog"
   | "todo"
   | "in-progress"
+  | "done"
+  // Legacy display keys — rendered like in-progress
   | "review"
   | "testing"
-  | "done"
   | "blocked";
 
 export const STATUSES: Record<
@@ -31,10 +32,10 @@ export const STATUSES: Record<
   backlog: { label: "اینباکس", tone: "neutral" },
   todo: { label: "این هفته", tone: "info" },
   "in-progress": { label: "در حال انجام", tone: "brand" },
-  review: { label: "بازخورد", tone: "warning" },
-  testing: { label: "تست", tone: "info" },
   done: { label: "تمام", tone: "success" },
-  blocked: { label: "منتظر", tone: "danger" },
+  review: { label: "در حال انجام", tone: "brand" },
+  testing: { label: "در حال انجام", tone: "brand" },
+  blocked: { label: "در حال انجام", tone: "brand" },
 };
 
 export interface StatusBadgeProps extends React.HTMLAttributes<HTMLSpanElement> {

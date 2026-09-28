@@ -23,7 +23,7 @@ import { CreateTaskDrawer } from "../ui/create-task-drawer";
 import { EditTaskDrawer } from "../ui/edit-task-drawer";
 import { LabelManagementDialog } from "../ui/label-management-dialog";
 import { DeleteConfirmationDialog } from "../ui/delete-confirmation-dialog";
-import { GetTasksResult } from "@/features/tasks/types";
+import { GetTasksResult, STATUS_OPTIONS } from "@/features/tasks/types";
 import { GlobalError } from "@/components/ui-kit/global";
 
 interface TasksCCProps {
@@ -71,7 +71,10 @@ export function TasksCC({
   ];
 
   const statusOptions = withEmptyOption(
-    getAllOptionsWithLabels(t, "status"),
+    STATUS_OPTIONS.map(o => ({
+      value: o.value,
+      label: t.tasks[o.labelKey as keyof typeof t.tasks] as string,
+    })),
     t.tasks.allStatuses,
   );
   const priorityOptions = withEmptyOption(
@@ -164,7 +167,6 @@ export function TasksCC({
         onRowClick={u.openEdit}
         onEdit={u.openEdit}
         onDelete={u.setDeleteTarget}
-        onCreate={u.openCreate}
         onClearFilters={() => {
           u.setSearch("");
           u.setProject("");

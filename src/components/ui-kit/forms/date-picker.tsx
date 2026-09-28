@@ -13,7 +13,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useTranslation } from "@/i18n/provider";
 import { TimeRoller } from "@/components/ui-kit/forms/time-roller";
@@ -46,7 +45,7 @@ const PERSIAN_DIGITS = [
   "۹",
 ] as const;
 
-function toPersianDigits(n: number): string {
+function toPersianDigits(n: number | string): string {
   return String(n)
     .split("")
     .map(d => PERSIAN_DIGITS[parseInt(d)] ?? d)
@@ -72,8 +71,8 @@ function formatPersianDate(date: Date, showTime: boolean): string {
   const { jy, jm, jd } = toJalaali(date);
   const dateStr = `${toPersianDigits(jd)} ${PERSIAN_MONTHS[jm - 1]} ${toPersianDigits(jy)}`;
   if (!showTime) return dateStr;
-  const hours = toPersianDigits(date.getHours());
-  const minutes = toPersianDigits(date.getMinutes());
+  const hours = toPersianDigits(String(date.getHours()).padStart(2, "0"));
+  const minutes = toPersianDigits(String(date.getMinutes()).padStart(2, "0"));
   return `${dateStr} ${hours}:${minutes}`;
 }
 
@@ -207,12 +206,13 @@ export function DatePicker({
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setLocalDate(d);
       if (d) {
-        if (!isTimedDate(d)) {
-          if (timeOptional) setTimeEnabled(false);
-        } else {
+        if (isTimedDate(d)) {
           setLocalHours(d.getHours());
           setLocalMinutes(d.getMinutes());
           if (timeOptional) setTimeEnabled(true);
+        } else if (timeOptional && !open) {
+          // Keep the roller open while editing 12:00; noon is date-only once closed.
+          setTimeEnabled(false);
         }
       } else if (timeOptional) {
         setTimeEnabled(false);
@@ -222,7 +222,7 @@ export function DatePicker({
       setLocalRangeFrom(v?.from ?? null);
       setLocalRangeTo(v?.to ?? null);
     }
-  }, [value, mode, timeOptional, hasDuration]);
+  }, [value, mode, timeOptional, hasDuration, open]);
 
   const emitSingle = (date: Date | null) => {
     (onChange as ((date: Date | null) => void) | undefined)?.(date);
@@ -250,7 +250,8 @@ export function DatePicker({
     const newDate = applyClock(date, localHours, localMinutes);
     setLocalDate(newDate);
     emitSingle(newDate);
-    setOpen(false);
+    // Keep open so optional clock / roller stay reachable after picking a day.
+    if (!timeOptional && !showTimePicker) setOpen(false);
   };
 
   const handleRangeSelect = (
@@ -306,8 +307,7 @@ export function DatePicker({
 
   const showClockInLabel =
     mode === "single" &&
-    (showTimePicker ||
-      (timeOptional && timeEnabled && !!localDate && isTimedDate(localDate)));
+    (showTimePicker || (timeOptional && timeEnabled && !!localDate));
 
   const formatDateForDisplay = (date: Date | null): string => {
     if (!date) return "";
@@ -348,20 +348,33 @@ export function DatePicker({
       )}
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger
+          disabled={disabled}
           render={
-            <Input
+            <button
+              type="button"
               id={fieldId}
-              readOnly
-              value={displayValue}
-              placeholder={placeholder ?? t.tasks.selectDate}
-              className={cn("cursor-pointer", className)}
-              aria-invalid={!!error}
+              className={cn(
+                "flex h-8 w-full min-w-0 items-center rounded-md border border-input bg-bg-surface px-2.5 text-start text-sm outline-none transition-colors",
+                "hover:border-gray-400 dark:hover:border-gray-600",
+                "focus-visible:border-ring",
+                !displayValue && "text-muted-foreground",
+                disabled && "pointer-events-none cursor-not-allowed opacity-50",
+                error && "border-destructive",
+                className,
+              )}
+              aria-invalid={!!error || undefined}
               aria-describedby={error ? errorId : hint ? hintId : undefined}
-              disabled={disabled}
             />
           }
-        />
-        <PopoverContent className="w-auto p-0" sideOffset={5}>
+        >
+          <span className="truncate">
+            {displayValue || (placeholder ?? t.tasks.selectDate)}
+          </span>
+        </PopoverTrigger>
+        <PopoverContent
+          className="w-auto max-h-(--available-height) gap-0 overflow-y-auto p-0"
+          sideOffset={5}
+        >
           {mode === "single" ? (
             <CalendarComponent
               mode="single"
@@ -404,24 +417,26 @@ export function DatePicker({
             </div>
           ) : null}
           {showTimeRow ? (
-            <div className="flex flex-col gap-2 border-t border-border p-3">
-              <div className="flex items-center gap-2">
+            <div className="border-t border-border p-3">
+              <div className="mb-2 flex items-center gap-2">
                 <ClockIcon className="size-4 shrink-0 text-muted-foreground" />
+                {timeOptional ? (
+                  <button
+                    type="button"
+                    className="ms-auto text-xs text-muted-foreground hover:text-foreground"
+                    onClick={clearTime}
+                  >
+                    {t.tasks.clearDueTime}
+                  </button>
+                ) : null}
+              </div>
+              <div className="flex justify-center">
                 <TimeRoller
                   hours={localHours}
                   minutes={localMinutes}
                   onChange={handleTimeChange}
                   disabled={!localDate}
                 />
-                {timeOptional ? (
-                  <button
-                    type="button"
-                    className="ms-auto self-start text-xs text-muted-foreground hover:text-foreground"
-                    onClick={clearTime}
-                  >
-                    {t.tasks.clearDueTime}
-                  </button>
-                ) : null}
               </div>
             </div>
           ) : null}

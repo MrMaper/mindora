@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { cn } from "@/lib/utils";
+import { cn, formatNumber } from "@/lib/utils";
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 const MINUTES = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
@@ -60,28 +60,34 @@ function WheelColumn({
       >
         ▲
       </button>
-      <div
-        ref={listRef}
-        onScroll={onScroll}
-        className="relative h-[108px] w-12 overflow-y-auto scroll-smooth snap-y snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      >
-        <div className="h-[36px]" />
-        {values.map(v => (
-          <button
-            key={v}
-            type="button"
-            onClick={() => onChange(v)}
-            className={cn(
-              "flex h-9 w-full snap-center items-center justify-center font-mono text-sm tabular-nums transition-colors",
-              v === value
-                ? "font-semibold text-foreground"
-                : "text-muted-foreground/70",
-            )}
-          >
-            {pad(v)}
-          </button>
-        ))}
-        <div className="h-[36px]" />
+      <div className="relative h-[108px] w-12">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-[36px] z-0 h-9 rounded-md bg-accent/50"
+        />
+        <div
+          ref={listRef}
+          onScroll={onScroll}
+          className="relative z-10 h-full overflow-y-auto scroll-smooth snap-y snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          <div className="h-[36px]" />
+          {values.map(v => (
+            <button
+              key={v}
+              type="button"
+              onClick={() => onChange(v)}
+              className={cn(
+                "flex h-9 w-full snap-center items-center justify-center font-mono text-sm tabular-nums transition-colors",
+                v === value
+                  ? "font-semibold text-foreground"
+                  : "text-muted-foreground/70",
+              )}
+            >
+              {pad(v)}
+            </button>
+          ))}
+          <div className="h-[36px]" />
+        </div>
       </div>
       <button
         type="button"
@@ -112,6 +118,15 @@ export function TimeRoller({
       MINUTES[0]!,
     ) ?? 0;
 
+  // Snap parent state when loaded minutes fall between 5-minute steps (e.g. 7 → 5).
+  React.useEffect(() => {
+    if (snappedMinutes !== minutes) {
+      onChange(Math.min(23, Math.max(0, hours)), snappedMinutes);
+    }
+    // Only re-snap when the incoming minutes change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional
+  }, [minutes]);
+
   return (
     <div
       className={cn(
@@ -126,7 +141,7 @@ export function TimeRoller({
         value={Math.min(23, Math.max(0, hours))}
         onChange={h => onChange(h, snappedMinutes)}
       />
-      <span className="pb-1 text-lg font-semibold text-muted-foreground">:</span>
+      <span className="pb-0.5 text-lg font-semibold text-muted-foreground">:</span>
       <WheelColumn
         label="Minutes"
         values={MINUTES}
@@ -155,8 +170,8 @@ export function formatDurationLabel(
   if (preset) return language === "EN" ? preset.labelEn : preset.labelFa;
   if (minutes % 60 === 0) {
     const h = minutes / 60;
-    return language === "EN" ? `${h}h` : `${h} ساعت`;
+    return language === "EN" ? `${h}h` : `${formatNumber(h, language)} ساعت`;
   }
   if (language === "EN") return `${minutes} min`;
-  return `${minutes} دقیقه`;
+  return `${formatNumber(minutes, language)} دقیقه`;
 }

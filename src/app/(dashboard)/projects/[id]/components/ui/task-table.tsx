@@ -23,29 +23,23 @@ const STATUS_TONE: Record<
   BACKLOG: "neutral",
   TODO: "info",
   IN_PROGRESS: "warning",
-  REVIEW: "info",
-  TESTING: "info",
+  REVIEW: "warning",
+  TESTING: "warning",
   DONE: "success",
-  BLOCKED: "danger",
+  BLOCKED: "warning",
 };
 
 const STATUS_LABEL_KEY: Record<
   string,
-  | "backlog"
-  | "todo"
-  | "inProgress"
-  | "review"
-  | "testing"
-  | "done"
-  | "blocked"
+  "backlog" | "todo" | "inProgress" | "done"
 > = {
   BACKLOG: "backlog",
   TODO: "todo",
   IN_PROGRESS: "inProgress",
-  REVIEW: "review",
-  TESTING: "testing",
+  REVIEW: "inProgress",
+  TESTING: "inProgress",
   DONE: "done",
-  BLOCKED: "blocked",
+  BLOCKED: "inProgress",
 };
 
 const PRIORITY_LABEL_KEY: Record<

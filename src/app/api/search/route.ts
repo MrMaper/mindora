@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma as db } from "@/lib/db";
 import { taskWhereExcludeHub } from "@/lib/project-namespace";
+import { getUserPreferencesCached } from "@/lib/request-cache";
+import { formatHours } from "@/lib/utils";
 
 export async function GET(request: NextRequest) {
   const session = await auth();
@@ -10,6 +12,8 @@ export async function GET(request: NextRequest) {
   }
 
   const uid = session.user.id;
+  const prefs = await getUserPreferencesCached(uid);
+  const language = prefs?.language === "EN" ? "EN" : "FA";
   const searchParams = request.nextUrl.searchParams;
   const query = (searchParams.get("q") ?? "").trim();
   const limit = Math.min(parseInt(searchParams.get("limit") ?? "8", 10), 15);
@@ -219,7 +223,7 @@ export async function GET(request: NextRequest) {
       workLogs: workLogs.map(w => ({
         id: w.id,
         title: w.task.title,
-        meta: w.description?.slice(0, 80) || `${w.hours}h`,
+        meta: w.description?.slice(0, 80) || formatHours(w.hours, language, 2),
         href: "/work-logs",
       })),
     });

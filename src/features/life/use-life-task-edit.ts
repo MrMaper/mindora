@@ -10,6 +10,7 @@ import { coerceLifeArea, dueDateToFormValue } from "@/lib/life";
 import { useAreaBuckets } from "@/components/area-buckets-provider";
 import type { UpdateTaskInput } from "@/schemas/tasks";
 import type { TaskRow, TaskDetail } from "@/features/tasks/types";
+import { toFormStatus } from "@/features/tasks/types";
 import type { LifeArea } from "@/types/db";
 
 function resolveArea(task: TaskRow | TaskDetail): LifeArea {
@@ -63,7 +64,7 @@ export function useLifeTaskEdit() {
     editForm.reset({
       title: detail.title,
       description: detail.description ?? "",
-      status: detail.status,
+      status: toFormStatus(detail.status),
       priority: detail.priority,
       type: detail.type,
       projectId: detail.projectId ?? areaIds[area],

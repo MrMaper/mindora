@@ -32,7 +32,6 @@ interface TasksTableProps {
   onRowClick: (task: TaskRow) => void;
   onEdit: (task: TaskRow) => void;
   onDelete: (task: TaskRow) => void;
-  onCreate: () => void;
   onClearFilters: () => void;
   formatDate: (date: Date | null, durationMinutes?: number | null) => string;
 }
@@ -79,7 +78,6 @@ export function TasksTable({
   onRowClick,
   onEdit,
   onDelete,
-  onCreate,
   onClearFilters,
   formatDate,
 }: TasksTableProps) {
@@ -146,9 +144,6 @@ export function TasksTable({
           <>
             <p className="text-base font-medium text-text-primary">{t.tasks.emptyTitle}</p>
             <p className="mt-1 text-sm text-text-tertiary">{t.tasks.emptyBody}</p>
-            <Button variant="primary" icon="plus" className="mt-4" onClick={onCreate}>
-              {t.tasks.createTaskButton}
-            </Button>
           </>
         )}
       </div>

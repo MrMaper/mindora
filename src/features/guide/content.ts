@@ -55,7 +55,7 @@ const fa: GuideCopy = {
     {
       id: "today",
       title: "صبح، از امروز",
-      text: "سررسیدها، سه اولویت، و عادت‌ها را همان اول ببین.",
+      text: "سه اولویت، جلسه تمرکز، و کارهایی که همین امروز باید جلو بروند.",
     },
     {
       id: "board",
@@ -127,62 +127,58 @@ const fa: GuideCopy = {
       group: "روزانه",
       title: "امروز",
       summary:
-        "صفحهٔ شروع هر روز. توجه امروز، سه اولویت، تمرکز، سررسید امروز، اینباکس، بار هفته، حوزه‌ها و عادت اینجاست.",
+        "میز کار روزانه‌ات: چند عدد خلاصه، سه اولویت، جلسه تمرکز، لیست امروز و صف کارها.",
       href: "/dashboard",
       module: "dashboard",
       blocks: [
         {
           type: "steps",
-          title: "صبح را این‌طور باز کن",
+          title: "صبح را این‌طور شروع کن",
           items: [
-            "از منو وارد «امروز» شو.",
-            "اگر بنر کارهای ناتمام دیروز آمد، «همه را به امروز بیاور» را بزن تا عقب نمانند.",
-            "«۳ اولویت امروز» همیشه سه جایگاه است. کار عقب‌افتاده، کار امروز، یا کار بدون تاریخ را می‌توانی انتخاب کنی؛ کار فردا و بقیهٔ هفته داخل فهرست نمی‌آید. با تمام‌شدن هر کدام، شمارنده مثل ۲/۳ ✓ می‌شود.",
-            "عادت‌ها را تیک بزن. نوار فعالیت و streak همان‌جا به‌روز می‌شود.",
-            "در «تمرکز امروز» یک کار را انتخاب کن و جلسه را شروع کن: ۱۵، ۲۵ یا ۵۰ دقیقه. با تمام شدن یا «ثبت و توقف»، همان دقیقه در ساعت‌ها و گزارش می‌نشیند. استراحت ثبت نمی‌شود.",
+            "از منو برو سراغ «امروز».",
+            "اگر کارهای دیروز مانده، بنر زرد را ببین و «همه را به امروز بیاور» را بزن.",
+            "سه اولویت را پر کن — فقط کار عقب‌افتاده، امروز، یا بدون تاریخ. کار فردا اینجا نیست.",
+            "عادت‌ها را تیک بزن.",
+            "یک کار را برای تمرکز انتخاب کن و جلسه ۱۵ / ۲۵ / ۵۰ دقیقه‌ای را شروع کن. با تمام شدن یا «پایان جلسه»، همان دقیقه خودکار در «ساعت‌ها» ثبت می‌شود.",
           ],
         },
         {
           type: "details",
-          title: "قطعه‌های صفحه",
+          title: "بخش‌های صفحه",
           items: [
             {
               name: "توجه امروز",
-              body: "فقط وقتی چیزی برای توجه باشد می‌آید: کار عقب‌افتاده، واژهٔ آمادهٔ مرور، منبع نخوانده، یا دقیقهٔ مانده تا هدف زبان. اگر هیچ‌کدام نباشد، می‌نویسد همه‌چیز مرتب است.",
+              body: "فقط وقتی چیزی واقعاً لازم باشد ظاهر می‌شود: عقب‌افتاده، واژهٔ آمادهٔ مرور، منبع نخوانده، یا دقیقهٔ مانده تا هدف زبان.",
             },
             {
-              name: "نوار هفت‌روزه",
-              body: "بالای صفحه، روزهای شنبه تا جمعه را نشان می‌دهد و با کلیک به تقویم همان روز می‌روی. عنوان جداگانه‌ای ندارد.",
+              name: "نوار خلاصه",
+              body: "چهار عدد فشرده: امروز، عقب‌افتاده، اینباکس و ساعت تمرکز این هفته. اگر همه صفر باشد این نوار پنهان می‌شود تا صفحه خلوت بماند.",
             },
             {
-              name: "۳ اولویت امروز و تمرکز",
-              body: "سه جایگاه اولویت کنار جلسهٔ تمرکز ۱۵ / ۲۵ / ۵۰ دقیقه‌ای است. زمان تمرکز روی همان کار در ساعت‌ها ذخیره می‌شود.",
+              name: "۳ اولویت و تمرکز",
+              body: "سه جایگاه اولویت کنار تایمر تمرکز است. زمان تمرکز روی همان کار در ساعت‌ها و گزارش‌ها می‌نشیند؛ استراحت ثبت نمی‌شود.",
             },
             {
-              name: "لیست‌ها",
-              body: "فهرست «امروز» سررسید همین روز است. کنارش سه زبانه است: اینباکس، عقب‌افتاده، و این هفته. از همین‌جا می‌توانی کاری را تمام کنی یا به این هفته بفرستی.",
+              name: "امروز و صف کارها",
+              body: "فهرست «امروز» همان سررسید امروز است. «صف کارها» لیست واقعی اینباکس، عقب‌افتاده و این هفته را نشان می‌دهد — نه تکرار اعداد بالا.",
             },
             {
-              name: "نمای کلی و بار هفته",
-              body: "نمای کلی ساعت و تمام‌شدهٔ این هفته را می‌گوید. بار هفته بار روزهای پیش رو را با نمودار نشان می‌دهد.",
-            },
-            {
-              name: "حوزه‌ها",
-              body: "میانبر به دکتری، کار، زندگی و زبان.",
+              name: "بار و تعادل هفته",
+              body: "نمودار روزهای هفته و سهم هر حوزه (دکتری، کار، زندگی، زبان) در یک کارت.",
             },
             {
               name: "عادت‌ها",
-              body: "عادت جدید با یک نام ساخته می‌شود. تیک امروز، لغو امروز، بایگانی، و نقشهٔ فعالیت. اگر این کارت نیست، ماژول عادت خاموش است.",
+              body: "عادت تازه با یک نام ساخته می‌شود. تیک امروز، لغو، بایگانی و نقشهٔ فعالیت. اگر کارت نیست، ماژول عادت خاموش است.",
             },
             {
               name: "ثبت سریع با N",
-              body: "جمله با قاعده خوانده می‌شود، نه با مدل. پیش‌فرض نوع، کار است؛ حوزهٔ بی‌کلید، زندگی. با /task، /note، /idea، /research، /habit یا پیشوند «ایده:»، «یادداشت:»، «عادت:» نوع عوض می‌شود. امروز، فردا، پس‌فردا، «دو روز دیگر»، «هفته بعد»، نام روز و «تا جمعه» تاریخ‌اند. ساعت را با «ساعت ۱۰» یا با صبح، ظهر، عصر و شب بگو. مقاله و پژوهش حوزهٔ دکتری است و در فهرست امروز نمی‌آید؛ در همهٔ کارها و بورد دیده می‌شود. کلمهٔ تنها «کار» حوزه را عوض نمی‌کند.",
+              body: "جمله را با قاعده می‌خواند، نه با هوش مصنوعی. پیش‌فرض کار است؛ بدون کلیدواژه حوزه می‌شود زندگی. با /task، /note، /research، /habit یا پیشوندهایی مثل «ایده:» نوع عوض می‌شود. تاریخ و ساعت را هم می‌فهمد. کارهای دکتری و زبان در امروز و تقویم نمی‌آیند؛ در همهٔ کارها و بورد هستند.",
             },
           ],
         },
         {
           type: "tip",
-          body: "کلید N، بیرون از فیلدها، ثبت سریع را باز می‌کند. Ctrl+K جستجو می‌ماند. داخل همان پنجره «چطور جمله را می‌خواند؟» را باز کن؛ برچسب‌ها قبل از ثبت، همان چیزی است که ذخیره می‌شود.",
+          body: "کلید N بیرون از فیلدها ثبت سریع را باز می‌کند. Ctrl+K جستجو است. داخل پنجره ثبت، «چطور جمله را می‌خواند؟» را باز کن تا قبل از ذخیره ببینی چه چیزی ثبت می‌شود.",
         },
       ],
     },
@@ -191,7 +187,7 @@ const fa: GuideCopy = {
       group: "روزانه",
       title: "بورد",
       summary:
-        "همان کارها، به شکل ستون. کارت را بکش تا وضعیت عوض شود. ستون‌ها از راست به چپ: اینباکس، این هفته، در حال انجام، بازخورد، تست، منتظر، تمام.",
+        "همان کارها، به شکل ستون. کارت را بکش تا وضعیت عوض شود. چهار ستون: اینباکس، این هفته، در حال انجام، تمام.",
       href: "/kanban",
       module: "kanban",
       blocks: [
@@ -209,12 +205,9 @@ const fa: GuideCopy = {
           type: "details",
           title: "معنی ستون‌ها",
           items: [
-            { name: "اینباکس", body: "هنوز برای این هفته چیده نشده. جای ایده‌های خام." },
-            { name: "این هفته", body: "قبول کرده‌ای در همین هفته انجام شود." },
+            { name: "اینباکس", body: "بدون سررسید، یا سررسیدش برای هفته‌های بعد است. وقتی هفتهٔ سررسید برسد خودش می‌آید تو «این هفته»." },
+            { name: "این هفته", body: "سررسیدش همین هفته است (یا عقب افتاده). می‌توانی دستی هم کارت بدون تاریخ را اینجا بکشی." },
             { name: "در حال انجام", body: "الان رویش کار می‌کنی." },
-            { name: "بازخورد", body: "منتظر نظر؛ مثلاً استاد یا خودت در یک دور بازخوانی." },
-            { name: "تست", body: "کار تقریباً تمام است و باید یک بار چک شود." },
-            { name: "منتظر", body: "گیر کرده و به چیز دیگری وابسته است." },
             { name: "تمام", body: "بسته شده. از لیست‌های باز امروز خارج می‌شود." },
           ],
         },
@@ -392,7 +385,7 @@ const fa: GuideCopy = {
           title: "یک خط پژوهش را راه بینداز",
           items: [
             "اگر چند مقاله داری، بالای صفحه «مسیر جدید» بساز و نام بگذار. «همه» همه‌چیز را نشان می‌دهد و «صندوق (بدون مسیر)» مال کارها و سندهای بدون مسیر است.",
-            "در زبانهٔ خط لوله، کارت را بین ایده، مطالعه، نوشتن، بازخورد، و تمام / سابمیت جابه‌جا کن.",
+            "در زبانهٔ خط لوله، کارت را بین ایده، مطالعه، نوشتن، و تمام / سابمیت جابه‌جا کن.",
             "از کنار خط لوله، یادداشت امروز یا یک قالب (ایده، فصل، منبع، مرور ادبیات) را باز کن تا مستقیم در نوشته‌ها ساخته شود.",
             "در کتابخانه منبع اضافه کن. اگر DOI داری، واکشی فیلدها را از روی آن پر می‌کند. وضعیت مطالعه را بگذار: برای مطالعه، در حال مطالعه، خوانده‌شده.",
             "PDF را به منبع بچسبان، استناد را کپی کن، یا BibTeX کل کتابخانه را خروجی بگیر.",
@@ -773,7 +766,7 @@ const en: GuideCopy = {
     {
       id: "today",
       title: "Morning, on Today",
-      text: "See what’s due, pick three priorities, and tick habits first.",
+      text: "Three priorities, a focus session, and the work that should move today.",
     },
     {
       id: "board",
@@ -845,19 +838,19 @@ const en: GuideCopy = {
       group: "Daily",
       title: "Today",
       summary:
-        "The page you open each morning. Needs attention, three priorities, focus, what’s due today, inbox, the week load, areas, and habits live here.",
+        "Your daily desk: a compact summary, three priorities, focus session, today’s list, and the work queue.",
       href: "/dashboard",
       module: "dashboard",
       blocks: [
         {
           type: "steps",
-          title: "Open the morning like this",
+          title: "Start the morning like this",
           items: [
-            "Choose Today in the menu.",
-            "If yesterday’s unfinished work shows a banner, bring all of it onto today.",
-            "“3 priorities today” is always three slots. Choose overdue work, work due today, or work with no date. Tomorrow and the rest of the week stay out. As you finish them, the counter reads like 2/3 ✓.",
-            "Tick habits. The streak and activity strip update in place.",
-            "In Today’s focus, pick a task and start a session: 15, 25, or 50 minutes. When it ends, or you save and stop, those minutes land on Hours and reports. Breaks are not logged.",
+            "Open Today from the menu.",
+            "If yesterday’s leftovers show a banner, move them onto today.",
+            "Fill the three priority slots — only overdue, due today, or undated work.",
+            "Tick your habits.",
+            "Pick a task and start a 15 / 25 / 50 minute focus session. When it ends (or you end it), those minutes are logged to Hours automatically.",
           ],
         },
         {
@@ -866,41 +859,37 @@ const en: GuideCopy = {
           items: [
             {
               name: "Needs attention",
-              body: "Shows only what needs you: overdue tasks, vocab ready to review, a source still to read, or minutes left on the language goal. If none of those are waiting, it says all clear.",
+              body: "Shows only when something needs you: overdue work, vocab to review, an unread source, or minutes left on the language goal.",
             },
             {
-              name: "Seven-day strip",
-              body: "Across the top, Saturday through Friday. Click a day to open that day on the calendar. It has no separate title.",
+              name: "Summary bar",
+              body: "Four compact numbers: today, overdue, inbox, and focus hours this week. Hidden when everything is zero.",
             },
             {
-              name: "3 priorities and focus",
-              body: "Three priority slots sit beside a 15 / 25 / 50 minute focus session. Focus time is saved on that task in Hours.",
+              name: "Top 3 and focus",
+              body: "Three priority slots beside the focus timer. Focus time is saved on that task in Hours; breaks are not.",
             },
             {
-              name: "Lists",
-              body: "The Today list is what is due that day. Beside it are three tabs: Inbox, Overdue, and This week. Mark something done or send it into this week from here.",
+              name: "Today and work queue",
+              body: "The Today list is due today. The work queue holds the real Inbox / Overdue / This week lists — not a repeat of the numbers above.",
             },
             {
-              name: "Overview and week load",
-              body: "Overview shows this week’s hours and finished count. Week load charts the days ahead.",
-            },
-            {
-              name: "Areas",
-              body: "Shortcuts into PhD, work, life, and language.",
+              name: "Week load & balance",
+              body: "Day bars for the week plus each area’s share of open work.",
             },
             {
               name: "Habits",
-              body: "Add a habit by name. Tick today, undo today, archive, and the activity map. If the card is missing, the habits module is off.",
+              body: "Add a habit by name. Tick today, undo, archive, and the activity map. Missing card means the habits module is off.",
             },
             {
               name: "Quick capture with N",
-              body: "The sentence is read by rules, not a model. The default kind is a task; the default area with no keyword is Life. Change kind with /task, /note, /idea, /research, /habit, or the prefixes “idea:”, “note:”, and “habit:”. Today, tomorrow, the day after, “in two days”, “next week”, a weekday, and “by Friday” set the day. Say the clock with “at 10” or with morning, noon, evening, and night. A paper or research task is saved under PhD and does not appear on Today; it is on All tasks and the board. The bare word “task” does not change the area.",
+              body: "Sentences are parsed by rules, not AI. Default kind is a task; default area is Life. Use /task, /note, /research, /habit or prefixes like “idea:”. Dates and times are understood. PhD and language tasks stay off Today and the calendar; they show on All tasks and the board.",
             },
           ],
         },
         {
           type: "tip",
-          body: "Press N outside a text field to open quick capture. Ctrl+K stays search. Open “How a sentence is read” in that window. The chips are exactly what will be saved.",
+          body: "Press N outside a field for quick capture. Ctrl+K is search. Open “How a sentence is read” before saving to see what will be stored.",
         },
       ],
     },
@@ -909,7 +898,7 @@ const en: GuideCopy = {
       group: "Daily",
       title: "Board",
       summary:
-        "The same tasks as columns. Drag a card to change its status. Columns run: Inbox, This week, In progress, Feedback, Testing, Waiting, Done.",
+        "The same tasks as columns. Drag a card to change its status. Four columns: Inbox, This week, In progress, Done.",
       href: "/kanban",
       module: "kanban",
       blocks: [
@@ -927,12 +916,9 @@ const en: GuideCopy = {
           type: "details",
           title: "What the columns mean",
           items: [
-            { name: "Inbox", body: "Not planned into this week yet. Raw ideas live here." },
-            { name: "This week", body: "You committed to it in the current week." },
+            { name: "Inbox", body: "No due date, or the due date is in a later week. When that week arrives, the card moves to This Week on its own." },
+            { name: "This week", body: "Due this week (or overdue). You can also drag an undated card here by hand." },
             { name: "In progress", body: "You are on it now." },
-            { name: "Feedback", body: "Waiting on a read, from an advisor or from you." },
-            { name: "Testing", body: "Nearly done and needs one check." },
-            { name: "Waiting", body: "Stuck on something else." },
             { name: "Done", body: "Closed. It leaves the open lists on Today." },
           ],
         },
@@ -1110,7 +1096,7 @@ const en: GuideCopy = {
           title: "Start one research line",
           items: [
             "If you have several papers, create a path at the top and name it. All shows everything. صندوق (no path) is work and docs with no path.",
-            "On the pipeline tab, move cards through Idea, Reading, Writing, Feedback, and Done / submitted.",
+            "On the pipeline tab, move cards through Idea, Reading, Writing, and Done / submitted.",
             "From the side panel, open today’s note or a template (idea, chapter, source, literature review). It is created in Docs.",
             "In the library, add a source. A DOI lookup fills the fields. Set reading status to to-read, reading, or done.",
             "Attach a PDF, copy a citation, or export BibTeX for the library.",

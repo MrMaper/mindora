@@ -23,10 +23,11 @@ export function getStatusLabel(t: Translations, value: string): string {
     BACKLOG: "backlog",
     TODO: "todo",
     IN_PROGRESS: "inProgress",
-    REVIEW: "review",
-    TESTING: "testing",
     DONE: "done",
-    BLOCKED: "blocked",
+    // Legacy scrum columns → In Progress
+    REVIEW: "inProgress",
+    TESTING: "inProgress",
+    BLOCKED: "inProgress",
   };
   const key = keyMap[value];
   return key ? t.tasks[key] : value;
@@ -152,10 +153,7 @@ export function getAllOptionsWithLabels(
     BACKLOG: "backlog",
     TODO: "todo",
     IN_PROGRESS: "inProgress",
-    REVIEW: "review",
-    TESTING: "testing",
     DONE: "done",
-    BLOCKED: "blocked",
   };
 
   const priorityMap: Record<string, keyof typeof t.tasks> = {

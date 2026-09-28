@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getBoardColumns } from "@/features/kanban/queries";
+import { syncPlanningStatusesForUser } from "@/features/life/actions";
 import { getAssignableUsers } from "@/features/users/queries";
 import { getLabels } from "@/features/labels/queries";
 import { getUserProjects } from "@/features/projects/queries";
@@ -45,6 +46,8 @@ export default async function KanbanPage({
   const effectiveAssignee = session.user.id;
   const userProjects = await getUserProjects(session.user.id, "assignable");
   const scope = scopeFromFilters(area, project, userProjects);
+
+  await syncPlanningStatusesForUser(session.user.id);
 
   const [columns, users, labels] = await Promise.all([
     getBoardColumns({

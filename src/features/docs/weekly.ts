@@ -1,5 +1,6 @@
 import { prisma as db } from "@/lib/db";
 import { formatJalaliShort, startOfWeek } from "@/lib/life";
+import { formatHours } from "@/lib/utils";
 import { getDocTemplate } from "./templates";
 import { ensureHeadingIds } from "./utils";
 import { getDocById } from "./queries";
@@ -67,7 +68,7 @@ function buildWeeklyContent(input: {
 
   return ensureHeadingIds(`
     <h2>بازبینی هفته</h2>
-    <p><strong>ساعت ثبت‌شده:</strong> ${input.hours.toFixed(1)}</p>
+    <p><strong>ساعت ثبت‌شده:</strong> ${formatHours(input.hours, "FA", 1)}</p>
     <h3>چه تمام شد</h3>
     <ul data-type="taskList">${done}</ul>
     <h3>چه ماند</h3>

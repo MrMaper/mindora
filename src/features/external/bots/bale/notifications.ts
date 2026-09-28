@@ -3,6 +3,7 @@
 import { getBaleRuntime, type BaleRuntime } from "@/features/external/bots/bale/config";
 import { baleAppOrigin, deliverBale, escapeBale } from "@/features/external/bots/bale/deliver";
 import { prisma as db } from "@/lib/db";
+import { formatHours } from "@/lib/utils";
 
 function escapeMarkdown(text: string): string {
   return escapeBale(text);
@@ -118,7 +119,7 @@ export async function sendBaleTaskNotification(
         message += task.workLog.project
           ? `*مسیر:* ${escapeMarkdown(task.workLog.project)}\n`
           : "";
-        message += `*ساعت:* ${escapeMarkdown(String(task.workLog.hours))}\n`;
+        message += `*ساعت:* ${escapeMarkdown(formatHours(task.workLog.hours, "FA", 2))}\n`;
         message += `*تاریخ:* ${escapeMarkdown(task.workLog.date)}\n`;
         if (task.workLog.description) {
           const truncated =

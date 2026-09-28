@@ -52,8 +52,10 @@ export const RESEARCH_TASK_TO_DOC_STATUS: Record<string, DocStatus> = {
   BACKLOG: "IDEA",
   TODO: "DRAFTING",
   IN_PROGRESS: "DRAFTING",
-  REVIEW: "REVIEW",
   DONE: "READY",
+  REVIEW: "REVIEW",
+  TESTING: "DRAFTING",
+  BLOCKED: "DRAFTING",
 };
 
 export const DOC_STATUS_HINT: Record<
@@ -61,8 +63,8 @@ export const DOC_STATUS_HINT: Record<
   { fa: string; en: string; researchCol: string }
 > = {
   IDEA: { fa: "ایده", en: "Idea", researchCol: "BACKLOG" },
-  DRAFTING: { fa: "مطالعه / نوشتن", en: "Reading / Writing", researchCol: "TODO" },
-  REVIEW: { fa: "بازخورد", en: "Feedback", researchCol: "REVIEW" },
+  DRAFTING: { fa: "مطالعه / نوشتن", en: "Reading / Writing", researchCol: "IN_PROGRESS" },
+  REVIEW: { fa: "بازخوانی", en: "Review", researchCol: "IN_PROGRESS" },
   READY: { fa: "سابمیت", en: "Submitted", researchCol: "DONE" },
 };
 

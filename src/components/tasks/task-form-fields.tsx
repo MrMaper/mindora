@@ -42,6 +42,8 @@ export interface TaskFormFieldsProps {
   currentUserId: string;
   currentUserRole: string;
   showLabels?: boolean;
+  /** True when editing a task that already belongs to a recurrence series. */
+  hasRecurrenceSeries?: boolean;
 }
 
 function areaLabel(
@@ -78,6 +80,7 @@ export function TaskFormFields({
   currentUserId,
   currentUserRole,
   showLabels,
+  hasRecurrenceSeries = false,
 }: TaskFormFieldsProps) {
   const t = useTranslation();
   const language = useLanguage();
@@ -92,6 +95,15 @@ export function TaskFormFields({
   const watchedProjectId = useWatch({ control, name: "projectId" });
   const watchedDueDate = useWatch({ control, name: "dueDate" });
   const watchedDuration = useWatch({ control, name: "durationMinutes" });
+  const watchedRecurrence = useWatch({ control, name: "recurrence" });
+  const recurrenceActive =
+    !!watchedRecurrence && watchedRecurrence !== "NONE";
+
+  React.useEffect(() => {
+    if (recurrenceActive) return;
+    setValue("recurrenceEndsAt", "");
+    setValue("applyRecurrenceToSeries", "");
+  }, [recurrenceActive, setValue]);
 
   const dueDateValue = watchedDueDate ? new Date(watchedDueDate as string) : null;
   const durationValue = watchedDuration
@@ -245,7 +257,7 @@ export function TaskFormFields({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3 [&>*]:min-w-0">
         <Controller
           name="projectId"
           control={control}
@@ -306,6 +318,7 @@ export function TaskFormFields({
                 mode="single"
                 language={language}
                 label={t.tasks.dueDate}
+                placeholder={t.tasks.dueDatePlaceholder}
                 hint={t.tasks.dueDateHint}
                 timeOptional
                 durationMinutes={
@@ -322,8 +335,11 @@ export function TaskFormFields({
             control={control}
             render={({ field }) => {
               const current = field.value ? Number(field.value) : 0;
+              const presetMatch = DURATION_PRESETS.some(
+                p => p.minutes === current,
+              );
               return (
-                <div className="flex flex-col gap-1.5">
+                <div className="col-span-2 flex flex-col gap-1.5">
                   <span className="text-sm font-medium text-foreground">
                     {t.tasks.duration}
                   </span>
@@ -340,6 +356,18 @@ export function TaskFormFields({
                     >
                       {t.tasks.durationNone}
                     </button>
+                    {current > 0 && !presetMatch ? (
+                      <button
+                        type="button"
+                        className="rounded-md border border-primary bg-primary/10 px-2 py-1 text-xs text-primary"
+                        aria-pressed
+                      >
+                        {formatDurationLabel(
+                          current,
+                          language === "EN" ? "EN" : "FA",
+                        )}
+                      </button>
+                    ) : null}
                     {DURATION_PRESETS.map(preset => (
                       <button
                         key={preset.minutes}
@@ -397,25 +425,36 @@ export function TaskFormFields({
                 }}
                 mode="single"
                 label={t.recurrenceUi.endsAt}
+                hint={
+                  recurrenceActive ? undefined : t.recurrenceUi.endsAtDisabled
+                }
+                disabled={!recurrenceActive}
                 error={fieldState.error?.message}
               />
             );
           }}
         />
-        <Controller
-          name="applyRecurrenceToSeries"
-          control={control}
-          render={({ field }) => (
-            <label className="flex items-center gap-2 text-sm self-end pb-2">
-              <input
-                type="checkbox"
-                checked={field.value === "1" || field.value === "true"}
-                onChange={e => field.onChange(e.target.checked ? "1" : "")}
-              />
-              {t.recurrenceUi.applySeries}
-            </label>
-          )}
-        />
+        {hasRecurrenceSeries && recurrenceActive ? (
+          <Controller
+            name="applyRecurrenceToSeries"
+            control={control}
+            render={({ field }) => (
+              <label className="flex flex-col gap-1 self-end pb-2 text-sm">
+                <span className="inline-flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={field.value === "1" || field.value === "true"}
+                    onChange={e => field.onChange(e.target.checked ? "1" : "")}
+                  />
+                  {t.recurrenceUi.applySeries}
+                </span>
+                <span className="text-xs text-muted-foreground ps-6">
+                  {t.recurrenceUi.applySeriesHint}
+                </span>
+              </label>
+            )}
+          />
+        ) : null}
         {isAdmin && (
           <Controller
             name="assignedToId"

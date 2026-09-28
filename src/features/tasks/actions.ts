@@ -9,7 +9,8 @@ import { ensurePersonalWorkspace, projectIdForArea } from "@/features/life/works
 import { isAreaBucketId } from "@/lib/area-projects";
 import { spawnNextIfRecurring, newRecurrenceSeriesId } from "@/features/life/recurrence";
 import { updateRecurrenceSeries } from "@/features/life/recurrence";
-import { formatJalaliShort, parseLocalDate } from "@/lib/life";
+import { formatJalaliShort, parseLocalDate, resolveBoardPlanningStatus } from "@/lib/life";
+import { isBoardStatus } from "@/features/kanban/types";
 import { notify } from "@/lib/notify";
 import type { LifeArea, RecurrenceInterval } from "@/types/db";
 import {
@@ -141,11 +142,13 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
       ? Math.min(24 * 60, Math.round(durationParsed))
       : null;
 
+  const status = resolveBoardPlanningStatus(parsed.data.status, dueDate);
+
   const task = await db.task.create({
     data: {
       title: parsed.data.title,
       description: parsed.data.description || null,
-      status: parsed.data.status,
+      status,
       priority: parsed.data.priority,
       type: parsed.data.type,
       assignedToId,
@@ -293,6 +296,8 @@ export async function updateTask(
     ? parsed.data.assignedToId || null
     : session.user.id;
 
+  const nextStatus = resolveBoardPlanningStatus(parsed.data.status, nextDueDate);
+
   const applySeries =
     parsed.data.applyRecurrenceToSeries === "1" ||
     parsed.data.applyRecurrenceToSeries === "true";
@@ -316,7 +321,7 @@ export async function updateTask(
     data: {
       title: parsed.data.title,
       description: parsed.data.description || null,
-      status: parsed.data.status,
+      status: nextStatus,
       priority: parsed.data.priority,
       type: parsed.data.type,
       assignedToId: nextAssignedToId,
@@ -332,13 +337,13 @@ export async function updateTask(
   });
 
   const becameDone =
-    existing.status !== "DONE" && parsed.data.status === "DONE";
+    existing.status !== "DONE" && nextStatus === "DONE";
   if (becameDone) {
     await spawnNextIfRecurring(id, session.user.id);
   }
 
   const assigneeChanged = (existing.assignedToId ?? null) !== nextAssignedToId;
-  const statusChanged = existing.status !== parsed.data.status;
+  const statusChanged = existing.status !== nextStatus;
   const dueDateChanged =
     (existing.dueDate?.getTime() ?? null) !== (nextDueDate?.getTime() ?? null);
   const projectChanged = (existing.projectId ?? null) !== projectId;
@@ -349,7 +354,7 @@ export async function updateTask(
       action: "status_changed",
       performedBy: session.user.id,
       oldValue: { status: existing.status },
-      newValue: { status: parsed.data.status },
+      newValue: { status: nextStatus },
     });
   }
 
@@ -386,7 +391,7 @@ export async function updateTask(
     await sendBaleAssignmentNotification(nextAssignedToId, {
       id,
       title: parsed.data.title,
-      status: parsed.data.status,
+      status: nextStatus,
       priority: parsed.data.priority,
     });
   }
@@ -395,7 +400,7 @@ export async function updateTask(
     await notify({
       userId: nextAssignedToId,
       type: "STATUS_CHANGED",
-      title: `وضعیت به «${parsed.data.status.replace("_", " ")}» در «${parsed.data.title}» تغییر کرد`,
+      title: `وضعیت به «${nextStatus.replace("_", " ")}» در «${parsed.data.title}» تغییر کرد`,
       data: { taskId: id },
     });
   }
@@ -404,7 +409,7 @@ export async function updateTask(
       id,
       title: parsed.data.title,
       oldStatus: existing.status,
-      newStatus: parsed.data.status,
+      newStatus: nextStatus,
     });
   }
 
@@ -441,7 +446,7 @@ export async function updateTask(
       id,
       title: parsed.data.title,
       changedFields: {
-        status: { old: existing.status, new: parsed.data.status },
+        status: { old: existing.status, new: nextStatus },
       },
     });
   }
@@ -521,6 +526,9 @@ export async function updateTaskStatus(
 ): Promise<ActionResult> {
   const session = await auth();
   if (!session?.user) return { success: false, error: "غیرمجاز" };
+  if (!isBoardStatus(status)) {
+    return { success: false, error: "وضعیت نامعتبر است" };
+  }
 
   const existing = await db.task.findUnique({
     where: { id },
@@ -538,7 +546,7 @@ export async function updateTaskStatus(
     };
   }
 
-  await db.task.update({ where: { id }, data: { status: status as never } });
+  await db.task.update({ where: { id }, data: { status } });
 
   if (existing.status !== status) {
     await logActivity({

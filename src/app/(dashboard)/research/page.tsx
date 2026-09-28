@@ -13,6 +13,7 @@ import {
 } from "@/lib/request-cache";
 import { personalAreaProjectId } from "@/lib/life";
 import { RESEARCH_BOARD_STATUSES } from "@/features/kanban/types";
+import { syncPlanningStatusesForUser } from "@/features/life/actions";
 import {
   getResearchHubData,
   listPhdResearchProjects,
@@ -70,6 +71,8 @@ export default async function ResearchPage({
   );
 
   const phdInbox = personalAreaProjectId(session.user.id, "PHD");
+
+  await syncPlanningStatusesForUser(session.user.id);
 
   const filterProject =
     safeScope === "all"
@@ -144,7 +147,6 @@ export default async function ResearchPage({
         BACKLOG: t.life.researchIdea,
         TODO: t.life.researchReading,
         IN_PROGRESS: t.life.researchWriting,
-        REVIEW: t.life.researchFeedback,
         DONE: t.life.researchDone,
       }}
     />

@@ -10,6 +10,8 @@ import {
   endOfWeek,
   moveDueToDay,
   parseLocalDate,
+  planningStatusFromDue,
+  resolveBoardPlanningStatus,
   startOfDay,
   toDateKey,
 } from "@/lib/life";
@@ -82,7 +84,7 @@ export async function quickCapture(input: {
   const task = await db.task.create({
     data: {
       title,
-      status: due ? "TODO" : "BACKLOG",
+      status: planningStatusFromDue(due),
       priority: "NONE",
       type: "TASK",
       area,
@@ -461,7 +463,7 @@ export async function rescheduleTaskDueDate(
 
   const existing = await db.task.findUnique({
     where: { id: taskId },
-    select: { assignedToId: true, dueDate: true, durationMinutes: true },
+    select: { assignedToId: true, dueDate: true, durationMinutes: true, status: true },
   });
   if (!existing) return { success: false, error: "کار پیدا نشد" };
 
@@ -491,6 +493,7 @@ export async function rescheduleTaskDueDate(
     data: {
       dueDate: nextDue,
       ...(time === "" ? { durationMinutes: null } : {}),
+      status: resolveBoardPlanningStatus(existing.status, nextDue),
     },
   });
 
@@ -519,7 +522,7 @@ export async function rescheduleTaskSchedule(
 
   const existing = await db.task.findUnique({
     where: { id: taskId },
-    select: { assignedToId: true },
+    select: { assignedToId: true, status: true },
   });
   if (!existing) return { success: false, error: "کار پیدا نشد" };
 
@@ -544,9 +547,59 @@ export async function rescheduleTaskSchedule(
     data: {
       dueDate: nextDue,
       ...(durationMinutes !== undefined ? { durationMinutes } : {}),
+      status: resolveBoardPlanningStatus(existing.status, nextDue),
     },
   });
 
   revalidateLife();
   return { success: true };
+}
+
+/**
+ * When the calendar week of a due date arrives, move Inbox → This Week.
+ * Far-dated This Week cards with a due after this week go back to Inbox.
+ * Legacy scrum columns (Feedback / Testing / Waiting) fold into In Progress.
+ * Does not touch undated This Week cards (manual plan).
+ */
+export async function syncPlanningStatusesForUser(userId: string): Promise<void> {
+  if (!userId) return;
+  const weekEnd = endOfWeek(new Date());
+  const mine = {
+    OR: [
+      { assignedToId: userId },
+      { createdById: userId, assignedToId: null },
+    ],
+  };
+
+  await Promise.all([
+    db.task.updateMany({
+      where: {
+        AND: [
+          mine,
+          { status: { in: ["REVIEW", "TESTING", "BLOCKED"] } },
+        ],
+      },
+      data: { status: "IN_PROGRESS" },
+    }),
+    db.task.updateMany({
+      where: {
+        AND: [
+          mine,
+          { status: "BACKLOG" },
+          { dueDate: { not: null, lte: weekEnd } },
+        ],
+      },
+      data: { status: "TODO" },
+    }),
+    db.task.updateMany({
+      where: {
+        AND: [
+          mine,
+          { status: "TODO" },
+          { dueDate: { gt: weekEnd } },
+        ],
+      },
+      data: { status: "BACKLOG" },
+    }),
+  ]);
 }

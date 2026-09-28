@@ -267,9 +267,16 @@ export function FocusSessionCard() {
               <p className="text-sm text-muted-foreground">{t.dashboard.sessionPick}</p>
             )}
           </div>
-          <p className="rounded-2xl bg-bg-sunken px-5 py-3 text-4xl font-semibold tabular-nums tracking-tight @[20rem]:px-8 @[20rem]:py-4 @[20rem]:text-5xl">
-            {clock(remaining, language)}
-          </p>
+          <div>
+            {running ? (
+              <p className="mb-1 text-[11px] text-muted-foreground">
+                {t.dashboard.sessionRemaining}
+              </p>
+            ) : null}
+            <p className="rounded-2xl bg-bg-sunken px-5 py-3 text-4xl font-semibold tabular-nums tracking-tight @[20rem]:px-8 @[20rem]:py-4 @[20rem]:text-5xl">
+              {clock(remaining, language)}
+            </p>
+          </div>
           {phase === "idle" ? (
             <div className="flex justify-center gap-1.5">
               {DURATIONS.map(minutes => (
@@ -293,7 +300,9 @@ export function FocusSessionCard() {
             {running ? (
               <>
                 <Button size="sm" variant="subtle" onClick={togglePause}>
-                  {phase === "paused" ? t.habits.resume : t.habits.pause}
+                  {phase === "paused"
+                    ? t.dashboard.sessionResume
+                    : t.dashboard.sessionPause}
                 </Button>
                 <Button size="sm" variant="primary" onClick={() => void stop()}>
                   {t.dashboard.sessionStop}

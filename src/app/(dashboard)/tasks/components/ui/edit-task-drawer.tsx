@@ -17,6 +17,7 @@ import type { ProjectRow } from "@/features/projects/types";
 import type { LabelRow } from "@/features/labels/types";
 import type { CreateTaskInput, UpdateTaskInput } from "@/schemas/tasks";
 import { activityLabel } from "@/features/tasks/types";
+import { getStatusLabel } from "@/components/ui-kit/forms/select-utils";
 import { useLanguage, useTranslation } from "@/i18n/provider";
 import type { SelectOption } from "@/components/ui-kit/forms/select";
 
@@ -121,6 +122,9 @@ export function EditTaskDrawer({
 
   const formatValue = (value: unknown, field: string): string => {
     if (value === null || value === undefined) return t.tasks.activityNoChanges;
+    if (field === "status" && typeof value === "string") {
+      return getStatusLabel(t, value);
+    }
     if (field === "dueDate" && value) {
       return new Date(value as string).toLocaleDateString(dateLocale, {
         year: "numeric",
@@ -242,6 +246,7 @@ export function EditTaskDrawer({
               currentUserId={currentUserId}
               currentUserRole={currentUserRole}
               showLabels={preset !== "research"}
+              hasRecurrenceSeries={Boolean(activeTask?.recurrenceSeriesId)}
             />
 
             <div>

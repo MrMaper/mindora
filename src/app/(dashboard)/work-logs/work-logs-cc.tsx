@@ -85,8 +85,9 @@ export function WorkLogsCC({
     });
   };
 
-  const formatHours = (hours: number): string => {
-    return formatNumber(hours.toFixed(2), language);
+  const formatLoggedHours = (hours: number): string => {
+    const num = formatNumber(hours.toFixed(2), language);
+    return language === "FA" ? num.replace(/\./g, "٫") : num;
   };
 
   return (
@@ -106,7 +107,7 @@ export function WorkLogsCC({
         <Card className="p-4">
           <div className="text-text-tertiary text-sm">{t.workLogs.totalHours}</div>
           <div className="text-3xl font-bold text-text-primary mt-1">
-            {formatHours(summary.totalHours)}
+            {formatLoggedHours(summary.totalHours)}
           </div>
         </Card>
         <Card className="p-4">
@@ -203,7 +204,7 @@ export function WorkLogsCC({
                   </div>
                   <div className="text-right">
                     <div className="text-xl font-bold text-primary">
-                      {formatHours(data.hours)}
+                      {formatLoggedHours(data.hours)}
                     </div>
                     <div className="text-xs text-text-tertiary">{t.workLogs.hours}</div>
                   </div>
@@ -228,7 +229,7 @@ export function WorkLogsCC({
                   </div>
                   <div className="text-right ml-4">
                     <div className="text-xl font-bold text-primary">
-                      {formatHours(data.hours)}
+                      {formatLoggedHours(data.hours)}
                     </div>
                     <div className="text-xs text-text-tertiary">{t.workLogs.hours}</div>
                   </div>
@@ -255,7 +256,7 @@ export function WorkLogsCC({
                   </div>
                   <div className="text-right">
                     <div className="text-xl font-bold text-primary">
-                      {formatHours(data.hours)}
+                      {formatLoggedHours(data.hours)}
                     </div>
                     <div className="text-xs text-text-tertiary">{t.workLogs.hours}</div>
                   </div>
@@ -283,7 +284,7 @@ export function WorkLogsCC({
                   </div>
                   <div className="text-right">
                     <div className="text-xl font-bold text-primary">
-                      {formatHours(hours)}
+                      {formatLoggedHours(hours)}
                     </div>
                     <div className="text-xs text-text-tertiary">{t.workLogs.hours}</div>
                   </div>

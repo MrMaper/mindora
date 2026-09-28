@@ -1,5 +1,5 @@
 import { prisma as db } from "@/lib/db";
-import { nextRecurrenceDate, startOfDay } from "@/lib/life";
+import { nextRecurrenceDate, planningStatusFromDue, startOfDay } from "@/lib/life";
 import type { RecurrenceInterval } from "@/types/db";
 import { randomUUID } from "crypto";
 
@@ -51,7 +51,7 @@ export async function spawnNextIfRecurring(taskId: string, userId: string) {
     data: {
       title: task.title,
       description: task.description,
-      status: "TODO",
+      status: planningStatusFromDue(nextDue),
       priority: task.priority,
       type: task.type,
       area: task.area,

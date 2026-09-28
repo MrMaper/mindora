@@ -3,7 +3,7 @@ import { z } from "zod";
 export const createTaskSchema = z.object({
   title: z.string().min(1, "Title is required.").max(255, "Title is too long."),
   description: z.string().max(10000).optional().or(z.literal("")),
-  status: z.enum(["BACKLOG", "TODO", "IN_PROGRESS", "REVIEW", "TESTING", "DONE", "BLOCKED"]),
+  status: z.enum(["BACKLOG", "TODO", "IN_PROGRESS", "DONE"]),
   priority: z.enum(["URGENT", "HIGH", "MEDIUM", "LOW", "NONE"]),
   type: z.enum(["TASK", "STORY", "BUG", "EPIC"]),
   projectId: z.string().optional().or(z.literal("")),

@@ -77,7 +77,9 @@ export async function getBoardColumns(
     statuses.map(s => [s, []]),
   ) as unknown as BoardColumns;
   for (const task of tasks) {
-    columns[task.status as BoardStatus].push(toTaskRow(task));
+    const status = task.status as BoardStatus;
+    if (!columns[status]) continue;
+    columns[status].push(toTaskRow(task));
   }
   return columns;
 }

@@ -125,10 +125,7 @@ export function getProjectTaskStatusOptions(
       "BACKLOG",
       "TODO",
       "IN_PROGRESS",
-      "REVIEW",
-      "TESTING",
       "DONE",
-      "BLOCKED",
     ].map(s => ({
       value: s,
       label: getTaskStatusLabel(t, s),
@@ -254,10 +251,10 @@ function getTaskStatusLabel(
     BACKLOG: "backlog",
     TODO: "todo",
     IN_PROGRESS: "inProgress",
-    REVIEW: "review",
-    TESTING: "testing",
     DONE: "done",
-    BLOCKED: "blocked",
+    REVIEW: "inProgress",
+    TESTING: "inProgress",
+    BLOCKED: "inProgress",
   };
   const key = statusMap[status];
   return key ? t.tasks[key] : status;

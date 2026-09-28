@@ -23,6 +23,7 @@ import { BOARD_STATUSES, isBoardStatus } from "@/features/kanban/types";
 import type { BoardColumns, BoardStatus } from "@/features/kanban/types";
 import type { CreateTaskInput, UpdateTaskInput } from "@/schemas/tasks";
 import type { TaskRow, TaskDetail } from "@/features/tasks/types";
+import { toFormStatus } from "@/features/tasks/types";
 import type { LifeArea } from "@/types/db";
 import { coerceLifeArea, dueDateToFormValue } from "@/lib/life";
 import { useAreaBuckets } from "@/components/area-buckets-provider";
@@ -216,7 +217,7 @@ export function useKanban(
     editForm.reset({
       title: detail.title,
       description: detail.description ?? "",
-      status: detail.status,
+      status: toFormStatus(detail.status),
       priority: detail.priority,
       type: detail.type,
       projectId: detail.projectId ?? "",
@@ -239,7 +240,9 @@ export function useKanban(
       defaults.projectId ??
       createDefaults.projectId ??
       areaIds[area];
-    const status = defaults.status ?? createDefaults.status ?? "BACKLOG";
+    const status = toFormStatus(
+      defaults.status ?? createDefaults.status ?? "BACKLOG",
+    );
     setCreateDefaults({ projectId, area, status });
     createForm.reset({
       title: "",

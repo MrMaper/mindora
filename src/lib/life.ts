@@ -104,6 +104,29 @@ export function endOfWeek(date = new Date()): Date {
   return endOfDay(d);
 }
 
+/**
+ * Inbox (BACKLOG) vs This Week (TODO) from due date.
+ * No due / due after this week → Inbox. Due this week or overdue → This Week.
+ */
+export function planningStatusFromDue(
+  due: Date | null | undefined,
+  now = new Date(),
+): "BACKLOG" | "TODO" {
+  if (!due) return "BACKLOG";
+  if (due.getTime() > endOfWeek(now).getTime()) return "BACKLOG";
+  return "TODO";
+}
+
+/** Keep IN_PROGRESS+ untouched; only derive the Inbox ↔ This Week pair. */
+export function resolveBoardPlanningStatus<S extends string>(
+  requested: S,
+  due: Date | null | undefined,
+  now = new Date(),
+): S | "BACKLOG" | "TODO" {
+  if (requested !== "BACKLOG" && requested !== "TODO") return requested;
+  return planningStatusFromDue(due, now);
+}
+
 export function addDays(date: Date, days: number): Date {
   const d = new Date(date);
   d.setDate(d.getDate() + days);

@@ -118,7 +118,7 @@ export interface ProjectTaskRow {
   id: string;
   title: string;
   description: string | null;
-  status: "BACKLOG" | "TODO" | "IN_PROGRESS" | "REVIEW" | "TESTING" | "DONE" | "BLOCKED";
+  status: "BACKLOG" | "TODO" | "IN_PROGRESS" | "DONE" | "REVIEW" | "TESTING" | "BLOCKED";
   priority: "URGENT" | "HIGH" | "MEDIUM" | "LOW" | "NONE";
   type: "TASK" | "STORY" | "BUG" | "EPIC";
   storyPoints: number | null;

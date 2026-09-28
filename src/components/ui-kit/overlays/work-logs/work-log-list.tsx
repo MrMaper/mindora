@@ -6,6 +6,7 @@ import { Icon } from "@/components/ui-kit/foundation/icon";
 import { Avatar } from "@/components/ui-kit/data-display/avatar";
 import type { WorkLogRow } from "@/features/work-logs/types";
 import { useLanguage } from "@/i18n/provider";
+import { formatHours } from "@/lib/utils";
 
 interface WorkLogListProps {
   workLogs: WorkLogRow[];
@@ -79,7 +80,7 @@ export function WorkLogList({ workLogs, currentUserId, onRefresh, isLoading = fa
             <div className="flex items-center gap-2">
               <div className="font-medium text-text-primary">{log.user.name}</div>
               <div className="text-xs font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded-full">
-                {log.hours}h
+                {formatHours(log.hours, language, 2)}
               </div>
             </div>
 

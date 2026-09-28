@@ -91,6 +91,11 @@ export function ReviewCC({
     compact: true,
   };
 
+  const hoursLabel = (() => {
+    const num = formatNumber(hoursThisWeek.toFixed(1), language);
+    return language === "FA" ? num.replace(/\./g, "٫") : num;
+  })();
+
   const stats = [
     {
       label: t.life.reviewStatsDone,
@@ -105,8 +110,8 @@ export function ReviewCC({
       value: formatNumber(inbox.length, language),
     },
     {
-      label: t.life.reviewStatsHours,
-      value: formatNumber(hoursThisWeek.toFixed(1), language),
+      label: t.life.hoursLogged,
+      value: hoursLabel,
     },
   ];
 

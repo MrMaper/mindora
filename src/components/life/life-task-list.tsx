@@ -62,7 +62,7 @@ export function LifeTaskList({
   currentUserRole,
 }: {
   tasks: TaskRow[];
-  empty: string;
+  empty: React.ReactNode;
   showPlan?: boolean;
   showPlanToday?: boolean;
   /** Tighter rows for narrow columns (e.g. weekly review). */
@@ -102,7 +102,9 @@ export function LifeTaskList({
 
   if (tasks.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground py-8 text-center">{empty}</p>
+      <div className="py-6 px-2 text-center text-sm text-muted-foreground">
+        {empty}
+      </div>
     );
   }
 

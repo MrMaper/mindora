@@ -22,6 +22,7 @@ import type {
   CreateLabelInput,
 } from "@/schemas/tasks";
 import type { TaskRow, TaskDetail } from "@/features/tasks/types";
+import { toFormStatus } from "@/features/tasks/types";
 import { coerceLifeArea, dueDateToFormValue } from "@/lib/life";
 import { useAreaBuckets } from "@/components/area-buckets-provider";
 
@@ -135,7 +136,7 @@ export function useTasks(initialFilters: TaskFilters) {
     editForm.reset({
       title: detail.title,
       description: detail.description ?? "",
-      status: detail.status,
+      status: toFormStatus(detail.status),
       priority: detail.priority,
       type: detail.type,
       projectId: detail.projectId ?? "",

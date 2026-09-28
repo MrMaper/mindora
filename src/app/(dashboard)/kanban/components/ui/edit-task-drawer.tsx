@@ -20,6 +20,7 @@ import type { LabelRow } from "@/features/labels/types";
 import type { UserRow } from "@/features/users/types";
 import type { ProjectRow } from "@/features/projects/types";
 import { activityLabel } from "@/features/tasks/types";
+import { getStatusLabel } from "@/components/ui-kit/forms/select-utils";
 import type { SelectOption } from "@/components/ui-kit/forms/select";
 
 interface EditTaskDrawerProps {
@@ -123,6 +124,9 @@ export function EditTaskDrawer({
 
   const formatValue = (value: unknown, field: string): string => {
     if (value === null || value === undefined) return t.tasks.activityNoChanges;
+    if (field === "status" && typeof value === "string") {
+      return getStatusLabel(t, value);
+    }
     if (field === "dueDate" && value) {
       return new Date(value as string).toLocaleDateString(dateLocale, {
         year: "numeric",
@@ -244,6 +248,7 @@ export function EditTaskDrawer({
               currentUserId={currentUserId}
               currentUserRole={currentUserRole}
               showLabels={preset !== "research"}
+              hasRecurrenceSeries={Boolean(activeTask?.recurrenceSeriesId)}
             />
 
             {activeTask && <TaskLinkedDocs taskId={activeTask.id} />}

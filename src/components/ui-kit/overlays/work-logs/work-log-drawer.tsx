@@ -8,6 +8,7 @@ import { Icon } from "@/components/ui-kit/foundation/icon";
 import { Button } from "@/components/ui-kit/forms/button";
 import type { WorkLogRow } from "@/features/work-logs/types";
 import { useLanguage } from "@/i18n/provider";
+import { formatHours } from "@/lib/utils";
 
 interface WorkLogDrawerProps {
   isOpen: boolean;
@@ -52,7 +53,7 @@ export function WorkLogDrawer({
           </span>
           <div className="flex shrink-0 items-center gap-2">
             <div className="whitespace-nowrap text-xs text-text-secondary bg-primary/10 px-2 py-1 rounded-full">
-              {t.totalHours}: {totalHours.toFixed(2)}h
+              {t.totalHours}: {formatHours(totalHours, language, 2)}
             </div>
             <Button
               variant="primary"

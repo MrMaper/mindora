@@ -1,33 +1,23 @@
 import type { LifeArea, TaskPriority } from "@/types/db";
 import type { TaskRow } from "@/features/tasks/types";
 
-export type BoardStatus =
-  | "BACKLOG"
-  | "TODO"
-  | "IN_PROGRESS"
-  | "REVIEW"
-  | "TESTING"
-  | "BLOCKED"
-  | "DONE";
+/** Active personal-board columns (Mindora). */
+export type BoardStatus = "BACKLOG" | "TODO" | "IN_PROGRESS" | "DONE";
 
-/** Main /kanban columns — includes every TaskStatus so cards never vanish. */
+/** Legacy scrum columns — still in DB enum; migrated to IN_PROGRESS on load. */
+export const LEGACY_BOARD_STATUSES = ["REVIEW", "TESTING", "BLOCKED"] as const;
+export type LegacyBoardStatus = (typeof LEGACY_BOARD_STATUSES)[number];
+
+/** Main /kanban (+ research board): Inbox → This Week → In Progress → Done. */
 export const BOARD_STATUSES: BoardStatus[] = [
   "BACKLOG",
   "TODO",
   "IN_PROGRESS",
-  "REVIEW",
-  "TESTING",
-  "BLOCKED",
   "DONE",
 ];
 
-export const RESEARCH_BOARD_STATUSES: BoardStatus[] = [
-  "BACKLOG",
-  "TODO",
-  "IN_PROGRESS",
-  "REVIEW",
-  "DONE",
-];
+/** @deprecated Same as BOARD_STATUSES — kept for research page imports. */
+export const RESEARCH_BOARD_STATUSES: BoardStatus[] = BOARD_STATUSES;
 
 export type BoardColumns = Record<BoardStatus, TaskRow[]>;
 
@@ -46,4 +36,8 @@ export interface BoardFilters {
 
 export function isBoardStatus(id: string): id is BoardStatus {
   return (BOARD_STATUSES as string[]).includes(id);
+}
+
+export function isLegacyBoardStatus(id: string): id is LegacyBoardStatus {
+  return (LEGACY_BOARD_STATUSES as readonly string[]).includes(id);
 }
