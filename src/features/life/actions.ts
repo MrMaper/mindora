@@ -453,6 +453,7 @@ export async function rescheduleTaskDueDate(
   taskId: string,
   dueDateKey: string,
   time?: string | null,
+  dueAtIso?: string | null,
 ): Promise<ActionResult> {
   const session = await auth();
   if (!session?.user) return { success: false, error: "غیرمجاز" };
@@ -474,7 +475,12 @@ export async function rescheduleTaskDueDate(
   }
 
   let nextDue: Date;
-  if (time && /^(\d{2}):(\d{2})$/.test(time)) {
+  if (dueAtIso) {
+    nextDue = new Date(dueAtIso);
+    if (Number.isNaN(nextDue.getTime())) {
+      return { success: false, error: "تاریخ نامعتبر است" };
+    }
+  } else if (time && /^(\d{2}):(\d{2})$/.test(time)) {
     const [hours, minutes] = time.split(":").map(Number);
     nextDue = parseLocalDate(dueDateKey);
     nextDue.setHours(hours!, minutes!, 0, 0);
@@ -507,6 +513,8 @@ export async function rescheduleTaskSchedule(
   input: {
     dueDateKey: string;
     time: string;
+    /** Client-local instant (ISO). Preferred so UTC servers keep the wall clock. */
+    dueAtIso?: string;
     durationMinutes?: number | null;
   },
 ): Promise<ActionResult> {
@@ -532,9 +540,17 @@ export async function rescheduleTaskSchedule(
     return { success: false, error: "اجازه ویرایش ندارید" };
   }
 
-  const [hours, minutes] = input.time.split(":").map(Number);
-  const nextDue = parseLocalDate(input.dueDateKey);
-  nextDue.setHours(hours!, minutes!, 0, 0);
+  let nextDue: Date;
+  if (input.dueAtIso) {
+    nextDue = new Date(input.dueAtIso);
+    if (Number.isNaN(nextDue.getTime())) {
+      return { success: false, error: "تاریخ نامعتبر است" };
+    }
+  } else {
+    const [hours, minutes] = input.time.split(":").map(Number);
+    nextDue = parseLocalDate(input.dueDateKey);
+    nextDue.setHours(hours!, minutes!, 0, 0);
+  }
 
   let durationMinutes: number | null | undefined = input.durationMinutes;
   if (durationMinutes !== undefined && durationMinutes !== null) {

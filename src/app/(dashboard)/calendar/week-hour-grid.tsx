@@ -19,6 +19,7 @@ import {
   clampBlockHeight,
   durationToHeight,
   findConflicts,
+  formatMinutesClock,
   minutesFromMidnight,
   minutesToY,
   snapMinutes,
@@ -268,6 +269,7 @@ function AllDayDropZone({
   return (
     <div
       ref={setNodeRef}
+      data-all-day={dateKey}
       className={cn(
         "min-h-[2.5rem] shrink-0 space-y-0.5 border-b bg-muted/20 p-0.5",
         isOver && "bg-primary/15 ring-1 ring-inset ring-primary/40",
@@ -591,22 +593,62 @@ export function minutesFromClientY(
   return yToMinutes(clientY - columnTop, columnHeight);
 }
 
-/** Find the hours column under a pointer (scroll-accurate). */
+/** All-day strip under the pointer (takes priority over hour-grid X fallback). */
+export function findAllDayAtPoint(
+  clientX: number,
+  clientY: number,
+): string | null {
+  if (typeof document === "undefined") return null;
+  for (const el of document.querySelectorAll("[data-all-day]")) {
+    if (!(el instanceof HTMLElement)) continue;
+    const dateKey = el.dataset.allDay;
+    if (!dateKey) continue;
+    const rect = el.getBoundingClientRect();
+    if (
+      clientX >= rect.left &&
+      clientX < rect.right &&
+      clientY >= rect.top &&
+      clientY < rect.bottom
+    ) {
+      return dateKey;
+    }
+  }
+  return null;
+}
+
+/**
+ * Find the hours column under a pointer by geometry (not elementsFromPoint).
+ * More reliable under DragOverlay / ghost layers.
+ *
+ * Only returns a column when the pointer Y is inside the hours rect, or
+ * slightly below it (clamp to end of day). Does **not** treat the all-day
+ * strip / day header above the grid as an hours hit — callers should check
+ * `findAllDayAtPoint` first.
+ */
 export function findHoursColumnAtPoint(
   clientX: number,
   clientY: number,
 ): { dateKey: string; rect: DOMRect } | null {
   if (typeof document === "undefined") return null;
-  const stack = document.elementsFromPoint(clientX, clientY);
-  for (const el of stack) {
-    if (!(el instanceof Element)) continue;
-    const col = el.closest("[data-day-hours]") as HTMLElement | null;
-    const dateKey = col?.dataset.dayHours;
-    if (col && dateKey) {
-      return { dateKey, rect: col.getBoundingClientRect() };
+  const cols = document.querySelectorAll("[data-day-hours]");
+  let belowMatch: { dateKey: string; rect: DOMRect } | null = null;
+
+  for (const el of cols) {
+    if (!(el instanceof HTMLElement)) continue;
+    const dateKey = el.dataset.dayHours;
+    if (!dateKey) continue;
+    const rect = el.getBoundingClientRect();
+    if (clientX < rect.left || clientX >= rect.right) continue;
+    if (clientY >= rect.top && clientY < rect.bottom) {
+      return { dateKey, rect };
+    }
+    // Pointer below the column (past midnight edge / padding) → clamp later.
+    if (clientY >= rect.bottom && !belowMatch) {
+      belowMatch = { dateKey, rect };
     }
   }
-  return null;
+
+  return belowMatch;
 }
 
 /** @deprecated prefer findHoursColumnAtPoint + startMinutesFromPointer */
@@ -619,7 +661,7 @@ export function minutesFromDragEnd(
   ) as HTMLElement | null;
   if (!el) return null;
   const rect = el.getBoundingClientRect();
-  return minutesFromClientY(clientY, rect.top, rect.height);
+  return minutesFromClientY(clientY, rect.top, COLUMN_HEIGHT);
 }
 
-export { startMinutesFromPointer };
+export { startMinutesFromPointer, formatMinutesClock, COLUMN_HEIGHT };

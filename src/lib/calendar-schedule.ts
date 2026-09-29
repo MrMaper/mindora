@@ -57,6 +57,9 @@ export function minutesToY(minutes: number, columnHeight = HOUR_HEIGHT_PX * 24):
 /**
  * Map pointer Y to a block start time, preserving where the user grabbed
  * the block (grabOffsetPx from the top of the event).
+ *
+ * `columnHeight` should be the **logical** grid height (COLUMN_HEIGHT / HOUR_HEIGHT_PX*24),
+ * not a possibly-subpixel getBoundingClientRect().height — rendering uses the same constant.
  */
 export function startMinutesFromPointer(
   clientY: number,
@@ -66,10 +69,19 @@ export function startMinutesFromPointer(
   durationMinutes: number,
 ): number {
   const duration = Math.max(SNAP_MINUTES, durationMinutes);
+  const gridHeight = columnHeight > 0 ? columnHeight : HOUR_HEIGHT_PX * 24;
   const topY = clientY - Math.max(0, grabOffsetPx) - columnTop;
-  const start = yToMinutes(topY, columnHeight);
+  const start = yToMinutes(topY, gridHeight);
   const maxStart = DAY_MINUTES - duration;
   return Math.min(Math.max(0, start), Math.max(0, maxStart));
+}
+
+/** Build HH:mm from snapped minutes since midnight. */
+export function formatMinutesClock(startMin: number): string {
+  const snapped = snapMinutes(startMin);
+  const hh = String(Math.floor(snapped / 60)).padStart(2, "0");
+  const mm = String(snapped % 60).padStart(2, "0");
+  return `${hh}:${mm}`;
 }
 
 export function durationToHeight(durationMinutes: number): number {

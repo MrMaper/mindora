@@ -70,17 +70,23 @@ import type { ProjectRow } from "@/features/projects/types";
 import { useLifeTaskEdit } from "@/features/life/use-life-task-edit";
 import {
   WeekHourGrid,
+  findAllDayAtPoint,
   findHoursColumnAtPoint,
   parseHoursDropId,
   type HourDragPreview,
 } from "./week-hour-grid";
 import {
+  HOUR_HEIGHT_PX,
   SNAP_MINUTES,
+  durationToHeight,
+  formatMinutesClock,
   parseClockTime,
   startMinutesFromPointer,
 } from "@/lib/calendar-schedule";
 
 import { AREA_VISUAL } from "@/lib/area-visual";
+
+const COLUMN_HEIGHT = HOUR_HEIGHT_PX * 24;
 
 const AREA_CHIP: Record<LifeArea, string> = {
   PHD: AREA_VISUAL.PHD.chip,
@@ -117,6 +123,14 @@ type CalendarView = "month" | "week" | "day";
 const calendarCollision: CollisionDetection = args => {
   const hits = pointerWithin(args);
   if (hits.length === 0) return closestCenter(args);
+  // All-day strip must win over the tall hours column under the same day.
+  const allDay = hits.filter(h => {
+    const data = h.data?.droppableContainer?.data.current as
+      | { type?: string }
+      | undefined;
+    return data?.type === "allDay";
+  });
+  if (allDay.length > 0) return allDay;
   const hours = hits.filter(h => String(h.id).startsWith("hours:"));
   if (hours.length > 0) return hours;
   return hits;
@@ -428,6 +442,7 @@ export function CalendarCC({
   const [activeDrag, setActiveDrag] = React.useState<TaskRow | null>(null);
   const [hourDragPreview, setHourDragPreview] =
     React.useState<HourDragPreview | null>(null);
+  const hourDragPreviewRef = React.useRef<HourDragPreview | null>(null);
   const loadedRanges = React.useRef(new Set<string>());
   const lastPointer = React.useRef<{ x: number; y: number } | null>(null);
   const grabOffsetPx = React.useRef(0);
@@ -608,7 +623,29 @@ export function CalendarCC({
   function clearHourDragTracking() {
     pointerTrackCleanup.current?.();
     pointerTrackCleanup.current = null;
+    hourDragPreviewRef.current = null;
     setHourDragPreview(null);
+  }
+
+  function resolveHourDropAtPointer(
+    clientX: number,
+    clientY: number,
+  ): HourDragPreview | null {
+    const hit = findHoursColumnAtPoint(clientX, clientY);
+    if (!hit) return null;
+    const startMin = startMinutesFromPointer(
+      clientY,
+      hit.rect.top,
+      COLUMN_HEIGHT,
+      grabOffsetPx.current,
+      dragDurationRef.current,
+    );
+    return {
+      dateKey: hit.dateKey,
+      startMin,
+      durationMin: dragDurationRef.current,
+      title: dragTitleRef.current,
+    };
   }
 
   function updateHourPreviewFromPointer(clientX: number, clientY: number) {
@@ -625,24 +662,17 @@ export function CalendarCC({
       }
     }
 
-    const hit = findHoursColumnAtPoint(clientX, clientY);
-    if (!hit) {
+    // All-day strip is not an hour drop — clear the ghost so we don't flash 00:00.
+    if (findAllDayAtPoint(clientX, clientY)) {
+      hourDragPreviewRef.current = null;
       setHourDragPreview(null);
       return;
     }
-    const startMin = startMinutesFromPointer(
-      clientY,
-      hit.rect.top,
-      hit.rect.height,
-      grabOffsetPx.current,
-      dragDurationRef.current,
-    );
-    setHourDragPreview({
-      dateKey: hit.dateKey,
-      startMin,
-      durationMin: dragDurationRef.current,
-      title: dragTitleRef.current,
-    });
+
+    // Re-resolve after possible scroll so ghost matches the final grid under the finger.
+    const next = resolveHourDropAtPointer(clientX, clientY);
+    hourDragPreviewRef.current = next;
+    setHourDragPreview(next);
   }
 
   function onDragStart(event: DragStartEvent) {
@@ -665,9 +695,15 @@ export function CalendarCC({
     if (ae && "clientY" in ae && "clientX" in ae) {
       const pointer = ae as PointerEvent;
       lastPointer.current = { x: pointer.clientX, y: pointer.clientY };
+      // Grab relative to the visible block top (viewport). Cap to block height
+      // so a click near the bottom still maps sensibly if metrics glitch.
+      const blockH = durationToHeight(duration);
       grabOffsetPx.current =
         initial != null
-          ? Math.max(0, pointer.clientY - initial.top)
+          ? Math.min(
+              Math.max(0, pointer.clientY - initial.top),
+              Math.max(0, blockH - 1),
+            )
           : 0;
     } else {
       lastPointer.current = null;
@@ -736,6 +772,7 @@ export function CalendarCC({
     const result = await rescheduleTaskSchedule(taskId, {
       dueDateKey,
       time,
+      dueAtIso: nextDue.toISOString(),
       durationMinutes: nextDuration,
     });
     if (!result.success) {
@@ -781,6 +818,7 @@ export function CalendarCC({
     const result = await rescheduleTaskSchedule(taskId, {
       dueDateKey,
       time,
+      dueAtIso: due.toISOString(),
       durationMinutes: nextDuration,
     });
     if (!result.success) {
@@ -794,16 +832,21 @@ export function CalendarCC({
   }
 
   async function onDragEnd(event: DragEndEvent) {
-    const preview = hourDragPreview;
     const pointer = lastPointer.current;
     const grab = grabOffsetPx.current;
-    clearHourDragTracking();
-    setActiveDrag(null);
+    // Prefer a fresh geometry resolve over React state (state can lag one frame).
+    const live =
+      pointer != null
+        ? resolveHourDropAtPointer(pointer.x, pointer.y)
+        : null;
+    const preview = live ?? hourDragPreviewRef.current;
 
     const { active, over } = event;
     const taskId = String(active.id);
     const task = tasks.find(t => t.id === taskId);
     if (!task?.dueDate) {
+      clearHourDragTracking();
+      setActiveDrag(null);
       lastPointer.current = null;
       return;
     }
@@ -815,88 +858,117 @@ export function CalendarCC({
         : 60,
     );
 
-    // Prefer live snapped preview (grab-offset aware) over dnd-kit's over target.
-    if (preview) {
-      const hh = String(Math.floor(preview.startMin / 60)).padStart(2, "0");
-      const mm = String(preview.startMin % 60).padStart(2, "0");
-      await applySchedule(taskId, preview.dateKey, `${hh}:${mm}`, duration);
-      lastPointer.current = null;
-      return;
-    }
-
-    if (pointer) {
-      const hit = findHoursColumnAtPoint(pointer.x, pointer.y);
-      if (hit) {
-        const minutes = startMinutesFromPointer(
-          pointer.y,
-          hit.rect.top,
-          hit.rect.height,
-          grab,
-          duration,
-        );
-        const hh = String(Math.floor(minutes / 60)).padStart(2, "0");
-        const mm = String(minutes % 60).padStart(2, "0");
-        await applySchedule(taskId, hit.dateKey, `${hh}:${mm}`, duration);
-        lastPointer.current = null;
-        return;
-      }
-    }
-
-    if (!over) {
-      lastPointer.current = null;
-      return;
-    }
-
-    const overId = String(over.id);
-    const hoursKey = parseHoursDropId(overId);
-    const overData = over.data.current as
+    const overId = over ? String(over.id) : "";
+    const overData = over?.data.current as
       | { type?: string; dateKey?: string }
       | undefined;
 
-    if (hoursKey || overData?.type === "hours") {
-      const dueDateKey = hoursKey ?? overData?.dateKey;
-      if (!dueDateKey) {
-        lastPointer.current = null;
-        return;
-      }
-      const el = document.querySelector(
-        `[data-day-hours="${dueDateKey}"]`,
-      ) as HTMLElement | null;
-      const rect = el?.getBoundingClientRect();
-      let startMin =
-        new Date(task.dueDate).getHours() * 60 +
-        new Date(task.dueDate).getMinutes();
-      if (rect && pointer) {
-        startMin = startMinutesFromPointer(
-          pointer.y,
-          rect.top,
-          rect.height,
-          grab,
-          duration,
-        );
-      }
-      const hh = String(Math.floor(startMin / 60)).padStart(2, "0");
-      const mm = String(startMin % 60).padStart(2, "0");
-      await applySchedule(taskId, dueDateKey, `${hh}:${mm}`, duration);
+    // 1) Explicit all-day (geometry or dnd-kit) — before hour preview, which
+    //    used to steal drops when the pointer sat above the hours column.
+    const allDayKey =
+      (pointer ? findAllDayAtPoint(pointer.x, pointer.y) : null) ??
+      (overData?.type === "allDay" ? overData.dateKey : null) ??
+      null;
+
+    if (allDayKey) {
+      const movePromise = commitDayMove(taskId, task, allDayKey, "");
+      clearHourDragTracking();
+      setActiveDrag(null);
       lastPointer.current = null;
+      await movePromise;
       return;
     }
 
+  // 2) Hour grid — optimistic commit first; clear ghost in the same turn so
+  //    the block never flashes back to the old slot.
+  if (preview) {
+    const schedulePromise = applySchedule(
+      taskId,
+      preview.dateKey,
+      formatMinutesClock(preview.startMin),
+      duration,
+    );
+    clearHourDragTracking();
+    setActiveDrag(null);
+    lastPointer.current = null;
+    await schedulePromise;
+    return;
+  }
+
+  if (!over) {
+    clearHourDragTracking();
+    setActiveDrag(null);
+    lastPointer.current = null;
+    return;
+  }
+
+  const hoursKey = parseHoursDropId(overId);
+
+  if (hoursKey || overData?.type === "hours") {
+    const dueDateKey = hoursKey ?? overData?.dateKey;
+    if (!dueDateKey) {
+      clearHourDragTracking();
+      setActiveDrag(null);
+      lastPointer.current = null;
+      return;
+    }
+    const el = document.querySelector(
+      `[data-day-hours="${dueDateKey}"]`,
+    ) as HTMLElement | null;
+    const rect = el?.getBoundingClientRect();
+    let startMin =
+      new Date(task.dueDate).getHours() * 60 +
+      new Date(task.dueDate).getMinutes();
+    if (rect && pointer) {
+      startMin = startMinutesFromPointer(
+        pointer.y,
+        rect.top,
+        COLUMN_HEIGHT,
+        grab,
+        duration,
+      );
+    }
+    const schedulePromise = applySchedule(
+      taskId,
+      dueDateKey,
+      formatMinutesClock(startMin),
+      duration,
+    );
+    clearHourDragTracking();
+    setActiveDrag(null);
+    lastPointer.current = null;
+    await schedulePromise;
+    return;
+  }
+
+    // 3) Month cell / plain day drop — keep clock when moving days.
     let dueDateKey: string | null = null;
     let time: string | null | undefined = undefined;
 
-    if (overData?.type === "allDay" && overData.dateKey) {
-      dueDateKey = overData.dateKey;
-      time = "";
-    } else if (/^\d{4}-\d{2}-\d{2}$/.test(overId)) {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(overId)) {
       dueDateKey = overId;
       time = undefined;
     } else {
+      clearHourDragTracking();
+      setActiveDrag(null);
       lastPointer.current = null;
       return;
     }
 
-    const previousDue = task.dueDate;
+    const movePromise = commitDayMove(taskId, task, dueDateKey, time);
+    clearHourDragTracking();
+    setActiveDrag(null);
+    lastPointer.current = null;
+    await movePromise;
+  }
+
+  async function commitDayMove(
+    taskId: string,
+    task: TaskRow,
+    dueDateKey: string,
+    time: string | null | undefined,
+  ) {
+    const previousDue = task.dueDate!;
     const previousDuration = task.durationMinutes ?? null;
 
     let nextDue: Date;
@@ -912,7 +984,6 @@ export function CalendarCC({
       new Date(previousDue).getTime() === nextDue.getTime() &&
       (previousDuration ?? null) === (nextDuration ?? null)
     ) {
-      lastPointer.current = null;
       return;
     }
 
@@ -926,7 +997,12 @@ export function CalendarCC({
     setSelected(nextDue);
     edit.syncDueFromCalendar(taskId, nextDue, nextDuration);
 
-    const result = await rescheduleTaskDueDate(taskId, dueDateKey, time);
+    const result = await rescheduleTaskDueDate(
+      taskId,
+      dueDateKey,
+      time,
+      nextDue.toISOString(),
+    );
     if (!result.success) {
       setTasks(prev =>
         prev.map(t =>
@@ -941,7 +1017,6 @@ export function CalendarCC({
       );
       edit.syncDueFromCalendar(taskId, new Date(previousDue), previousDuration);
     }
-    lastPointer.current = null;
   }
 
   const weekdays = language === "FA" ? PERSIAN_WEEKDAYS_SAT : WEEKDAYS_EN;

@@ -7,6 +7,7 @@ import {
   clampBlockHeight,
   durationToHeight,
   findConflicts,
+  formatMinutesClock,
   minutesFromMidnight,
   parseClockTime,
   rangesOverlap,
@@ -77,6 +78,24 @@ describe("startMinutesFromPointer", () => {
     expect(
       startMinutesFromPointer(col, 0, col, 0, 60),
     ).toBe(DAY_MINUTES - 60);
+  });
+
+  it("uses the provided column height for mapping", () => {
+    const logical = HOUR_HEIGHT_PX * 24;
+    const pointerY = HOUR_HEIGHT_PX * 14;
+    expect(startMinutesFromPointer(pointerY, 0, logical, 0, 60)).toBe(14 * 60);
+    // Half-height column maps the same pixel twice as far into the day
+    expect(startMinutesFromPointer(pointerY, 0, logical / 2, 0, 60)).toBe(
+      Math.min(DAY_MINUTES - 60, 14 * 60 * 2),
+    );
+  });
+});
+
+describe("formatMinutesClock", () => {
+  it("formats snapped HH:mm", () => {
+    expect(formatMinutesClock(0)).toBe("00:00");
+    expect(formatMinutesClock(90)).toBe("01:30");
+    expect(formatMinutesClock(7)).toBe("00:00");
   });
 });
 
