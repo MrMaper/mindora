@@ -1,8 +1,9 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { Controller, type Control } from "react-hook-form";
 import { Drawer } from "@/components/ui-kit/overlays/drawer";
+import { ResolvedValidationText } from "@/components/ui-kit/forms/action-error";
 import { Button } from "@/components/ui-kit/forms/button";
 import { Input } from "@/components/ui-kit/forms/input";
 import { useLanguage, useTranslation } from "@/i18n/provider";
@@ -75,7 +76,7 @@ export function EditAreaDrawer({
             className="auth-card__alert auth-card__alert--error"
             role="alert"
           >
-            {actionError}
+            <ResolvedValidationText text={actionError} />
           </div>
         )}
         <Controller

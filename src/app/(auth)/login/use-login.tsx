@@ -1,8 +1,8 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { localizedZodResolver } from "@/lib/validation-message";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { loginSchema } from "@/schemas/auth";
@@ -21,7 +21,7 @@ export function useLogin() {
   const [isPending, startTransition] = React.useTransition();
 
   const form = useForm<LoginInput>({
-    resolver: zodResolver(loginSchema),
+    resolver: localizedZodResolver(loginSchema, t),
     defaultValues: { email: "", password: "" },
   });
 

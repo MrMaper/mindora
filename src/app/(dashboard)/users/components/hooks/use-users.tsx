@@ -1,9 +1,9 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { localizedZodResolver } from "@/lib/validation-message";
 import { createUserSchema, updateUserSchema } from "@/schemas/users";
 import {
   createUser,
@@ -59,12 +59,12 @@ export function useUsers(initialSearch: string) {
   });
 
   const createForm = useForm<CreateUserInput>({
-    resolver: zodResolver(createUserSchema),
+    resolver: localizedZodResolver(createUserSchema),
     defaultValues: { name: "", email: "", role: "MEMBER", password: "" },
   });
 
   const editForm = useForm<UpdateUserInput>({
-    resolver: zodResolver(updateUserSchema),
+    resolver: localizedZodResolver(updateUserSchema),
     defaultValues: { name: "", role: "MEMBER" },
   });
 

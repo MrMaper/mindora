@@ -1,8 +1,9 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { Controller } from "react-hook-form";
 import { Button } from "@/components/ui-kit/forms/button";
+import { ResolvedValidationText } from "@/components/ui-kit/forms/action-error";
 import { Input } from "@/components/ui-kit/forms/input";
 import { Drawer } from "@/components/ui-kit/overlays/drawer";
 import { useTranslation } from "@/i18n/provider";
@@ -65,7 +66,7 @@ export function CreateTeamDrawer({
             className="flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg"
             role="alert"
           >
-            {actionError}
+            <ResolvedValidationText text={actionError} />
           </div>
         )}
         <Controller

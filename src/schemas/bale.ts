@@ -2,7 +2,10 @@ import { z } from "zod";
 
 export const sendMessageSchema = z.object({
   chat_id: z.union([z.string(), z.number()]),
-  text: z.string().min(1, "Message text is required.").max(4096, "Message is too long."),
+  text: z
+    .string()
+    .min(1, "messageTextRequired")
+    .max(4096, "messageTooLong"),
   parse_mode: z.enum(["HTML", "Markdown"]).optional(),
   disable_web_page_preview: z.boolean().optional(),
   disable_notification: z.boolean().optional(),
@@ -18,7 +21,7 @@ export const forwardMessageSchema = z.object({
 
 export const sendPhotoSchema = z.object({
   chat_id: z.union([z.string(), z.number()]),
-  photo: z.string().min(1, "Photo file_id or URL is required."),
+  photo: z.string().min(1, "photoRequired"),
   caption: z.string().max(1024).optional(),
   parse_mode: z.enum(["HTML", "Markdown"]).optional(),
   disable_notification: z.boolean().optional(),
@@ -27,7 +30,7 @@ export const sendPhotoSchema = z.object({
 
 export const sendDocumentSchema = z.object({
   chat_id: z.union([z.string(), z.number()]),
-  document: z.string().min(1, "Document file_id or URL is required."),
+  document: z.string().min(1, "documentRequired"),
   caption: z.string().max(1024).optional(),
   parse_mode: z.enum(["HTML", "Markdown"]).optional(),
   disable_notification: z.boolean().optional(),
@@ -37,7 +40,10 @@ export const sendDocumentSchema = z.object({
 export const editMessageTextSchema = z.object({
   chat_id: z.union([z.string(), z.number()]),
   message_id: z.number().int().positive(),
-  text: z.string().min(1, "Message text is required.").max(4096, "Message is too long."),
+  text: z
+    .string()
+    .min(1, "messageTextRequired")
+    .max(4096, "messageTooLong"),
   parse_mode: z.enum(["HTML", "Markdown"]).optional(),
   disable_web_page_preview: z.boolean().optional(),
 });
@@ -48,7 +54,7 @@ export const deleteMessageSchema = z.object({
 });
 
 export const answerCallbackQuerySchema = z.object({
-  callback_query_id: z.string().min(1, "Callback query ID is required."),
+  callback_query_id: z.string().min(1, "callbackQueryRequired"),
   text: z.string().max(200).optional(),
   show_alert: z.boolean().optional(),
   url: z.string().url().optional(),
@@ -64,7 +70,13 @@ export const setMyCommandsSchema = z.object({
   ),
   scope: z
     .object({
-      type: z.enum(["default", "all_private_chats", "all_group_chats", "all_chat_administrators", "chat"]),
+      type: z.enum([
+        "default",
+        "all_private_chats",
+        "all_group_chats",
+        "all_chat_administrators",
+        "chat",
+      ]),
       chat_id: z.union([z.string(), z.number()]).optional(),
     })
     .optional(),

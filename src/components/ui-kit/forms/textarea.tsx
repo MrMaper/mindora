@@ -4,6 +4,7 @@ import * as React from "react";
 import { Textarea as ShadcnTextarea } from "@/components/ui/textarea";
 import { Label as ShadcnLabel } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { useResolvedValidationMessage } from "@/lib/validation-message";
 
 export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
@@ -26,6 +27,7 @@ export function Textarea({
   const fieldId = id ?? generatedId;
   const hintId = `${fieldId}-hint`;
   const errorId = `${fieldId}-error`;
+  const resolvedError = useResolvedValidationMessage(error);
 
   return (
     <div className="w-full">
@@ -51,7 +53,7 @@ export function Textarea({
         aria-describedby={error ? errorId : hint ? hintId : undefined}
         {...rest}
       />
-      {(hint || error) && (
+      {(hint || resolvedError) && (
         <p
           id={error ? errorId : hintId}
           className={cn(
@@ -60,7 +62,7 @@ export function Textarea({
           )}
           role={error ? "alert" : undefined}
         >
-          {error ?? hint}
+          {resolvedError ?? hint}
         </p>
       )}
     </div>

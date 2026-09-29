@@ -1,4 +1,6 @@
-"use client";
+﻿"use client";
+
+import { ResolvedValidationText } from "@/components/ui-kit/forms/action-error";
 import type { Translations } from "@/i18n";
 import { useTranslation } from "@/i18n/provider";
 
@@ -305,7 +307,7 @@ function SecuritySettingsSection({
               fontSize: "var(--text-sm)",
             }}
           >
-            {passwordError}
+            <ResolvedValidationText text={passwordError} />
           </div>
         )}
         {passwordSuccess && (
@@ -360,7 +362,7 @@ function SecuritySettingsSection({
                 marginTop: "var(--space-1)",
               }}
             >
-              {passwordForm.formState.errors.currentPassword.message}
+              <ResolvedValidationText text={passwordForm.formState.errors.currentPassword.message} />
             </p>
           )}
         </div>
@@ -400,7 +402,7 @@ function SecuritySettingsSection({
                 marginTop: "var(--space-1)",
               }}
             >
-              {passwordForm.formState.errors.password.message}
+              <ResolvedValidationText text={passwordForm.formState.errors.password.message} />
             </p>
           )}
         </div>
@@ -440,7 +442,7 @@ function SecuritySettingsSection({
                 marginTop: "var(--space-1)",
               }}
             >
-              {passwordForm.formState.errors.confirmPassword.message}
+              <ResolvedValidationText text={passwordForm.formState.errors.confirmPassword.message} />
             </p>
           )}
         </div>

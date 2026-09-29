@@ -1,24 +1,29 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  localizedZodResolver,
+  resolveValidationMessage,
+} from "@/lib/validation-message";
 import { useRouter } from "next/navigation";
 import { resetPasswordSchema } from "@/schemas/auth";
 import { resetPassword } from "@/features/auth/actions";
+import { useAuthLanguage } from "../auth-language";
 import type { ResetPasswordInput } from "@/schemas/auth";
 
 export function useResetPassword(token: string) {
+  const { t } = useAuthLanguage();
   const router = useRouter();
   const [error, setError] = React.useState<string | null>(null);
   const [isPending, startTransition] = React.useTransition();
 
   const form = useForm<ResetPasswordInput>({
-    resolver: zodResolver(resetPasswordSchema),
+    resolver: localizedZodResolver(resetPasswordSchema, t),
     defaultValues: { token, password: "", confirmPassword: "" },
   });
 
-  const onSubmit = form.handleSubmit((data) => {
+  const onSubmit = form.handleSubmit(data => {
     setError(null);
     startTransition(async () => {
       const fd = new FormData();
@@ -30,7 +35,9 @@ export function useResetPassword(token: string) {
       if (result.success) {
         router.push("/login?reset=1");
       } else {
-        setError(result.error ?? "Something went wrong. Please try again.");
+        setError(
+          resolveValidationMessage(t, result.error ?? "genericError"),
+        );
       }
     });
   });

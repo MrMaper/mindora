@@ -1,5 +1,7 @@
 ﻿"use client";
 
+import { ResolvedValidationText } from "@/components/ui-kit/forms/action-error";
+
 import * as React from "react";
 import { useUsers, type UserFilters } from "../hooks/use-users";
 import { useTranslation } from "@/i18n/provider";
@@ -68,7 +70,7 @@ export function UsersCC({
           className="mb-4 flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg"
           role="alert"
         >
-          {u.actionError}
+          <ResolvedValidationText text={u.actionError} />
         </div>
       )}
 

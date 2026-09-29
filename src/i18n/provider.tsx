@@ -4,7 +4,7 @@ import * as React from "react";
 import type { Language } from "@/types/db";
 import type { Translations } from "./types";
 
-const I18nContext = React.createContext<{
+export const I18nContext = React.createContext<{
   language: Language;
   t: Translations;
 } | null>(null);

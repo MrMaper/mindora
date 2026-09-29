@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const createTaskSchema = z.object({
-  title: z.string().min(1, "Title is required.").max(255, "Title is too long."),
+  title: z.string().min(1, "titleRequired").max(255, "titleTooLong"),
   description: z.string().max(10000).optional().or(z.literal("")),
   status: z.enum(["BACKLOG", "TODO", "IN_PROGRESS", "DONE"]),
   priority: z.enum(["URGENT", "HIGH", "MEDIUM", "LOW", "NONE"]),
@@ -24,10 +24,8 @@ export const createTaskSchema = z.object({
 export const updateTaskSchema = createTaskSchema;
 
 export const createLabelSchema = z.object({
-  name: z.string().min(1, "Name is required.").max(50, "Name is too long."),
-  color: z
-    .string()
-    .regex(/^#[0-9a-fA-F]{6}$/, "Enter a valid hex color."),
+  name: z.string().min(1, "nameRequired").max(50, "nameTooLong"),
+  color: z.string().regex(/^#[0-9a-fA-F]{6}$/, "invalidHexColor"),
 });
 
 export type CreateTaskInput = z.infer<typeof createTaskSchema>;

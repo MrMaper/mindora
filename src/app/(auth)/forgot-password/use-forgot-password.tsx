@@ -1,23 +1,28 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  localizedZodResolver,
+  resolveValidationMessage,
+} from "@/lib/validation-message";
 import { forgotPasswordSchema } from "@/schemas/auth";
 import { forgotPassword } from "@/features/auth/actions";
+import { useAuthLanguage } from "../auth-language";
 import type { ForgotPasswordInput } from "@/schemas/auth";
 
 export function useForgotPassword() {
+  const { t } = useAuthLanguage();
   const [success, setSuccess] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [isPending, startTransition] = React.useTransition();
 
   const form = useForm<ForgotPasswordInput>({
-    resolver: zodResolver(forgotPasswordSchema),
+    resolver: localizedZodResolver(forgotPasswordSchema, t),
     defaultValues: { email: "" },
   });
 
-  const onSubmit = form.handleSubmit((data) => {
+  const onSubmit = form.handleSubmit(data => {
     setError(null);
     startTransition(async () => {
       const fd = new FormData();
@@ -27,7 +32,9 @@ export function useForgotPassword() {
       if (result.success) {
         setSuccess(true);
       } else {
-        setError(result.error ?? "Something went wrong. Please try again.");
+        setError(
+          resolveValidationMessage(t, result.error ?? "genericError"),
+        );
       }
     });
   });

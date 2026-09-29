@@ -1,8 +1,9 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { Controller } from "react-hook-form";
 import { Button } from "@/components/ui-kit/forms/button";
+import { ResolvedValidationText } from "@/components/ui-kit/forms/action-error";
 import { Input } from "@/components/ui-kit/forms/input";
 import { Avatar } from "@/components/ui-kit/data-display/avatar";
 import { Drawer } from "@/components/ui-kit/overlays/drawer";
@@ -72,7 +73,7 @@ export function EditUserDrawer({
             className="flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg"
             role="alert"
           >
-            {actionError}
+            <ResolvedValidationText text={actionError} />
           </div>
         )}
         {editingUser && (

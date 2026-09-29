@@ -15,6 +15,8 @@ const AuthLanguageContext = React.createContext<{
   setLanguage: (language: Language) => void;
 } | null>(null);
 
+export { AuthLanguageContext };
+
 function normalizeLanguage(value: unknown): Language {
   return value === "FA" ? "FA" : "EN";
 }

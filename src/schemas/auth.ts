@@ -1,33 +1,33 @@
 import { z } from "zod";
 
 export const loginSchema = z.object({
-  email: z.string().email("Enter a valid email address."),
-  password: z.string().min(1, "Password is required."),
+  email: z.string().email("invalidEmail"),
+  password: z.string().min(1, "passwordRequired"),
 });
 
 export const forgotPasswordSchema = z.object({
-  email: z.string().email("Enter a valid email address."),
+  email: z.string().email("invalidEmail"),
 });
 
 export const resetPasswordSchema = z
   .object({
-    token: z.string().min(1, "Reset token is missing."),
-    password: z.string().min(8, "Password must be at least 8 characters."),
+    token: z.string().min(1, "resetTokenMissing"),
+    password: z.string().min(8, "passwordTooShort"),
     confirmPassword: z.string(),
   })
-  .refine((d) => d.password === d.confirmPassword, {
-    message: "Passwords do not match.",
+  .refine(d => d.password === d.confirmPassword, {
+    message: "passwordsDoNotMatch",
     path: ["confirmPassword"],
   });
 
 export const changePasswordSchema = z
   .object({
-    currentPassword: z.string().min(1, "Current password is required."),
-    password: z.string().min(8, "Password must be at least 8 characters."),
+    currentPassword: z.string().min(1, "currentPasswordRequired"),
+    password: z.string().min(8, "passwordTooShort"),
     confirmPassword: z.string(),
   })
-  .refine((d) => d.password === d.confirmPassword, {
-    message: "Passwords do not match.",
+  .refine(d => d.password === d.confirmPassword, {
+    message: "passwordsDoNotMatch",
     path: ["confirmPassword"],
   });
 

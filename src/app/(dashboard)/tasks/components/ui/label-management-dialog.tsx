@@ -1,8 +1,9 @@
-import * as React from "react";
+﻿import * as React from "react";
 import { Controller } from "react-hook-form";
 import { Dialog } from "@/components/ui-kit/overlays/dialog";
 import { Button } from "@/components/ui-kit/forms/button";
 import { Input } from "@/components/ui-kit/forms/input";
+import { ResolvedValidationText } from "@/components/ui-kit/forms/action-error";
 import { Tag } from "@/components/ui-kit/data-display/tag";
 import { IconButton } from "@/components/ui-kit/forms/icon-button";
 import type { LabelRow } from "@/features/labels/types";
@@ -47,7 +48,7 @@ export function LabelManagementDialog({
             className="rounded-md border border-red-500/30 bg-red-500/10 p-3 text-red-500 text-sm"
             role="alert"
           >
-            {labelError}
+            <ResolvedValidationText text={labelError} />
           </div>
         )}
 

@@ -1,4 +1,6 @@
-"use client";
+﻿"use client";
+
+import { ResolvedValidationText } from "@/components/ui-kit/forms/action-error";
 import { useTranslation } from "@/i18n/provider";
 
 import * as React from "react";
@@ -163,7 +165,7 @@ export function ProfileCC({ user, language, baleCode }: ProfileCCProps) {
               className="auth-card__alert auth-card__alert--error"
               role="alert"
             >
-              {p.profileError}
+              <ResolvedValidationText text={p.profileError} />
             </div>
           )}
           {p.profileSuccess && (
@@ -233,7 +235,7 @@ export function ProfileCC({ user, language, baleCode }: ProfileCCProps) {
               className="auth-card__alert auth-card__alert--error"
               role="alert"
             >
-              {p.passwordError}
+              <ResolvedValidationText text={p.passwordError} />
             </div>
           )}
           {p.passwordSuccess && (

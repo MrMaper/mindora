@@ -1,9 +1,9 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { localizedZodResolver } from "@/lib/validation-message";
 import { createTeamSchema, updateTeamSchema, archiveTeamSchema, deleteTeamSchema } from "@/schemas/teams";
 import {
   createTeam,
@@ -36,12 +36,12 @@ export function useTeams(initialSearch: string) {
   });
 
   const createForm = useForm<CreateTeamInput>({
-    resolver: zodResolver(createTeamSchema),
+    resolver: localizedZodResolver(createTeamSchema),
     defaultValues: { name: "", description: "" },
   });
 
   const editForm = useForm<UpdateTeamInput>({
-    resolver: zodResolver(updateTeamSchema),
+    resolver: localizedZodResolver(updateTeamSchema),
     defaultValues: { name: "", description: "" },
   });
 

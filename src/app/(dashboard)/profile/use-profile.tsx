@@ -1,9 +1,9 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { localizedZodResolver } from "@/lib/validation-message";
 import { updateProfileSchema, type UpdateProfileInput } from "@/schemas/users";
 import { changePasswordSchema, type ChangePasswordInput } from "@/schemas/auth";
 import { updateProfile, changePassword, uploadUserAvatar } from "@/features/users/actions";
@@ -23,11 +23,11 @@ export function useProfile(userId: string) {
   const [avatarPending, startAvatarTransition] = React.useTransition();
 
   const profileForm = useForm<UpdateProfileInput>({
-    resolver: zodResolver(updateProfileSchema),
+    resolver: localizedZodResolver(updateProfileSchema),
   });
 
   const passwordForm = useForm<ChangePasswordInput>({
-    resolver: zodResolver(changePasswordSchema),
+    resolver: localizedZodResolver(changePasswordSchema),
     defaultValues: { currentPassword: "", password: "", confirmPassword: "" },
   });
 

@@ -1,9 +1,9 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { localizedZodResolver } from "@/lib/validation-message";
 import { updateTaskSchema } from "@/schemas/tasks";
 import { updateTask, getTaskDetailAction } from "@/features/tasks/actions";
 import { coerceLifeArea, dueDateToFormValue } from "@/lib/life";
@@ -29,7 +29,7 @@ export function useLifeTaskEdit() {
   const [selectedLabelIds, setSelectedLabelIds] = React.useState<string[]>([]);
 
   const editForm = useForm<UpdateTaskInput>({
-    resolver: zodResolver(updateTaskSchema),
+    resolver: localizedZodResolver(updateTaskSchema),
     defaultValues: {
       title: "",
       description: "",

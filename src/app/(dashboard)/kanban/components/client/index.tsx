@@ -1,4 +1,6 @@
-"use client";
+﻿"use client";
+
+import { ResolvedValidationText } from "@/components/ui-kit/forms/action-error";
 
 import * as React from "react";
 import { DndContext, DragOverlay } from "@dnd-kit/core";
@@ -205,7 +207,7 @@ export function KanbanCC({
           style={{ marginBottom: "var(--space-3)" }}
           role="alert"
         >
-          {k.actionError}
+          <ResolvedValidationText text={k.actionError} />
         </div>
       )}
 

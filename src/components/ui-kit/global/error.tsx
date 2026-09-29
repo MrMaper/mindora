@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { ResolvedValidationText } from "@/components/ui-kit/forms/action-error";
 
 export type DrawerMode = "none" | "create" | "edit";
 export interface GlobalErrorProps {
@@ -16,7 +17,7 @@ export function GlobalError({ error, drawerMode }: GlobalErrorProps) {
       className="mb-4 rounded-md border border-red-500/30 bg-red-500/10 p-3 text-red-500 text-sm"
       role="alert"
     >
-      {error}
+      <ResolvedValidationText text={error} />
     </div>
   );
 }

@@ -1,4 +1,6 @@
-"use client";
+﻿"use client";
+
+import { ResolvedValidationText } from "@/components/ui-kit/forms/action-error";
 
 import * as React from "react";
 import { useTeams } from "../hooks/use-teams";
@@ -44,7 +46,7 @@ export function TeamsCC({ initialData, search, page }: TeamsCCProps) {
           className="mb-4 flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg"
           role="alert"
         >
-          {u.actionError}
+          <ResolvedValidationText text={u.actionError} />
         </div>
       )}
 

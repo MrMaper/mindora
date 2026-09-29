@@ -1,12 +1,12 @@
 import { z } from "zod";
 
 export const inviteMemberSchema = z.object({
-  userId: z.string().min(1, "User is required."),
-  roleId: z.string().min(1, "Role is required."),
+  userId: z.string().min(1, "userRequired"),
+  roleId: z.string().min(1, "roleRequired"),
 });
 
 export const updateMemberRoleSchema = z.object({
-  roleId: z.string().min(1, "Role is required."),
+  roleId: z.string().min(1, "roleRequired"),
 });
 
 export const removeMemberSchema = z.object({

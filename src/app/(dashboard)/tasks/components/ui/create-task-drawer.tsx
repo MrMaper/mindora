@@ -1,8 +1,9 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import type { Control, UseFormSetValue } from "react-hook-form";
 import { Drawer } from "@/components/ui-kit/overlays/drawer";
+import { ResolvedValidationText } from "@/components/ui-kit/forms/action-error";
 import { Button } from "@/components/ui-kit/forms/button";
 import {
   TaskFormFields,
@@ -100,7 +101,7 @@ export function CreateTaskDrawer({
             className="rounded-md border border-red-500/30 bg-red-500/10 p-3 text-red-500 text-sm"
             role="alert"
           >
-            {actionError}
+            <ResolvedValidationText text={actionError} />
           </div>
         )}
         {isOpen && (

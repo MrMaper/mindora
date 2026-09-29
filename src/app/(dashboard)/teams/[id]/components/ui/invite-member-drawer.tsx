@@ -1,7 +1,8 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { Button } from "@/components/ui-kit/forms/button";
+import { ResolvedValidationText } from "@/components/ui-kit/forms/action-error";
 import { Select } from "@/components/ui-kit/forms/select";
 import { Drawer } from "@/components/ui-kit/overlays/drawer";
 import { useTranslation } from "@/i18n/provider";
@@ -67,7 +68,7 @@ export function InviteMemberDrawer({
             className="flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg"
             role="alert"
           >
-            {actionError}
+            <ResolvedValidationText text={actionError} />
           </div>
         )}
 

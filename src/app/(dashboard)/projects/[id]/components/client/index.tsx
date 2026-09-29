@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
@@ -24,6 +24,7 @@ import {
   sortProjectTasks,
   type ProjectTaskFilters,
 } from "@/components/ui-kit/forms/project-task-filters";
+import { ResolvedValidationText } from "@/components/ui-kit/forms/action-error";
 import { Dialog } from "@/components/ui-kit/overlays/dialog";
 import { Button } from "@/components/ui-kit/forms/button";
 import { ProjectHeader } from "../ui/project-header";
@@ -209,7 +210,7 @@ export function ProjectDetailCC({
           className="mb-4 flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg"
           role="alert"
         >
-          {actionError}
+          <ResolvedValidationText text={actionError} />
         </div>
       ) : null}
 

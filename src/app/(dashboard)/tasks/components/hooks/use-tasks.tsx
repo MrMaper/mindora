@@ -1,9 +1,9 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { localizedZodResolver } from "@/lib/validation-message";
 import {
   createTaskSchema,
   updateTaskSchema,
@@ -61,7 +61,7 @@ export function useTasks(initialFilters: TaskFilters) {
   const [project, setProject] = React.useState(initialFilters.project);
 
   const createForm = useForm<CreateTaskInput>({
-    resolver: zodResolver(createTaskSchema),
+    resolver: localizedZodResolver(createTaskSchema),
     defaultValues: {
       title: "",
       description: "",
@@ -75,7 +75,7 @@ export function useTasks(initialFilters: TaskFilters) {
   });
 
   const editForm = useForm<UpdateTaskInput>({
-    resolver: zodResolver(updateTaskSchema),
+    resolver: localizedZodResolver(updateTaskSchema),
     defaultValues: {
       title: "",
       description: "",
@@ -91,7 +91,7 @@ export function useTasks(initialFilters: TaskFilters) {
   });
 
   const labelForm = useForm<CreateLabelInput>({
-    resolver: zodResolver(createLabelSchema),
+    resolver: localizedZodResolver(createLabelSchema),
     defaultValues: { name: "", color: "#6366f1" },
   });
 

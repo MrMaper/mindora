@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/select";
 import { Label as ShadcnLabel } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { useResolvedValidationMessage } from "@/lib/validation-message";
 
 export interface SelectOption {
   value: string;
@@ -67,8 +68,9 @@ export function Select({
   const selectedOption = options.find(o => o.value === (value ?? ""));
   const displayValue = selectedOption?.label ?? placeholder ?? "";
 
-  const errorMessage: string | undefined =
+  const rawErrorMessage: string | undefined =
     typeof error === "string" ? error : error?.message;
+  const errorMessage = useResolvedValidationMessage(rawErrorMessage);
 
   const rootValue = (value ?? "") === "" ? EMPTY : (value as string);
   const knownValues = new Set(

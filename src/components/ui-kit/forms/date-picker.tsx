@@ -16,6 +16,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { useTranslation } from "@/i18n/provider";
 import { TimeRoller } from "@/components/ui-kit/forms/time-roller";
+import { useResolvedValidationMessage } from "@/lib/validation-message";
 
 const PERSIAN_MONTHS = [
   "فروردین",
@@ -157,6 +158,7 @@ export function DatePicker({
   const [open, setOpen] = React.useState(false);
   const isPersian = language === "FA";
   const t = useTranslation();
+  const resolvedError = useResolvedValidationMessage(error);
   const CalendarComponent = isPersian ? CalendarPersian : GregorianCalendar;
   const hasDuration =
     typeof durationMinutes === "number" && durationMinutes > 0;
@@ -456,7 +458,7 @@ export function DatePicker({
           </div>
         </PopoverContent>
       </Popover>
-      {(hint || error) && (
+      {(hint || resolvedError) && (
         <p
           id={error ? errorId : hintId}
           className={cn(
@@ -465,7 +467,7 @@ export function DatePicker({
           )}
           role={error ? "alert" : undefined}
         >
-          {error ?? hint}
+          {resolvedError ?? hint}
         </p>
       )}
     </div>

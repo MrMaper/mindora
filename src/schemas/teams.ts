@@ -1,13 +1,13 @@
 import { z } from "zod";
 
 export const createTeamSchema = z.object({
-  name: z.string().min(1, "Team name is required.").max(100, "Name is too long."),
-  description: z.string().max(500, "Description is too long.").optional(),
+  name: z.string().min(1, "teamNameRequired").max(100, "nameTooLong"),
+  description: z.string().max(500, "descriptionTooLong").optional(),
 });
 
 export const updateTeamSchema = z.object({
-  name: z.string().min(1, "Team name is required.").max(100, "Name is too long."),
-  description: z.string().max(500, "Description is too long.").optional(),
+  name: z.string().min(1, "teamNameRequired").max(100, "nameTooLong"),
+  description: z.string().max(500, "descriptionTooLong").optional(),
 });
 
 export const archiveTeamSchema = z.object({

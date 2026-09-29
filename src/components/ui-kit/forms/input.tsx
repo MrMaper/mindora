@@ -6,6 +6,7 @@ import { Label as ShadcnLabel } from "@/components/ui/label";
 import { Icon } from "../foundation/icon";
 import type { IconName } from "../foundation/icon";
 import { cn } from "@/lib/utils";
+import { useResolvedValidationMessage } from "@/lib/validation-message";
 
 export interface InputProps extends Omit<
   React.InputHTMLAttributes<HTMLInputElement>,
@@ -40,6 +41,7 @@ export function Input({
   const fieldId = id ?? generatedId;
   const hintId = `${fieldId}-hint`;
   const errorId = `${fieldId}-error`;
+  const resolvedError = useResolvedValidationMessage(error);
 
   return (
     <div className="w-full">
@@ -86,7 +88,7 @@ export function Input({
           {...rest}
         />
       </div>
-      {(hint || error) && (
+      {(hint || resolvedError) && (
         <p
           id={error ? errorId : hintId}
           className={cn(
@@ -95,7 +97,7 @@ export function Input({
           )}
           role={error ? "alert" : undefined}
         >
-          {error ?? hint}
+          {resolvedError ?? hint}
         </p>
       )}
     </div>

@@ -10,22 +10,34 @@ export const projectStatusSchema = z.enum([
 ]);
 
 export const createProjectSchema = z.object({
-  name: z.string().min(1, "Project name is required.").max(100, "Name is too long."),
-  description: z.string().max(500, "Description is too long.").optional().or(z.literal("")),
+  name: z.string().min(1, "projectNameRequired").max(100, "nameTooLong"),
+  description: z
+    .string()
+    .max(500, "descriptionTooLong")
+    .optional()
+    .or(z.literal("")),
   teamId: z.string().optional().or(z.literal("")),
   area: lifeAreaSchema,
 });
 
 export const updateProjectSchema = z.object({
-  name: z.string().min(1, "Project name is required.").max(100, "Name is too long."),
-  description: z.string().max(500, "Description is too long.").optional().or(z.literal("")),
+  name: z.string().min(1, "projectNameRequired").max(100, "nameTooLong"),
+  description: z
+    .string()
+    .max(500, "descriptionTooLong")
+    .optional()
+    .or(z.literal("")),
   status: projectStatusSchema.optional(),
 });
 
 export const updateAreaBucketSchema = z.object({
   area: lifeAreaSchema,
-  name: z.string().min(1, "Name is required.").max(100, "Name is too long."),
-  description: z.string().max(500, "Description is too long.").optional().or(z.literal("")),
+  name: z.string().min(1, "nameRequired").max(100, "nameTooLong"),
+  description: z
+    .string()
+    .max(500, "descriptionTooLong")
+    .optional()
+    .or(z.literal("")),
 });
 
 export const updateAreaPreferenceSchema = z.object({

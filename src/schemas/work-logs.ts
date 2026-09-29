@@ -1,14 +1,21 @@
 import { z } from "zod";
 
 export const createWorkLogSchema = z.object({
-  taskId: z.string().min(1, "Task is required."),
-  hours: z.coerce.number().min(0.25, "Minimum 0.25 hours.").max(24, "Maximum 24 hours."),
-  date: z.string().min(1, "Date is required."),
-  description: z.string().max(1000, "Description is too long.").optional().or(z.literal("")),
+  taskId: z.string().min(1, "taskRequired"),
+  hours: z.coerce
+    .number()
+    .min(0.25, "hoursMin")
+    .max(24, "hoursMax"),
+  date: z.string().min(1, "dateRequired"),
+  description: z
+    .string()
+    .max(1000, "descriptionTooLong")
+    .optional()
+    .or(z.literal("")),
 });
 
 export const updateWorkLogSchema = createWorkLogSchema.partial().extend({
-  id: z.string().min(1, "ID is required."),
+  id: z.string().min(1, "idRequired"),
 });
 
 export type CreateWorkLogInput = z.infer<typeof createWorkLogSchema>;

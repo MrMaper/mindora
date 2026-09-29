@@ -1,9 +1,9 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { localizedZodResolver } from "@/lib/validation-message";
 import {
   createProjectSchema,
   updateProjectSchema,
@@ -45,12 +45,12 @@ export function useProjects(initialSearch: string) {
   const [search, setSearch] = React.useState(initialSearch);
 
   const editForm = useForm<UpdateProjectInput>({
-    resolver: zodResolver(updateProjectSchema),
+    resolver: localizedZodResolver(updateProjectSchema),
     defaultValues: { name: "", description: "", status: "ACTIVE" },
   });
 
   const createForm = useForm<CreateProjectInput>({
-    resolver: zodResolver(createProjectSchema),
+    resolver: localizedZodResolver(createProjectSchema),
     defaultValues: {
       name: "",
       description: "",
@@ -60,7 +60,7 @@ export function useProjects(initialSearch: string) {
   });
 
   const areaForm = useForm<UpdateAreaBucketInput>({
-    resolver: zodResolver(updateAreaBucketSchema),
+    resolver: localizedZodResolver(updateAreaBucketSchema),
     defaultValues: { area: "LIFE", name: "", description: "" },
   });
 

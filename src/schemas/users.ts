@@ -2,20 +2,20 @@ import { z } from "zod";
 import { PRIMARY_MODULES } from "@/lib/modules";
 
 export const createUserSchema = z.object({
-  name: z.string().min(1, "Name is required.").max(100, "Name is too long."),
-  email: z.string().email("Enter a valid email address."),
+  name: z.string().min(1, "nameRequired").max(100, "nameTooLong"),
+  email: z.string().email("invalidEmail"),
   /** Ignored by server — new users are always MEMBER. Kept for form compat. */
   role: z.enum(["ADMIN", "MEMBER"]),
-  password: z.string().min(6).max(100).optional(),
+  password: z.string().min(6, "passwordTooShort6").max(100).optional(),
 });
 
 export const updateUserSchema = z.object({
-  name: z.string().min(1, "Name is required.").max(100, "Name is too long."),
+  name: z.string().min(1, "nameRequired").max(100, "nameTooLong"),
   role: z.enum(["ADMIN", "MEMBER"]),
 });
 
 export const updateProfileSchema = z.object({
-  name: z.string().min(1, "Name is required.").max(100, "Name is too long."),
+  name: z.string().min(1, "nameRequired").max(100, "nameTooLong"),
 });
 
 export const moduleFlagsSchema = z.object(

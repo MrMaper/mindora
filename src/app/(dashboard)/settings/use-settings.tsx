@@ -1,9 +1,9 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useForm, type UseFormReturn } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { localizedZodResolver } from "@/lib/validation-message";
 import { changePasswordSchema, type ChangePasswordInput } from "@/schemas/auth";
 import {
   updateUserPreferences,
@@ -45,7 +45,7 @@ export function useSettings(
 
   // Password form
   const passwordForm = useForm<ChangePasswordInput>({
-    resolver: zodResolver(changePasswordSchema),
+    resolver: localizedZodResolver(changePasswordSchema),
     defaultValues: { currentPassword: "", password: "", confirmPassword: "" },
   });
 
