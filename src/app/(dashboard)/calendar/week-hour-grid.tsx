@@ -174,7 +174,7 @@ function TimedBlock({
       ref={setNodeRef}
       style={{ top, height }}
       className={cn(
-        "absolute inset-x-0.5 z-[2] flex flex-col overflow-hidden rounded-md text-start text-[11px] font-medium leading-tight shadow-sm",
+        "absolute inset-x-0.5 z-[2] flex flex-col overflow-hidden rounded-md text-[11px] font-medium leading-tight shadow-sm",
         AREA_CHIP[area],
         overdue && "ring-1 ring-[var(--status-blocked)]",
         conflict && "ring-2 ring-amber-400",
@@ -195,11 +195,11 @@ function TimedBlock({
             ? `${task.title} · ${clock}${conflict ? " ⚠" : ""}`
             : task.title
         }
-        className="min-h-0 flex-1 cursor-grab touch-none overflow-hidden px-1 py-0.5 text-start active:cursor-grabbing"
+        className="flex min-h-0 flex-1 cursor-grab touch-none flex-col items-center justify-center gap-0.5 overflow-hidden px-1 py-0.5 text-center active:cursor-grabbing"
       >
-        <span className="line-clamp-2">{task.title}</span>
+        <span className="line-clamp-2 w-full">{task.title}</span>
         {clock ? (
-          <span className="mt-0.5 block tabular-nums opacity-90">{clock}</span>
+          <span className="block w-full tabular-nums opacity-90">{clock}</span>
         ) : null}
       </button>
       <div
@@ -238,7 +238,7 @@ function AllDayChip({
         if (!isDragging) onOpen();
       }}
       className={cn(
-        "flex w-full min-w-0 items-center gap-1 truncate rounded-[5px] px-1.5 py-[3px] text-start text-[11px] font-medium leading-4",
+        "flex w-full min-w-0 items-center gap-1.5 truncate rounded-md border border-black/10 px-2 py-1 text-start text-[11px] font-medium leading-4 shadow-sm",
         AREA_CHIP[area],
         overdue && "ring-1 ring-[var(--status-blocked)]",
         task.status === "DONE" && "opacity-45 line-through",
@@ -254,13 +254,18 @@ function AllDayChip({
   );
 }
 
+const ALL_DAY_STRIP_MIN_H = "min-h-[3.25rem]";
+
 function AllDayDropZone({
   dateKey,
+  empty,
   children,
 }: {
   dateKey: string;
+  empty?: boolean;
   children: React.ReactNode;
 }) {
+  const t = useTranslation();
   const { setNodeRef, isOver } = useDroppable({
     id: dateKey,
     data: { type: "allDay" as const, dateKey },
@@ -271,11 +276,18 @@ function AllDayDropZone({
       ref={setNodeRef}
       data-all-day={dateKey}
       className={cn(
-        "min-h-[2.5rem] shrink-0 space-y-0.5 border-b bg-muted/20 p-0.5",
+        ALL_DAY_STRIP_MIN_H,
+        "shrink-0 space-y-1 border-b border-dashed border-border/80 bg-[linear-gradient(180deg,var(--muted)_0%,transparent_100%)] p-1.5",
         isOver && "bg-primary/15 ring-1 ring-inset ring-primary/40",
       )}
     >
-      {children}
+      {empty ? (
+        <p className="px-0.5 py-1 text-center text-[10px] leading-tight text-muted-foreground/80">
+          {t.life.calendarAllDayHint}
+        </p>
+      ) : (
+        children
+      )}
     </div>
   );
 }
@@ -340,11 +352,11 @@ function HoursDropZone({
       {showPreview ? (
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0.5 z-[3] overflow-hidden rounded-md border-2 border-primary bg-primary/20 px-1 py-0.5 text-[11px] font-medium text-primary shadow-sm"
+          className="pointer-events-none absolute inset-x-0.5 z-[3] flex flex-col items-center justify-center overflow-hidden rounded-md border-2 border-primary bg-primary/20 px-1 py-0.5 text-center text-[11px] font-medium text-primary shadow-sm"
           style={{ top: previewTop, height: previewHeight }}
         >
           {preview.title ? (
-            <span className="line-clamp-2 opacity-90">{preview.title}</span>
+            <span className="line-clamp-2 w-full opacity-90">{preview.title}</span>
           ) : null}
         </div>
       ) : null}
@@ -428,7 +440,7 @@ function DayColumn({
         ) : null}
       </button>
 
-      <AllDayDropZone dateKey={key}>
+      <AllDayDropZone dateKey={key} empty={allDay.length === 0}>
         {allDay.map(task => (
           <AllDayChip
             key={task.id}
@@ -457,10 +469,20 @@ function DayColumn({
 }
 
 function TimeGutter({ language }: { language: "FA" | "EN" }) {
+  const t = useTranslation();
   return (
     <div className="relative border-e bg-card">
       <div className="h-10 border-b" />
-      <div className="min-h-[2.5rem] border-b bg-muted/20" />
+      <div
+        className={cn(
+          ALL_DAY_STRIP_MIN_H,
+          "flex items-center justify-center border-b border-dashed border-border/80 bg-[linear-gradient(180deg,var(--muted)_0%,transparent_100%)] px-0.5",
+        )}
+      >
+        <span className="max-w-full text-center text-[9px] font-medium leading-tight text-muted-foreground">
+          {t.life.calendarAllDay}
+        </span>
+      </div>
       <div className="relative" style={{ height: COLUMN_HEIGHT }}>
         {HOURS.map(hour => (
           <div

@@ -925,6 +925,8 @@ export const en = {
     weekView: "Week",
     dayView: "Day",
     scheduleConflict: "Conflict",
+    calendarAllDay: "All day",
+    calendarAllDayHint: "Drop here to clear the clock",
     previousDay: "Previous day",
     nextDay: "Next day",
     filterAll: "All",

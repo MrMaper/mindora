@@ -925,6 +925,8 @@ export const fa = {
     weekView: "هفته",
     dayView: "روز",
     scheduleConflict: "تداخل",
+    calendarAllDay: "بدون ساعت",
+    calendarAllDayHint: "اینجا رها کن تا ساعت پاک شود",
     previousDay: "روز قبل",
     nextDay: "روز بعد",
     filterAll: "همه",
