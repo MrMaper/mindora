@@ -32,7 +32,7 @@ The server parses the text again. The dialog preview uses the same rules.
 
 Area chips in the dialog override the guess. Life is the default area. The bare word «کار» does not switch the area to work; شغل، اداره، دفتر، work, and job do. The dialog lists these rules under «چطور جمله را می‌خواند؟» and shows the title that will be stored.
 
-PhD and language tasks are saved on the member’s tasks, with area, project, due date, and clock. They do not appear on Today or the calendar. They show on All tasks and the board.
+PhD and language tasks are saved on the member’s tasks, with area, project, due date, and clock. Dated ones appear on the calendar (all four area chips on by default). They stay off Today’s lists; their full home remains Research / Language, All tasks, and the board.
 
 If the sentence has no day, the open page supplies one: Today uses today, Calendar uses the selected day. Other pages leave the task undated (inbox) unless the sentence names a day. A clock time with no day is stored on today.
 

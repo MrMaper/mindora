@@ -333,7 +333,6 @@ export async function getCalendarTasks(userId: string, from: Date, to: Date) {
     where: {
       OR: [{ assignedToId: userId }, { createdById: userId }],
       dueDate: { gte: from, lte: to },
-      ...taskWhereExcludeHub(),
     },
     orderBy: { dueDate: "asc" },
     select: taskSelect,

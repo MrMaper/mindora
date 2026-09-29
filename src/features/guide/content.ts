@@ -172,7 +172,7 @@ const fa: GuideCopy = {
             },
             {
               name: "ثبت سریع با N",
-              body: "جمله را با قاعده می‌خواند، نه با هوش مصنوعی. پیش‌فرض کار است؛ بدون کلیدواژه حوزه می‌شود زندگی. با /task، /note، /research، /habit یا پیشوندهایی مثل «ایده:» نوع عوض می‌شود. تاریخ و ساعت را هم می‌فهمد. کارهای دکتری و زبان در امروز و تقویم نمی‌آیند؛ در همهٔ کارها و بورد هستند.",
+              body: "جمله را با قاعده می‌خواند، نه با هوش مصنوعی. پیش‌فرض کار است؛ بدون کلیدواژه حوزه می‌شود زندگی. با /task، /note، /research، /habit یا پیشوندهایی مثل «ایده:» نوع عوض می‌شود. تاریخ و ساعت را هم می‌فهمد. کارهای دکتری و زبان در امروز نمی‌آیند؛ در تقویم (با سررسید)، همهٔ کارها و بورد هستند.",
             },
           ],
         },
@@ -281,14 +281,14 @@ const fa: GuideCopy = {
           title: "روز را از روی تقویم بچین",
           items: [
             "ماه، هفته یا روز را انتخاب کن و با فلش‌ها جلو و عقب برو. روی موبایل پیش‌فرض نمای روز است. «امروز» برمی‌گرداند به روز جاری.",
-            "به‌صورت پیش‌فرض فقط کار و زندگی روشن‌اند. فیلتر حوزه را روی همه، یا فقط یکی از چهار حوزه بگذار.",
+            "هر چهار حوزه (دکتری، کار، زندگی، زبان) به‌صورت پیش‌فرض روشن‌اند؛ با چیپ‌ها می‌توانی فقط یکی را ببینی.",
             "در هفته/روز کار را روی شبکهٔ ساعت بکش (گام ۱۵ دقیقه) تا ساعت سررسید عوض شود؛ لبهٔ پایین بلاک را بکش تا مدت جلسه عوض شود. تداخل با حلقهٔ کهربایی مشخص می‌شود.",
             "کارهای بدون ساعت در نوار بالای روز می‌مانند؛ انداختن روی آن نوار ساعت را پاک می‌کند. کنار صفحه هم فهرست همان روز و ثبت سریع هست.",
           ],
         },
         {
           type: "tip",
-          body: "کاری که سررسید ندارد روی تقویم دیده نمی‌شود. کارها و منابع هاب دکتری و زبان هم اینجا نمی‌آیند؛ مسیرشان پژوهش و زبان است. اگر می‌خواهی در یک روز مشخص باشد، موقع ساخت یا ویرایش تاریخ بده.",
+          body: "کاری که سررسید ندارد روی تقویم دیده نمی‌شود. کارهای دکتری و زبان با سررسید هم اینجا می‌آیند؛ برای پنهان کردنشان چیپ حوزه را خاموش کن. اگر می‌خواهی در یک روز مشخص باشد، موقع ساخت یا ویرایش تاریخ بده.",
         },
       ],
     },
@@ -883,7 +883,7 @@ const en: GuideCopy = {
             },
             {
               name: "Quick capture with N",
-              body: "Sentences are parsed by rules, not AI. Default kind is a task; default area is Life. Use /task, /note, /research, /habit or prefixes like “idea:”. Dates and times are understood. PhD and language tasks stay off Today and the calendar; they show on All tasks and the board.",
+              body: "Sentences are parsed by rules, not AI. Default kind is a task; default area is Life. Use /task, /note, /research, /habit or prefixes like “idea:”. Dates and times are understood. PhD and language tasks stay off Today; dated ones appear on the calendar, plus All tasks and the board.",
             },
           ],
         },
@@ -992,14 +992,14 @@ const en: GuideCopy = {
           title: "Plan from the calendar",
           items: [
             "Switch month, week, or day; move with the arrows; jump back with Today. Phones default to day view.",
-            "By default only Work and Life are on. Filter by all areas, or only one of the four.",
+            "All four areas (PhD, Work, Life, Language) start on; use the chips to narrow to one.",
             "In week/day, drag a task onto the hour grid (15-minute snap) to set the clock; drag the block’s bottom edge to change duration. Overlaps show an amber conflict ring.",
             "Untimed tasks sit in the all-day strip; dropping there clears the clock. The side panel lists that day and offers quick capture.",
           ],
         },
         {
           type: "tip",
-          body: "A task with no due date never appears here. PhD and language hub work also stay off this calendar; their home is Research and Language. Set a date when you create or edit a day-to-day task.",
+          body: "A task with no due date never appears here. Dated PhD and language tasks show on this calendar; turn off their area chip to hide them. Set a date when you create or edit a task you want on a specific day.",
         },
       ],
     },

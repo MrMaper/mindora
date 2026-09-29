@@ -437,7 +437,7 @@ export function CalendarCC({
     Record<string, { id: string; title: string }[]>
   >({});
   const [areaFilter, setAreaFilter] = React.useState<Set<LifeArea>>(
-    () => new Set(["WORK", "LIFE"]),
+    () => new Set(LIFE_AREAS),
   );
   const [activeDrag, setActiveDrag] = React.useState<TaskRow | null>(null);
   const [hourDragPreview, setHourDragPreview] =
