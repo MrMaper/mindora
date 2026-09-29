@@ -440,6 +440,20 @@ export function DatePicker({
               </div>
             </div>
           ) : null}
+          <div className="flex justify-end border-t border-border px-3 py-2">
+            <button
+              type="button"
+              className="inline-flex h-9 min-w-[5.5rem] items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              disabled={
+                mode === "single"
+                  ? !localDate
+                  : !localRangeFrom || !localRangeTo
+              }
+              onClick={() => setOpen(false)}
+            >
+              {t.common.confirm}
+            </button>
+          </div>
         </PopoverContent>
       </Popover>
       {(hint || error) && (

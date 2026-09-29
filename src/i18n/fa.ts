@@ -8,6 +8,7 @@ export const fa = {
     reloadPage: "بارگذاری مجدد",
     goHome: "بازگشت به امروز",
     success: "موفق",
+    confirm: "تأیید",
     save: "ذخیره",
     cancel: "لغو",
     delete: "حذف",

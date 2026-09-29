@@ -8,6 +8,7 @@ export const en = {
     reloadPage: "Reload page",
     goHome: "Back to Today",
     success: "Success",
+    confirm: "Confirm",
     save: "Save",
     cancel: "Cancel",
     delete: "Delete",

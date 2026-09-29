@@ -5,9 +5,26 @@ import { cn, formatNumber } from "@/lib/utils";
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 const MINUTES = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
+const ITEM_H = 36;
+/** Ignore further wheel steps briefly so one mouse notch = one value. */
+const WHEEL_COOLDOWN_MS = 55;
+/** Snap + commit after finger/trackpad scrolling settles. */
+const SCROLL_SETTLE_MS = 90;
 
 function pad(n: number) {
   return String(n).padStart(2, "0");
+}
+
+function nearestIndex(values: number[], value: number): number {
+  const exact = values.indexOf(value);
+  if (exact >= 0) return exact;
+  let best = 0;
+  for (let i = 1; i < values.length; i++) {
+    if (Math.abs(values[i]! - value) < Math.abs(values[best]! - value)) {
+      best = i;
+    }
+  }
+  return best;
 }
 
 function WheelColumn({
@@ -22,33 +39,93 @@ function WheelColumn({
   label: string;
 }) {
   const listRef = React.useRef<HTMLDivElement>(null);
-  const itemH = 36;
+  const syncingRef = React.useRef(false);
+  const settlingRef = React.useRef(false);
+  const wheelLockRef = React.useRef(false);
+  const settleTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+  const valueRef = React.useRef(value);
+  const valuesRef = React.useRef(values);
+  const onChangeRef = React.useRef(onChange);
+  valueRef.current = value;
+  valuesRef.current = values;
+  onChangeRef.current = onChange;
 
+  const scrollToIndex = React.useCallback((index: number, smooth: boolean) => {
+    const el = listRef.current;
+    if (!el) return;
+    const target = Math.max(0, index) * ITEM_H;
+    syncingRef.current = true;
+    if (smooth && Math.abs(el.scrollTop - target) > 1) {
+      el.scrollTo({ top: target, behavior: "smooth" });
+    } else {
+      el.scrollTop = target;
+    }
+    requestAnimationFrame(() => {
+      syncingRef.current = false;
+    });
+  }, []);
+
+  // Keep the wheel aligned when value changes from arrows / clicks / parent.
   React.useEffect(() => {
-    const el = listRef.current;
-    if (!el) return;
-    const index = Math.max(0, values.indexOf(value));
-    el.scrollTop = index * itemH;
-  }, [value, values]);
+    if (settlingRef.current) return;
+    const index = nearestIndex(values, value);
+    scrollToIndex(index, false);
+  }, [value, values, scrollToIndex]);
 
-  function onScroll() {
-    const el = listRef.current;
-    if (!el) return;
-    const index = Math.round(el.scrollTop / itemH);
-    const next = values[Math.min(values.length - 1, Math.max(0, index))];
-    if (next !== undefined && next !== value) onChange(next);
+  function commitIndex(index: number, smoothSnap: boolean) {
+    const list = valuesRef.current;
+    const clamped = Math.min(list.length - 1, Math.max(0, index));
+    const next = list[clamped]!;
+    scrollToIndex(clamped, smoothSnap);
+    if (next !== valueRef.current) onChangeRef.current(next);
   }
 
   function nudge(delta: number) {
-    const index = values.indexOf(value);
-    const fallback = values.reduce(
-      (best, v) => (Math.abs(v - value) < Math.abs(best - value) ? v : best),
-      values[0]!,
-    );
-    const at = index >= 0 ? index : values.indexOf(fallback);
-    const next = values[(at + delta + values.length) % values.length];
-    if (next !== undefined) onChange(next);
+    const list = valuesRef.current;
+    const at = nearestIndex(list, valueRef.current);
+    commitIndex((at + delta + list.length) % list.length, true);
   }
+
+  function onScroll() {
+    if (syncingRef.current) return;
+    settlingRef.current = true;
+    if (settleTimerRef.current) clearTimeout(settleTimerRef.current);
+    settleTimerRef.current = setTimeout(() => {
+      settlingRef.current = false;
+      const el = listRef.current;
+      if (!el) return;
+      commitIndex(Math.round(el.scrollTop / ITEM_H), true);
+    }, SCROLL_SETTLE_MS);
+  }
+
+  // Discrete mouse-wheel steps (default wheel distance jumps ~2–3 items).
+  React.useEffect(() => {
+    const el = listRef.current;
+    if (!el) return;
+
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (wheelLockRef.current) return;
+      if (e.deltaY === 0 && e.deltaX === 0) return;
+      const delta = e.deltaY > 0 || e.deltaX > 0 ? 1 : -1;
+      wheelLockRef.current = true;
+      nudge(delta);
+      window.setTimeout(() => {
+        wheelLockRef.current = false;
+      }, WHEEL_COOLDOWN_MS);
+    };
+
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => {
+      el.removeEventListener("wheel", onWheel);
+      if (settleTimerRef.current) clearTimeout(settleTimerRef.current);
+    };
+    // nudge closes over refs — stable for the column lifetime
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount once per column
+  }, []);
 
   return (
     <div className="flex flex-col items-center gap-1" aria-label={label}>
@@ -68,9 +145,9 @@ function WheelColumn({
         <div
           ref={listRef}
           onScroll={onScroll}
-          className="relative z-10 h-full overflow-y-auto scroll-smooth snap-y snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="relative z-10 h-full touch-pan-y overflow-y-auto overscroll-contain snap-y snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
-          <div className="h-[36px]" />
+          <div className="h-[36px]" aria-hidden />
           {values.map(v => (
             <button
               key={v}
@@ -86,7 +163,7 @@ function WheelColumn({
               {pad(v)}
             </button>
           ))}
-          <div className="h-[36px]" />
+          <div className="h-[36px]" aria-hidden />
         </div>
       </div>
       <button
