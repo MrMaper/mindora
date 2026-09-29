@@ -1603,12 +1603,13 @@ export const fa = {
 
   habits: {
     title: "عادت‌ها",
-    hint: "تیک روزانه و streak — کنار تمرکز امروز",
+    hint: "تیک روزانه و روزهای پیاپی — کنار تمرکز امروز",
     newPlaceholder: "عادت جدید…",
     add: "افزودن",
     empty: "هنوز عادتی نیست",
-    streak: "streak",
+    streak: "پیاپی",
     best: "بهترین",
+    streakLabel: "پیاپی: {streak} · بهترین: {best}",
     markToday: "انجام امروز",
     undoToday: "لغو امروز",
     archive: "بایگانی",

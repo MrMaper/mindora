@@ -51,14 +51,13 @@ export function PageHeader({
       <PageHeaderBar
         className="mb-3"
         title={t.projects.title}
-        description={
+        meta={
           <>
-            <p className="max-w-xl">{t.projects.subtitle}</p>
-            <p className="mt-1 text-xs text-muted-foreground tabular-nums">
-              {pathCount} {pathCount === 1 ? t.projects.path : t.projects.paths}
-            </p>
+            {pathCount}{" "}
+            {pathCount === 1 ? t.projects.path : t.projects.paths}
           </>
         }
+        description={t.projects.subtitle}
         actions={
           onCreate ? (
             <Button variant="primary" icon="plus" onClick={onCreate}>

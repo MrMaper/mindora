@@ -551,7 +551,7 @@ const fa: GuideCopy = {
           type: "links",
           items: [
             { href: "/notifications", label: "اعلان‌ها" },
-            { href: "/profile", label: "پروفایل" },
+            { href: "/settings?tab=profile", label: "پروفایل" },
             { href: "/settings", label: "تنظیمات" },
           ],
         },
@@ -1262,7 +1262,7 @@ const en: GuideCopy = {
           type: "links",
           items: [
             { href: "/notifications", label: "Notifications" },
-            { href: "/profile", label: "Profile" },
+            { href: "/settings?tab=profile", label: "Profile" },
             { href: "/settings", label: "Settings" },
           ],
         },

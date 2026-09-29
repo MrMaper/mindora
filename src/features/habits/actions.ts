@@ -10,6 +10,7 @@ import {
   toDateKey,
 } from "@/lib/life";
 import type { LifeArea, RecurrenceInterval } from "@/types/db";
+import { computeHabitStreaks } from "@/features/habits/streaks";
 
 export interface ActionResult {
   success: boolean;
@@ -178,9 +179,6 @@ export async function toggleHabitDoneAction(
     where: { id: habitId, userId: session.user.id, archivedAt: null },
     select: {
       id: true,
-      streak: true,
-      bestStreak: true,
-      lastDoneDate: true,
       cadence: true,
     },
   });
@@ -196,16 +194,22 @@ export async function toggleHabitDoneAction(
 
   if (existing) {
     await db.habitLog.delete({ where: { id: existing.id } });
-    const lastLog = await db.habitLog.findFirst({
+    const remaining = await db.habitLog.findMany({
       where: { habitId },
-      orderBy: { dateKey: "desc" },
       select: { dateKey: true },
+      orderBy: { dateKey: "asc" },
     });
+    const stats = computeHabitStreaks(
+      remaining.map(l => l.dateKey),
+      todayKey,
+      habit.cadence,
+    );
     await db.habit.update({
       where: { id: habitId },
       data: {
-        streak: Math.max(0, habit.streak - 1),
-        lastDoneDate: lastLog?.dateKey ?? null,
+        streak: stats.streak,
+        bestStreak: stats.bestStreak,
+        lastDoneDate: stats.lastDoneDate,
       },
     });
     revalidateHabits();
@@ -216,30 +220,25 @@ export async function toggleHabitDoneAction(
     data: { habitId, dateKey: todayKey },
   });
 
-  const yesterdayKey = toDateKey(addDays(new Date(), -1));
-  const weekAgoKey = toDateKey(addDays(new Date(), -7));
-  let nextStreak = 1;
-  if (habit.cadence === "WEEKLY") {
-    nextStreak =
-      habit.lastDoneDate && habit.lastDoneDate >= weekAgoKey
-        ? habit.streak + 1
-        : 1;
-  } else {
-    nextStreak =
-      habit.lastDoneDate === yesterdayKey || habit.lastDoneDate === todayKey
-        ? habit.streak + 1
-        : 1;
-  }
-  const bestStreak = Math.max(habit.bestStreak, nextStreak);
+  const allLogs = await db.habitLog.findMany({
+    where: { habitId },
+    select: { dateKey: true },
+    orderBy: { dateKey: "asc" },
+  });
+  const stats = computeHabitStreaks(
+    allLogs.map(l => l.dateKey),
+    todayKey,
+    habit.cadence,
+  );
   await db.habit.update({
     where: { id: habitId },
     data: {
-      streak: nextStreak,
-      bestStreak,
-      lastDoneDate: todayKey,
+      streak: stats.streak,
+      bestStreak: stats.bestStreak,
+      lastDoneDate: stats.lastDoneDate,
     },
   });
 
   revalidateHabits();
-  return { success: true, data: { done: true, streak: nextStreak } };
+  return { success: true, data: { done: true, streak: stats.streak } };
 }

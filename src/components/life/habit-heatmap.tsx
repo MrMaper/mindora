@@ -8,7 +8,6 @@ import {
   jalaliOf,
   parseLocalDate,
   PERSIAN_MONTHS,
-  PERSIAN_WEEKDAYS_SAT,
   toDateKey,
 } from "@/lib/life";
 import { cn } from "@/lib/utils";
@@ -82,7 +81,7 @@ export function HabitHeatmap({
   });
 
   const weekdayShort = isFa
-    ? PERSIAN_WEEKDAYS_SAT.map(w => w.slice(0, 1))
+    ? ["ش", "ی", "د", "س", "چ", "پ", "ج"]
     : ["Sa", "Su", "Mo", "Tu", "We", "Th", "Fr"];
 
   function tip(day: HabitHeatDay): string {
@@ -99,16 +98,16 @@ export function HabitHeatmap({
   if (columns.length === 0) return null;
 
   const weekLabels = (
-    <div className="flex w-5 shrink-0 flex-col gap-[3px]">
+    <div className="flex w-5 shrink-0 flex-col gap-[3px]" aria-hidden>
       {weekdayShort.map((label, row) => (
         <div
-          key={label + row}
+          key={`${label}-${row}`}
           className={cn(
-            "flex h-3 items-center text-[9px] text-muted-foreground",
+            "flex h-3 items-center text-[9px] leading-none text-muted-foreground",
             isFa ? "justify-start pe-0.5" : "justify-end pe-0.5",
           )}
         >
-          {row % 2 === 0 ? label : ""}
+          {label}
         </div>
       ))}
     </div>

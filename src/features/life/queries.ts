@@ -8,8 +8,12 @@ import {
   startOfWeek,
   toDateKey,
   weekCells,
+  areaProjectIdsForUser,
 } from "@/lib/life";
-import { taskWhereExcludeHub } from "@/lib/project-namespace";
+import {
+  personalLifeTaskWhere,
+  personalTaskOwnership,
+} from "@/lib/task-access";
 import { normalizeFocusSlots } from "@/features/life/focus-slots";
 import type { TaskRow } from "@/features/tasks/types";
 import type { LifeArea } from "@/types/db";
@@ -74,10 +78,9 @@ export async function getPersonalDashboard(userId: string) {
   const yesterdayEnd = endOfDay(yesterdayStart);
   const todayKey = toDateKey(todayStart);
 
-  const mine = {
-    OR: [{ assignedToId: userId }, { createdById: userId, assignedToId: null }],
-  };
-  const lifeOnly = { ...mine, ...taskWhereExcludeHub() };
+  const mine = personalTaskOwnership(userId);
+  const lifeOnly = personalLifeTaskWhere(userId);
+  const personalAreaIds = Object.values(areaProjectIdsForUser(userId));
 
   const [
     overdue,
@@ -100,10 +103,12 @@ export async function getPersonalDashboard(userId: string) {
   ] = await Promise.all([
     db.task.findMany({
       where: {
-        ...lifeOnly,
-        status: { not: "DONE" },
-        waitingOn: false,
-        dueDate: { lt: todayStart },
+        AND: [
+          lifeOnly,
+          { status: { not: "DONE" } },
+          { waitingOn: false },
+          { dueDate: { lt: todayStart } },
+        ],
       },
       orderBy: { dueDate: "asc" },
       take: 20,
@@ -111,10 +116,12 @@ export async function getPersonalDashboard(userId: string) {
     }),
     db.task.findMany({
       where: {
-        ...lifeOnly,
-        status: { not: "DONE" },
-        waitingOn: false,
-        dueDate: { gte: todayStart, lte: todayEnd },
+        AND: [
+          lifeOnly,
+          { status: { not: "DONE" } },
+          { waitingOn: false },
+          { dueDate: { gte: todayStart, lte: todayEnd } },
+        ],
       },
       orderBy: [{ priority: "asc" }, { dueDate: "asc" }],
       take: 20,
@@ -122,26 +129,32 @@ export async function getPersonalDashboard(userId: string) {
     }),
     db.task.findMany({
       where: {
-        ...lifeOnly,
-        status: { not: "DONE" },
-        waitingOn: false,
-        dueDate: { gte: todayStart, lte: weekEnd },
+        AND: [
+          lifeOnly,
+          { status: { not: "DONE" } },
+          { waitingOn: false },
+          { dueDate: { gte: todayStart, lte: weekEnd } },
+        ],
       },
       orderBy: { dueDate: "asc" },
       take: 30,
       select: taskSelect,
     }),
     db.task.findMany({
-      where: { ...lifeOnly, status: "BACKLOG", waitingOn: false },
+      where: {
+        AND: [lifeOnly, { status: "BACKLOG" }, { waitingOn: false }],
+      },
       orderBy: { createdAt: "desc" },
       take: 12,
       select: taskSelect,
     }),
     db.task.findMany({
       where: {
-        ...lifeOnly,
-        waitingOn: true,
-        status: { not: "DONE" },
+        AND: [
+          lifeOnly,
+          { waitingOn: true },
+          { status: { not: "DONE" } },
+        ],
       },
       orderBy: { updatedAt: "desc" },
       take: 20,
@@ -149,10 +162,12 @@ export async function getPersonalDashboard(userId: string) {
     }),
     db.task.findMany({
       where: {
-        ...lifeOnly,
-        status: { not: "DONE" },
-        waitingOn: false,
-        dueDate: { gte: yesterdayStart, lte: yesterdayEnd },
+        AND: [
+          lifeOnly,
+          { status: { not: "DONE" } },
+          { waitingOn: false },
+          { dueDate: { gte: yesterdayStart, lte: yesterdayEnd } },
+        ],
       },
       orderBy: { priority: "asc" },
       take: 30,
@@ -164,16 +179,20 @@ export async function getPersonalDashboard(userId: string) {
     }),
     db.task.count({
       where: {
-        ...lifeOnly,
-        status: "DONE",
-        updatedAt: { gte: weekStart, lte: weekEnd },
+        AND: [
+          lifeOnly,
+          { status: "DONE" },
+          { updatedAt: { gte: weekStart, lte: weekEnd } },
+        ],
       },
     }),
     db.task.findMany({
       where: {
-        ...lifeOnly,
-        status: { not: "DONE" },
-        dueDate: { gte: weekStart, lte: weekEnd },
+        AND: [
+          lifeOnly,
+          { status: { not: "DONE" } },
+          { dueDate: { gte: weekStart, lte: weekEnd } },
+        ],
       },
       select: { dueDate: true },
     }),
@@ -181,14 +200,16 @@ export async function getPersonalDashboard(userId: string) {
       where: { userId },
       select: { todayFocusDate: true, todayFocusIds: true },
     }),
+    // CRITICAL: due-date OR must live under AND with ownership — never overwrite mine.OR
     db.task.findMany({
       where: {
-        ...lifeOnly,
-        status: { not: "DONE" },
-        waitingOn: false,
-        OR: [
-          { dueDate: null },
-          { dueDate: { lte: todayEnd } },
+        AND: [
+          lifeOnly,
+          { status: { not: "DONE" } },
+          { waitingOn: false },
+          {
+            OR: [{ dueDate: null }, { dueDate: { lte: todayEnd } }],
+          },
         ],
       },
       orderBy: [
@@ -200,16 +221,18 @@ export async function getPersonalDashboard(userId: string) {
       select: taskSelect,
     }),
     db.project.findMany({
-      where: {
-        id: { in: ["area-work", "area-life", "area-phd", "area-lang"] },
-      },
+      where: { id: { in: personalAreaIds } },
       select: {
         id: true,
         name: true,
         area: true,
         _count: {
           select: {
-            tasks: { where: { status: { not: "DONE" } } },
+            tasks: {
+              where: {
+                AND: [mine, { status: { not: "DONE" } }],
+              },
+            },
           },
         },
       },
@@ -274,7 +297,7 @@ export async function getPersonalDashboard(userId: string) {
   const realSlotIds = slotIds.filter((id): id is string => !!id);
   const focusRows = realSlotIds.length
     ? await db.task.findMany({
-        where: { id: { in: realSlotIds }, ...mine },
+        where: { AND: [{ id: { in: realSlotIds } }, mine] },
         select: taskSelect,
       })
     : [];
@@ -331,8 +354,10 @@ export async function getPersonalDashboard(userId: string) {
 export async function getCalendarTasks(userId: string, from: Date, to: Date) {
   const tasks = await db.task.findMany({
     where: {
-      OR: [{ assignedToId: userId }, { createdById: userId }],
-      dueDate: { gte: from, lte: to },
+      AND: [
+        personalTaskOwnership(userId),
+        { dueDate: { gte: from, lte: to } },
+      ],
     },
     orderBy: { dueDate: "asc" },
     select: taskSelect,
@@ -343,17 +368,16 @@ export async function getCalendarTasks(userId: string, from: Date, to: Date) {
 export async function getWeeklyReview(userId: string) {
   const weekStart = startOfWeek();
   const weekEnd = endOfWeek();
-  const mine = {
-    OR: [{ assignedToId: userId }, { createdById: userId }],
-  };
-  const lifeOnly = { ...mine, ...taskWhereExcludeHub() };
+  const lifeOnly = personalLifeTaskWhere(userId);
 
   const [completed, leftover, inbox] = await Promise.all([
     db.task.findMany({
       where: {
-        ...lifeOnly,
-        status: "DONE",
-        updatedAt: { gte: weekStart, lte: weekEnd },
+        AND: [
+          lifeOnly,
+          { status: "DONE" },
+          { updatedAt: { gte: weekStart, lte: weekEnd } },
+        ],
       },
       orderBy: { updatedAt: "desc" },
       take: 40,
@@ -361,15 +385,19 @@ export async function getWeeklyReview(userId: string) {
     }),
     db.task.findMany({
       where: {
-        ...lifeOnly,
-        status: { in: ["TODO", "IN_PROGRESS"] },
+        AND: [
+          lifeOnly,
+          { status: { in: ["TODO", "IN_PROGRESS"] } },
+        ],
       },
       orderBy: [{ dueDate: "asc" }, { priority: "asc" }],
       take: 40,
       select: taskSelect,
     }),
     db.task.findMany({
-      where: { ...lifeOnly, status: "BACKLOG", waitingOn: false },
+      where: {
+        AND: [lifeOnly, { status: "BACKLOG" }, { waitingOn: false }],
+      },
       orderBy: { createdAt: "desc" },
       take: 20,
       select: taskSelect,

@@ -22,7 +22,7 @@ export function PageHeader({
   return (
     <PageHeaderBar
       title={t.tasks.title}
-      description={
+      meta={
         <>
           {total} {t.tasks.totalTasks}
         </>

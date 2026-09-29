@@ -314,7 +314,7 @@ export async function uploadUserAvatar(
 
   await db.user.update({ where: { id }, data: { avatar: url } });
   revalidatePath("/users");
-  revalidatePath("/profile");
+  revalidatePath("/settings");
   return { success: true, data: { url } };
 }
 
@@ -331,7 +331,7 @@ export async function updateProfile(formData: FormData): Promise<ActionResult> {
     where: { id: session.user.id },
     data: { name: parsed.data.name },
   });
-  revalidatePath("/profile");
+  revalidatePath("/settings");
   return { success: true };
 }
 
@@ -358,7 +358,6 @@ export async function changePassword(formData: FormData): Promise<ActionResult> 
     where: { id: session.user.id },
     data: { password: hashed },
   });
-  revalidatePath("/profile");
   revalidatePath("/settings");
   return { success: true };
 }

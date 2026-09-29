@@ -6,19 +6,31 @@ import {
 import { Providers } from "@/providers/Providers";
 import { peyda, geistMono } from "@/lib/font";
 import { loadTranslations } from "@/i18n/load";
+import { themeBootScript } from "@/lib/theme";
+import type { Theme } from "@/types/db";
 import "./globals.css";
 
 export const metadataBase = new URL("https://mindora.app");
 
-async function getLanguage(): Promise<"EN" | "FA"> {
+async function getLanguageAndTheme(): Promise<{
+  language: "EN" | "FA";
+  theme: Theme;
+}> {
   try {
     const session = await getSessionCached();
-    if (!session?.user?.id) return "FA";
+    if (!session?.user?.id) return { language: "FA", theme: "SYSTEM" };
     const prefs = await getUserPreferencesCached(session.user.id);
-    return prefs?.language ?? "FA";
+    return {
+      language: prefs?.language ?? "FA",
+      theme: prefs?.theme ?? "SYSTEM",
+    };
   } catch {
-    return "FA";
+    return { language: "FA", theme: "SYSTEM" };
   }
+}
+
+async function getLanguage(): Promise<"EN" | "FA"> {
+  return (await getLanguageAndTheme()).language;
 }
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -119,7 +131,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const language = await getLanguage();
+  const { language, theme } = await getLanguageAndTheme();
   const translations = await loadTranslations(language);
   const dir = language === "FA" ? "rtl" : "ltr";
   const lang = language === "FA" ? "fa" : "en";
@@ -129,8 +141,14 @@ export default async function RootLayout({
       lang={lang}
       dir={dir}
       data-theme="light"
+      suppressHydrationWarning
       className={`${peyda.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{ __html: themeBootScript(theme) }}
+        />
+      </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <Providers language={language} translations={translations}>
           {children}

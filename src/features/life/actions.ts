@@ -25,6 +25,7 @@ import {
   normalizeFocusSlots,
   serializeFocusSlots,
 } from "@/features/life/focus-slots";
+import { personalTaskOwnership } from "@/lib/task-access";
 
 export interface ActionResult {
   success: boolean;
@@ -261,11 +262,7 @@ async function loadOwnedTasks(userId: string, ids: string[]) {
   if (ids.length === 0) return [];
   return db.task.findMany({
     where: {
-      id: { in: ids },
-      OR: [
-        { assignedToId: userId },
-        { createdById: userId, assignedToId: null },
-      ],
+      AND: [{ id: { in: ids } }, personalTaskOwnership(userId)],
     },
     select: {
       id: true,

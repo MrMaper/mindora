@@ -5,35 +5,67 @@ import type { Translations } from "@/i18n";
 import { useTranslation } from "@/i18n/provider";
 
 import * as React from "react";
-import { useSettings } from "./use-settings";
+import { useRouter } from "next/navigation";
+import { Controller } from "react-hook-form";
+import { useSettings, type SettingsTab } from "./use-settings";
+import { useProfile } from "../profile/use-profile";
 import type { Language, Theme } from "@/types/db";
 import { UserPreferencesData } from "@/features/settings/queries";
 import type { ChangePasswordInput } from "@/schemas/auth";
 import type { UseFormReturn } from "react-hook-form";
-import { updateBaleSchedule, type UpdatePreferencesInput } from "@/features/settings/actions";
-
-type SettingsTab = "profile" | "security" | "notifications" | "appearance";
+import {
+  updateBaleSchedule,
+  type UpdatePreferencesInput,
+} from "@/features/settings/actions";
+import type { UserRow } from "@/features/users/types";
+import { Avatar } from "@/components/ui-kit/data-display/avatar";
+import { Button } from "@/components/ui-kit/forms/button";
+import { Input } from "@/components/ui-kit/forms/input";
 
 interface SettingsCCProps {
   currentLanguage: Language;
   currentTheme: Theme;
   preferences: UserPreferencesData | null;
+  user: UserRow;
+  baleCode?: string | null;
+  initialTab?: SettingsTab;
 }
 
-export function SettingsCC({ currentLanguage, currentTheme, preferences }: SettingsCCProps) {
-  const settings = useSettings(currentLanguage, currentTheme);
+export function SettingsCC({
+  currentLanguage,
+  currentTheme,
+  preferences,
+  user,
+  baleCode,
+  initialTab = "profile",
+}: SettingsCCProps) {
+  const settings = useSettings(currentLanguage, currentTheme, initialTab);
   const t = useTranslation();
+  const router = useRouter();
 
-  const tabs: { id: SettingsTab; label: string; icon: string }[] = [
-    { id: "profile", label: t.settings.profile, icon: "user" },
-    { id: "security", label: t.settings.security, icon: "shield" },
-    { id: "notifications", label: t.settings.notifications, icon: "bell" },
-    { id: "appearance", label: t.settings.appearance, icon: "monitor" },
+  const tabs: { id: SettingsTab; label: string }[] = [
+    { id: "profile", label: t.settings.profile },
+    { id: "security", label: t.settings.security },
+    { id: "notifications", label: t.settings.notifications },
+    { id: "appearance", label: t.settings.appearance },
   ];
+
+  const selectTab = (id: SettingsTab) => {
+    settings.setActiveTab(id);
+    router.replace(`/settings?tab=${id}`, { scroll: false });
+  };
 
   return (
     <div style={{ maxWidth: 720 }} className="min-w-0 w-full overflow-x-hidden">
-      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", marginBottom: "var(--space-6)" }} className="flex-wrap">
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-3)",
+          marginBottom: "var(--space-6)",
+        }}
+        className="flex-wrap"
+      >
         <span
           style={{
             fontSize: "var(--text-xl)",
@@ -52,20 +84,25 @@ export function SettingsCC({ currentLanguage, currentTheme, preferences }: Setti
           marginBottom: "var(--space-6)",
           borderBottom: "1px solid var(--border-default)",
           paddingBottom: "var(--space-3)",
+          flexWrap: "wrap",
         }}
         role="tablist"
       >
-        {tabs.map((tab) => (
+        {tabs.map(tab => (
           <button
             key={tab.id}
+            type="button"
             role="tab"
             aria-selected={settings.activeTab === tab.id}
-            onClick={() => settings.setActiveTab(tab.id)}
+            onClick={() => selectTab(tab.id)}
             style={{
               padding: "var(--space-2) var(--space-4)",
               borderRadius: "var(--radius-md)",
               border: "none",
-              background: "transparent",
+              background:
+                settings.activeTab === tab.id
+                  ? "var(--surface-sunken, var(--surface-default))"
+                  : "transparent",
               fontSize: "var(--text-sm)",
               fontWeight: "var(--weight-medium)",
               color:
@@ -75,7 +112,6 @@ export function SettingsCC({ currentLanguage, currentTheme, preferences }: Setti
               cursor: settings.activeTab === tab.id ? "default" : "pointer",
               transition: "all 0.15s ease",
             }}
-            disabled={settings.activeTab === tab.id}
           >
             {tab.label}
           </button>
@@ -84,14 +120,7 @@ export function SettingsCC({ currentLanguage, currentTheme, preferences }: Setti
 
       <div role="tabpanel" id={`panel-${settings.activeTab}`}>
         {settings.activeTab === "profile" && (
-          <ProfileSettingsSection
-            t={t}
-            language={settings.language}
-            onLanguageChange={settings.onLanguageChange}
-            languagePending={settings.languagePending}
-            languageSuccess={settings.languageSuccess}
-            languageError={settings.languageError}
-          />
+          <ProfileSettingsSection t={t} user={user} baleCode={baleCode} />
         )}
         {settings.activeTab === "security" && (
           <SecuritySettingsSection
@@ -121,6 +150,11 @@ export function SettingsCC({ currentLanguage, currentTheme, preferences }: Setti
             themeSuccess={settings.themeSuccess}
             themeError={settings.themeError}
             onThemeChange={settings.onThemeChange}
+            language={settings.language}
+            onLanguageChange={settings.onLanguageChange}
+            languagePending={settings.languagePending}
+            languageSuccess={settings.languageSuccess}
+            languageError={settings.languageError}
           />
         )}
       </div>
@@ -130,126 +164,183 @@ export function SettingsCC({ currentLanguage, currentTheme, preferences }: Setti
 
 function ProfileSettingsSection({
   t,
-  language,
-  onLanguageChange,
-  languagePending,
-  languageSuccess,
-  languageError,
+  user,
+  baleCode,
 }: {
   t: Translations;
-  language: Language;
-  onLanguageChange: (lang: Language) => void;
-  languagePending: boolean;
-  languageSuccess: boolean;
-  languageError: string | null;
+  user: UserRow;
+  baleCode?: string | null;
 }) {
-  const languages: Array<{ value: Language; label: string }> = [
-    { value: "EN", label: t.settings.english },
-    { value: "FA", label: t.settings.persian },
-  ];
+  const avatarInputRef = React.useRef<HTMLInputElement>(null);
+  const p = useProfile(user.id);
+
+  React.useEffect(() => {
+    p.profileForm.reset({ name: user.name });
+  }, [user.name]);
 
   return (
-    <section style={{ marginBottom: "var(--space-8)" }}>
-      <div
-        style={{
-          fontSize: "var(--text-2xs)",
-          fontWeight: "var(--weight-semibold)",
-          color: "var(--text-secondary)",
-          textTransform: "uppercase",
-          letterSpacing: "var(--tracking-caps)",
-          marginBottom: "var(--space-4)",
-        }}
-      >
-        {t.settings.preferences}
-      </div>
+    <section>
+      {baleCode ? (
+        <div style={{ marginBottom: "var(--space-8)" }}>
+          <div
+            style={{
+              fontSize: "var(--text-sm)",
+              fontWeight: "var(--weight-semibold)",
+              color: "var(--text-primary)",
+              marginBottom: "var(--space-2)",
+            }}
+          >
+            {t.profile.baleCodeTitle}
+          </div>
+          <p
+            style={{
+              fontSize: "var(--text-xl)",
+              letterSpacing: "0.2em",
+              color: "var(--text-primary)",
+              marginBottom: "var(--space-2)",
+            }}
+          >
+            {baleCode}
+          </p>
+          <p
+            style={{
+              fontSize: "var(--text-sm)",
+              color: "var(--text-secondary)",
+            }}
+          >
+            {t.profile.baleCodeHint}
+          </p>
+        </div>
+      ) : null}
 
-      <div
-        style={{
-          paddingBottom: "var(--space-6)",
-          borderBottom: "1px solid var(--border-subtle)",
-          marginBottom: "var(--space-6)",
-        }}
-      >
-        <label
+      <div style={{ marginBottom: "var(--space-8)" }}>
+        <div
           style={{
-            display: "block",
-            fontSize: "var(--text-sm)",
-            fontWeight: "var(--weight-medium)",
-            color: "var(--text-primary)",
+            fontSize: "var(--text-2xs)",
+            fontWeight: "var(--weight-semibold)",
+            color: "var(--text-secondary)",
+            textTransform: "uppercase",
+            letterSpacing: "var(--tracking-caps)",
             marginBottom: "var(--space-3)",
           }}
         >
-          {t.settings.language}
-        </label>
-        <p
+          {t.profile.avatar}
+        </div>
+        <div
           style={{
-            fontSize: "var(--text-xs)",
-            color: "var(--text-tertiary)",
-            marginBottom: "var(--space-3)",
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-4)",
           }}
         >
-          {t.settings.languageDescription}
-        </p>
-
-        <div style={{ display: "flex", gap: "var(--space-3)" }}>
-          {languages.map((lang) => (
-            <button
-              key={lang.value}
-              onClick={() => onLanguageChange(lang.value)}
-              disabled={languagePending}
+          <Avatar name={user.name} src={user.avatar ?? undefined} size="xl" />
+          <div>
+            <Button
+              variant="secondary"
+              size="sm"
+              loading={p.avatarPending}
+              onClick={() => avatarInputRef.current?.click()}
+            >
+              {t.profile.changeAvatar}
+            </Button>
+            <p
               style={{
-                flex: 1,
-                padding: "var(--space-3) var(--space-4)",
-                borderRadius: "var(--radius-md)",
-                border:
-                  language === lang.value
-                    ? "2px solid var(--blue-500)"
-                    : "1px solid var(--border-subtle)",
-                backgroundColor:
-                  language === lang.value
-                    ? "var(--blue-50)"
-                    : "var(--surface-default)",
-                color:
-                  language === lang.value
-                    ? "var(--blue-600)"
-                    : "var(--text-primary)",
-                fontSize: "var(--text-sm)",
-                fontWeight: "var(--weight-medium)",
-                cursor: languagePending ? "not-allowed" : "pointer",
-                opacity: languagePending ? 0.6 : 1,
-                transition: "all 0.2s ease",
+                fontSize: "var(--text-xs)",
+                color: "var(--text-tertiary)",
+                marginTop: "var(--space-1)",
               }}
             >
-              {lang.label}
-            </button>
-          ))}
+              {t.profile.avatarHint}
+            </p>
+            {p.avatarError && (
+              <p
+                style={{
+                  fontSize: "var(--text-xs)",
+                  color: "var(--red-500)",
+                  marginTop: "var(--space-1)",
+                }}
+              >
+                {p.avatarError}
+              </p>
+            )}
+          </div>
+          <input
+            ref={avatarInputRef}
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={p.onAvatarChange}
+          />
+        </div>
+      </div>
+
+      <div>
+        <div
+          style={{
+            fontSize: "var(--text-2xs)",
+            fontWeight: "var(--weight-semibold)",
+            textTransform: "uppercase",
+            letterSpacing: "var(--tracking-caps)",
+            color: "var(--text-secondary)",
+            marginBottom: "var(--space-4)",
+          }}
+        >
+          {t.profile.personalInfo}
         </div>
 
-        {languageError && (
-          <p
-            style={{
-              fontSize: "var(--text-xs)",
-              color: "var(--red-500)",
-              marginTop: "var(--space-2)",
-            }}
-            role="alert"
-          >
-            {languageError}
-          </p>
-        )}
-
-        {languageSuccess && (
-          <p
-            style={{
-              fontSize: "var(--text-xs)",
-              color: "var(--green-600)",
-              marginTop: "var(--space-2)",
-            }}
-            role="status"
-          >
-            ✓ {t.settings.languageUpdated}
-          </p>
-        )}
+        <form
+          onSubmit={p.onProfileSubmit}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "var(--space-4)",
+          }}
+          noValidate
+        >
+          {p.profileError && (
+            <div
+              className="auth-card__alert auth-card__alert--error"
+              role="alert"
+            >
+              <ResolvedValidationText text={p.profileError} />
+            </div>
+          )}
+          {p.profileSuccess && (
+            <div
+              className="auth-card__alert auth-card__alert--success"
+              role="status"
+            >
+              {t.profile.changesSaved}
+            </div>
+          )}
+          <Controller
+            name="name"
+            control={p.profileForm.control}
+            render={({ field, fieldState }) => (
+              <Input
+                {...field}
+                label={t.profile.fullName}
+                error={fieldState.error?.message}
+              />
+            )}
+          />
+          <Input
+            label={t.profile.email}
+            value={user.email}
+            disabled
+            hint={t.profile.emailCannotBeChanged}
+          />
+          <div>
+            <Button
+              type="submit"
+              variant="primary"
+              size="sm"
+              loading={p.profilePending}
+            >
+              {t.profile.updateProfile}
+            </Button>
+          </div>
+        </form>
       </div>
     </section>
   );
@@ -362,7 +453,9 @@ function SecuritySettingsSection({
                 marginTop: "var(--space-1)",
               }}
             >
-              <ResolvedValidationText text={passwordForm.formState.errors.currentPassword.message} />
+              <ResolvedValidationText
+                text={passwordForm.formState.errors.currentPassword.message}
+              />
             </p>
           )}
         </div>
@@ -402,7 +495,9 @@ function SecuritySettingsSection({
                 marginTop: "var(--space-1)",
               }}
             >
-              <ResolvedValidationText text={passwordForm.formState.errors.password.message} />
+              <ResolvedValidationText
+                text={passwordForm.formState.errors.password.message}
+              />
             </p>
           )}
         </div>
@@ -442,7 +537,9 @@ function SecuritySettingsSection({
                 marginTop: "var(--space-1)",
               }}
             >
-              <ResolvedValidationText text={passwordForm.formState.errors.confirmPassword.message} />
+              <ResolvedValidationText
+                text={passwordForm.formState.errors.confirmPassword.message}
+              />
             </p>
           )}
         </div>
@@ -494,34 +591,51 @@ function BaleHours({
   const [note, setNote] = React.useState<string | null>(null);
   const [pending, startTransition] = React.useTransition();
 
+  React.useEffect(() => {
+    setDigest(String(digestHour));
+    setHabit(String(habitHour));
+  }, [digestHour, habitHour]);
+
   return (
     <div style={{ marginTop: "var(--space-6)" }}>
-      <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", marginBottom: "var(--space-3)" }}>
+      <p
+        style={{
+          fontSize: "var(--text-sm)",
+          color: "var(--text-secondary)",
+          marginBottom: "var(--space-3)",
+        }}
+      >
         {hint}
       </p>
-      <div style={{ display: "flex", gap: "var(--space-4)", flexWrap: "wrap" }}>
-        <label style={{ fontSize: "var(--text-sm)", color: "var(--text-primary)" }}>
+      <div
+        style={{ display: "flex", gap: "var(--space-4)", flexWrap: "wrap" }}
+      >
+        <label
+          style={{ fontSize: "var(--text-sm)", color: "var(--text-primary)" }}
+        >
           {digestLabel}
           <select
             value={digest}
-            onChange={(event) => setDigest(event.target.value)}
+            onChange={event => setDigest(event.target.value)}
             style={{ display: "block", marginTop: "var(--space-1)" }}
           >
-            {HOURS.map((hour) => (
+            {HOURS.map(hour => (
               <option key={hour} value={hour}>
                 {hour}
               </option>
             ))}
           </select>
         </label>
-        <label style={{ fontSize: "var(--text-sm)", color: "var(--text-primary)" }}>
+        <label
+          style={{ fontSize: "var(--text-sm)", color: "var(--text-primary)" }}
+        >
           {habitLabel}
           <select
             value={habit}
-            onChange={(event) => setHabit(event.target.value)}
+            onChange={event => setHabit(event.target.value)}
             style={{ display: "block", marginTop: "var(--space-1)" }}
           >
-            {HOURS.map((hour) => (
+            {HOURS.map(hour => (
               <option key={hour} value={hour}>
                 {hour}
               </option>
@@ -534,8 +648,11 @@ function BaleHours({
         disabled={pending}
         onClick={() =>
           startTransition(async () => {
-            const result = await updateBaleSchedule(Number(digest), Number(habit));
-            setNote(result.success ? savedLabel : result.error ?? savedLabel);
+            const result = await updateBaleSchedule(
+              Number(digest),
+              Number(habit),
+            );
+            setNote(result.success ? savedLabel : (result.error ?? savedLabel));
           })
         }
         style={{
@@ -551,7 +668,10 @@ function BaleHours({
         {saveLabel}
       </button>
       {note ? (
-        <p style={{ fontSize: "var(--text-sm)", marginTop: "var(--space-2)" }} role="status">
+        <p
+          style={{ fontSize: "var(--text-sm)", marginTop: "var(--space-2)" }}
+          role="status"
+        >
           {note}
         </p>
       ) : null}
@@ -560,6 +680,17 @@ function BaleHours({
 }
 
 const HOURS = Array.from({ length: 24 }, (_, hour) => String(hour));
+
+function defaultNotifyValue(
+  key: string,
+  preferences: UserPreferencesData | null,
+): boolean {
+  const fromPrefs = preferences?.[key as keyof UserPreferencesData];
+  if (typeof fromPrefs === "boolean") return fromPrefs;
+  return key === "soundNotifs" || key === "batchDeadlineReminders"
+    ? false
+    : true;
+}
 
 function NotificationSettingsSection({
   t,
@@ -574,7 +705,10 @@ function NotificationSettingsSection({
   notifyPending: boolean;
   notifySuccess: boolean;
   notifyError: string | null;
-  onNotifyChange: (field: keyof UpdatePreferencesInput, value: boolean) => void;
+  onNotifyChange: (
+    field: keyof UpdatePreferencesInput,
+    value: boolean,
+  ) => Promise<boolean>;
 }) {
   const notifyPrefs = [
     { key: "notifications", label: t.settings.masterNotifications },
@@ -586,7 +720,10 @@ function NotificationSettingsSection({
     { key: "notifyMention", label: t.settings.notifyMention },
     { key: "notifySprintStarted", label: t.settings.notifySprintStarted },
     { key: "notifySprintEnded", label: t.settings.notifySprintEnded },
-    { key: "notifyDeadlineApproaching", label: t.settings.notifyDeadlineApproaching },
+    {
+      key: "notifyDeadlineApproaching",
+      label: t.settings.notifyDeadlineApproaching,
+    },
     {
       key: "batchDeadlineReminders",
       label: t.settings.batchDeadlineReminders,
@@ -594,6 +731,26 @@ function NotificationSettingsSection({
     },
     { key: "notifyStatusChanged", label: t.settings.notifyStatusChanged },
   ] as const;
+
+  const [localPrefs, setLocalPrefs] = React.useState(() => {
+    const next: Record<string, boolean> = {};
+    for (const pref of notifyPrefs) {
+      next[pref.key] = defaultNotifyValue(pref.key, preferences);
+    }
+    return next;
+  });
+
+  React.useEffect(() => {
+    setLocalPrefs(prev => {
+      const next = { ...prev };
+      for (const pref of notifyPrefs) {
+        next[pref.key] = defaultNotifyValue(pref.key, preferences);
+      }
+      return next;
+    });
+  }, [preferences]);
+
+  const masterOn = localPrefs.notifications !== false;
 
   const [browserPerm, setBrowserPerm] = React.useState<string>("unsupported");
   React.useEffect(() => {
@@ -634,10 +791,21 @@ function NotificationSettingsSection({
           }}
         >
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: "var(--text-sm)", color: "var(--text-primary)" }}>
+            <div
+              style={{
+                fontSize: "var(--text-sm)",
+                color: "var(--text-primary)",
+              }}
+            >
               {t.settings.browserReminders}
             </div>
-            <div style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", marginTop: 4 }}>
+            <div
+              style={{
+                fontSize: "var(--text-xs)",
+                color: "var(--text-tertiary)",
+                marginTop: 4,
+              }}
+            >
               {t.settings.browserRemindersHint}
             </div>
           </div>
@@ -654,8 +822,12 @@ function NotificationSettingsSection({
               padding: "6px 10px",
               borderRadius: "var(--radius-md)",
               border: "1px solid var(--border-subtle)",
-              background: browserPerm === "granted" ? "var(--action-primary)" : "transparent",
-              color: browserPerm === "granted" ? "#fff" : "var(--text-primary)",
+              background:
+                browserPerm === "granted"
+                  ? "var(--action-primary)"
+                  : "transparent",
+              color:
+                browserPerm === "granted" ? "#fff" : "var(--text-primary)",
               cursor: browserPerm === "granted" ? "default" : "pointer",
             }}
           >
@@ -673,62 +845,72 @@ function NotificationSettingsSection({
           gap: "var(--space-3)",
         }}
       >
-        {notifyPrefs.map((pref) => (
-          <label
-            key={pref.key}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: "var(--space-3)",
-              padding: "var(--space-3) var(--space-4)",
-              borderRadius: "var(--radius-md)",
-              background: "var(--surface-default)",
-              border: "1px solid var(--border-subtle)",
-              cursor: notifyPending ? "not-allowed" : "pointer",
-              opacity: notifyPending ? 0.6 : 1,
-              transition: "all 0.15s ease",
-            }}
-          >
-            <span style={{ minWidth: 0 }}>
-              <span style={{ display: "block", fontSize: "var(--text-sm)", color: "var(--text-primary)" }}>
-                {pref.label}
-              </span>
-              {"hint" in pref && pref.hint ? (
+        {notifyPrefs.map(pref => {
+          const isMaster = pref.key === "notifications";
+          const disabled = notifyPending || (!isMaster && !masterOn);
+          return (
+            <label
+              key={pref.key}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "var(--space-3)",
+                padding: "var(--space-3) var(--space-4)",
+                borderRadius: "var(--radius-md)",
+                background: "var(--surface-default)",
+                border: "1px solid var(--border-subtle)",
+                cursor: disabled ? "not-allowed" : "pointer",
+                opacity: disabled ? 0.55 : 1,
+                transition: "all 0.15s ease",
+              }}
+            >
+              <span style={{ minWidth: 0 }}>
                 <span
                   style={{
                     display: "block",
-                    fontSize: "var(--text-xs)",
-                    color: "var(--text-tertiary)",
-                    marginTop: 4,
+                    fontSize: "var(--text-sm)",
+                    color: "var(--text-primary)",
                   }}
                 >
-                  {pref.hint}
+                  {pref.label}
                 </span>
-              ) : null}
-            </span>
-            <input
-              type="checkbox"
-              checked={
-                (preferences?.[
-                  pref.key as keyof UserPreferencesData
-                ] as boolean | undefined) ??
-                (pref.key === "soundNotifs" ||
-                pref.key === "batchDeadlineReminders"
-                  ? false
-                  : true)
-              }
-              onChange={(e) => onNotifyChange(pref.key, e.target.checked)}
-              disabled={notifyPending}
-              style={{
-                width: 20,
-                height: 20,
-                flexShrink: 0,
-                accentColor: "var(--action-primary)",
-              }}
-            />
-          </label>
-        ))}
+                {"hint" in pref && pref.hint ? (
+                  <span
+                    style={{
+                      display: "block",
+                      fontSize: "var(--text-xs)",
+                      color: "var(--text-tertiary)",
+                      marginTop: 4,
+                    }}
+                  >
+                    {pref.hint}
+                  </span>
+                ) : null}
+              </span>
+              <input
+                type="checkbox"
+                checked={localPrefs[pref.key] ?? false}
+                onChange={async e => {
+                  const value = e.target.checked;
+                  const previous = localPrefs[pref.key] ?? false;
+                  setLocalPrefs(prev => ({ ...prev, [pref.key]: value }));
+                  const ok = await onNotifyChange(pref.key, value);
+                  if (!ok) {
+                    setLocalPrefs(prev => ({ ...prev, [pref.key]: previous }));
+                  }
+                }}
+                disabled={disabled}
+                style={{
+                  width: 20,
+                  height: 20,
+                  flexShrink: 0,
+                  accentColor: "var(--action-primary)",
+                }}
+              />
+            </label>
+          );
+        })}
       </div>
 
       <BaleHours
@@ -777,6 +959,11 @@ function AppearanceSettingsSection({
   themeSuccess,
   themeError,
   onThemeChange,
+  language,
+  onLanguageChange,
+  languagePending,
+  languageSuccess,
+  languageError,
 }: {
   t: Translations;
   theme: Theme;
@@ -784,11 +971,33 @@ function AppearanceSettingsSection({
   themeSuccess: boolean;
   themeError: string | null;
   onThemeChange: (theme: Theme) => void;
+  language: Language;
+  onLanguageChange: (lang: Language) => void;
+  languagePending: boolean;
+  languageSuccess: boolean;
+  languageError: string | null;
 }) {
   const themes: Array<{ value: Theme; label: string; description: string }> = [
-    { value: "LIGHT", label: t.settings.themeLight, description: t.settings.themeLightDesc },
-    { value: "DARK", label: t.settings.themeDark, description: t.settings.themeDarkDesc },
-    { value: "SYSTEM", label: t.settings.themeSystem, description: t.settings.themeSystemDesc },
+    {
+      value: "LIGHT",
+      label: t.settings.themeLight,
+      description: t.settings.themeLightDesc,
+    },
+    {
+      value: "DARK",
+      label: t.settings.themeDark,
+      description: t.settings.themeDarkDesc,
+    },
+    {
+      value: "SYSTEM",
+      label: t.settings.themeSystem,
+      description: t.settings.themeSystemDesc,
+    },
+  ];
+
+  const languages: Array<{ value: Language; label: string }> = [
+    { value: "EN", label: t.settings.english },
+    { value: "FA", label: t.settings.persian },
   ];
 
   return (
@@ -811,11 +1020,13 @@ function AppearanceSettingsSection({
           display: "flex",
           flexDirection: "column",
           gap: "var(--space-3)",
+          marginBottom: "var(--space-8)",
         }}
       >
-        {themes.map((tItem) => (
+        {themes.map(tItem => (
           <button
             key={tItem.value}
+            type="button"
             onClick={() => onThemeChange(tItem.value)}
             disabled={themePending}
             style={{
@@ -901,12 +1112,102 @@ function AppearanceSettingsSection({
             fontSize: "var(--text-xs)",
             color: "var(--green-600)",
             marginTop: "var(--space-2)",
+            marginBottom: "var(--space-4)",
           }}
           role="status"
         >
           ✓ {t.settings.themeUpdated}
         </p>
       )}
+
+      <div
+        style={{
+          paddingTop: "var(--space-6)",
+          borderTop: "1px solid var(--border-subtle)",
+        }}
+      >
+        <label
+          style={{
+            display: "block",
+            fontSize: "var(--text-sm)",
+            fontWeight: "var(--weight-medium)",
+            color: "var(--text-primary)",
+            marginBottom: "var(--space-3)",
+          }}
+        >
+          {t.settings.language}
+        </label>
+        <p
+          style={{
+            fontSize: "var(--text-xs)",
+            color: "var(--text-tertiary)",
+            marginBottom: "var(--space-3)",
+          }}
+        >
+          {t.settings.languageDescription}
+        </p>
+
+        <div style={{ display: "flex", gap: "var(--space-3)" }}>
+          {languages.map(lang => (
+            <button
+              key={lang.value}
+              type="button"
+              onClick={() => onLanguageChange(lang.value)}
+              disabled={languagePending}
+              style={{
+                flex: 1,
+                padding: "var(--space-3) var(--space-4)",
+                borderRadius: "var(--radius-md)",
+                border:
+                  language === lang.value
+                    ? "2px solid var(--blue-500)"
+                    : "1px solid var(--border-subtle)",
+                backgroundColor:
+                  language === lang.value
+                    ? "var(--blue-50)"
+                    : "var(--surface-default)",
+                color:
+                  language === lang.value
+                    ? "var(--blue-600)"
+                    : "var(--text-primary)",
+                fontSize: "var(--text-sm)",
+                fontWeight: "var(--weight-medium)",
+                cursor: languagePending ? "not-allowed" : "pointer",
+                opacity: languagePending ? 0.6 : 1,
+                transition: "all 0.2s ease",
+              }}
+            >
+              {lang.label}
+            </button>
+          ))}
+        </div>
+
+        {languageError && (
+          <p
+            style={{
+              fontSize: "var(--text-xs)",
+              color: "var(--red-500)",
+              marginTop: "var(--space-2)",
+            }}
+            role="alert"
+          >
+            {languageError}
+          </p>
+        )}
+
+        {languageSuccess && (
+          <p
+            style={{
+              fontSize: "var(--text-xs)",
+              color: "var(--green-600)",
+              marginTop: "var(--space-2)",
+            }}
+            role="status"
+          >
+            ✓ {t.settings.languageUpdated}
+          </p>
+        )}
+      </div>
     </section>
   );
 }

@@ -122,7 +122,7 @@ export function EditUserDrawer({
                 : "The system admin is management-only and has no personal modules."}
             </p>
             <a
-              href="/profile"
+              href="/settings?tab=profile"
               className="text-xs font-medium text-primary hover:underline"
             >
               {language === "FA"

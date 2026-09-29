@@ -87,6 +87,8 @@ export function HabitsPanel({
     await refresh();
   }
 
+  const canAdd = title.trim().length > 0 && !pending;
+
   return (
     <section className="rounded-xl border bg-card p-4">
       <div className="flex items-start justify-between gap-2 mb-3">
@@ -107,7 +109,12 @@ export function HabitsPanel({
             if (e.key === "Enter") void onAdd();
           }}
         />
-        <Button size="sm" disabled={pending || !title.trim()} onClick={() => void onAdd()}>
+        <Button
+          size="sm"
+          variant="primary"
+          disabled={!canAdd}
+          onClick={() => void onAdd()}
+        >
           {t.habits.add}
         </Button>
       </div>
@@ -146,8 +153,10 @@ export function HabitsPanel({
               </button>
               <div className="min-w-0 flex-1">
                 <div className="text-sm truncate">{h.title}</div>
-                <div className="text-[11px] text-muted-foreground">
-                  {t.habits.streak}: {h.streak} · {t.habits.best}: {h.bestStreak}
+                <div className="text-[11px] text-muted-foreground tabular-nums">
+                  {t.habits.streakLabel
+                    .replace("{streak}", String(h.streak))
+                    .replace("{best}", String(h.bestStreak))}
                 </div>
               </div>
               <Button

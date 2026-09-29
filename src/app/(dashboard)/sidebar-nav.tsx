@@ -41,7 +41,8 @@ interface SidebarNavProps {
 }
 
 function isRouteActive(pathname: string, href: string) {
-  return pathname === href || pathname.startsWith(href + "/");
+  const pathOnly = href.split("?")[0] ?? href;
+  return pathname === pathOnly || pathname.startsWith(pathOnly + "/");
 }
 
 function NavLink({

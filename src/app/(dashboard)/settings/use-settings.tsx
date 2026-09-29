@@ -3,51 +3,90 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useForm, type UseFormReturn } from "react-hook-form";
-import { localizedZodResolver } from "@/lib/validation-message";
+import {
+  localizedZodResolver,
+  resolveValidationMessage,
+} from "@/lib/validation-message";
 import { changePasswordSchema, type ChangePasswordInput } from "@/schemas/auth";
 import {
   updateUserPreferences,
   type UpdatePreferencesInput,
 } from "@/features/settings/actions";
+import { applyThemeToDocument } from "@/lib/theme";
+import { useTranslation } from "@/i18n/provider";
 import type { Language, Theme } from "@/types/db";
+
+export type SettingsTab =
+  | "profile"
+  | "security"
+  | "notifications"
+  | "appearance";
+
+const TABS: SettingsTab[] = [
+  "profile",
+  "security",
+  "notifications",
+  "appearance",
+];
+
+export function parseSettingsTab(raw: string | null | undefined): SettingsTab {
+  if (raw && (TABS as string[]).includes(raw)) return raw as SettingsTab;
+  return "profile";
+}
 
 export function useSettings(
   initialLanguage: Language,
   initialTheme: Theme,
+  initialTab: SettingsTab = "profile",
 ) {
   const router = useRouter();
+  const t = useTranslation();
 
-  const [activeTab, setActiveTab] = React.useState<
-    "profile" | "security" | "notifications" | "appearance"
-  >("profile");
+  const [activeTab, setActiveTab] = React.useState<SettingsTab>(initialTab);
 
-  // Language state
+  React.useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
+
   const [language, setLanguage] = React.useState<Language>(initialLanguage);
   const [languagePending, startLanguageTransition] = React.useTransition();
   const [languageSuccess, setLanguageSuccess] = React.useState(false);
   const [languageError, setLanguageError] = React.useState<string | null>(null);
 
-  // Theme state
   const [theme, setTheme] = React.useState<Theme>(initialTheme);
   const [themePending, startThemeTransition] = React.useTransition();
   const [themeSuccess, setThemeSuccess] = React.useState(false);
   const [themeError, setThemeError] = React.useState<string | null>(null);
 
-  // Password state
   const [passwordPending, startPasswordTransition] = React.useTransition();
   const [passwordSuccess, setPasswordSuccess] = React.useState(false);
   const [passwordError, setPasswordError] = React.useState<string | null>(null);
 
-  // Notification state
   const [notifyPending, startNotifyTransition] = React.useTransition();
   const [notifySuccess, setNotifySuccess] = React.useState(false);
   const [notifyError, setNotifyError] = React.useState<string | null>(null);
 
-  // Password form
   const passwordForm = useForm<ChangePasswordInput>({
-    resolver: localizedZodResolver(changePasswordSchema),
+    resolver: localizedZodResolver(changePasswordSchema, t),
     defaultValues: { currentPassword: "", password: "", confirmPassword: "" },
   });
+
+  React.useEffect(() => {
+    setLanguage(initialLanguage);
+  }, [initialLanguage]);
+
+  React.useEffect(() => {
+    setTheme(initialTheme);
+  }, [initialTheme]);
+
+  // When preference is SYSTEM, follow OS changes without remount side-effects.
+  React.useEffect(() => {
+    if (theme !== "SYSTEM" || typeof window === "undefined") return;
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const onChange = () => applyThemeToDocument("SYSTEM");
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, [theme]);
 
   const onLanguageChange = (newLanguage: Language) => {
     setLanguage(newLanguage);
@@ -56,7 +95,12 @@ export function useSettings(
     startLanguageTransition(async () => {
       const result = await updateUserPreferences({ language: newLanguage });
       if (!result.success) {
-        setLanguageError(result.error ?? "Failed to update language");
+        setLanguageError(
+          resolveValidationMessage(
+            t,
+            result.error ?? t.settings.failedToUpdateLanguage,
+          ),
+        );
         setLanguage(initialLanguage);
       } else {
         setLanguageSuccess(true);
@@ -67,14 +111,19 @@ export function useSettings(
   };
 
   const onThemeChange = (newTheme: Theme) => {
+    const previous = theme;
     setTheme(newTheme);
+    applyThemeToDocument(newTheme);
     setThemeError(null);
     setThemeSuccess(false);
     startThemeTransition(async () => {
       const result = await updateUserPreferences({ theme: newTheme });
       if (!result.success) {
-        setThemeError(result.error ?? "Failed to update theme");
-        setTheme(initialTheme);
+        setThemeError(
+          resolveValidationMessage(t, result.error ?? "genericError"),
+        );
+        setTheme(previous);
+        applyThemeToDocument(previous);
       } else {
         setThemeSuccess(true);
         router.refresh();
@@ -83,7 +132,7 @@ export function useSettings(
     });
   };
 
-  const onPasswordChange = passwordForm.handleSubmit(async (data) => {
+  const onPasswordChange = passwordForm.handleSubmit(async data => {
     setPasswordError(null);
     setPasswordSuccess(false);
     startPasswordTransition(async () => {
@@ -94,7 +143,9 @@ export function useSettings(
       fd.append("confirmPassword", data.confirmPassword);
       const result = await changePassword(fd);
       if (!result.success) {
-        setPasswordError(result.error ?? "Failed to change password");
+        setPasswordError(
+          resolveValidationMessage(t, result.error ?? "genericError"),
+        );
       } else {
         setPasswordSuccess(true);
         passwordForm.reset();
@@ -103,36 +154,31 @@ export function useSettings(
     });
   });
 
-  const onNotifyChange = (field: keyof UpdatePreferencesInput, value: boolean) => {
+  const onNotifyChange = (
+    field: keyof UpdatePreferencesInput,
+    value: boolean,
+  ): Promise<boolean> => {
     setNotifyError(null);
     setNotifySuccess(false);
-    startNotifyTransition(async () => {
-      const result = await updateUserPreferences({ [field]: value } as UpdatePreferencesInput);
-      if (!result.success) {
-        setNotifyError(result.error ?? "Failed to update notification preference");
-      } else {
-        setNotifySuccess(true);
-        router.refresh();
-        setTimeout(() => setNotifySuccess(false), 2000);
-      }
+    return new Promise(resolve => {
+      startNotifyTransition(async () => {
+        const result = await updateUserPreferences({
+          [field]: value,
+        } as UpdatePreferencesInput);
+        if (!result.success) {
+          setNotifyError(
+            resolveValidationMessage(t, result.error ?? "genericError"),
+          );
+          resolve(false);
+        } else {
+          setNotifySuccess(true);
+          router.refresh();
+          setTimeout(() => setNotifySuccess(false), 2000);
+          resolve(true);
+        }
+      });
     });
   };
-
-  function applyTheme(themeValue: Theme) {
-    if (typeof window === "undefined") return;
-    const root = document.documentElement;
-    if (themeValue === "SYSTEM") {
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      root.setAttribute("data-theme", prefersDark ? "dark" : "light");
-    } else {
-      root.setAttribute("data-theme", themeValue.toLowerCase());
-    }
-  }
-
-  // Apply theme on mount and change
-  React.useEffect(() => {
-    applyTheme(theme);
-  }, [theme]);
 
   return {
     activeTab,

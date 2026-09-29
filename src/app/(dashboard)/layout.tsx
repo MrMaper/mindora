@@ -52,11 +52,6 @@ export default async function DashboardLayout({
         label: language === "FA" ? "مدیریت" : "Admin",
         items: [
           { label: t.nav.users, href: "/users", icon: "users" },
-          {
-            label: language === "FA" ? "پروفایل و رمز" : "Profile & password",
-            href: "/profile",
-            icon: "user",
-          },
           { label: t.nav.settings, href: "/settings", icon: "settings" },
           { label: t.nav.botMessage, href: "/bale-bot", icon: "bot" },
         ],
@@ -82,7 +77,7 @@ export default async function DashboardLayout({
           notificationsHref="/notifications"
           notificationsLabel={t.nav.notifications}
           notificationsBadge={0}
-          profileHref="/profile"
+          profileHref="/settings?tab=profile"
           userName={session.user.name ?? "Admin"}
           userEmail={session.user.email ?? ""}
           userImage={session.user.image ?? undefined}
@@ -195,7 +190,7 @@ export default async function DashboardLayout({
             notificationsHref="/notifications"
             notificationsLabel={t.nav.notifications}
             notificationsBadge={unreadCount}
-            profileHref="/profile"
+            profileHref="/settings?tab=profile"
             userName={session.user.name ?? "User"}
             userEmail={session.user.email ?? ""}
             userImage={session.user.image ?? undefined}

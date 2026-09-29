@@ -61,6 +61,8 @@ Overview at `/projects` + area dashboard at `/projects/areas/[area]`:
 1. **Custom areas** beyond the four defaults (+ حوزه as a 5th LifeArea)
 2. Manual next-action override (derived from open tasks today)
 
+Isolation note: Today focus/priority pickers must compose ownership with `AND` (never overwrite `OR`); see `personalLifeTaskWhere` in `src/lib/task-access.ts`.
+
 ---
 
 ## Mobile UX (in progress)
@@ -79,7 +81,8 @@ Goal: every member surface is usable one-handed on a phone — no clipped filter
 - Schedule math covered by `src/lib/calendar-schedule.test.ts` (snap, conflicts, clock parse, clamp)
 - Language hub tabs: horizontal scroll instead of wrapping
 - Today week strip: tighter type on small screens
-- Review / work-logs / settings / profile / notifications / project tabs: overflow and wrap fixes
+- Review / work-logs / settings / notifications / project tabs: overflow and wrap fixes
+- Settings is the single place for profile, password, notifications, theme, and language. `/profile` redirects to `/settings?tab=profile`. Theme applies only when the user changes it (plus a boot script from saved prefs) so opening Settings does not flip light/dark.
 - Guide + CAPTURE updated for hour-grid calendar behavior
 
 ### Still to do (polish)

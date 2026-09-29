@@ -10,11 +10,14 @@ import { cn } from "@/lib/utils";
  */
 export function PageHeaderBar({
   title,
+  meta,
   description,
   actions,
   className,
 }: {
   title: React.ReactNode;
+  /** Inline count / badge next to the title (e.g. "2 tasks"). */
+  meta?: React.ReactNode;
   description?: React.ReactNode;
   actions?: React.ReactNode;
   className?: string;
@@ -27,11 +30,18 @@ export function PageHeaderBar({
       )}
     >
       <div className="min-w-0">
-        <h1 className="text-xl font-semibold text-text-primary text-foreground">
-          {title}
-        </h1>
+        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+          <h1 className="text-xl font-semibold text-text-primary text-foreground">
+            {title}
+          </h1>
+          {meta != null && meta !== false ? (
+            <span className="text-sm font-normal text-text-tertiary text-muted-foreground tabular-nums">
+              {meta}
+            </span>
+          ) : null}
+        </div>
         {description != null && description !== false ? (
-          <div className="mt-0.5 text-sm text-text-tertiary text-muted-foreground">
+          <div className="mt-0.5 max-w-xl text-sm text-text-tertiary text-muted-foreground">
             {description}
           </div>
         ) : null}

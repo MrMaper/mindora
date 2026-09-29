@@ -34,7 +34,6 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
-import { openDailyNoteAction } from "@/features/docs/actions";
 import { openCapture } from "@/features/capture/open-capture";
 import {
   formatJalaliDate,
@@ -441,7 +440,6 @@ export function DashboardCC({
 
   const pinnedOpen = focusTasks.filter(task => task && task.status !== "DONE").length;
   const pinnedDone = focusTasks.filter(task => task?.status === "DONE").length;
-  const [writingPending, setWritingPending] = React.useState(false);
 
   const { openTask, drawer } = usePersonalTaskEditor({
     users,
@@ -543,15 +541,6 @@ export function DashboardCC({
       );
       router.refresh();
     });
-  }
-
-  async function openDaily() {
-    setWritingPending(true);
-    const result = await openDailyNoteAction({ language });
-    setWritingPending(false);
-    if (result.success && result.data?.id) {
-      router.push(`/docs?id=${result.data.id}`);
-    }
   }
 
   const sideTabs: { id: SideTab; label: string; count: number }[] = [
@@ -861,26 +850,6 @@ export function DashboardCC({
             />
 
             <HabitsPanel initialHabits={habits} />
-
-            <div className="flex flex-wrap gap-x-3 gap-y-1 px-1 text-xs text-muted-foreground">
-              <button
-                type="button"
-                className="text-primary hover:underline"
-                disabled={writingPending}
-                onClick={() => void openDaily()}
-              >
-                {t.docs.dailyNote}
-              </button>
-              <Link href="/docs" className="hover:text-foreground">
-                {t.docs.openDocs}
-              </Link>
-              <Link href="/projects" className="hover:text-foreground">
-                {t.nav.projects}
-              </Link>
-              <Link href="/work-logs" className="hover:text-foreground">
-                {t.nav.workLogs}
-              </Link>
-            </div>
           </aside>
         </div>
       </div>

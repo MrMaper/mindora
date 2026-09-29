@@ -1609,6 +1609,7 @@ export const en = {
     empty: "No habits yet",
     streak: "streak",
     best: "best",
+    streakLabel: "{streak} day streak · best {best}",
     markToday: "Mark done today",
     undoToday: "Undo today",
     archive: "Archive",

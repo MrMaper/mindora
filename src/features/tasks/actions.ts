@@ -22,6 +22,7 @@ import {
   sendBaleDueChangeNotification,
 } from "@/features/external/bots/bale/notifications";
 import type { TaskDetail } from "./types";
+import { canAccessPersonalTask } from "@/lib/task-access";
 
 function revalidateTasks(extra: string[] = []) {
   revalidatePath("/tasks");
@@ -231,6 +232,7 @@ export async function updateTask(
 ): Promise<ActionResult> {
   const session = await auth();
   if (!session?.user) return { success: false, error: "غیرمجاز" };
+  const isAdmin = session.user.role === "ADMIN";
 
   const parsed = updateTaskSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
@@ -259,6 +261,15 @@ export async function updateTask(
   });
   if (!existing) return { success: false, error: "کار پیدا نشد" };
 
+  if (
+    !canAccessPersonalTask(session.user.id, session.user.role, existing)
+  ) {
+    return {
+      success: false,
+      error: "به این کار دسترسی ندارید",
+    };
+  }
+
   // Validate project access if projectId is provided
   let projectId = parsed.data.projectId || null;
   const nextArea = (parsed.data.area ?? existing.area ?? null) as LifeArea | null;
@@ -279,16 +290,6 @@ export async function updateTask(
     if (!projectMember) {
       return { success: false, error: "به این مسیر دسترسی ندارید" };
     }
-  }
-
-  // Authorization: only admin or assignee can edit
-  const isAdmin = session.user.role === "ADMIN";
-  const isAssignee = existing.assignedToId === session.user.id;
-  if (!isAdmin && !isAssignee) {
-    return {
-      success: false,
-      error: "فقط مسئول این کار یا مدیر می‌تواند آن را ویرایش کند",
-    };
   }
 
   const labelIds = parseLabelIds(parsed.data.labelIds);
@@ -557,17 +558,21 @@ export async function updateTaskStatus(
 
   const existing = await db.task.findUnique({
     where: { id },
-    select: { status: true, title: true, assignedToId: true },
+    select: {
+      status: true,
+      title: true,
+      assignedToId: true,
+      createdById: true,
+    },
   });
   if (!existing) return { success: false, error: "کار پیدا نشد" };
 
-  // Authorization: only admin or assignee can change status
-  const isAdmin = session.user.role === "ADMIN";
-  const isAssignee = existing.assignedToId === session.user.id;
-  if (!isAdmin && !isAssignee) {
+  if (
+    !canAccessPersonalTask(session.user.id, session.user.role, existing)
+  ) {
     return {
       success: false,
-      error: "فقط مسئول این کار یا مدیر می‌تواند وضعیتش را عوض کند",
+      error: "به این کار دسترسی ندارید",
     };
   }
 
@@ -624,7 +629,20 @@ export async function getTaskDetailAction(
 ): Promise<TaskDetail | null> {
   const session = await auth();
   if (!session?.user) return null;
-  return getTaskById(id);
+
+  const task = await getTaskById(id);
+  if (!task) return null;
+
+  if (
+    !canAccessPersonalTask(session.user.id, session.user.role, {
+      assignedTo: task.assignedTo,
+      createdBy: task.createdBy,
+    })
+  ) {
+    return null;
+  }
+
+  return task;
 }
 
 // ─── Delete task ────────────────────────────────────────────────────────
@@ -635,17 +653,16 @@ export async function deleteTask(id: string): Promise<ActionResult> {
 
   const existing = await db.task.findUnique({
     where: { id },
-    select: { id: true, assignedToId: true, projectId: true },
+    select: { id: true, assignedToId: true, createdById: true, projectId: true },
   });
   if (!existing) return { success: false, error: "کار پیدا نشد" };
 
-  // Authorization: only admin or assignee can delete
-  const isAdmin = session.user.role === "ADMIN";
-  const isAssignee = existing.assignedToId === session.user.id;
-  if (!isAdmin && !isAssignee) {
+  if (
+    !canAccessPersonalTask(session.user.id, session.user.role, existing)
+  ) {
     return {
       success: false,
-      error: "فقط مسئول این کار یا مدیر می‌تواند آن را حذف کند",
+      error: "به این کار دسترسی ندارید",
     };
   }
 
