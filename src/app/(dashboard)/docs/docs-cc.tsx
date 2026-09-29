@@ -8,6 +8,7 @@ import { Button } from "@/components/ui-kit/forms/button";
 import { IconButton } from "@/components/ui-kit/forms/icon-button";
 import { Input } from "@/components/ui-kit/forms/input";
 import { Icon } from "@/components/ui-kit/foundation/icon";
+import { PageHeaderBar } from "@/components/ui-kit/layout/page-header-bar";
 import { useLanguage, useTranslation } from "@/i18n/provider";
 import { cn, formatNumber } from "@/lib/utils";
 import { formatJalaliShort, LIFE_AREAS } from "@/lib/life";
@@ -675,21 +676,29 @@ export function DocsCC({
       )}
     >
       {!focusMode && (
+      <>
+      <PageHeaderBar
+        className="mb-0 shrink-0"
+        title={t.docs.title}
+        actions={
+          <>
+            <Button size="sm" onClick={() => void onCreate()} disabled={pending}>
+              <Icon name="plus" size={14} />
+              {t.docs.newDoc}
+            </Button>
+            <Button
+              size="sm"
+              variant="subtle"
+              onClick={() => setShowTemplates(true)}
+              disabled={pending}
+            >
+              {t.docs.fromTemplate}
+            </Button>
+          </>
+        }
+      />
       <div className="flex flex-wrap items-center gap-3 shrink-0">
-        <h1 className="text-xl font-semibold">{t.docs.title}</h1>
-        <Button size="sm" onClick={() => void onCreate()} disabled={pending}>
-          <Icon name="plus" size={14} />
-          {t.docs.newDoc}
-        </Button>
-        <Button
-          size="sm"
-          variant="subtle"
-          onClick={() => setShowTemplates(true)}
-          disabled={pending}
-        >
-          {t.docs.fromTemplate}
-        </Button>
-        <div className="flex flex-wrap items-center gap-1.5 ms-auto text-xs">
+        <div className="flex flex-wrap items-center gap-1.5 text-xs">
           <button
             type="button"
             onClick={() => setAreaFilter("ALL")}
@@ -750,6 +759,7 @@ export function DocsCC({
           </button>
         </div>
       </div>
+      </>
       )}
 
       <div

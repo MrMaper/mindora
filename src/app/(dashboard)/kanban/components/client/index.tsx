@@ -6,6 +6,7 @@ import * as React from "react";
 import { DndContext, DragOverlay } from "@dnd-kit/core";
 import { KanbanCard } from "@/components/ui-kit/agile/kanban-card";
 import { Button } from "@/components/ui-kit/forms/button";
+import { PageHeaderBar } from "@/components/ui-kit/layout/page-header-bar";
 import { useKanban } from "../hooks/use-kanban";
 import type { KanbanCreateDefaults } from "../hooks/use-kanban";
 import { useTranslation } from "@/i18n/provider";
@@ -156,14 +157,15 @@ export function KanbanCC({
 
   return (
     <>
-      <div className="mb-4 flex flex-wrap items-center gap-3">
-        <h1 className="text-xl font-semibold text-text-primary">
-          {title ?? t.board.title}
-        </h1>
-        <Button variant="primary" icon="plus" onClick={handleOpenCreate}>
-          {t.tasks.createTaskButton}
-        </Button>
-      </div>
+      <PageHeaderBar
+        className="mb-4"
+        title={title ?? t.board.title}
+        actions={
+          <Button variant="primary" icon="plus" onClick={handleOpenCreate}>
+            {t.tasks.createTaskButton}
+          </Button>
+        }
+      />
 
       {showFilters && (
         <KanbanFilters

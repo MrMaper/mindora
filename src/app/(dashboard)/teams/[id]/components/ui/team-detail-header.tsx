@@ -4,6 +4,7 @@ import * as React from "react";
 import { Icon } from "@/components/ui-kit/foundation/icon";
 import { Button } from "@/components/ui-kit/forms/button";
 import { Badge } from "@/components/ui-kit/data-display/badge";
+import { PageHeaderBar } from "@/components/ui-kit/layout/page-header-bar";
 import { useTranslation } from "@/i18n/provider";
 
 interface TeamDetailHeaderProps {
@@ -26,39 +27,37 @@ export function TeamDetailHeader({
   const t = useTranslation();
 
   return (
-    <div className="flex items-start justify-between mb-6">
-      <div>
-        <div className="flex items-center gap-3 mb-1">
-          <div className="size-10 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-semibold text-sm">
+    <PageHeaderBar
+      className="mb-6"
+      title={
+        <span className="inline-flex items-center gap-3">
+          <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary text-sm font-semibold text-primary-foreground">
             {name.charAt(0).toUpperCase()}
-          </div>
-          <div>
-            <h1 className="text-xl font-semibold text-foreground">
-              {name}
-            </h1>
-            {description && (
-              <p className="text-sm text-muted-foreground mt-0.5">
-                {description}
-              </p>
-            )}
-          </div>
-        </div>
-        <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
-          <span className="flex items-center gap-1">
-            <Icon name="users" size={13} />
-            {memberCount} {t.teams.members.toLowerCase()}
           </span>
-          <Badge tone={status === "ACTIVE" ? "success" : "neutral"}>
-            {status === "ACTIVE" ? t.teams.active : t.teams.archived}
-          </Badge>
-        </div>
-      </div>
-
-      {canManage && (
-        <Button variant="primary" icon="plus" onClick={onInvite}>
-          {t.teams.inviteMember}
-        </Button>
-      )}
-    </div>
+          <span>{name}</span>
+        </span>
+      }
+      description={
+        <>
+          {description ? <p className="mb-1">{description}</p> : null}
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <Icon name="users" size={13} />
+              {memberCount} {t.teams.members.toLowerCase()}
+            </span>
+            <Badge tone={status === "ACTIVE" ? "success" : "neutral"}>
+              {status === "ACTIVE" ? t.teams.active : t.teams.archived}
+            </Badge>
+          </div>
+        </>
+      }
+      actions={
+        canManage ? (
+          <Button variant="primary" icon="plus" onClick={onInvite}>
+            {t.teams.inviteMember}
+          </Button>
+        ) : null
+      }
+    />
   );
 }

@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Button } from "@/components/ui-kit/forms/button";
 import { Input } from "@/components/ui-kit/forms/input";
+import { PageHeaderBar } from "@/components/ui-kit/layout/page-header-bar";
 import { useTranslation } from "@/i18n/provider";
 import { cn } from "@/lib/utils";
 
@@ -47,24 +48,25 @@ export function PageHeader({
 
   return (
     <div className="mb-5">
-      <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
-        <div className="min-w-0">
-          <h1 className="text-xl font-semibold text-text-primary">
-            {t.projects.title}
-          </h1>
-          <p className="text-sm text-text-tertiary mt-0.5 max-w-xl">
-            {t.projects.subtitle}
-          </p>
-          <p className="text-xs text-muted-foreground mt-1 tabular-nums">
-            {pathCount} {pathCount === 1 ? t.projects.path : t.projects.paths}
-          </p>
-        </div>
-        {onCreate ? (
-          <Button variant="primary" icon="plus" onClick={onCreate}>
-            {t.projects.newPath}
-          </Button>
-        ) : null}
-      </div>
+      <PageHeaderBar
+        className="mb-3"
+        title={t.projects.title}
+        description={
+          <>
+            <p className="max-w-xl">{t.projects.subtitle}</p>
+            <p className="mt-1 text-xs text-muted-foreground tabular-nums">
+              {pathCount} {pathCount === 1 ? t.projects.path : t.projects.paths}
+            </p>
+          </>
+        }
+        actions={
+          onCreate ? (
+            <Button variant="primary" icon="plus" onClick={onCreate}>
+              {t.projects.newPath}
+            </Button>
+          ) : null
+        }
+      />
 
       <div className="flex flex-wrap items-center gap-2">
         <div className="inline-flex rounded-lg border border-border-default bg-bg-sunken p-0.5">

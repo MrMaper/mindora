@@ -4,6 +4,7 @@ import * as React from "react";
 import { Button } from "@/components/ui-kit/forms/button";
 import { Input } from "@/components/ui-kit/forms/input";
 import { Select } from "@/components/ui-kit/forms/select";
+import { PageHeaderBar } from "@/components/ui-kit/layout/page-header-bar";
 import { useTranslation } from "@/i18n/provider";
 import type { TeamFilters } from "../hooks/use-teams";
 
@@ -40,19 +41,20 @@ export function TeamHeader({
 
   return (
     <div className="mb-5">
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h1 className="text-xl font-semibold text-text-primary">
-            {t.teams.title}
-          </h1>
-          <p className="text-sm text-text-tertiary mt-0.5">
+      <PageHeaderBar
+        className="mb-4"
+        title={t.teams.title}
+        description={
+          <>
             {total} {total === 1 ? t.teams.team : t.teams.totalTeams}
-          </p>
-        </div>
-        <Button variant="primary" icon="plus" onClick={onCreate}>
-          {t.common.add} {t.teams.team.toLowerCase()}
-        </Button>
-      </div>
+          </>
+        }
+        actions={
+          <Button variant="primary" icon="plus" onClick={onCreate}>
+            {t.common.add} {t.teams.team.toLowerCase()}
+          </Button>
+        }
+      />
 
       <div className="flex flex-wrap gap-2 items-end">
         <form

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui-kit/data-display/badge";
 import { Button } from "@/components/ui-kit/forms/button";
+import { PageHeaderBar } from "@/components/ui-kit/layout/page-header-bar";
 import { useLanguage, useTranslation } from "@/i18n/provider";
 import { cn, formatNumber } from "@/lib/utils";
 import {
@@ -35,38 +36,41 @@ export function AreaDashboardCC({ data }: { data: AreaDashboardData }) {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <Button
-            variant="ghost"
-            size="sm"
-            icon="arrow-right"
-            onClick={() => router.push("/projects")}
-            className="mb-2 -ms-2"
-          >
-            {t.projects.backToHub}
-          </Button>
-          <div className="flex items-center gap-2">
-            <span className="text-2xl leading-none" aria-hidden>
-              {visual.emoji}
-            </span>
-            <h1 className="text-xl font-semibold text-foreground truncate">
-              {data.bucket.name}
-            </h1>
-          </div>
-          {data.bucket.description ? (
-            <p className="text-sm text-muted-foreground mt-1">
-              {data.bucket.description}
-            </p>
-          ) : null}
-        </div>
+      <div>
         <Button
-          variant="primary"
-          icon="plus"
-          onClick={() => router.push(`/projects?create=${data.area}`)}
+          variant="ghost"
+          size="sm"
+          icon="arrow-right"
+          onClick={() => router.push("/projects")}
+          className="mb-2 -ms-2"
         >
-          {t.projects.newPath}
+          {t.projects.backToHub}
         </Button>
+        <PageHeaderBar
+          className="mb-0"
+          title={
+            <span className="inline-flex items-center gap-2">
+              <span className="text-2xl leading-none" aria-hidden>
+                {visual.emoji}
+              </span>
+              <span className="truncate">{data.bucket.name}</span>
+            </span>
+          }
+          description={
+            data.bucket.description ? (
+              <p>{data.bucket.description}</p>
+            ) : null
+          }
+          actions={
+            <Button
+              variant="primary"
+              icon="plus"
+              onClick={() => router.push(`/projects?create=${data.area}`)}
+            >
+              {t.projects.newPath}
+            </Button>
+          }
+        />
       </div>
 
       <section
