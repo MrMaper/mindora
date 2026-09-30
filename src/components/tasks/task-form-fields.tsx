@@ -451,24 +451,29 @@ export function TaskFormFields({
             );
           }}
         />
+        {recurrenceActive ? (
+          <p className="col-span-2 -mt-1 text-[11px] leading-snug text-muted-foreground">
+            {t.recurrenceUi.howItWorks}
+          </p>
+        ) : null}
         {hasRecurrenceSeries && recurrenceActive ? (
           <Controller
             name="applyRecurrenceToSeries"
             control={control}
             render={({ field }) => (
-              <label className="flex flex-col gap-1 self-end pb-2 text-sm">
-                <span className="inline-flex items-center gap-2">
+              <div className="col-span-2 flex flex-col gap-1 rounded-lg border border-dashed px-3 py-2">
+                <label className="inline-flex items-center gap-2 text-sm">
                   <input
                     type="checkbox"
                     checked={field.value === "1" || field.value === "true"}
                     onChange={e => field.onChange(e.target.checked ? "1" : "")}
                   />
                   {t.recurrenceUi.applySeries}
-                </span>
-                <span className="text-xs text-muted-foreground ps-6">
+                </label>
+                <p className="ps-6 text-[11px] leading-snug text-muted-foreground">
                   {t.recurrenceUi.applySeriesHint}
-                </span>
-              </label>
+                </p>
+              </div>
             )}
           />
         ) : null}

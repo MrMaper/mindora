@@ -37,8 +37,10 @@ interface TasksTableProps {
 }
 
 const GRID =
-  "md:grid gap-3 px-4 items-center border-b border-border-subtle";
-const GRID_COLUMNS = "1fr 140px 130px 90px 160px 110px 40px";
+  "md:grid gap-x-3 gap-y-1 px-4 items-center border-b border-border-subtle";
+/** Title flexes; due stays one line via max-content + nowrap on the cell. */
+const GRID_COLUMNS =
+  "minmax(10rem, 1.6fr) minmax(5.5rem, 0.85fr) minmax(6.5rem, auto) 4.5rem minmax(5.5rem, 0.8fr) max-content 2.5rem";
 
 function areaTitle(area: TaskRow["area"], t: TasksTableProps["t"]) {
   if (area === "PHD") return t.dashboard.areaPhd as string;
@@ -152,7 +154,8 @@ export function TasksTable({
 
   return (
     <>
-      <div className="rounded-lg border border-border-default bg-bg-surface overflow-hidden">
+      <div className="rounded-lg border border-border-default bg-bg-surface overflow-x-auto">
+        <div className="min-w-[44rem]">
         <div
           className={cn(GRID, "hidden md:grid h-9 bg-bg-sunken")}
           style={{ gridTemplateColumns: GRID_COLUMNS }}
@@ -166,7 +169,7 @@ export function TasksTable({
                 type="button"
                 aria-sort={active ? (filters.order === "asc" ? "ascending" : "descending") : "none"}
                 onClick={() => onSortChange(col.key)}
-                className="flex cursor-pointer items-center gap-1 text-start text-2xs font-semibold uppercase tracking-caps text-text-tertiary hover:text-text-secondary"
+                className="flex cursor-pointer items-center gap-1 whitespace-nowrap text-start text-2xs font-semibold uppercase tracking-caps text-text-tertiary hover:text-text-secondary"
               >
                 {col.label}
                 {active && (
@@ -216,6 +219,7 @@ export function TasksTable({
             </React.Fragment>
           );
         })}
+        </div>
       </div>
 
       {workLogOpenTaskId &&
@@ -309,7 +313,7 @@ function TaskLine({
           <div className="text-sm font-medium text-text-primary">{task.title}</div>
           <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-text-tertiary">
             <StatusBadge status={statusToDisplay(task.status)} />
-            <span className={cn(overdue && "font-medium text-destructive")}>
+            <span className={cn("whitespace-nowrap tabular-nums", overdue && "font-medium text-destructive")}>
               {formatDate(task.dueDate, task.durationMinutes)}
             </span>
           </div>
@@ -358,7 +362,12 @@ function TaskLine({
             <span className="text-xs text-text-tertiary">{t.tasks.unassigned}</span>
           )}
         </div>
-        <span className={cn("text-xs text-text-tertiary", overdue && "font-medium text-destructive")}>
+        <span
+          className={cn(
+            "whitespace-nowrap text-xs tabular-nums text-text-tertiary",
+            overdue && "font-medium text-destructive",
+          )}
+        >
           {formatDate(task.dueDate, task.durationMinutes)}
         </span>
         <span onClick={event => event.stopPropagation()}>

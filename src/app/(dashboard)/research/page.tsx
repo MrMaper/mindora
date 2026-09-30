@@ -2,18 +2,18 @@ import { requireModule } from "@/lib/require-role";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { auth } from "@/auth";
 import { getBoardColumns } from "@/features/kanban/queries";
 import { getAssignableUsers } from "@/features/users/queries";
 import { getLabels } from "@/features/labels/queries";
 import { getTranslationsAsync } from "@/i18n";
 import {
   ensurePersonalWorkspaceCached,
+  getSessionCached,
   getUserPreferencesCached,
+  syncPlanningStatusesCached,
 } from "@/lib/request-cache";
 import { personalAreaProjectId } from "@/lib/life";
 import { RESEARCH_BOARD_STATUSES } from "@/features/kanban/types";
-import { syncPlanningStatusesForUser } from "@/features/life/actions";
 import {
   getResearchHubData,
   listPhdResearchProjects,
@@ -34,7 +34,7 @@ export default async function ResearchPage({
   searchParams: Promise<{ project?: string; tab?: string }>;
 }) {
   await requireModule("research");
-  const session = await auth();
+  const session = await getSessionCached();
   if (!session?.user) redirect("/login");
   await ensurePersonalWorkspaceCached(session.user.id);
 
@@ -79,7 +79,7 @@ export default async function ResearchPage({
 
   const phdInbox = personalAreaProjectId(session.user.id, "PHD");
 
-  await syncPlanningStatusesForUser(session.user.id);
+  await syncPlanningStatusesCached(session.user.id);
 
   const filterProject =
     safeScope === "all"

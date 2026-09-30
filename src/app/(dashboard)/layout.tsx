@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getTranslationsAsync } from "@/i18n";
 import { getUnreadCount } from "@/features/notifications/queries";
 import { DirectionSync } from "@/components/DirectionSync";
-import { CommandPaletteWrapper } from "@/components/CommandPaletteWrapper";
+import { CommandPaletteLazy } from "@/components/CommandPaletteLazy";
 import { DashboardShell } from "./dashboard-shell";
 import type { NavGroup, NavItem } from "./sidebar-nav";
 import { cookies } from "next/headers";
@@ -39,6 +39,10 @@ export default async function DashboardLayout({
     isAdmin
       ? Promise.resolve(null)
       : getUserModuleFlags(session.user.id),
+    // Warm the workspace cache in parallel with prefs (member shell needs it).
+    isAdmin
+      ? Promise.resolve(null)
+      : ensurePersonalWorkspaceCached(session.user.id),
   ]);
 
   const language = preferences?.language ?? "FA";
@@ -87,8 +91,7 @@ export default async function DashboardLayout({
     );
   }
 
-  // Member: personal workspace + module-gated nav
-  await ensurePersonalWorkspaceCached(session.user.id);
+  // Member: personal workspace already warmed in Promise.all above
   const moduleFlags = flags!;
   const researchHref = researchHrefForScope(
     cookieStore.get(RESEARCH_SCOPE_COOKIE)?.value,
@@ -195,7 +198,7 @@ export default async function DashboardLayout({
           >
             {children}
           </DashboardShell>
-          <CommandPaletteWrapper />
+          <CommandPaletteLazy />
         </CaptureProvider>
       </AreaBucketsProvider>
     </div>

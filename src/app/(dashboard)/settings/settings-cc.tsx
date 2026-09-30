@@ -1,27 +1,27 @@
-﻿"use client";
-
-import { ResolvedValidationText } from "@/components/ui-kit/forms/action-error";
-import type { Translations } from "@/i18n";
-import { useTranslation } from "@/i18n/provider";
+"use client";
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Controller } from "react-hook-form";
-import { useSettings } from "./use-settings";
-import type { SettingsTab } from "./settings-tabs";
-import { useProfile } from "../profile/use-profile";
+import { Controller, type UseFormReturn } from "react-hook-form";
+import { ResolvedValidationText } from "@/components/ui-kit/forms/action-error";
+import { PageHeaderBar } from "@/components/ui-kit/layout/page-header-bar";
+import { Avatar } from "@/components/ui-kit/data-display/avatar";
+import { Button } from "@/components/ui-kit/forms/button";
+import { Input } from "@/components/ui-kit/forms/input";
+import type { Translations } from "@/i18n";
+import { useTranslation } from "@/i18n/provider";
 import type { Language, Theme } from "@/types/db";
 import type { UserPreferencesData } from "@/features/settings/queries";
 import type { ChangePasswordInput } from "@/schemas/auth";
-import type { UseFormReturn } from "react-hook-form";
 import {
   updateBaleSchedule,
   type UpdatePreferencesInput,
 } from "@/features/settings/actions";
 import type { UserRow } from "@/features/users/types";
-import { Avatar } from "@/components/ui-kit/data-display/avatar";
-import { Button } from "@/components/ui-kit/forms/button";
-import { Input } from "@/components/ui-kit/forms/input";
+import { cn } from "@/lib/utils";
+import { useSettings } from "./use-settings";
+import type { SettingsTab } from "./settings-tabs";
+import { useProfile } from "../profile/use-profile";
 
 interface SettingsCCProps {
   currentLanguage: Language;
@@ -57,66 +57,37 @@ export function SettingsCC({
   };
 
   return (
-    <div style={{ maxWidth: 720 }} className="min-w-0 w-full overflow-x-hidden">
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "var(--space-3)",
-          marginBottom: "var(--space-6)",
-        }}
-        className="flex-wrap"
-      >
-        <span
-          style={{
-            fontSize: "var(--text-xl)",
-            fontWeight: "var(--weight-semibold)",
-            color: "var(--text-primary)",
-          }}
-        >
-          {t.settings.title}
-        </span>
-      </div>
+    <div className="min-w-0 w-full max-w-3xl overflow-x-hidden">
+      <PageHeaderBar
+        title={t.settings.title}
+        description={t.settings.subtitle}
+        className="mb-4"
+      />
 
       <div
-        style={{
-          display: "flex",
-          gap: "var(--space-1)",
-          marginBottom: "var(--space-6)",
-          borderBottom: "1px solid var(--border-default)",
-          paddingBottom: "var(--space-3)",
-          flexWrap: "wrap",
-        }}
         role="tablist"
+        className="mb-6 flex flex-wrap gap-1 border-b border-border pb-2"
       >
-        {tabs.map(tab => (
-          <button
-            key={tab.id}
-            type="button"
-            role="tab"
-            aria-selected={settings.activeTab === tab.id}
-            onClick={() => selectTab(tab.id)}
-            style={{
-              padding: "var(--space-2) var(--space-4)",
-              borderRadius: "var(--radius-md)",
-              border: "none",
-              background:
-                settings.activeTab === tab.id
-                  ? "var(--surface-sunken, var(--surface-default))"
-                  : "transparent",
-              fontSize: "var(--text-sm)",
-              fontWeight: "var(--weight-medium)",
-              color:
-                settings.activeTab === tab.id
-                  ? "var(--text-primary)"
-                  : "var(--text-tertiary)",
-              cursor: settings.activeTab === tab.id ? "default" : "pointer",
-              transition: "all 0.15s ease",
-            }}
-          >
-            {tab.label}
-          </button>
-        ))}
+        {tabs.map(tab => {
+          const active = settings.activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => selectTab(tab.id)}
+              className={cn(
+                "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+                active
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted-foreground hover:bg-accent hover:text-foreground",
+              )}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
 
       <div role="tabpanel" id={`panel-${settings.activeTab}`}>
@@ -163,6 +134,38 @@ export function SettingsCC({
   );
 }
 
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 className="mb-3 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+      {children}
+    </h2>
+  );
+}
+
+function StatusLine({
+  error,
+  success,
+}: {
+  error?: string | null;
+  success?: string | null;
+}) {
+  if (error) {
+    return (
+      <p className="mt-2 text-xs text-red-500" role="alert">
+        <ResolvedValidationText text={error} />
+      </p>
+    );
+  }
+  if (success) {
+    return (
+      <p className="mt-2 text-xs text-green-600" role="status">
+        ✓ {success}
+      </p>
+    );
+  }
+  return null;
+}
+
 function ProfileSettingsSection({
   t,
   user,
@@ -174,62 +177,46 @@ function ProfileSettingsSection({
 }) {
   const avatarInputRef = React.useRef<HTMLInputElement>(null);
   const p = useProfile(user.id, user.name);
+  const [copied, setCopied] = React.useState(false);
+
+  async function copyBaleCode() {
+    if (!baleCode) return;
+    try {
+      await navigator.clipboard.writeText(baleCode);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
+  }
 
   return (
-    <section>
+    <div className="space-y-8">
       {baleCode ? (
-        <div style={{ marginBottom: "var(--space-8)" }}>
-          <div
-            style={{
-              fontSize: "var(--text-sm)",
-              fontWeight: "var(--weight-semibold)",
-              color: "var(--text-primary)",
-              marginBottom: "var(--space-2)",
-            }}
-          >
-            {t.profile.baleCodeTitle}
+        <section>
+          <SectionTitle>{t.profile.baleCodeTitle}</SectionTitle>
+          <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card px-4 py-3">
+            <span className="font-mono text-xl tracking-[0.2em] text-foreground">
+              {baleCode}
+            </span>
+            <Button
+              type="button"
+              size="sm"
+              variant="secondary"
+              onClick={() => void copyBaleCode()}
+            >
+              {copied ? t.settings.copied : t.settings.copyCode}
+            </Button>
           </div>
-          <p
-            style={{
-              fontSize: "var(--text-xl)",
-              letterSpacing: "0.2em",
-              color: "var(--text-primary)",
-              marginBottom: "var(--space-2)",
-            }}
-          >
-            {baleCode}
-          </p>
-          <p
-            style={{
-              fontSize: "var(--text-sm)",
-              color: "var(--text-secondary)",
-            }}
-          >
+          <p className="mt-2 text-xs text-muted-foreground">
             {t.profile.baleCodeHint}
           </p>
-        </div>
+        </section>
       ) : null}
 
-      <div style={{ marginBottom: "var(--space-8)" }}>
-        <div
-          style={{
-            fontSize: "var(--text-2xs)",
-            fontWeight: "var(--weight-semibold)",
-            color: "var(--text-secondary)",
-            textTransform: "uppercase",
-            letterSpacing: "var(--tracking-caps)",
-            marginBottom: "var(--space-3)",
-          }}
-        >
-          {t.profile.avatar}
-        </div>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "var(--space-4)",
-          }}
-        >
+      <section>
+        <SectionTitle>{t.profile.avatar}</SectionTitle>
+        <div className="flex items-center gap-4">
           <Avatar name={user.name} src={user.avatar ?? undefined} size="xl" />
           <div>
             <Button
@@ -240,76 +227,40 @@ function ProfileSettingsSection({
             >
               {t.profile.changeAvatar}
             </Button>
-            <p
-              style={{
-                fontSize: "var(--text-xs)",
-                color: "var(--text-tertiary)",
-                marginTop: "var(--space-1)",
-              }}
-            >
+            <p className="mt-1 text-xs text-muted-foreground">
               {t.profile.avatarHint}
             </p>
-            {p.avatarError && (
-              <p
-                style={{
-                  fontSize: "var(--text-xs)",
-                  color: "var(--red-500)",
-                  marginTop: "var(--space-1)",
-                }}
-              >
-                {p.avatarError}
-              </p>
-            )}
+            {p.avatarError ? (
+              <p className="mt-1 text-xs text-red-500">{p.avatarError}</p>
+            ) : null}
           </div>
           <input
             ref={avatarInputRef}
             type="file"
             accept="image/*"
-            style={{ display: "none" }}
+            className="hidden"
             onChange={p.onAvatarChange}
           />
         </div>
-      </div>
+      </section>
 
-      <div>
-        <div
-          style={{
-            fontSize: "var(--text-2xs)",
-            fontWeight: "var(--weight-semibold)",
-            textTransform: "uppercase",
-            letterSpacing: "var(--tracking-caps)",
-            color: "var(--text-secondary)",
-            marginBottom: "var(--space-4)",
-          }}
-        >
-          {t.profile.personalInfo}
-        </div>
-
+      <section>
+        <SectionTitle>{t.profile.personalInfo}</SectionTitle>
         <form
           onSubmit={p.onProfileSubmit}
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "var(--space-4)",
-          }}
+          className="flex max-w-md flex-col gap-4"
           noValidate
         >
-          {p.profileError && (
-            <div
-              className="auth-card__alert auth-card__alert--error"
-              role="alert"
-            >
+          {p.profileError ? (
+            <div className="rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-600" role="alert">
               <ResolvedValidationText text={p.profileError} />
             </div>
-          )}
-          {p.profileSuccess && (
-            <div
-              className="auth-card__alert auth-card__alert--success"
-              role="status"
-            >
+          ) : null}
+          {p.profileSuccess ? (
+            <div className="rounded-md border border-green-500/40 bg-green-500/10 px-3 py-2 text-sm text-green-700" role="status">
               {t.profile.changesSaved}
             </div>
-          )}
+          ) : null}
           <Controller
             name="name"
             control={p.profileForm.control}
@@ -339,8 +290,8 @@ function ProfileSettingsSection({
             </Button>
           </div>
         </form>
-      </div>
-    </section>
+      </section>
+    </div>
   );
 }
 
@@ -361,211 +312,315 @@ function SecuritySettingsSection({
 }) {
   return (
     <section>
-      <div
-        style={{
-          fontSize: "var(--text-2xs)",
-          fontWeight: "var(--weight-semibold)",
-          color: "var(--text-secondary)",
-          textTransform: "uppercase",
-          letterSpacing: "var(--tracking-caps)",
-          marginBottom: "var(--space-4)",
-        }}
-      >
-        {t.settings.security}
-      </div>
-
+      <SectionTitle>{t.settings.security}</SectionTitle>
+      <p className="mb-4 text-sm text-muted-foreground">
+        {t.settings.securityHint}
+      </p>
       <form
         onSubmit={onPasswordChange}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "var(--space-4)",
-        }}
+        className="flex max-w-md flex-col gap-4"
         noValidate
       >
-        {passwordError && (
-          <div
-            className="auth-card__alert auth-card__alert--error"
-            role="alert"
-            style={{
-              padding: "var(--space-3)",
-              borderRadius: "var(--radius-md)",
-              background: "var(--red-tint)",
-              border: "1px solid var(--red-500)",
-              color: "var(--red-600)",
-              fontSize: "var(--text-sm)",
-            }}
-          >
+        {passwordError ? (
+          <div className="rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-600" role="alert">
             <ResolvedValidationText text={passwordError} />
           </div>
-        )}
-        {passwordSuccess && (
-          <div
-            className="auth-card__alert auth-card__alert--success"
-            role="status"
-            style={{
-              padding: "var(--space-3)",
-              borderRadius: "var(--radius-md)",
-              background: "var(--green-tint)",
-              border: "1px solid var(--green-500)",
-              color: "var(--green-600)",
-              fontSize: "var(--text-sm)",
-            }}
-          >
+        ) : null}
+        {passwordSuccess ? (
+          <div className="rounded-md border border-green-500/40 bg-green-500/10 px-3 py-2 text-sm text-green-700" role="status">
             {t.settings.passwordChanged}
           </div>
-        )}
+        ) : null}
 
-        <div>
-          <label
-            style={{
-              display: "block",
-              fontSize: "var(--text-sm)",
-              fontWeight: "var(--weight-medium)",
-              color: "var(--text-primary)",
-              marginBottom: "var(--space-2)",
-            }}
-          >
-            {t.profile.currentPassword}
-          </label>
-          <input
-            {...passwordForm.register("currentPassword")}
-            type="password"
-            autoComplete="current-password"
-            style={{
-              width: "100%",
-              padding: "var(--space-2) var(--space-3)",
-              borderRadius: "var(--radius-md)",
-              border: "1px solid var(--border-default)",
-              background: "var(--surface-default)",
-              color: "var(--text-primary)",
-              fontSize: "var(--text-sm)",
-            }}
-            disabled={passwordPending}
-          />
-          {passwordForm.formState.errors.currentPassword && (
-            <p
-              style={{
-                fontSize: "var(--text-xs)",
-                color: "var(--red-500)",
-                marginTop: "var(--space-1)",
-              }}
-            >
-              <ResolvedValidationText
-                text={passwordForm.formState.errors.currentPassword.message}
-              />
-            </p>
+        <Controller
+          name="currentPassword"
+          control={passwordForm.control}
+          render={({ field, fieldState }) => (
+            <Input
+              {...field}
+              value={field.value ?? ""}
+              type="password"
+              autoComplete="current-password"
+              label={t.profile.currentPassword}
+              error={fieldState.error?.message}
+              disabled={passwordPending}
+            />
           )}
-        </div>
-
-        <div>
-          <label
-            style={{
-              display: "block",
-              fontSize: "var(--text-sm)",
-              fontWeight: "var(--weight-medium)",
-              color: "var(--text-primary)",
-              marginBottom: "var(--space-2)",
-            }}
-          >
-            {t.profile.newPassword}
-          </label>
-          <input
-            {...passwordForm.register("password")}
-            type="password"
-            autoComplete="new-password"
-            style={{
-              width: "100%",
-              padding: "var(--space-2) var(--space-3)",
-              borderRadius: "var(--radius-md)",
-              border: "1px solid var(--border-default)",
-              background: "var(--surface-default)",
-              color: "var(--text-primary)",
-              fontSize: "var(--text-sm)",
-            }}
-            disabled={passwordPending}
-          />
-          {passwordForm.formState.errors.password && (
-            <p
-              style={{
-                fontSize: "var(--text-xs)",
-                color: "var(--red-500)",
-                marginTop: "var(--space-1)",
-              }}
-            >
-              <ResolvedValidationText
-                text={passwordForm.formState.errors.password.message}
-              />
-            </p>
+        />
+        <Controller
+          name="password"
+          control={passwordForm.control}
+          render={({ field, fieldState }) => (
+            <Input
+              {...field}
+              value={field.value ?? ""}
+              type="password"
+              autoComplete="new-password"
+              label={t.profile.newPassword}
+              error={fieldState.error?.message}
+              disabled={passwordPending}
+            />
           )}
-        </div>
-
-        <div>
-          <label
-            style={{
-              display: "block",
-              fontSize: "var(--text-sm)",
-              fontWeight: "var(--weight-medium)",
-              color: "var(--text-primary)",
-              marginBottom: "var(--space-2)",
-            }}
-          >
-            {t.profile.confirmNewPassword}
-          </label>
-          <input
-            {...passwordForm.register("confirmPassword")}
-            type="password"
-            autoComplete="new-password"
-            style={{
-              width: "100%",
-              padding: "var(--space-2) var(--space-3)",
-              borderRadius: "var(--radius-md)",
-              border: "1px solid var(--border-default)",
-              background: "var(--surface-default)",
-              color: "var(--text-primary)",
-              fontSize: "var(--text-sm)",
-            }}
-            disabled={passwordPending}
-          />
-          {passwordForm.formState.errors.confirmPassword && (
-            <p
-              style={{
-                fontSize: "var(--text-xs)",
-                color: "var(--red-500)",
-                marginTop: "var(--space-1)",
-              }}
-            >
-              <ResolvedValidationText
-                text={passwordForm.formState.errors.confirmPassword.message}
-              />
-            </p>
+        />
+        <Controller
+          name="confirmPassword"
+          control={passwordForm.control}
+          render={({ field, fieldState }) => (
+            <Input
+              {...field}
+              value={field.value ?? ""}
+              type="password"
+              autoComplete="new-password"
+              label={t.profile.confirmNewPassword}
+              error={fieldState.error?.message}
+              disabled={passwordPending}
+            />
           )}
-        </div>
-
+        />
         <div>
-          <button
+          <Button
             type="submit"
-            style={{
-              padding: "var(--space-2) var(--space-4)",
-              borderRadius: "var(--radius-md)",
-              border: "none",
-              background: "var(--action-primary)",
-              color: "var(--text-on-brand)",
-              fontSize: "var(--text-sm)",
-              fontWeight: "var(--weight-medium)",
-              cursor: passwordPending ? "not-allowed" : "pointer",
-              opacity: passwordPending ? 0.6 : 1,
-              transition: "all 0.15s ease",
-            }}
-            disabled={passwordPending}
+            variant="primary"
+            size="sm"
+            loading={passwordPending}
           >
-            {passwordPending ? t.common.loading : t.profile.changePasswordSubmit}
-          </button>
+            {t.profile.changePasswordSubmit}
+          </Button>
         </div>
       </form>
     </section>
   );
 }
+
+type NotifyKey = keyof UpdatePreferencesInput;
+
+function defaultNotifyValue(
+  key: string,
+  preferences: UserPreferencesData | null,
+): boolean {
+  const fromPrefs = preferences?.[key as keyof UserPreferencesData];
+  if (typeof fromPrefs === "boolean") return fromPrefs;
+  return key === "soundNotifs" || key === "batchDeadlineReminders"
+    ? false
+    : true;
+}
+
+function NotifyToggle({
+  label,
+  hint,
+  checked,
+  disabled,
+  onChange,
+}: {
+  label: string;
+  hint?: string;
+  checked: boolean;
+  disabled?: boolean;
+  onChange: (value: boolean) => void;
+}) {
+  return (
+    <label
+      className={cn(
+        "flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-border bg-card px-3 py-2.5 transition-opacity",
+        disabled && "cursor-not-allowed opacity-55",
+      )}
+    >
+      <span className="min-w-0">
+        <span className="block text-sm text-foreground">{label}</span>
+        {hint ? (
+          <span className="mt-0.5 block text-xs text-muted-foreground">
+            {hint}
+          </span>
+        ) : null}
+      </span>
+      <input
+        type="checkbox"
+        checked={checked}
+        disabled={disabled}
+        onChange={e => onChange(e.target.checked)}
+        className="size-5 shrink-0 accent-[var(--action-primary)]"
+      />
+    </label>
+  );
+}
+
+function NotificationSettingsSection({
+  t,
+  preferences,
+  notifyPending,
+  notifySuccess,
+  notifyError,
+  onNotifyChange,
+}: {
+  t: Translations;
+  preferences: UserPreferencesData | null;
+  notifyPending: boolean;
+  notifySuccess: boolean;
+  notifyError: string | null;
+  onNotifyChange: (
+    field: keyof UpdatePreferencesInput,
+    value: boolean,
+  ) => Promise<boolean>;
+}) {
+  const generalPrefs = [
+    {
+      key: "notifications" as const,
+      label: t.settings.masterNotifications,
+    },
+    {
+      key: "emailNotifs" as const,
+      label: t.settings.emailNotifs,
+      hint: t.settings.emailNotifsHint,
+    },
+    { key: "soundNotifs" as const, label: t.settings.soundNotifs },
+  ];
+
+  const eventPrefs = [
+    { key: "notifyTaskAssigned" as const, label: t.settings.notifyTaskAssigned },
+    { key: "notifyTaskUpdated" as const, label: t.settings.notifyTaskUpdated },
+    {
+      key: "notifyTaskCommented" as const,
+      label: t.settings.notifyTaskCommented,
+    },
+    { key: "notifyMention" as const, label: t.settings.notifyMention },
+    {
+      key: "notifyDeadlineApproaching" as const,
+      label: t.settings.notifyDeadlineApproaching,
+    },
+    {
+      key: "batchDeadlineReminders" as const,
+      label: t.settings.batchDeadlineReminders,
+      hint: t.settings.batchDeadlineRemindersHint,
+    },
+    {
+      key: "notifyStatusChanged" as const,
+      label: t.settings.notifyStatusChanged,
+    },
+  ];
+
+  const allKeys = [...generalPrefs, ...eventPrefs];
+
+  const [localPrefs, setLocalPrefs] = React.useState(() => {
+    const next: Record<string, boolean> = {};
+    for (const pref of allKeys) {
+      next[pref.key] = defaultNotifyValue(pref.key, preferences);
+    }
+    return next;
+  });
+
+  React.useEffect(() => {
+    setLocalPrefs(() => {
+      const next: Record<string, boolean> = {};
+      for (const pref of allKeys) {
+        next[pref.key] = defaultNotifyValue(pref.key, preferences);
+      }
+      return next;
+    });
+  }, [preferences]);
+
+  const masterOn = localPrefs.notifications !== false;
+
+  const [browserPerm, setBrowserPerm] = React.useState<string>("unsupported");
+  React.useEffect(() => {
+    if (typeof window === "undefined" || !("Notification" in window)) {
+      setBrowserPerm("unsupported");
+      return;
+    }
+    setBrowserPerm(Notification.permission);
+  }, []);
+
+  async function toggle(key: NotifyKey, value: boolean) {
+    const previous = localPrefs[key] ?? false;
+    setLocalPrefs(prev => ({ ...prev, [key]: value }));
+    const ok = await onNotifyChange(key, value);
+    if (!ok) {
+      setLocalPrefs(prev => ({ ...prev, [key]: previous }));
+    }
+  }
+
+  return (
+    <div className="space-y-8">
+      <section>
+        <SectionTitle>{t.settings.notifyGroupGeneral}</SectionTitle>
+        <div className="flex flex-col gap-2">
+          {generalPrefs.map(pref => (
+            <NotifyToggle
+              key={pref.key}
+              label={pref.label}
+              hint={"hint" in pref ? pref.hint : undefined}
+              checked={localPrefs[pref.key] ?? false}
+              disabled={notifyPending}
+              onChange={v => void toggle(pref.key, v)}
+            />
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <SectionTitle>{t.settings.notifyGroupEvents}</SectionTitle>
+        <div className="flex flex-col gap-2">
+          {eventPrefs.map(pref => (
+            <NotifyToggle
+              key={pref.key}
+              label={pref.label}
+              hint={"hint" in pref ? pref.hint : undefined}
+              checked={localPrefs[pref.key] ?? false}
+              disabled={notifyPending || !masterOn}
+              onChange={v => void toggle(pref.key, v)}
+            />
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <SectionTitle>{t.settings.notifyGroupChannels}</SectionTitle>
+        {browserPerm !== "unsupported" ? (
+          <div className="mb-2 flex items-center justify-between gap-3 rounded-lg border border-border bg-card px-3 py-2.5">
+            <div className="min-w-0">
+              <div className="text-sm text-foreground">
+                {t.settings.browserReminders}
+              </div>
+              <div className="mt-0.5 text-xs text-muted-foreground">
+                {t.settings.browserRemindersHint}
+              </div>
+            </div>
+            <Button
+              type="button"
+              size="sm"
+              variant={browserPerm === "granted" ? "primary" : "secondary"}
+              disabled={browserPerm === "granted"}
+              onClick={async () => {
+                const next = await Notification.requestPermission();
+                setBrowserPerm(next);
+              }}
+            >
+              {browserPerm === "granted"
+                ? t.settings.browserRemindersOn
+                : t.settings.browserRemindersEnable}
+            </Button>
+          </div>
+        ) : null}
+
+        <BaleHours
+          digestHour={preferences?.baleDigestHour ?? 8}
+          habitHour={preferences?.baleHabitHour ?? 21}
+          digestLabel={t.settings.baleDigestHour}
+          habitLabel={t.settings.baleHabitHour}
+          hint={t.settings.baleHoursHint}
+          saveLabel={t.settings.baleHoursSave}
+          savedLabel={t.settings.baleHoursSaved}
+        />
+      </section>
+
+      <StatusLine
+        error={notifyError}
+        success={notifySuccess ? t.settings.preferencesSaved : null}
+      />
+    </div>
+  );
+}
+
+const HOURS = Array.from({ length: 24 }, (_, hour) => String(hour));
 
 function BaleHours({
   digestHour,
@@ -595,27 +650,15 @@ function BaleHours({
   }, [digestHour, habitHour]);
 
   return (
-    <div style={{ marginTop: "var(--space-6)" }}>
-      <p
-        style={{
-          fontSize: "var(--text-sm)",
-          color: "var(--text-secondary)",
-          marginBottom: "var(--space-3)",
-        }}
-      >
-        {hint}
-      </p>
-      <div
-        style={{ display: "flex", gap: "var(--space-4)", flexWrap: "wrap" }}
-      >
-        <label
-          style={{ fontSize: "var(--text-sm)", color: "var(--text-primary)" }}
-        >
+    <div className="rounded-lg border border-border bg-card px-3 py-3">
+      <p className="mb-3 text-sm text-muted-foreground">{hint}</p>
+      <div className="flex flex-wrap gap-4">
+        <label className="text-sm text-foreground">
           {digestLabel}
           <select
             value={digest}
-            onChange={event => setDigest(event.target.value)}
-            style={{ display: "block", marginTop: "var(--space-1)" }}
+            onChange={e => setDigest(e.target.value)}
+            className="mt-1 block rounded-md border border-border bg-background px-2 py-1.5 text-sm"
           >
             {HOURS.map(hour => (
               <option key={hour} value={hour}>
@@ -624,14 +667,12 @@ function BaleHours({
             ))}
           </select>
         </label>
-        <label
-          style={{ fontSize: "var(--text-sm)", color: "var(--text-primary)" }}
-        >
+        <label className="text-sm text-foreground">
           {habitLabel}
           <select
             value={habit}
-            onChange={event => setHabit(event.target.value)}
-            style={{ display: "block", marginTop: "var(--space-1)" }}
+            onChange={e => setHabit(e.target.value)}
+            className="mt-1 block rounded-md border border-border bg-background px-2 py-1.5 text-sm"
           >
             {HOURS.map(hour => (
               <option key={hour} value={hour}>
@@ -641,9 +682,12 @@ function BaleHours({
           </select>
         </label>
       </div>
-      <button
+      <Button
         type="button"
-        disabled={pending}
+        size="sm"
+        variant="secondary"
+        className="mt-3"
+        loading={pending}
         onClick={() =>
           startTransition(async () => {
             const result = await updateBaleSchedule(
@@ -653,23 +697,11 @@ function BaleHours({
             setNote(result.success ? savedLabel : (result.error ?? savedLabel));
           })
         }
-        style={{
-          marginTop: "var(--space-3)",
-          padding: "var(--space-2) var(--space-4)",
-          borderRadius: "var(--radius-md)",
-          border: "1px solid var(--border-default)",
-          background: "var(--surface-default)",
-          color: "var(--text-primary)",
-          cursor: "pointer",
-        }}
       >
         {saveLabel}
-      </button>
+      </Button>
       {note ? (
-        <p
-          style={{ fontSize: "var(--text-sm)", marginTop: "var(--space-2)" }}
-          role="status"
-        >
+        <p className="mt-2 text-sm" role="status">
           {note}
         </p>
       ) : null}
@@ -677,276 +709,66 @@ function BaleHours({
   );
 }
 
-const HOURS = Array.from({ length: 24 }, (_, hour) => String(hour));
+function ThemePreview({ theme }: { theme: Theme }) {
+  if (theme === "SYSTEM") {
+    return (
+      <div
+        className="grid h-[4.25rem] grid-cols-2 overflow-hidden rounded-md border border-border"
+        aria-hidden
+      >
+        <div className="bg-zinc-50 p-1.5">
+          <div className="mb-1 h-1.5 w-full rounded bg-zinc-300" />
+          <div className="h-1.5 w-2/3 rounded bg-zinc-200" />
+        </div>
+        <div className="bg-zinc-900 p-1.5">
+          <div className="mb-1 h-1.5 w-full rounded bg-zinc-600" />
+          <div className="h-1.5 w-2/3 rounded bg-zinc-700" />
+        </div>
+      </div>
+    );
+  }
 
-function defaultNotifyValue(
-  key: string,
-  preferences: UserPreferencesData | null,
-): boolean {
-  const fromPrefs = preferences?.[key as keyof UserPreferencesData];
-  if (typeof fromPrefs === "boolean") return fromPrefs;
-  return key === "soundNotifs" || key === "batchDeadlineReminders"
-    ? false
-    : true;
-}
-
-function NotificationSettingsSection({
-  t,
-  preferences,
-  notifyPending,
-  notifySuccess,
-  notifyError,
-  onNotifyChange,
-}: {
-  t: Translations;
-  preferences: UserPreferencesData | null;
-  notifyPending: boolean;
-  notifySuccess: boolean;
-  notifyError: string | null;
-  onNotifyChange: (
-    field: keyof UpdatePreferencesInput,
-    value: boolean,
-  ) => Promise<boolean>;
-}) {
-  const notifyPrefs = [
-    { key: "notifications", label: t.settings.masterNotifications },
-    { key: "emailNotifs", label: t.settings.emailNotifs },
-    { key: "soundNotifs", label: t.settings.soundNotifs },
-    { key: "notifyTaskAssigned", label: t.settings.notifyTaskAssigned },
-    { key: "notifyTaskUpdated", label: t.settings.notifyTaskUpdated },
-    { key: "notifyTaskCommented", label: t.settings.notifyTaskCommented },
-    { key: "notifyMention", label: t.settings.notifyMention },
-    { key: "notifySprintStarted", label: t.settings.notifySprintStarted },
-    { key: "notifySprintEnded", label: t.settings.notifySprintEnded },
-    {
-      key: "notifyDeadlineApproaching",
-      label: t.settings.notifyDeadlineApproaching,
-    },
-    {
-      key: "batchDeadlineReminders",
-      label: t.settings.batchDeadlineReminders,
-      hint: t.settings.batchDeadlineRemindersHint,
-    },
-    { key: "notifyStatusChanged", label: t.settings.notifyStatusChanged },
-  ] as const;
-
-  const [localPrefs, setLocalPrefs] = React.useState(() => {
-    const next: Record<string, boolean> = {};
-    for (const pref of notifyPrefs) {
-      next[pref.key] = defaultNotifyValue(pref.key, preferences);
-    }
-    return next;
-  });
-
-  React.useEffect(() => {
-    setLocalPrefs(prev => {
-      const next = { ...prev };
-      for (const pref of notifyPrefs) {
-        next[pref.key] = defaultNotifyValue(pref.key, preferences);
-      }
-      return next;
-    });
-  }, [preferences]);
-
-  const masterOn = localPrefs.notifications !== false;
-
-  const [browserPerm, setBrowserPerm] = React.useState<string>("unsupported");
-  React.useEffect(() => {
-    if (typeof window === "undefined" || !("Notification" in window)) {
-      setBrowserPerm("unsupported");
-      return;
-    }
-    setBrowserPerm(Notification.permission);
-  }, []);
+  const isDark = theme === "DARK";
 
   return (
-    <section className="min-w-0 overflow-x-hidden">
+    <div
+      className={cn(
+        "overflow-hidden rounded-md border",
+        isDark ? "border-zinc-700 bg-zinc-900" : "border-zinc-200 bg-zinc-50",
+      )}
+      aria-hidden
+    >
       <div
-        style={{
-          fontSize: "var(--text-2xs)",
-          fontWeight: "var(--weight-semibold)",
-          color: "var(--text-secondary)",
-          textTransform: "uppercase",
-          letterSpacing: "var(--tracking-caps)",
-          marginBottom: "var(--space-4)",
-        }}
+        className={cn(
+          "flex h-6 items-center gap-1 border-b px-2",
+          isDark ? "border-zinc-700 bg-zinc-950" : "border-zinc-200 bg-white",
+        )}
       >
-        {t.settings.notifications}
+        <span className="size-1.5 rounded-full bg-red-400/80" />
+        <span className="size-1.5 rounded-full bg-amber-400/80" />
+        <span className="size-1.5 rounded-full bg-emerald-400/80" />
       </div>
-
-      {browserPerm !== "unsupported" ? (
+      <div className="space-y-1.5 p-2">
         <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: "var(--space-3)",
-            padding: "var(--space-3) var(--space-4)",
-            borderRadius: "var(--radius-md)",
-            background: "var(--surface-default)",
-            border: "1px solid var(--border-subtle)",
-            marginBottom: "var(--space-3)",
-          }}
-        >
-          <div style={{ minWidth: 0 }}>
-            <div
-              style={{
-                fontSize: "var(--text-sm)",
-                color: "var(--text-primary)",
-              }}
-            >
-              {t.settings.browserReminders}
-            </div>
-            <div
-              style={{
-                fontSize: "var(--text-xs)",
-                color: "var(--text-tertiary)",
-                marginTop: 4,
-              }}
-            >
-              {t.settings.browserRemindersHint}
-            </div>
-          </div>
-          <button
-            type="button"
-            disabled={browserPerm === "granted"}
-            onClick={async () => {
-              const next = await Notification.requestPermission();
-              setBrowserPerm(next);
-            }}
-            style={{
-              flexShrink: 0,
-              fontSize: "var(--text-xs)",
-              padding: "6px 10px",
-              borderRadius: "var(--radius-md)",
-              border: "1px solid var(--border-subtle)",
-              background:
-                browserPerm === "granted"
-                  ? "var(--action-primary)"
-                  : "transparent",
-              color:
-                browserPerm === "granted" ? "#fff" : "var(--text-primary)",
-              cursor: browserPerm === "granted" ? "default" : "pointer",
-            }}
-          >
-            {browserPerm === "granted"
-              ? t.settings.browserRemindersOn
-              : t.settings.browserRemindersEnable}
-          </button>
-        </div>
-      ) : null}
-
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "var(--space-3)",
-        }}
-      >
-        {notifyPrefs.map(pref => {
-          const isMaster = pref.key === "notifications";
-          const disabled = notifyPending || (!isMaster && !masterOn);
-          return (
-            <label
-              key={pref.key}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: "var(--space-3)",
-                padding: "var(--space-3) var(--space-4)",
-                borderRadius: "var(--radius-md)",
-                background: "var(--surface-default)",
-                border: "1px solid var(--border-subtle)",
-                cursor: disabled ? "not-allowed" : "pointer",
-                opacity: disabled ? 0.55 : 1,
-                transition: "all 0.15s ease",
-              }}
-            >
-              <span style={{ minWidth: 0 }}>
-                <span
-                  style={{
-                    display: "block",
-                    fontSize: "var(--text-sm)",
-                    color: "var(--text-primary)",
-                  }}
-                >
-                  {pref.label}
-                </span>
-                {"hint" in pref && pref.hint ? (
-                  <span
-                    style={{
-                      display: "block",
-                      fontSize: "var(--text-xs)",
-                      color: "var(--text-tertiary)",
-                      marginTop: 4,
-                    }}
-                  >
-                    {pref.hint}
-                  </span>
-                ) : null}
-              </span>
-              <input
-                type="checkbox"
-                checked={localPrefs[pref.key] ?? false}
-                onChange={async e => {
-                  const value = e.target.checked;
-                  const previous = localPrefs[pref.key] ?? false;
-                  setLocalPrefs(prev => ({ ...prev, [pref.key]: value }));
-                  const ok = await onNotifyChange(pref.key, value);
-                  if (!ok) {
-                    setLocalPrefs(prev => ({ ...prev, [pref.key]: previous }));
-                  }
-                }}
-                disabled={disabled}
-                style={{
-                  width: 20,
-                  height: 20,
-                  flexShrink: 0,
-                  accentColor: "var(--action-primary)",
-                }}
-              />
-            </label>
-          );
-        })}
+          className={cn(
+            "h-1.5 w-3/4 rounded",
+            isDark ? "bg-zinc-600" : "bg-zinc-300",
+          )}
+        />
+        <div
+          className={cn(
+            "h-1.5 w-1/2 rounded",
+            isDark ? "bg-zinc-700" : "bg-zinc-200",
+          )}
+        />
+        <div
+          className={cn(
+            "mt-1 h-5 w-full rounded",
+            isDark ? "bg-blue-600/40" : "bg-blue-500/25",
+          )}
+        />
       </div>
-
-      <BaleHours
-        digestHour={preferences?.baleDigestHour ?? 8}
-        habitHour={preferences?.baleHabitHour ?? 21}
-        digestLabel={t.settings.baleDigestHour}
-        habitLabel={t.settings.baleHabitHour}
-        hint={t.settings.baleHoursHint}
-        saveLabel={t.settings.baleHoursSave}
-        savedLabel={t.settings.baleHoursSaved}
-      />
-
-      {notifyError && (
-        <p
-          style={{
-            fontSize: "var(--text-xs)",
-            color: "var(--red-500)",
-            marginTop: "var(--space-2)",
-          }}
-          role="alert"
-        >
-          {notifyError}
-        </p>
-      )}
-
-      {notifySuccess && (
-        <p
-          style={{
-            fontSize: "var(--text-xs)",
-            color: "var(--green-600)",
-            marginTop: "var(--space-2)",
-          }}
-          role="status"
-        >
-          ✓ {t.settings.preferencesSaved}
-        </p>
-      )}
-    </section>
+    </div>
   );
 }
 
@@ -994,218 +816,80 @@ function AppearanceSettingsSection({
   ];
 
   const languages: Array<{ value: Language; label: string }> = [
-    { value: "EN", label: t.settings.english },
     { value: "FA", label: t.settings.persian },
+    { value: "EN", label: t.settings.english },
   ];
 
   return (
-    <section>
-      <div
-        style={{
-          fontSize: "var(--text-2xs)",
-          fontWeight: "var(--weight-semibold)",
-          color: "var(--text-secondary)",
-          textTransform: "uppercase",
-          letterSpacing: "var(--tracking-caps)",
-          marginBottom: "var(--space-4)",
-        }}
-      >
-        {t.settings.appearance}
-      </div>
-
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "var(--space-3)",
-          marginBottom: "var(--space-8)",
-        }}
-      >
-        {themes.map(tItem => (
-          <button
-            key={tItem.value}
-            type="button"
-            onClick={() => onThemeChange(tItem.value)}
-            disabled={themePending}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              padding: "var(--space-3) var(--space-4)",
-              borderRadius: "var(--radius-md)",
-              border:
-                theme === tItem.value
-                  ? "2px solid var(--blue-500)"
-                  : "1px solid var(--border-subtle)",
-              backgroundColor:
-                theme === tItem.value
-                  ? "var(--blue-50)"
-                  : "var(--surface-default)",
-              cursor: themePending ? "not-allowed" : "pointer",
-              opacity: themePending ? 0.6 : 1,
-              transition: "all 0.15s ease",
-              textAlign: "left",
-            }}
-          >
-            <div>
-              <div
-                style={{
-                  fontSize: "var(--text-sm)",
-                  fontWeight: "var(--weight-medium)",
-                  color:
-                    theme === tItem.value
-                      ? "var(--blue-600)"
-                      : "var(--text-primary)",
-                }}
+    <div className="space-y-8">
+      <section>
+        <SectionTitle>{t.settings.appearance}</SectionTitle>
+        <div className="grid gap-2 sm:grid-cols-3">
+          {themes.map(item => {
+            const active = theme === item.value;
+            return (
+              <button
+                key={item.value}
+                type="button"
+                disabled={themePending}
+                onClick={() => onThemeChange(item.value)}
+                className={cn(
+                  "rounded-lg border p-3 text-start transition-colors",
+                  active
+                    ? "border-primary bg-primary/5 ring-1 ring-primary/30"
+                    : "border-border bg-card hover:bg-accent/40",
+                  themePending && "cursor-not-allowed opacity-60",
+                )}
               >
-                {tItem.label}
-              </div>
-              <div
-                style={{
-                  fontSize: "var(--text-xs)",
-                  color: "var(--text-tertiary)",
-                  marginTop: "var(--space-1)",
-                }}
-              >
-                {tItem.description}
-              </div>
-            </div>
-            {theme === tItem.value && (
-              <span
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  width: 20,
-                  height: 20,
-                  borderRadius: "50%",
-                  background: "var(--blue-500)",
-                  color: "white",
-                  fontSize: "12px",
-                }}
-              >
-                ✓
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
+                <ThemePreview theme={item.value} />
+                <div className="mt-2.5 text-sm font-medium text-foreground">
+                  {item.label}
+                </div>
+                <div className="mt-0.5 text-xs text-muted-foreground">
+                  {item.description}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+        <StatusLine
+          error={themeError}
+          success={themeSuccess ? t.settings.themeUpdated : null}
+        />
+      </section>
 
-      {themeError && (
-        <p
-          style={{
-            fontSize: "var(--text-xs)",
-            color: "var(--red-500)",
-            marginTop: "var(--space-2)",
-          }}
-          role="alert"
-        >
-          {themeError}
-        </p>
-      )}
-
-      {themeSuccess && (
-        <p
-          style={{
-            fontSize: "var(--text-xs)",
-            color: "var(--green-600)",
-            marginTop: "var(--space-2)",
-            marginBottom: "var(--space-4)",
-          }}
-          role="status"
-        >
-          ✓ {t.settings.themeUpdated}
-        </p>
-      )}
-
-      <div
-        style={{
-          paddingTop: "var(--space-6)",
-          borderTop: "1px solid var(--border-subtle)",
-        }}
-      >
-        <label
-          style={{
-            display: "block",
-            fontSize: "var(--text-sm)",
-            fontWeight: "var(--weight-medium)",
-            color: "var(--text-primary)",
-            marginBottom: "var(--space-3)",
-          }}
-        >
-          {t.settings.language}
-        </label>
-        <p
-          style={{
-            fontSize: "var(--text-xs)",
-            color: "var(--text-tertiary)",
-            marginBottom: "var(--space-3)",
-          }}
-        >
+      <section className="border-t border-border pt-6">
+        <SectionTitle>{t.settings.language}</SectionTitle>
+        <p className="mb-3 text-xs text-muted-foreground">
           {t.settings.languageDescription}
         </p>
-
-        <div style={{ display: "flex", gap: "var(--space-3)" }}>
-          {languages.map(lang => (
-            <button
-              key={lang.value}
-              type="button"
-              onClick={() => onLanguageChange(lang.value)}
-              disabled={languagePending}
-              style={{
-                flex: 1,
-                padding: "var(--space-3) var(--space-4)",
-                borderRadius: "var(--radius-md)",
-                border:
-                  language === lang.value
-                    ? "2px solid var(--blue-500)"
-                    : "1px solid var(--border-subtle)",
-                backgroundColor:
-                  language === lang.value
-                    ? "var(--blue-50)"
-                    : "var(--surface-default)",
-                color:
-                  language === lang.value
-                    ? "var(--blue-600)"
-                    : "var(--text-primary)",
-                fontSize: "var(--text-sm)",
-                fontWeight: "var(--weight-medium)",
-                cursor: languagePending ? "not-allowed" : "pointer",
-                opacity: languagePending ? 0.6 : 1,
-                transition: "all 0.2s ease",
-              }}
-            >
-              {lang.label}
-            </button>
-          ))}
+        <div className="flex max-w-md gap-2">
+          {languages.map(lang => {
+            const active = language === lang.value;
+            return (
+              <button
+                key={lang.value}
+                type="button"
+                disabled={languagePending}
+                onClick={() => onLanguageChange(lang.value)}
+                className={cn(
+                  "flex-1 rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors",
+                  active
+                    ? "border-primary bg-primary/5 text-primary"
+                    : "border-border bg-card text-foreground hover:bg-accent/40",
+                  languagePending && "cursor-not-allowed opacity-60",
+                )}
+              >
+                {lang.label}
+              </button>
+            );
+          })}
         </div>
-
-        {languageError && (
-          <p
-            style={{
-              fontSize: "var(--text-xs)",
-              color: "var(--red-500)",
-              marginTop: "var(--space-2)",
-            }}
-            role="alert"
-          >
-            {languageError}
-          </p>
-        )}
-
-        {languageSuccess && (
-          <p
-            style={{
-              fontSize: "var(--text-xs)",
-              color: "var(--green-600)",
-              marginTop: "var(--space-2)",
-            }}
-            role="status"
-          >
-            ✓ {t.settings.languageUpdated}
-          </p>
-        )}
-      </div>
-    </section>
+        <StatusLine
+          error={languageError}
+          success={languageSuccess ? t.settings.languageUpdated : null}
+        />
+      </section>
+    </div>
   );
 }

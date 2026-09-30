@@ -35,7 +35,7 @@ function TaskDragHandle({ taskId, label }: { taskId: string; label: string }) {
       type="button"
       ref={setNodeRef}
       className={cn(
-        "mt-0.5 shrink-0 cursor-grab touch-none rounded-md p-1 text-muted-foreground hover:bg-accent",
+        "shrink-0 cursor-grab touch-none rounded-md p-1 text-muted-foreground hover:bg-accent",
         isDragging && "opacity-40",
       )}
       aria-label={label}
@@ -184,6 +184,90 @@ export function LifeTaskList({
           });
         }
 
+        const dueLabel = task.dueDate
+          ? (() => {
+              const due = new Date(task.dueDate);
+              const clock = formatClock(due, language, task.durationMinutes);
+              return `${formatJalaliShort(due, language)}${clock ? ` ${clock}` : ""}`;
+            })()
+          : null;
+
+        const actions = (
+          <div
+            className={cn(
+              "flex shrink-0 items-center",
+              compact ? "gap-0.5" : "gap-1",
+            )}
+          >
+            {!compact && showDoc && primaryDoc ? (
+              <Link
+                href={`/docs?id=${primaryDoc.id}`}
+                className="inline-flex h-7 items-center gap-1 rounded-md border px-2 text-[11px] hover:bg-card"
+                title={primaryDoc.title}
+                onClick={e => e.stopPropagation()}
+              >
+                <Icon name="file-text" size={12} />
+                {t.docs.continueWriting}
+              </Link>
+            ) : null}
+            {currentUserId && currentUserRole ? (
+              <WorkLogButton
+                taskId={task.id}
+                taskTitle={task.title}
+                assignedToId={task.assignedTo?.id ?? null}
+                currentUserId={currentUserId}
+                currentUserRole={currentUserRole}
+              />
+            ) : null}
+            {showPlanToday && task.status !== "DONE" ? (
+              <Button
+                size="sm"
+                variant="ghost"
+                disabled={busy}
+                className={compact ? "h-7 px-1.5 text-xs" : undefined}
+                onClick={() => onPlanToday(task.id)}
+              >
+                {t.dashboard.planToday}
+              </Button>
+            ) : null}
+            {showPlan && task.status === "BACKLOG" ? (
+              <Button
+                size="sm"
+                variant="ghost"
+                disabled={busy}
+                className={compact ? "h-7 px-1.5 text-xs" : undefined}
+                onClick={() => onPlan(task.id)}
+              >
+                {t.dashboard.planWeek}
+              </Button>
+            ) : null}
+            {task.status !== "DONE" ? (
+              <Button
+                size="sm"
+                variant="subtle"
+                disabled={busy}
+                className={compact ? "h-7 px-2 text-xs" : undefined}
+                onClick={() => onDone(task.id)}
+              >
+                {t.dashboard.markDone}
+              </Button>
+            ) : null}
+            {menuItems.length > 0 ? (
+              <Menu
+                trigger={
+                  <IconButton
+                    icon="more-horizontal"
+                    size="sm"
+                    aria-label={t.common.actions}
+                  />
+                }
+                align="end"
+                items={menuItems}
+              />
+            ) : null}
+          </div>
+        );
+
         return (
           <li
             key={task.id}
@@ -192,7 +276,7 @@ export function LifeTaskList({
               compact ? "py-2 px-1" : "py-2.5 px-2 hover:bg-bg-hover rounded-md",
             )}
           >
-            <div className="flex min-w-0 items-start gap-2">
+            <div className="flex min-w-0 items-center gap-2">
               {enableDrag && (!canPinFocus || canPinFocus(task)) ? (
                 <TaskDragHandle taskId={task.id} label={t.dashboard.focusDrag} />
               ) : null}
@@ -200,8 +284,8 @@ export function LifeTaskList({
                 <button
                   type="button"
                   className={cn(
-                    "shrink-0 mt-0.5 size-6 rounded-md inline-flex items-center justify-center text-muted-foreground hover:bg-accent",
-                    focusIds?.includes(task.id) && "text-primary bg-primary/10",
+                    "inline-flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-accent",
+                    focusIds?.includes(task.id) && "bg-primary/10 text-primary",
                   )}
                   title={t.dashboard.focusToggle}
                   aria-label={t.dashboard.focusToggle}
@@ -210,173 +294,53 @@ export function LifeTaskList({
                   <Icon name="target" size={14} />
                 </button>
               ) : (
-                <span className="shrink-0 mt-0.5">
+                <span className="shrink-0">
                   <PriorityIcon priority={priorityToDisplay(task.priority)} />
                 </span>
               )}
 
-              <div className="min-w-0 flex-1">
-                <div className="flex min-w-0 items-center gap-2">
-                  {onTaskClick ? (
-                    <button
-                      type="button"
-                      className="min-w-0 flex-1 text-start text-sm font-medium truncate hover:text-primary focus-visible:outline-none focus-visible:underline"
-                      onClick={() => onTaskClick(task)}
-                    >
-                      {task.title}
-                    </button>
-                  ) : (
-                    <div className="min-w-0 flex-1 text-sm font-medium truncate">
-                      {task.title}
-                    </div>
-                  )}
-                  {task.waitingOn ? (
-                    <span className="shrink-0 rounded border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-400">
-                      {t.tasks.waitingOn}
-                    </span>
-                  ) : null}
-
-                  {!compact ? null : (
-                    <div className="flex shrink-0 items-center gap-0.5">
-                      {showPlanToday && task.status !== "DONE" ? (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          disabled={busy}
-                          className="h-7 px-1.5 text-xs"
-                          onClick={() => onPlanToday(task.id)}
-                        >
-                          {t.dashboard.planToday}
-                        </Button>
-                      ) : null}
-                      {showPlan && task.status === "BACKLOG" ? (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          disabled={busy}
-                          className="h-7 px-1.5 text-xs"
-                          onClick={() => onPlan(task.id)}
-                        >
-                          {t.dashboard.planWeek}
-                        </Button>
-                      ) : null}
-                      {task.status !== "DONE" ? (
-                        <Button
-                          size="sm"
-                          variant="subtle"
-                          disabled={busy}
-                          className="h-7 px-2 text-xs"
-                          onClick={() => onDone(task.id)}
-                        >
-                          {t.dashboard.markDone}
-                        </Button>
-                      ) : null}
-                      {menuItems.length > 0 ? (
-                        <Menu
-                          trigger={
-                            <IconButton
-                              icon="more-horizontal"
-                              size="sm"
-                              aria-label={t.common.actions}
-                            />
-                          }
-                          align="end"
-                          items={menuItems}
-                        />
-                      ) : null}
-                    </div>
-                  )}
-                </div>
-
-                <div className="mt-0.5 flex min-w-0 flex-wrap items-center gap-1.5">
-                  <StatusBadge
-                    status={statusToDisplay(task.status) as TaskStatus}
-                    className="shrink-0"
-                  />
-                  {task.projectName ? (
-                    <span className="min-w-0 max-w-[9rem] truncate text-[11px] text-muted-foreground">
-                      {task.projectName}
-                    </span>
-                  ) : null}
-                  {task.dueDate ? (
-                    <span className="shrink-0 text-[11px] text-muted-foreground">
-                      {formatJalaliShort(new Date(task.dueDate), language)}
-                      {formatClock(
-                        new Date(task.dueDate),
-                        language,
-                        task.durationMinutes,
-                      )
-                        ? ` ${formatClock(
-                            new Date(task.dueDate),
-                            language,
-                            task.durationMinutes,
-                          )}`
-                        : ""}
-                    </span>
-                  ) : null}
-                  {linked.length > 0 ? (
-                    <span className="inline-flex items-center gap-0.5 shrink-0 text-[11px] text-muted-foreground">
-                      <Icon name="file-text" size={11} />
-                      {linked.length}
-                    </span>
-                  ) : null}
-                </div>
+              <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden">
+                {onTaskClick ? (
+                  <button
+                    type="button"
+                    className="min-w-0 flex-1 truncate text-start text-sm font-medium hover:text-primary focus-visible:outline-none focus-visible:underline"
+                    onClick={() => onTaskClick(task)}
+                  >
+                    {task.title}
+                  </button>
+                ) : (
+                  <div className="min-w-0 flex-1 truncate text-sm font-medium">
+                    {task.title}
+                  </div>
+                )}
+                {task.waitingOn ? (
+                  <span className="shrink-0 rounded border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-400">
+                    {t.tasks.waitingOn}
+                  </span>
+                ) : null}
+                <StatusBadge
+                  status={statusToDisplay(task.status) as TaskStatus}
+                  className="shrink-0"
+                />
+                {dueLabel ? (
+                  <span className="shrink-0 whitespace-nowrap text-[11px] tabular-nums text-muted-foreground">
+                    {dueLabel}
+                  </span>
+                ) : null}
+                {task.projectName ? (
+                  <span className="min-w-0 max-w-[8rem] truncate text-[11px] text-muted-foreground">
+                    {task.projectName}
+                  </span>
+                ) : null}
+                {linked.length > 0 ? (
+                  <span className="inline-flex shrink-0 items-center gap-0.5 text-[11px] text-muted-foreground">
+                    <Icon name="file-text" size={11} />
+                    {linked.length}
+                  </span>
+                ) : null}
               </div>
 
-              {!compact ? (
-                <div className="flex shrink-0 items-center gap-1">
-                  {showDoc && primaryDoc ? (
-                    <Link
-                      href={`/docs?id=${primaryDoc.id}`}
-                      className="inline-flex h-7 items-center gap-1 rounded-md border px-2 text-[11px] hover:bg-card"
-                      title={primaryDoc.title}
-                      onClick={e => e.stopPropagation()}
-                    >
-                      <Icon name="file-text" size={12} />
-                      {t.docs.continueWriting}
-                    </Link>
-                  ) : null}
-                  {currentUserId && currentUserRole ? (
-                    <WorkLogButton
-                      taskId={task.id}
-                      taskTitle={task.title}
-                      assignedToId={task.assignedTo?.id ?? null}
-                      currentUserId={currentUserId}
-                      currentUserRole={currentUserRole}
-                    />
-                  ) : null}
-                  {showPlanToday && task.status !== "DONE" ? (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      disabled={busy}
-                      onClick={() => onPlanToday(task.id)}
-                    >
-                      {t.dashboard.planToday}
-                    </Button>
-                  ) : null}
-                  {showPlan && task.status === "BACKLOG" ? (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      disabled={busy}
-                      onClick={() => onPlan(task.id)}
-                    >
-                      {t.dashboard.planWeek}
-                    </Button>
-                  ) : null}
-                  {task.status !== "DONE" ? (
-                    <Button
-                      size="sm"
-                      variant="subtle"
-                      disabled={busy}
-                      onClick={() => onDone(task.id)}
-                    >
-                      {t.dashboard.markDone}
-                    </Button>
-                  ) : null}
-                </div>
-              ) : null}
+              {actions}
             </div>
           </li>
         );

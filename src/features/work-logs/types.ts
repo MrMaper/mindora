@@ -59,16 +59,5 @@ export interface WorkLogSummary {
 }
 
 export const HOURS_OPTIONS = [
-  { value: 0.25, label: "0.25h (15m)" },
-  { value: 0.5, label: "0.5h (30m)" },
-  { value: 0.75, label: "0.75h (45m)" },
-  { value: 1, label: "1h" },
-  { value: 1.5, label: "1.5h" },
-  { value: 2, label: "2h" },
-  { value: 3, label: "3h" },
-  { value: 4, label: "4h" },
-  { value: 5, label: "5h" },
-  { value: 6, label: "6h" },
-  { value: 7, label: "7h" },
-  { value: 8, label: "8h" },
+  0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4, 5, 6, 7, 8,
 ] as const;

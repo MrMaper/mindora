@@ -234,7 +234,7 @@ const fa: GuideCopy = {
             "عنوان را بنویس. توضیح را وقتی لازم شد اضافه کن.",
             "وضعیت و اولویت را انتخاب کن: فوری، بالا، متوسط، پایین، یا هیچ‌کدام.",
             "حوزه را مشخص کن و اگر مسیر ساخته‌ای، کار را به همان مسیر وصل کن.",
-            "سررسید را از تقویم انتخاب کن. اگر لازم بود با «افزودن ساعت» ساعت هم بگذار؛ روز بدون ساعت کافی است. تکرار می‌تواند هر روز، هر هفته یا هر ماه باشد.",
+            "سررسید را از تقویم انتخاب کن. اگر لازم بود با «افزودن ساعت» ساعت هم بگذار؛ روز بدون ساعت کافی است. تکرار (هر روز / هفته / ماه) فقط یک نوبت روی تقویم می‌سازد؛ نوبت بعدی وقتی همین کار تمام یا «رد نوبت» شود ظاهر می‌شود — نه همهٔ روزهای آینده یکجا.",
             "برچسب رنگی بساز یا از برچسب‌های قبلی انتخاب کن.",
             "ذخیره کن. بعداً از همان ردیف، کار را ویرایش یا حذف می‌کنی.",
           ],
@@ -257,7 +257,7 @@ const fa: GuideCopy = {
             },
             {
               name: "تکرار",
-              body: "می‌توانی نوبت بعدی را رد کنی، تکرار را روی کل سری اعمال کنی، برایش پایان بگذاری، یا سری را متوقف کنی.",
+              body: "مدل «یک نوبت زنده» است، نه تقویم چندرویدادی. کار را برای اولین موعد می‌سازی (مثلاً ۵ روز بعد، هر روز). تا وقتی تمامش نکنی فقط همان روز را می‌بینی. با «تمام»، نوبت بعدی (+۱ روز / هفته / ماه) ساخته می‌شود. «رد نوبت بعدی» همین کارت را جلو می‌برد بدون ساخت کار جدید. «پایان تکرار» سقف تاریخ است. تیک «اعمال روی سری» فقط وقتی چند نوبت باز از قبل وجود داشته باشد معنی دارد.",
             },
             {
               name: "فیلتر جدول",
@@ -945,7 +945,7 @@ const en: GuideCopy = {
             "Write a title. Add a description when it helps.",
             "Set status and priority: urgent, high, medium, low, or none.",
             "Pick an area, and a path if you have made one.",
-            "Pick a due date. Add a clock only when you need one; a day alone is enough. Repeat can be daily, weekly, or monthly.",
+            "Pick a due date. Add a clock only when you need one; a day alone is enough. Daily / weekly / monthly repeat creates one live occurrence; the next appears when you complete or skip this task — not every future day at once.",
             "Create a colored label or reuse one.",
             "Save. Edit or delete later from the same row.",
           ],
@@ -968,7 +968,7 @@ const en: GuideCopy = {
             },
             {
               name: "Repeat",
-              body: "Skip the next occurrence, apply an edit to the whole series, set an end date, or stop the series.",
+              body: "One live occurrence, not a multi-event calendar. Create the task for its first due (e.g. five days out, daily). Until you finish it you only see that day. Completing spawns the next (+1 day / week / month). Skip next moves this card forward without a new row. Ends caps the series. Apply to series only matters once several open occurrences already exist.",
             },
             {
               name: "Table filters",

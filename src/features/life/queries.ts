@@ -4,6 +4,7 @@ import {
   addDays,
   endOfDay,
   endOfWeek,
+  isOverdueTask,
   startOfDay,
   startOfWeek,
   toDateKey,
@@ -69,7 +70,10 @@ export type WeekDayStripItem = {
   isPast: boolean;
 };
 
-export async function getPersonalDashboard(userId: string) {
+export async function getPersonalDashboard(
+  userId: string,
+  modules?: { language?: boolean; research?: boolean },
+) {
   const todayStart = startOfDay();
   const todayEnd = endOfDay();
   const weekStart = startOfWeek();
@@ -81,6 +85,8 @@ export async function getPersonalDashboard(userId: string) {
   const mine = personalTaskOwnership(userId);
   const lifeOnly = personalLifeTaskWhere(userId);
   const personalAreaIds = Object.values(areaProjectIdsForUser(userId));
+  const wantLanguage = modules?.language !== false;
+  const wantResearch = modules?.research !== false;
 
   const [
     overdue,
@@ -201,25 +207,48 @@ export async function getPersonalDashboard(userId: string) {
       select: { todayFocusDate: true, todayFocusIds: true },
     }),
     // CRITICAL: due-date OR must live under AND with ownership — never overwrite mine.OR
-    db.task.findMany({
-      where: {
-        AND: [
-          lifeOnly,
-          { status: { not: "DONE" } },
-          { waitingOn: false },
-          {
-            OR: [{ dueDate: null }, { dueDate: { lte: todayEnd } }],
-          },
-        ],
-      },
-      orderBy: [
-        { dueDate: { sort: "asc", nulls: "last" } },
-        { priority: "asc" },
-        { createdAt: "desc" },
-      ],
-      take: 40,
-      select: taskSelect,
-    }),
+    // Split buckets so a long overdue list cannot starve today / undated picks.
+    Promise.all([
+      db.task.findMany({
+        where: {
+          AND: [
+            lifeOnly,
+            { status: { not: "DONE" } },
+            { waitingOn: false },
+            { dueDate: { gte: todayStart, lte: todayEnd } },
+          ],
+        },
+        orderBy: [{ priority: "asc" }, { dueDate: "asc" }],
+        take: 25,
+        select: taskSelect,
+      }),
+      db.task.findMany({
+        where: {
+          AND: [
+            lifeOnly,
+            { status: { not: "DONE" } },
+            { waitingOn: false },
+            { dueDate: null },
+          ],
+        },
+        orderBy: [{ priority: "asc" }, { createdAt: "desc" }],
+        take: 15,
+        select: taskSelect,
+      }),
+      db.task.findMany({
+        where: {
+          AND: [
+            lifeOnly,
+            { status: { not: "DONE" } },
+            { waitingOn: false },
+            { dueDate: { lt: todayStart } },
+          ],
+        },
+        orderBy: [{ dueDate: "asc" }, { priority: "asc" }],
+        take: 20,
+        select: taskSelect,
+      }),
+    ]).then(([dueToday, undated, pastDue]) => [...dueToday, ...undated, ...pastDue]),
     db.project.findMany({
       where: { id: { in: personalAreaIds } },
       select: {
@@ -237,39 +266,49 @@ export async function getPersonalDashboard(userId: string) {
         },
       },
     }),
-    db.langCard.count({
-      where: { userId, nextReviewAt: { lte: new Date() } },
-    }),
-    db.langSession.aggregate({
-      where: {
-        userId,
-        practicedAt: { gte: weekStart, lte: weekEnd },
-      },
-      _sum: { minutes: true },
-    }),
-    db.langProfile.findUnique({
-      where: { userId },
-      select: { weeklyGoalMin: true },
-    }),
-    db.docSource.count({
-      where: {
-        doc: { userId, area: "PHD", deletedAt: null },
-        readingStatus: { in: ["TO_READ", "READING"] },
-      },
-    }),
-    db.doc.count({
-      where: {
-        userId,
-        area: "PHD",
-        deletedAt: null,
-        archived: false,
-        status: { in: ["IDEA", "DRAFTING", "REVIEW"] },
-        OR: [
-          { systemKey: null },
-          { NOT: { systemKey: { startsWith: "phd-library:" } } },
-        ],
-      },
-    }),
+    wantLanguage
+      ? db.langCard.count({
+          where: { userId, nextReviewAt: { lte: new Date() } },
+        })
+      : Promise.resolve(0),
+    wantLanguage
+      ? db.langSession.aggregate({
+          where: {
+            userId,
+            practicedAt: { gte: weekStart, lte: weekEnd },
+          },
+          _sum: { minutes: true },
+        })
+      : Promise.resolve({ _sum: { minutes: null as number | null } }),
+    wantLanguage
+      ? db.langProfile.findUnique({
+          where: { userId },
+          select: { weeklyGoalMin: true },
+        })
+      : Promise.resolve(null),
+    wantResearch
+      ? db.docSource.count({
+          where: {
+            doc: { userId, area: "PHD", deletedAt: null },
+            readingStatus: { in: ["TO_READ", "READING"] },
+          },
+        })
+      : Promise.resolve(0),
+    wantResearch
+      ? db.doc.count({
+          where: {
+            userId,
+            area: "PHD",
+            deletedAt: null,
+            archived: false,
+            status: { in: ["IDEA", "DRAFTING", "REVIEW"] },
+            OR: [
+              { systemKey: null },
+              { NOT: { systemKey: { startsWith: "phd-library:" } } },
+            ],
+          },
+        })
+      : Promise.resolve(0),
   ]);
 
   const countByDay = new Map<string, number>();
@@ -307,8 +346,18 @@ export async function getPersonalDashboard(userId: string) {
     focusTasks.flatMap(task => (task ? [task.id] : [])),
   );
 
-  const todayRows = today.map(withArea);
-  const overdueRows = overdue.map(withArea);
+  const todayRowsRaw = today.map(withArea);
+  const overduePastDays = overdue.map(withArea);
+  const now = new Date();
+  // Timed dues that already passed today belong in overdue, not "today".
+  // Date-only (noon) stays in today until the calendar day ends.
+  const timedOverdueToday = todayRowsRaw.filter(task => isOverdueTask(task, now));
+  const todayRows = todayRowsRaw.filter(task => !isOverdueTask(task, now));
+  const overdueRows = [...overduePastDays, ...timedOverdueToday].sort((a, b) => {
+    const aDue = a.dueDate ? new Date(a.dueDate).getTime() : 0;
+    const bDue = b.dueDate ? new Date(b.dueDate).getTime() : 0;
+    return aDue - bDue;
+  });
   const weekRows = week.map(withArea);
 
   return {

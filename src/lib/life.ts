@@ -190,7 +190,51 @@ export function hasDueTime(
 ): boolean {
   if (durationMinutes != null && durationMinutes > 0) return true;
   const value = new Date(date);
-  return !(value.getHours() === 12 && value.getMinutes() === 0);
+  if (value.getHours() === 12 && value.getMinutes() === 0) return false;
+  // Legacy date-only rows written as noon UTC on a UTC host (afternoon in +3:30).
+  if (
+    value.getUTCHours() === 12 &&
+    value.getUTCMinutes() === 0 &&
+    value.getUTCSeconds() === 0 &&
+    value.getUTCMilliseconds() === 0
+  ) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Calendar day key for a due, matching date-only / legacy UTC-noon semantics.
+ * Timed dues use the local calendar day of the instant.
+ */
+export function toDueDateKey(
+  date: Date,
+  durationMinutes?: number | null,
+): string {
+  const value = new Date(date);
+  if (
+    (durationMinutes == null || durationMinutes <= 0) &&
+    !(value.getHours() === 12 && value.getMinutes() === 0) &&
+    value.getUTCHours() === 12 &&
+    value.getUTCMinutes() === 0 &&
+    value.getUTCSeconds() === 0 &&
+    value.getUTCMilliseconds() === 0
+  ) {
+    return [
+      value.getUTCFullYear(),
+      String(value.getUTCMonth() + 1).padStart(2, "0"),
+      String(value.getUTCDate()).padStart(2, "0"),
+    ].join("-");
+  }
+  return toDateKey(value);
+}
+
+/** Local start of the due’s calendar day (date-only / legacy UTC noon aware). */
+export function dueCalendarDayStart(
+  date: Date,
+  durationMinutes?: number | null,
+): Date {
+  return startOfDay(parseLocalDate(toDueDateKey(date, durationMinutes)));
 }
 
 /** Force the date-only sentinel (local noon). */
@@ -198,6 +242,28 @@ export function withDateOnly(date: Date): Date {
   const d = new Date(date);
   d.setHours(12, 0, 0, 0);
   return d;
+}
+
+/**
+ * Build an absolute instant from a calendar day + wall clock in the caller's TZ.
+ * `timezoneOffsetMinutes` is `Date#getTimezoneOffset()` (Iran UTC+3:30 → -210).
+ * Use this on the server so UTC hosts don't turn "noon / date-only" into afternoon.
+ */
+export function dueFromWallClock(
+  dateKey: string,
+  hours: number,
+  minutes: number,
+  timezoneOffsetMinutes: number,
+): Date {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) {
+    return withDateOnly(new Date());
+  }
+  const [y, m, d] = dateKey.split("-").map(Number);
+  const h = Math.min(23, Math.max(0, Math.round(hours)));
+  const min = Math.min(59, Math.max(0, Math.round(minutes)));
+  return new Date(
+    Date.UTC(y!, m! - 1, d!, h, min, 0, 0) + timezoneOffsetMinutes * 60_000,
+  );
 }
 
 /**
@@ -360,12 +426,26 @@ export function formatJalaliWeekRange(
   return `${a.jd} ${PERSIAN_MONTHS[a.jm - 1]} ${a.jy} – ${b.jd} ${PERSIAN_MONTHS[b.jm - 1]} ${b.jy}`;
 }
 
+/**
+ * Overdue rules:
+ * - Timed due (real clock or duration): past the due instant → overdue.
+ * - Date-only (local noon or legacy UTC noon, no duration): overdue only after that calendar day ends.
+ */
 export function isOverdueTask(
-  task: { dueDate: Date | null; status: string },
+  task: {
+    dueDate: Date | null;
+    status: string;
+    durationMinutes?: number | null;
+  },
   now = new Date(),
 ): boolean {
   if (!task.dueDate || task.status === "DONE") return false;
   const due = new Date(task.dueDate);
-  if (hasDueTime(due)) return due.getTime() < now.getTime();
-  return startOfDay(due).getTime() < startOfDay(now).getTime();
+  if (hasDueTime(due, task.durationMinutes)) {
+    return due.getTime() < now.getTime();
+  }
+  return (
+    dueCalendarDayStart(due, task.durationMinutes).getTime() <
+    startOfDay(now).getTime()
+  );
 }

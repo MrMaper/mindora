@@ -1,8 +1,10 @@
 import { requireModule } from "@/lib/require-role";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { auth } from "@/auth";
-import { ensurePersonalWorkspaceCached } from "@/lib/request-cache";
+import {
+  ensurePersonalWorkspaceCached,
+  getSessionCached,
+} from "@/lib/request-cache";
 import { getCalendarTasks } from "@/features/life/queries";
 import { getAssignableUsers } from "@/features/users/queries";
 import { getLabels } from "@/features/labels/queries";
@@ -22,7 +24,7 @@ export function generateMetadata(): Promise<Metadata> {
 
 export default async function CalendarPage() {
   await requireModule("calendar");
-  const session = await auth();
+  const session = await getSessionCached();
   if (!session?.user) redirect("/login");
   await ensurePersonalWorkspaceCached(session.user.id);
 

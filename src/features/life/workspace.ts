@@ -12,6 +12,7 @@ import type { LifeArea } from "@/types/db";
  */
 export async function ensurePersonalWorkspace(userId: string) {
   const teamId = `personal-${userId}`;
+  const areaIds = areaProjectIdsForUser(userId);
 
   const existing = await db.teamMember.findUnique({
     where: { teamId_userId: { teamId, userId } },
@@ -19,9 +20,9 @@ export async function ensurePersonalWorkspace(userId: string) {
   });
 
   if (existing) {
-    // Still ensure all area buckets exist (idempotent).
-    await ensureAreaBuckets(userId, teamId);
-    return { teamId, areaIds: areaProjectIdsForUser(userId) };
+    // Cheap existence check — skip 8 upserts on every navigation once buckets exist.
+    await ensureAreaBuckets(userId, teamId, areaIds);
+    return { teamId, areaIds };
   }
 
   const org =
@@ -53,13 +54,32 @@ export async function ensurePersonalWorkspace(userId: string) {
     update: {},
   });
 
-  await ensureAreaBuckets(userId, teamId);
-  return { teamId, areaIds: areaProjectIdsForUser(userId) };
+  await ensureAreaBuckets(userId, teamId, areaIds, true);
+  return { teamId, areaIds };
 }
 
-async function ensureAreaBuckets(userId: string, teamId: string) {
+async function ensureAreaBuckets(
+  userId: string,
+  teamId: string,
+  areaIds: Record<LifeArea, string>,
+  force = false,
+) {
+  const ids = LIFE_AREAS.map(area => areaIds[area]);
+  if (!force) {
+    const existing = await db.project.findMany({
+      where: { id: { in: ids } },
+      select: { id: true },
+    });
+    if (existing.length === ids.length) {
+      const members = await db.projectMember.count({
+        where: { userId, projectId: { in: ids } },
+      });
+      if (members === ids.length) return;
+    }
+  }
+
   for (const area of LIFE_AREAS) {
-    const id = personalAreaProjectId(userId, area);
+    const id = areaIds[area];
     const meta = AREA_META[area];
     await db.project.upsert({
       where: { id },

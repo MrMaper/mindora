@@ -1,34 +1,61 @@
-import { toDateKey } from "@/lib/life";
+import { isOverdueTask, toDueDateKey } from "@/lib/life";
 
 export const FOCUS_SLOT_COUNT = 3;
 
 export type FocusPickGroup = "overdue" | "today" | "undated";
 
-function dueKey(dueDate: Date | string | null): string | null {
+function dueKey(
+  dueDate: Date | string | null,
+  durationMinutes?: number | null,
+): string | null {
   if (dueDate == null || dueDate === "") return null;
   const date = dueDate instanceof Date ? dueDate : new Date(dueDate);
   if (Number.isNaN(date.getTime())) return null;
-  return toDateKey(date);
+  return toDueDateKey(date, durationMinutes);
 }
 
 /** A priority can be overdue, due today, or an open task with no due date. */
 export function isTodayFocusCandidate(
-  task: { status: string; dueDate: Date | string | null },
+  task: {
+    status: string;
+    dueDate: Date | string | null;
+    durationMinutes?: number | null;
+  },
   todayKey: string,
 ): boolean {
   if (task.status === "DONE") return false;
-  const key = dueKey(task.dueDate);
+  const key = dueKey(task.dueDate, task.durationMinutes);
   if (!key) return true;
   return key <= todayKey;
 }
 
 export function focusPickGroup(
-  task: { dueDate: Date | string | null },
+  task: {
+    dueDate: Date | string | null;
+    durationMinutes?: number | null;
+    status?: string;
+  },
   todayKey: string,
+  now = new Date(),
 ): FocusPickGroup {
-  const key = dueKey(task.dueDate);
+  const key = dueKey(task.dueDate, task.durationMinutes);
   if (!key) return "undated";
   if (key < todayKey) return "overdue";
+  if (
+    key === todayKey &&
+    task.dueDate != null &&
+    isOverdueTask(
+      {
+        dueDate:
+          task.dueDate instanceof Date ? task.dueDate : new Date(task.dueDate),
+        status: task.status ?? "TODO",
+        durationMinutes: task.durationMinutes,
+      },
+      now,
+    )
+  ) {
+    return "overdue";
+  }
   return "today";
 }
 

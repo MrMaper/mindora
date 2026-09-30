@@ -30,8 +30,12 @@ interface SearchResult {
   workLogs?: SearchHit[];
 }
 
-export function CommandPaletteWrapper() {
-  const [open, setOpen] = React.useState(false);
+export function CommandPaletteWrapper({
+  initialOpen = false,
+}: {
+  initialOpen?: boolean;
+} = {}) {
+  const [open, setOpen] = React.useState(initialOpen);
   const [query, setQuery] = React.useState("");
   const [results, setResults] = React.useState<SearchResult | null>(null);
   const [loading, setLoading] = React.useState(false);

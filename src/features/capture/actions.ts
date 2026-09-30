@@ -61,6 +61,8 @@ export async function universalCapture(input: {
   text: string;
   areaOverride?: LifeArea | null;
   dueDateFallback?: string | null;
+  /** Client `Date#getTimezoneOffset()` so date-only noon stays noon on UTC servers. */
+  timezoneOffsetMinutes?: number;
 }): Promise<CaptureResult> {
   const session = await auth();
   if (!session?.user) return { success: false, error: "غیرمجاز" };
@@ -183,6 +185,7 @@ export async function universalCapture(input: {
     dueDate,
     time: parsed.time,
     durationMinutes: parsed.durationMinutes,
+    timezoneOffsetMinutes: input.timezoneOffsetMinutes,
   });
   if (!created.success || !created.data?.id) {
     return { success: false, error: created.error ?? "خطا" };

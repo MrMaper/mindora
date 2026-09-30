@@ -372,7 +372,6 @@ function DayColumn({
   isFriday,
   lastCol,
   dayNumber,
-  today,
   wide,
   dragPreview,
   onSelect,
@@ -387,7 +386,6 @@ function DayColumn({
   isFriday: boolean;
   lastCol: boolean;
   dayNumber: string;
-  today: Date;
   wide?: boolean;
   dragPreview?: HourDragPreview | null;
   onSelect: () => void;
@@ -445,7 +443,7 @@ function DayColumn({
           <AllDayChip
             key={task.id}
             task={task}
-            overdue={isOverdueTask(task, today)}
+            overdue={isOverdueTask(task)}
             onOpen={() => onOpenTask(task)}
           />
         ))}
@@ -456,7 +454,7 @@ function DayColumn({
           <TimedBlock
             key={task.id}
             task={task}
-            overdue={isOverdueTask(task, today)}
+            overdue={isOverdueTask(task)}
             conflict={(conflicts.get(task.id)?.length ?? 0) > 0}
             onOpen={() => onOpenTask(task)}
             onResizePreview={onResizePreview}
@@ -545,8 +543,31 @@ export function WeekHourGrid({
   React.useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    el.scrollTop = 7 * HOUR_HEIGHT_PX;
-  }, [mode, selected]);
+
+    function earliestTimedMinutes(dates: Date[]): number | null {
+      let earliest: number | null = null;
+      for (const date of dates) {
+        const list = byDay.get(toDateKey(date)) ?? [];
+        for (const task of list) {
+          if (!task.dueDate) continue;
+          const due = new Date(task.dueDate);
+          if (Number.isNaN(due.getTime())) continue;
+          if (!hasDueTime(due, task.durationMinutes)) continue;
+          const mins = minutesFromMidnight(due);
+          if (earliest == null || mins < earliest) earliest = mins;
+        }
+      }
+      return earliest;
+    }
+
+    // Prefer the selected day so language/PhD afternoon blocks aren't below the fold.
+    const selectedEarliest = earliestTimedMinutes([selected]);
+    const weekEarliest = earliestTimedMinutes(visibleCells);
+    const target =
+      selectedEarliest ?? weekEarliest ?? 7 * 60;
+    const padded = Math.max(0, target - 30);
+    el.scrollTop = (padded / 60) * HOUR_HEIGHT_PX;
+  }, [mode, selected, byDay, cells]);
 
   function sameDay(a: Date, b: Date) {
     return toDateKey(a) === toDateKey(b);
@@ -590,7 +611,6 @@ export function WeekHourGrid({
                 isFriday={date.getDay() === 5}
                 lastCol={index === visibleCells.length - 1}
                 dayNumber={formatNumber(jalali.jd, language)}
-                today={today}
                 wide={mode === "day"}
                 dragPreview={dragPreview}
                 onSelect={() => onSelectDay(date)}

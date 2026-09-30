@@ -27,6 +27,7 @@ export interface HabitItem {
   bestStreak: number;
   lastDoneDate: string | null;
   doneToday: boolean;
+  archived: boolean;
 }
 
 function revalidateHabits() {
@@ -34,13 +35,21 @@ function revalidateHabits() {
   revalidatePath("/habits");
 }
 
-export async function listHabitsAction(): Promise<HabitItem[]> {
+export async function listHabitsAction(input?: {
+  archived?: boolean;
+}): Promise<HabitItem[]> {
   const session = await auth();
   if (!session?.user) return [];
   const todayKey = toDateKey(new Date());
+  const archivedOnly = input?.archived === true;
   const rows = await db.habit.findMany({
-    where: { userId: session.user.id, archivedAt: null },
-    orderBy: [{ updatedAt: "desc" }],
+    where: {
+      userId: session.user.id,
+      archivedAt: archivedOnly ? { not: null } : null,
+    },
+    orderBy: archivedOnly
+      ? [{ archivedAt: "desc" }]
+      : [{ updatedAt: "desc" }],
     select: {
       id: true,
       title: true,
@@ -49,6 +58,7 @@ export async function listHabitsAction(): Promise<HabitItem[]> {
       streak: true,
       bestStreak: true,
       lastDoneDate: true,
+      archivedAt: true,
       logs: {
         where: { dateKey: todayKey },
         select: { id: true },
@@ -65,6 +75,7 @@ export async function listHabitsAction(): Promise<HabitItem[]> {
     bestStreak: h.bestStreak,
     lastDoneDate: h.lastDoneDate,
     doneToday: h.logs.length > 0,
+    archived: h.archivedAt != null,
   }));
 }
 
@@ -165,6 +176,60 @@ export async function archiveHabitAction(habitId: string): Promise<ActionResult>
     where: { id: habitId },
     data: { archivedAt: new Date() },
   });
+  revalidateHabits();
+  return { success: true };
+}
+
+export async function restoreHabitAction(habitId: string): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
+  const habit = await db.habit.findFirst({
+    where: {
+      id: habitId,
+      userId: session.user.id,
+      archivedAt: { not: null },
+    },
+    select: { id: true },
+  });
+  if (!habit) return { success: false, error: "عادت بایگانی‌شده پیدا نشد" };
+  await db.habit.update({
+    where: { id: habitId },
+    data: { archivedAt: null },
+  });
+  revalidateHabits();
+  return { success: true };
+}
+
+export async function updateHabitAction(input: {
+  habitId: string;
+  title: string;
+}): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
+  const title = input.title.trim();
+  if (!title) return { success: false, error: "عنوان لازم است" };
+  const habit = await db.habit.findFirst({
+    where: { id: input.habitId, userId: session.user.id },
+    select: { id: true },
+  });
+  if (!habit) return { success: false, error: "عادت پیدا نشد" };
+  await db.habit.update({
+    where: { id: input.habitId },
+    data: { title },
+  });
+  revalidateHabits();
+  return { success: true };
+}
+
+export async function deleteHabitAction(habitId: string): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
+  const habit = await db.habit.findFirst({
+    where: { id: habitId, userId: session.user.id },
+    select: { id: true },
+  });
+  if (!habit) return { success: false, error: "عادت پیدا نشد" };
+  await db.habit.delete({ where: { id: habitId } });
   revalidateHabits();
   return { success: true };
 }

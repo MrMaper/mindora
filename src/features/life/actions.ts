@@ -6,6 +6,7 @@ import { prisma as db } from "@/lib/db";
 import { spawnNextIfRecurring, skipRecurrenceOccurrence, stopRecurrenceSeries, updateRecurrenceSeries, newRecurrenceSeriesId } from "@/features/life/recurrence";
 import {
   addDays,
+  dueFromWallClock,
   endOfDay,
   endOfWeek,
   moveDueToDay,
@@ -14,6 +15,7 @@ import {
   resolveBoardPlanningStatus,
   startOfDay,
   toDateKey,
+  withDateOnly,
 } from "@/lib/life";
 import type { LifeArea, RecurrenceInterval } from "@/types/db";
 import { ensurePersonalWorkspace, projectIdForArea } from "./workspace";
@@ -48,14 +50,32 @@ export async function loadCalendarRange(fromIso: string, toIso: string) {
   return getCalendarTasks(session.user.id, new Date(fromIso), new Date(toIso));
 }
 
-function resolveDue(dateKey?: string, time?: string | null): Date | null {
+function resolveDue(
+  dateKey?: string,
+  time?: string | null,
+  /** `Date#getTimezoneOffset()` from the client; keeps wall clock on UTC servers. */
+  timezoneOffsetMinutes?: number,
+): Date | null {
   if (!dateKey) return null;
-  const due = parseLocalDate(dateKey);
+  const hasOffset =
+    typeof timezoneOffsetMinutes === "number" &&
+    Number.isFinite(timezoneOffsetMinutes);
   if (time && /^(\d{2}):(\d{2})$/.test(time)) {
     const [hours, minutes] = time.split(":").map(Number);
-    if (hours <= 23 && minutes <= 59) due.setHours(hours, minutes, 0, 0);
+    if (hours! <= 23 && minutes! <= 59) {
+      if (hasOffset) {
+        return dueFromWallClock(dateKey, hours!, minutes!, timezoneOffsetMinutes!);
+      }
+      const due = parseLocalDate(dateKey);
+      due.setHours(hours!, minutes!, 0, 0);
+      return due;
+    }
   }
-  return due;
+  // Date-only → local noon sentinel in the caller's TZ (not the server's).
+  if (hasOffset) {
+    return dueFromWallClock(dateKey, 12, 0, timezoneOffsetMinutes!);
+  }
+  return parseLocalDate(dateKey);
 }
 
 export async function quickCapture(input: {
@@ -65,6 +85,7 @@ export async function quickCapture(input: {
   dueDate?: string;
   time?: string | null;
   durationMinutes?: number | null;
+  timezoneOffsetMinutes?: number;
 }): Promise<ActionResult & { data?: { id: string } }> {
   const session = await auth();
   if (!session?.user) return { success: false, error: "غیرمجاز" };
@@ -77,7 +98,7 @@ export async function quickCapture(input: {
   const projectId = projectIdForArea(session.user.id, area);
 
   const recurrence = input.recurrence ?? "NONE";
-  const due = resolveDue(input.dueDate, input.time);
+  const due = resolveDue(input.dueDate, input.time, input.timezoneOffsetMinutes);
   const durationMinutes =
     due && input.time && input.durationMinutes && input.durationMinutes > 0
       ? Math.min(24 * 60, Math.round(input.durationMinutes))
@@ -482,7 +503,7 @@ export async function rescheduleTaskDueDate(
     nextDue = parseLocalDate(dueDateKey);
     nextDue.setHours(hours!, minutes!, 0, 0);
   } else if (time === "") {
-    nextDue = parseLocalDate(dueDateKey);
+    nextDue = withDateOnly(parseLocalDate(dueDateKey));
   } else {
     nextDue = moveDueToDay(
       existing.dueDate,
@@ -586,18 +607,27 @@ export async function syncPlanningStatusesForUser(userId: string): Promise<void>
   };
   const lifeOnly = { AND: [mine, taskWhereExcludeHub()] };
 
+  async function updateIfAny(
+    where: Parameters<typeof db.task.updateMany>[0]["where"],
+    data: Parameters<typeof db.task.updateMany>[0]["data"],
+  ) {
+    const hit = await db.task.findFirst({ where, select: { id: true } });
+    if (!hit) return;
+    await db.task.updateMany({ where, data });
+  }
+
   await Promise.all([
-    db.task.updateMany({
-      where: {
+    updateIfAny(
+      {
         AND: [
           mine,
           { status: { in: ["REVIEW", "TESTING", "BLOCKED"] } },
         ],
       },
-      data: { status: "IN_PROGRESS" },
-    }),
-    db.task.updateMany({
-      where: {
+      { status: "IN_PROGRESS" },
+    ),
+    updateIfAny(
+      {
         AND: [
           lifeOnly,
           { status: "BACKLOG" },
@@ -605,28 +635,28 @@ export async function syncPlanningStatusesForUser(userId: string): Promise<void>
           { dueDate: { not: null, lte: weekEnd } },
         ],
       },
-      data: { status: "TODO" },
-    }),
-    db.task.updateMany({
-      where: {
+      { status: "TODO" },
+    ),
+    updateIfAny(
+      {
         AND: [
           lifeOnly,
           { status: "TODO" },
           { dueDate: { gt: weekEnd } },
         ],
       },
-      data: { status: "BACKLOG" },
-    }),
+      { status: "BACKLOG" },
+    ),
     // Waiting follow-ups stay parked in Inbox until cleared.
-    db.task.updateMany({
-      where: {
+    updateIfAny(
+      {
         AND: [
           lifeOnly,
           { waitingOn: true },
           { status: { in: ["TODO"] } },
         ],
       },
-      data: { status: "BACKLOG" },
-    }),
+      { status: "BACKLOG" },
+    ),
   ]);
 }

@@ -1,12 +1,14 @@
 import { requireModule } from "@/lib/require-role";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { auth } from "@/auth";
 import { getBoardColumns } from "@/features/kanban/queries";
-import { syncPlanningStatusesForUser } from "@/features/life/actions";
 import { getAssignableUsers } from "@/features/users/queries";
 import { getLabels } from "@/features/labels/queries";
 import { getUserProjects } from "@/features/projects/queries";
+import {
+  getSessionCached,
+  syncPlanningStatusesCached,
+} from "@/lib/request-cache";
 import { KanbanCC } from "./components/client";
 import type { TaskPriority } from "@/types/db";
 import { isLifeAreaValue, scopeFromFilters } from "@/lib/project-namespace";
@@ -31,7 +33,7 @@ export default async function KanbanPage({
   searchParams: Promise<KanbanSearchParams>;
 }) {
   await requireModule("kanban");
-  const session = await auth();
+  const session = await getSessionCached();
   if (!session?.user) redirect("/login");
 
   const {
@@ -47,7 +49,7 @@ export default async function KanbanPage({
   const userProjects = await getUserProjects(session.user.id, "assignable");
   const scope = scopeFromFilters(area, project, userProjects);
 
-  await syncPlanningStatusesForUser(session.user.id);
+  await syncPlanningStatusesCached(session.user.id);
 
   const [columns, users, labels] = await Promise.all([
     getBoardColumns({

@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
+import { after } from "next/server";
 import { redirect } from "next/navigation";
 import { getPersonalDashboard } from "@/features/life/queries";
 import { getAssignableUsers } from "@/features/users/queries";
 import { getLabels } from "@/features/labels/queries";
 import { getUserProjects } from "@/features/projects/queries";
 import { listHabitsAction } from "@/features/habits/actions";
-import { syncPlanningStatusesForUser } from "@/features/life/actions";
 import {
   ensureDailyRemindersCached,
   ensurePersonalWorkspaceCached,
   getSessionCached,
   getUserPreferencesCached,
+  syncPlanningStatusesCached,
 } from "@/lib/request-cache";
 import { requireModule } from "@/lib/require-role";
 import { DashboardCC } from "./dashboard-cc";
@@ -29,12 +30,18 @@ export default async function DashboardPage() {
 
   const { flags } = await requireModule("dashboard");
 
+  // Workspace is usually warm from layout; reminders must not block first paint.
   await ensurePersonalWorkspaceCached(session.user.id);
-  await ensureDailyRemindersCached(session.user.id);
-  await syncPlanningStatusesForUser(session.user.id);
+  after(() => {
+    void ensureDailyRemindersCached(session.user.id);
+  });
+  await syncPlanningStatusesCached(session.user.id);
 
   const [data, users, labels, userProjects, habits, prefs] = await Promise.all([
-    getPersonalDashboard(session.user.id),
+    getPersonalDashboard(session.user.id, {
+      language: flags.language,
+      research: flags.research,
+    }),
     getAssignableUsers(session.user.id),
     getLabels(),
     getUserProjects(session.user.id, "life"),

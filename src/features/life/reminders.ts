@@ -8,6 +8,7 @@ import {
   endOfDay,
   formatClock,
   formatJalaliShort,
+  isOverdueTask,
   startOfDay,
   toDateKey,
 } from "@/lib/life";
@@ -20,10 +21,22 @@ type DeadlineBucket = "overdue" | "today" | "approaching" | "timed";
 /** Minutes before a timed due to fire a “soon” reminder. */
 const TIMED_REMINDER_LEAD_MINUTES = 15;
 
-function bucketForDue(due: Date, today: Date): DeadlineBucket {
+function bucketForDue(
+  due: Date,
+  today: Date,
+  durationMinutes?: number | null,
+  now = new Date(),
+): DeadlineBucket {
+  if (
+    isOverdueTask(
+      { dueDate: due, status: "TODO", durationMinutes },
+      now,
+    )
+  ) {
+    return "overdue";
+  }
   const dueStart = startOfDay(due).getTime();
   const todayMs = today.getTime();
-  if (dueStart < todayMs) return "overdue";
   if (dueStart === todayMs) return "today";
   return "approaching";
 }
@@ -268,7 +281,11 @@ export async function ensureDeadlineReminders(userId?: string): Promise<void> {
   const eligible: Eligible[] = [];
   for (const task of tasks) {
     if (!task.dueDate) continue;
-    const bucket = bucketForDue(new Date(task.dueDate), today);
+    const bucket = bucketForDue(
+      new Date(task.dueDate),
+      today,
+      task.durationMinutes,
+    );
     if (bucket === "timed") continue;
     const key = `${task.id}:${bucket}`;
     if (already.has(key) || already.has(`${task.id}:any`)) continue;

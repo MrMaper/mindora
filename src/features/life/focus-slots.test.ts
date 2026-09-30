@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { isTodayFocusCandidate, normalizeFocusSlots } from "./focus-slots";
+import {
+  focusPickGroup,
+  isTodayFocusCandidate,
+  normalizeFocusSlots,
+} from "./focus-slots";
 
 const todayKey = "2026-09-27";
 
@@ -36,6 +40,38 @@ describe("isTodayFocusCandidate", () => {
         todayKey,
       ),
     ).toBe(false);
+  });
+});
+
+describe("focusPickGroup", () => {
+  const now = new Date(2026, 8, 27, 15, 0, 0);
+
+  it("groups a past timed due today as overdue", () => {
+    expect(
+      focusPickGroup(
+        {
+          dueDate: new Date(2026, 8, 27, 10, 0, 0),
+          durationMinutes: 30,
+          status: "TODO",
+        },
+        todayKey,
+        now,
+      ),
+    ).toBe("overdue");
+  });
+
+  it("keeps date-only today in today", () => {
+    expect(
+      focusPickGroup(
+        {
+          dueDate: new Date(2026, 8, 27, 12, 0, 0),
+          durationMinutes: null,
+          status: "TODO",
+        },
+        todayKey,
+        now,
+      ),
+    ).toBe("today");
   });
 });
 

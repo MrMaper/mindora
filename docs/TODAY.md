@@ -3,6 +3,7 @@
 The Today page always shows three slots (اولویت ۱–۳), stacked in one card. On a wide screen that card sits beside «تمرکز امروز» inside the main column, so that band reads as three columns with the chart column. The week strip and the lists stay in the main column; the charts stay one column beside them. In that chart column, «بار هفته» and «حوزه‌ها» share one row.
 
 - An empty slot offers «انتخاب یک کار». That list is open overdue tasks, tasks due today, and tasks with no due date. Tomorrow and the rest of the week stay out. The menu groups them as «عقب‌افتاده», «امروز», and «بدون زمان».
+- **Overdue vs today:** a timed due (clock or duration) becomes overdue as soon as that instant has passed — including later the same day. A date-only due (local noon, or legacy noon-UTC with no duration) stays in «امروز» until the calendar day ends, then moves to overdue. Priority and focus pickers always include today’s open tasks and undated inbox items alongside overdue — they are not starved by a long overdue list.
 - Those same tasks can be dragged into a slot. Rows for another day do not show a drag handle or the target icon. Dropping on an occupied slot replaces it. Dragging between slots moves the task.
 - The target icon on an eligible row still fills the first empty slot, or removes the task if it is already pinned.
 - The header count is how many of the three are **done** (`2/3 ✓`), not how many slots are filled. A finished task stays in its slot with a check until it is removed.

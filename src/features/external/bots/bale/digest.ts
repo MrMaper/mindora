@@ -1,5 +1,5 @@
 import { prisma as db } from "@/lib/db";
-import { endOfDay, startOfDay, toDateKey } from "@/lib/life";
+import { endOfDay, isOverdueTask, startOfDay, toDateKey } from "@/lib/life";
 import { taskWhereExcludeHub } from "@/lib/project-namespace";
 import { getBaleRuntime } from "./config";
 import { baleAppOrigin, deliverBale } from "./deliver";
@@ -61,7 +61,7 @@ export async function ensureBaleDigest(userId: string): Promise<void> {
         status: { not: "DONE" },
         dueDate: { lt: today },
       },
-      select: { title: true },
+      select: { title: true, dueDate: true, durationMinutes: true, status: true },
       orderBy: { dueDate: "asc" },
       take: 8,
     }),
@@ -72,8 +72,8 @@ export async function ensureBaleDigest(userId: string): Promise<void> {
         status: { not: "DONE" },
         dueDate: { gte: today, lte: endOfDay(today) },
       },
-      select: { title: true },
-      take: 8,
+      select: { title: true, dueDate: true, durationMinutes: true, status: true },
+      take: 12,
     }),
     db.habit.findMany({
       where: {
@@ -91,15 +91,22 @@ export async function ensureBaleDigest(userId: string): Promise<void> {
     .map((id) => focusById.get(id))
     .filter((title): title is string => !!title);
 
+  const timedOverdueToday = dueToday.filter((task) => isOverdueTask(task, now));
+  const dueTodayOpen = dueToday.filter((task) => !isOverdueTask(task, now));
+  const overdueTitles = [...overdue, ...timedOverdueToday]
+    .slice(0, 8)
+    .map((task) => task.title);
+  const dueTodayTitles = dueTodayOpen.slice(0, 8).map((task) => task.title);
+
   const fa = user.preferences?.language !== "EN";
   const body = [
     fa ? "خلاصهٔ صبح" : "Morning brief",
     "",
     lines(fa ? "اولویت‌ها" : "Priorities", focusTitles),
-    lines(fa ? "عقب‌افتاده" : "Overdue", overdue.map((task) => task.title)),
-    lines(fa ? "سررسید امروز" : "Due today", dueToday.map((task) => task.title)),
+    lines(fa ? "عقب‌افتاده" : "Overdue", overdueTitles),
+    lines(fa ? "سررسید امروز" : "Due today", dueTodayTitles),
     lines(fa ? "عادت تیک‌نخورده" : "Habits still open", habits.map((habit) => habit.title)),
-    focusTitles.length + overdue.length + dueToday.length + habits.length === 0
+    focusTitles.length + overdueTitles.length + dueTodayTitles.length + habits.length === 0
       ? fa
         ? "میز امروز خالی است."
         : "Nothing is waiting today."

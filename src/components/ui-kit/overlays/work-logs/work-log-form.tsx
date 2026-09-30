@@ -7,7 +7,7 @@ import { Input } from "@/components/ui-kit/forms/input";
 import { Textarea } from "@/components/ui-kit/forms/textarea";
 import { Select } from "@/components/ui-kit/forms/select";
 import { DatePicker } from "@/components/ui-kit/forms/date-picker";
-import { Icon } from "@/components/ui-kit/foundation/icon";
+import { formatDurationLabel } from "@/components/ui-kit/forms/time-roller";
 import { HOURS_OPTIONS } from "@/features/work-logs/types";
 import { useLanguage } from "@/i18n/provider";
 
@@ -66,7 +66,13 @@ export function WorkLogForm({ taskId, onSubmit, onClose }: WorkLogFormProps) {
     }
   };
 
-  const hoursOptions = HOURS_OPTIONS.map(opt => ({ value: String(opt.value), label: opt.label }));
+  const hoursOptions = HOURS_OPTIONS.map(hours => {
+    const minutes = Math.round(hours * 60);
+    return {
+      value: String(hours),
+      label: formatDurationLabel(minutes, language === "EN" ? "EN" : "FA"),
+    };
+  });
 
   return (
     <form onSubmit={form.handleSubmit(handleSubmit)} className="py-2 flex flex-col gap-4">

@@ -83,6 +83,7 @@ Goal: every member surface is usable one-handed on a phone — no clipped filter
 - Today week strip: tighter type on small screens
 - Review / work-logs / settings / notifications / project tabs: overflow and wrap fixes
 - Settings is the single place for profile, password, notifications, theme, and language. `/profile` redirects to `/settings?tab=profile`. Theme applies only when the user changes it (plus a boot script from saved prefs) so opening Settings does not flip light/dark.
+- Settings UI: grouped notifications (general / task events / reminder channels), sprint prefs hidden from the member UI, theme cards with mini preview, copyable Bale link code, PageHeaderBar + shared form controls.
 - Guide + CAPTURE updated for hour-grid calendar behavior
 
 ### Still to do (polish)
@@ -109,6 +110,19 @@ Goal: every member surface is usable one-handed on a phone — no clipped filter
 - External calendar ICS sync — LF2
 - Orphan admin routes cleanup (users / teams / reporting)
 - Offline vocab PWA
+
+## Performance (shipped pass)
+
+- Personal area buckets: existence check before upserts (no 8 writes per navigation once set up)
+- Session + module flags + planning sync deduped with `React.cache` per RSC request
+- Planning sync: `findFirst` then `updateMany` only when rows need change
+- Today attention queries skip language/research DB work when those modules are off
+- `getLabels()` no longer counts tasks on every picker load
+- Command palette loads on first Ctrl/Cmd+K (not in the initial shell bundle)
+- Task create/edit/label/delete drawers are `next/dynamic`
+- Broader `optimizePackageImports` (Radix extras, recharts, jalaali-js)
+- Tab switches: `(dashboard)/loading.tsx` skeleton; workspace ensure cached ~30m via `unstable_cache`; layout warms workspace in parallel; Today reminders via `after()`; `experimental.staleTimes` for soft-nav revisit
+- Soft-nav lag is mostly RSC round-trip (not client JS); skeleton makes it feel instant while the page streams
 
 ## Research continuity (shipped)
 

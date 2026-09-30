@@ -1,12 +1,14 @@
 import { requireModule } from "@/lib/require-role";
 import type { Metadata } from "next";
-import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { getTasks } from "@/features/tasks/queries";
 import { getAssignableUsers } from "@/features/users/queries";
 import { getLabels } from "@/features/labels/queries";
-import { getUserPreferences } from "@/features/settings/queries";
 import { getUserProjects } from "@/features/projects/queries";
+import {
+  getSessionCached,
+  getUserPreferencesCached,
+} from "@/lib/request-cache";
 import { TasksCC } from "./components/client";
 import { SelectProvider } from "@/components/ui-kit/forms/common";
 import type { TaskStatus, TaskPriority } from "@/types/db";
@@ -38,7 +40,7 @@ export default async function TasksPage({
   searchParams: Promise<TasksSearchParams>;
 }) {
   await requireModule("tasks");
-  const session = await auth();
+  const session = await getSessionCached();
   if (!session?.user) redirect("/login");
 
   const isAdmin = session.user.role === "ADMIN";
@@ -67,7 +69,7 @@ export default async function TasksPage({
   const [users, labelRows, preferences, userProjects] = await Promise.all([
     getAssignableUsers(session.user.id),
     getLabels(),
-    getUserPreferences(session.user.id),
+    getUserPreferencesCached(session.user.id),
     getUserProjects(session.user.id, "assignable"),
   ]);
 

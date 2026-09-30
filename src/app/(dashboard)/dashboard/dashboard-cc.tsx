@@ -587,13 +587,22 @@ export function DashboardCC({
   const sessionTasks = React.useMemo(() => {
     const seen = new Set<string>();
     const rows: TaskRow[] = [];
-    for (const task of [...focusTasks, ...focusCandidates]) {
+    for (const task of [
+      ...focusTasks,
+      ...focusCandidates,
+      ...today,
+      ...overdue,
+      ...inbox.filter(task => !task.dueDate),
+    ]) {
       if (!task || task.status === "DONE" || seen.has(task.id)) continue;
+      if (!isTodayFocusCandidate(task, todayKey)) continue;
       seen.add(task.id);
       rows.push(task);
     }
     return rows;
-  }, [focusTasks, focusCandidates]);
+  }, [focusTasks, focusCandidates, today, overdue, inbox, todayKey]);
+
+  const pickCandidates = sessionTasks;
 
   function scrollTo(id: string) {
     document.getElementById(id)?.scrollIntoView({
@@ -738,7 +747,7 @@ export function DashboardCC({
               </div>
               <TodayFocusSlots
                 slots={focusTasks}
-                candidates={focusCandidates}
+                candidates={pickCandidates}
                 todayKey={todayKey}
                 disabled={pending}
                 onPlace={placeFocus}

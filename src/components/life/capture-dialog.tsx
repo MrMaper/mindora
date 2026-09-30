@@ -118,6 +118,7 @@ export function CaptureDialog({
         text,
         areaOverride: areaLock,
         dueDateFallback: showSchedule ? fallbackDate : undefined,
+        timezoneOffsetMinutes: new Date().getTimezoneOffset(),
       });
       if (!result.success || !result.data) {
         toast.error(result.error ?? t.common.error);

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useTranslation } from "@/i18n/provider";
 
@@ -13,18 +13,32 @@ import type { UserRow } from "@/features/users/types";
 import type { LabelRow } from "@/features/labels/types";
 import type { Language } from "@/types/db";
 import type { ProjectRow } from "@/features/projects/types";
-import { formatClock } from "@/lib/life";
+import { formatClock, formatJalaliShort } from "@/lib/life";
 
 // UI components
 import { PageHeader } from "../ui/page-header";
 import { SearchFilters } from "../ui/search-filters";
 import { TasksTable } from "../ui/tasks-table";
-import { CreateTaskDrawer } from "../ui/create-task-drawer";
-import { EditTaskDrawer } from "../ui/edit-task-drawer";
-import { LabelManagementDialog } from "../ui/label-management-dialog";
-import { DeleteConfirmationDialog } from "../ui/delete-confirmation-dialog";
+import dynamic from "next/dynamic";
 import { GetTasksResult, STATUS_OPTIONS } from "@/features/tasks/types";
 import { GlobalError } from "@/components/ui-kit/global";
+
+const CreateTaskDrawer = dynamic(
+  () => import("../ui/create-task-drawer").then(m => m.CreateTaskDrawer),
+);
+const EditTaskDrawer = dynamic(
+  () => import("../ui/edit-task-drawer").then(m => m.EditTaskDrawer),
+);
+const LabelManagementDialog = dynamic(
+  () =>
+    import("../ui/label-management-dialog").then(m => m.LabelManagementDialog),
+);
+const DeleteConfirmationDialog = dynamic(
+  () =>
+    import("../ui/delete-confirmation-dialog").then(
+      m => m.DeleteConfirmationDialog,
+    ),
+);
 
 interface TasksCCProps {
   initialData: GetTasksResult;
@@ -100,11 +114,14 @@ export function TasksCC({
   ): string {
     if (!date) return "—";
     const value = new Date(date);
-    const day = value.toLocaleDateString(dateLocale, {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
+    // Compact single-line label: short day + optional clock/range
+    const day =
+      language === "FA"
+        ? formatJalaliShort(value, "FA")
+        : value.toLocaleDateString(dateLocale, {
+            month: "short",
+            day: "numeric",
+          });
     const clock = formatClock(value, language, durationMinutes);
     return clock ? `${day} ${clock}` : day;
   }

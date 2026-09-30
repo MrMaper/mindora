@@ -140,6 +140,38 @@ function taskArea(task: TaskRow): LifeArea {
   return coerceLifeArea(task.area);
 }
 
+/**
+ * Date-only dues written on a UTC server as noon UTC show up as afternoon
+ * timed blocks in +3:30 (and similar) zones — visible in month chips, easy to
+ * miss on the week/day hour grid. Remap bare UTC-noon (no duration) to the
+ * local date-only sentinel so they sit in the all-day strip.
+ */
+function coerceCalendarTask(task: TaskRow): TaskRow {
+  if (!task.dueDate) return task;
+  if (task.durationMinutes != null && task.durationMinutes > 0) return task;
+  const due = new Date(task.dueDate);
+  if (Number.isNaN(due.getTime())) return task;
+  if (due.getHours() === 12 && due.getMinutes() === 0) return task;
+  if (
+    due.getUTCHours() === 12 &&
+    due.getUTCMinutes() === 0 &&
+    due.getUTCSeconds() === 0 &&
+    due.getUTCMilliseconds() === 0
+  ) {
+    const key = [
+      due.getUTCFullYear(),
+      String(due.getUTCMonth() + 1).padStart(2, "0"),
+      String(due.getUTCDate()).padStart(2, "0"),
+    ].join("-");
+    return { ...task, dueDate: withDateOnly(parseLocalDate(key)) };
+  }
+  return task;
+}
+
+function coerceCalendarTasks(list: TaskRow[]): TaskRow[] {
+  return list.map(coerceCalendarTask);
+}
+
 function isSameDay(a: Date, b: Date) {
   return toDateKey(a) === toDateKey(b);
 }
@@ -274,7 +306,6 @@ function DroppableDay({
   moreLabel,
   overdueLabel,
   docsByTask,
-  today,
   onSelect,
   onOpenTask,
   onMore,
@@ -294,7 +325,6 @@ function DroppableDay({
   moreLabel: string;
   overdueLabel: string;
   docsByTask?: Record<string, { id: string; title: string }[]>;
-  today: Date;
   onSelect: () => void;
   onOpenTask: (task: TaskRow) => void;
   onMore: () => void;
@@ -302,7 +332,7 @@ function DroppableDay({
 }) {
   const key = toDateKey(date);
   const { setNodeRef, isOver } = useDroppable({ id: key });
-  const overdueCount = dayTasks.filter(t => isOverdueTask(t, today)).length;
+  const overdueCount = dayTasks.filter(t => isOverdueTask(t)).length;
   const hasOverdue = overdueCount > 0;
   const extra = Math.max(0, dayTasks.length - visibleCount);
   const shown = dayTasks.slice(0, visibleCount);
@@ -369,7 +399,7 @@ function DroppableDay({
             <DraggableChip
               key={task.id}
               task={task}
-              overdue={isOverdueTask(task, today)}
+              overdue={isOverdueTask(task)}
               hasDoc={(docsByTask?.[task.id]?.length ?? 0) > 0}
               onOpen={() => onOpenTask(task)}
             />
@@ -432,7 +462,9 @@ export function CalendarCC({
   const [selected, setSelected] = React.useState(() =>
     startOfDay(parseLocalDate(initialTodayKey)),
   );
-  const [tasks, setTasks] = React.useState(initialTasks);
+  const [tasks, setTasks] = React.useState(() =>
+    coerceCalendarTasks(initialTasks),
+  );
   const [docsByTask, setDocsByTask] = React.useState<
     Record<string, { id: string; title: string }[]>
   >({});
@@ -484,7 +516,7 @@ export function CalendarCC({
   }, []);
 
   React.useEffect(() => {
-    setTasks(initialTasks);
+    setTasks(coerceCalendarTasks(initialTasks));
   }, [initialTasks]);
 
   React.useEffect(() => {
@@ -553,7 +585,7 @@ export function CalendarCC({
       if (cancelled) return;
       setTasks(prev => {
         const ids = new Set(prev.map(task => task.id));
-        const extra = next.filter(task => !ids.has(task.id));
+        const extra = coerceCalendarTasks(next).filter(task => !ids.has(task.id));
         return extra.length ? [...prev, ...extra] : prev;
       });
     });
@@ -1216,7 +1248,6 @@ export function CalendarCC({
                       moreLabel={t.life.calendarMore}
                       overdueLabel={t.life.overdue}
                       docsByTask={docsByTask}
-                      today={today}
                       onSelect={() => selectDay(date)}
                       onOpenTask={task => openTaskOnDay(task, date)}
                       onMore={() => selectDay(date, true)}
@@ -1230,12 +1261,12 @@ export function CalendarCC({
 
             <aside
               ref={asideRef}
-              className="rounded-2xl border bg-card shadow-sm p-4 flex flex-col gap-4 min-h-0"
+              className="rounded-2xl border bg-card shadow-sm p-3 sm:p-4 flex flex-col gap-3 sm:gap-4 min-h-0 min-w-0"
             >
               <div className="flex items-start gap-3">
                 <div
                   className={cn(
-                    "size-12 shrink-0 rounded-2xl border flex items-center justify-center text-lg font-semibold",
+                    "size-11 sm:size-12 shrink-0 rounded-2xl border flex items-center justify-center text-lg font-semibold",
                     isSameDay(selected, today) &&
                       "bg-primary text-primary-foreground border-primary",
                   )}
@@ -1246,17 +1277,18 @@ export function CalendarCC({
                   <p className="text-xs text-muted-foreground">
                     {t.life.selectedDay}
                   </p>
-                  <h3 className="text-base font-semibold leading-snug mt-0.5">
+                  <h3 className="text-base font-semibold leading-snug mt-0.5 truncate">
                     {formatJalaliDate(selected, language)}
                   </h3>
                 </div>
               </div>
               <CapturePageDate dueDate={toDateKey(selected)} />
               <QuickCapture compact dueDate={toDateKey(selected)} />
-              <div className="flex-1 min-h-0 overflow-auto">
+              <div className="flex-1 min-h-0 min-w-0 overflow-auto">
                 <LifeTaskList
                   tasks={selectedTasks}
                   empty={t.life.calendarEmpty}
+                  compact
                   onTaskClick={task => void edit.openTask(task)}
                   currentUserId={currentUserId}
                   currentUserRole={currentUserRole}
@@ -1269,7 +1301,7 @@ export function CalendarCC({
               <div className="w-40 cursor-grabbing opacity-95 shadow-lg">
                 <TaskChipContent
                   task={activeDrag}
-                  overdue={isOverdueTask(activeDrag, today)}
+                  overdue={isOverdueTask(activeDrag)}
                   hasDoc={(docsByTask[activeDrag.id]?.length ?? 0) > 0}
                 />
               </div>
