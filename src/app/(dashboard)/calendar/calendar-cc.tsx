@@ -869,6 +869,7 @@ export function CalendarCC({
         time,
         dueAtIso: nextDue.toISOString(),
         durationMinutes: nextDuration,
+        timezoneOffsetMinutes: new Date().getTimezoneOffset(),
       });
       if (!result?.success) {
         setTasks(prev =>
@@ -941,6 +942,7 @@ export function CalendarCC({
         time,
         dueAtIso: due.toISOString(),
         durationMinutes: nextDuration,
+        timezoneOffsetMinutes: new Date().getTimezoneOffset(),
       });
       if (!result?.success) {
         setTasks(prev =>
@@ -1025,9 +1027,9 @@ export function CalendarCC({
       return;
     }
 
-  // 2) Hour grid — optimistic commit first; clear ghost in the same turn so
-  //    the block never flashes back to the old slot.
-  if (preview) {
+  // 2) Hour grid — only in week/day views (month has no hour columns; a
+  //    stale preview must not steal the drop and invent a timed schedule).
+  if (preview && view !== "month") {
     const schedulePromise = applySchedule(
       taskId,
       preview.dateKey,
@@ -1145,12 +1147,13 @@ export function CalendarCC({
     pendingReschedules.current.add(taskId);
 
     try {
-      const result = await rescheduleTaskDueDate(
+      const result = await rescheduleTaskDueDate({
         taskId,
         dueDateKey,
-        time,
-        nextDue.toISOString(),
-      );
+        time: time ?? null,
+        dueAtIso: nextDue.toISOString(),
+        timezoneOffsetMinutes: new Date().getTimezoneOffset(),
+      });
       if (!result?.success) {
         setTasks(prev =>
           prev.map(t =>
@@ -1165,7 +1168,7 @@ export function CalendarCC({
           ),
         );
         edit.syncDueFromCalendar(taskId, new Date(previousDue), previousDuration);
-        toast.error(result?.error ?? t.common.error);
+        toast.error(result?.error || t.common.error);
       }
     } catch (error) {
       console.error("rescheduleTaskDueDate failed", error);
@@ -1182,7 +1185,11 @@ export function CalendarCC({
         ),
       );
       edit.syncDueFromCalendar(taskId, new Date(previousDue), previousDuration);
-      toast.error(t.common.error);
+      toast.error(
+        error instanceof Error && error.message
+          ? error.message
+          : t.common.error,
+      );
     } finally {
       pendingReschedules.current.delete(taskId);
     }

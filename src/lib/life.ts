@@ -406,8 +406,9 @@ export function moveDueToDay(
   const next = parseLocalDate(dayKey);
   if (existing && hasDueTime(existing, durationMinutes)) {
     next.setHours(existing.getHours(), existing.getMinutes(), 0, 0);
+    return next;
   }
-  return next;
+  return withDateOnly(next);
 }
 
 /** Set a due to a calendar day at an explicit local clock (24h). */

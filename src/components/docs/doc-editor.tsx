@@ -40,6 +40,7 @@ interface DocEditorProps {
   wordLabel?: string;
   wordGoal?: number | null;
   focusMode?: boolean;
+  className?: string;
   selectionToTaskLabel?: string;
   selectionToQuoteLabel?: string;
   toolbarLabels?: Partial<DocToolbarLabels>;
@@ -126,6 +127,7 @@ export function DocEditor({
   wordLabel = "words",
   wordGoal,
   focusMode = false,
+  className,
   selectionToTaskLabel = "Convert to task",
   selectionToQuoteLabel = "Save quote",
   toolbarLabels,
@@ -222,8 +224,8 @@ export function DocEditor({
     editorProps: {
       attributes: {
         class: cn(
-          "doc-editor min-h-[420px] focus:outline-none px-1 py-2 text-sm leading-7",
-          focusMode && "min-h-[70dvh] text-base leading-8",
+          "doc-editor min-h-[11rem] sm:min-h-[24rem] xl:min-h-[420px] focus:outline-none px-1 py-2 text-[15px] sm:text-sm leading-7",
+          focusMode && "min-h-[60dvh] sm:min-h-[70dvh] text-base leading-8",
           dir === "rtl" && "text-right",
         ),
         dir,
@@ -530,7 +532,12 @@ export function DocEditor({
 
   if (!editor) {
     return (
-      <div className="min-h-[420px] rounded-lg border bg-muted/20 animate-pulse" />
+      <div
+        className={cn(
+          "min-h-[11rem] sm:min-h-[24rem] rounded-lg border bg-muted/20 animate-pulse",
+          className,
+        )}
+      />
     );
   }
 
@@ -556,31 +563,31 @@ export function DocEditor({
       : null;
 
   return (
-    <div className="flex flex-col gap-2" ref={wrapRef}>
+    <div className={cn("flex min-h-0 flex-1 flex-col gap-2", className)} ref={wrapRef}>
       {!focusMode && (
-        <div className="flex flex-wrap items-center gap-1 rounded-xl border bg-muted/30 p-1">
+        <div className="sticky top-0 z-10 flex shrink-0 flex-nowrap items-center gap-1 overflow-x-auto rounded-xl border bg-muted/30 p-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <ToolbarButton
             active={editor.isActive("bold")}
             onClick={() => editor.chain().focus().toggleBold().run()}
             label="B"
-            className="font-bold"
+            className="font-bold shrink-0"
             title={tb.bold}
           />
           <ToolbarButton
             active={editor.isActive("italic")}
             onClick={() => editor.chain().focus().toggleItalic().run()}
             label="I"
-            className="italic"
+            className="italic shrink-0"
             title={tb.italic}
           />
           <ToolbarButton
             active={editor.isActive("strike")}
             onClick={() => editor.chain().focus().toggleStrike().run()}
             label="S"
-            className="line-through"
+            className="line-through shrink-0"
             title={tb.strike}
           />
-          <span className="mx-1 h-5 w-px bg-border" />
+          <span className="mx-1 h-5 w-px shrink-0 bg-border" />
           <ToolbarButton
             active={editor.isActive("heading", { level: 2 })}
             onClick={() =>
@@ -754,7 +761,7 @@ export function DocEditor({
               title={tb.footnote}
             />
           </span>
-          <span className="ms-auto sm:hidden">
+          <span className="ms-auto shrink-0 sm:hidden">
             <Menu
               align="end"
               trigger={
@@ -831,8 +838,9 @@ export function DocEditor({
 
       <div
         className={cn(
-          "relative rounded-xl border bg-card px-4 py-3 min-h-[460px]",
-          focusMode && "min-h-[70dvh] border-transparent shadow-none px-2",
+          "relative min-h-0 flex-1 overflow-auto rounded-xl border bg-card px-3 py-3 sm:px-4",
+          focusMode &&
+            "min-h-[60dvh] border-transparent px-2 shadow-none sm:min-h-[70dvh]",
         )}
       >
         <EditorContent editor={editor} />
@@ -945,16 +953,16 @@ export function DocEditor({
         )}
       </div>
 
-      <div className="flex items-center justify-between gap-3 px-1 text-xs text-muted-foreground">
-        <div className="inline-flex items-center gap-2 min-w-0">
+      <div className="flex shrink-0 items-center justify-between gap-3 px-1 text-xs text-muted-foreground">
+        <div className="inline-flex min-w-0 items-center gap-2">
           <span className="tabular-nums whitespace-nowrap">
             {words.toLocaleString()} {wordLabel}
             {wordGoal ? ` / ${wordGoal.toLocaleString()}` : ""}
           </span>
-          <span className="opacity-35" aria-hidden>
+          <span className="hidden opacity-35 sm:inline" aria-hidden>
             ·
           </span>
-          <span className="inline-flex items-center gap-1 opacity-60 whitespace-nowrap">
+          <span className="hidden items-center gap-1 whitespace-nowrap opacity-60 sm:inline-flex">
             <kbd
               dir="ltr"
               className="rounded border border-border/70 bg-muted/50 px-1 py-px font-mono text-[10px] leading-none"
@@ -1002,7 +1010,7 @@ function ToolbarButton({
       type="button"
       size="sm"
       variant={active ? "primary" : "ghost"}
-      className={cn("h-8 min-w-8 px-2", className)}
+      className={cn("h-8 min-w-8 shrink-0 px-2", className)}
       onClick={onClick}
       title={title}
       aria-label={title}

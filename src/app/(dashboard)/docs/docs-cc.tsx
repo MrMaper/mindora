@@ -81,6 +81,12 @@ import { DocTaxonomyManageDrawer } from "@/components/docs/doc-taxonomy-manage-d
 import { DocWordGoalDrawer } from "@/components/docs/doc-word-goal-drawer";
 import { ChecklistToTasksDrawer } from "@/components/docs/checklist-to-tasks-drawer";
 import { Menu } from "@/components/ui-kit/overlays/menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { countWords } from "@/features/docs/utils";
 import { extractTaskCandidatesFromHtml } from "@/features/docs/checklist";
 
@@ -189,6 +195,12 @@ export function DocsCC({
   const [pending, setPending] = React.useState(false);
   const [focusMode, setFocusMode] = React.useState(false);
   const [copyFlash, setCopyFlash] = React.useState(false);
+  /** Below xl: list and editor are separate full-screen panes. */
+  const [mobilePane, setMobilePane] = React.useState<"list" | "editor">(() =>
+    initialDoc ? "editor" : "list",
+  );
+  const [mobileToolsOpen, setMobileToolsOpen] = React.useState(false);
+  const [mobileMetaOpen, setMobileMetaOpen] = React.useState(false);
 
   const titleRef = React.useRef(doc?.title ?? "");
   const contentRef = React.useRef(doc?.content ?? "");
@@ -300,6 +312,7 @@ export function DocsCC({
 
   async function selectDoc(id: string) {
     setSelectedId(id);
+    setMobilePane("editor");
     const detail = await reloadDoc(id);
     setSaveState("idle");
     setOutline([]);
@@ -671,12 +684,20 @@ export function DocsCC({
   return (
     <div
       className={cn(
-        "flex flex-col gap-3 h-[calc(100dvh-3rem)] min-h-[640px]",
-        focusMode && "fixed inset-0 z-40 bg-background p-4 h-dvh min-h-0",
+        "flex min-h-0 flex-col gap-2 xl:gap-3",
+        "h-[calc(100dvh-3.5rem-env(safe-area-inset-top,0px)-0.75rem)] xl:h-[calc(100dvh-3rem)]",
+        "xl:min-h-[640px]",
+        "max-xl:-mx-3",
+        focusMode && "fixed inset-0 z-40 h-dvh min-h-0 bg-background p-3 sm:p-4",
       )}
     >
       {!focusMode && (
-      <>
+      <div
+        className={cn(
+          "shrink-0 px-3 xl:px-0",
+          mobilePane === "editor" && "max-xl:hidden",
+        )}
+      >
       <PageHeaderBar
         className="mb-0 shrink-0"
         title={t.docs.title}
@@ -684,7 +705,7 @@ export function DocsCC({
           <>
             <Button size="sm" onClick={() => void onCreate()} disabled={pending}>
               <Icon name="plus" size={14} />
-              {t.docs.newDoc}
+              <span className="hidden xs:inline sm:inline">{t.docs.newDoc}</span>
             </Button>
             <Button
               size="sm"
@@ -697,7 +718,7 @@ export function DocsCC({
           </>
         }
       />
-      <div className="flex flex-wrap items-center gap-3 shrink-0">
+      <div className="mt-2 flex flex-wrap items-center gap-3 shrink-0">
         <div className="flex flex-wrap items-center gap-1.5 text-xs">
           <button
             type="button"
@@ -759,19 +780,25 @@ export function DocsCC({
           </button>
         </div>
       </div>
-      </>
+      </div>
       )}
 
       <div
         className={cn(
-          "grid gap-4 flex-1 min-h-0",
+          "grid min-h-0 flex-1 gap-0 xl:gap-4",
           focusMode
             ? "grid-cols-1"
             : "xl:grid-cols-[280px_minmax(0,1fr)_300px]",
         )}
       >
         {!focusMode && (
-        <aside className="rounded-2xl border bg-card shadow-sm flex flex-col min-h-0 overflow-hidden">
+        <aside
+          className={cn(
+            "flex min-h-0 flex-col overflow-hidden border bg-card shadow-sm",
+            "rounded-none border-x-0 xl:rounded-2xl xl:border",
+            mobilePane === "editor" ? "max-xl:hidden" : "max-xl:flex",
+          )}
+        >
           <div className="p-3 border-b flex flex-col gap-2">
             <Input
               value={search}
@@ -902,9 +929,15 @@ export function DocsCC({
         </aside>
         )}
 
-        <section className="rounded-2xl border bg-card shadow-sm flex flex-col min-h-0 overflow-hidden">
+        <section
+          className={cn(
+            "flex min-h-0 flex-col overflow-hidden border bg-card shadow-sm",
+            "rounded-none border-x-0 xl:rounded-2xl xl:border",
+            !focusMode && mobilePane === "list" && "max-xl:hidden",
+          )}
+        >
           {!doc ? (
-            <div className="flex-1 flex flex-col items-center justify-center gap-3 p-8 text-center">
+            <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center">
               <p className="text-muted-foreground text-sm">{t.docs.pickOrCreate}</p>
               <div className="flex flex-wrap gap-2 justify-center">
                 <Button onClick={() => void onCreate()} disabled={pending}>
@@ -921,7 +954,16 @@ export function DocsCC({
             </div>
           ) : (
             <>
-              <div className="flex flex-wrap items-center gap-2 border-b px-4 py-3">
+              <div className="flex shrink-0 items-center gap-1.5 border-b px-2 py-2 sm:gap-2 sm:px-4 sm:py-3">
+                {!focusMode && (
+                  <IconButton
+                    icon={language === "FA" ? "arrow-right" : "arrow-left"}
+                    className="xl:hidden"
+                    aria-label={t.docs.backToList}
+                    title={t.docs.backToList}
+                    onClick={() => setMobilePane("list")}
+                  />
+                )}
                 <input
                   value={doc.title}
                   onChange={e => {
@@ -929,12 +971,21 @@ export function DocsCC({
                     setDoc({ ...doc, title });
                     scheduleSave({ title });
                   }}
-                  className="min-w-0 flex-1 bg-transparent text-lg font-semibold outline-none"
+                  className="min-w-0 flex-1 bg-transparent text-base font-semibold outline-none sm:text-lg"
                   placeholder={t.docs.untitled}
                 />
-                <span className="text-xs text-muted-foreground min-w-16 text-end">
+                <span className="hidden min-w-12 text-end text-xs text-muted-foreground sm:inline">
                   {saveLabel}
                 </span>
+                {!focusMode && (
+                  <IconButton
+                    icon="list"
+                    className="xl:hidden"
+                    aria-label={t.docs.docTools}
+                    title={t.docs.docTools}
+                    onClick={() => setMobileToolsOpen(true)}
+                  />
+                )}
                 <IconButton
                   icon="eye"
                   aria-label={
@@ -944,6 +995,7 @@ export function DocsCC({
                   active={focusMode}
                   onClick={() => setFocusMode(v => !v)}
                 />
+                <span className="hidden items-center gap-1 sm:inline-flex">
                 <IconButton
                   icon="copy"
                   aria-label={t.docs.copyLink}
@@ -1017,6 +1069,76 @@ export function DocsCC({
                     />
                   </>
                 )}
+                </span>
+                <span className="sm:hidden">
+                  <Menu
+                    align="end"
+                    trigger={
+                      <IconButton
+                        icon="more-horizontal"
+                        aria-label={t.docs.toolbarMore}
+                        title={t.docs.toolbarMore}
+                      />
+                    }
+                    items={[
+                      {
+                        label: t.docs.copyLink,
+                        icon: "copy",
+                        onClick: () => void onCopyLink(),
+                      },
+                      {
+                        label: t.docs.exportMarkdown,
+                        icon: "download",
+                        onClick: () =>
+                          downloadMarkdown(
+                            doc.title,
+                            contentRef.current || doc.content,
+                          ),
+                      },
+                      {
+                        label: t.docs.exportPdf,
+                        icon: "file-text",
+                        onClick: () =>
+                          printDocAsPdf(
+                            doc.title,
+                            contentRef.current || doc.content,
+                          ),
+                      },
+                      {
+                        label: t.docs.exportWord,
+                        icon: "file-text",
+                        onClick: () => {
+                          void downloadWordDoc(
+                            doc.title,
+                            contentRef.current || doc.content,
+                          );
+                        },
+                      },
+                      ...(!focusMode && !doc.deletedAt
+                        ? [
+                            { divider: true as const },
+                            {
+                              label: t.docs.pin,
+                              icon: "flag" as const,
+                              onClick: () => void onTogglePin(),
+                            },
+                            {
+                              label: doc.archived
+                                ? t.docs.unarchive
+                                : t.docs.archive,
+                              icon: "archive" as const,
+                              onClick: () => void onArchive(),
+                            },
+                            {
+                              label: t.docs.delete,
+                              icon: "trash" as const,
+                              onClick: () => void onDelete(),
+                            },
+                          ]
+                        : []),
+                    ]}
+                  />
+                </span>
                 {!focusMode && doc.deletedAt && (
                   <>
                     <Button size="sm" variant="subtle" onClick={() => void onRestoreTrash()}>
@@ -1031,14 +1153,40 @@ export function DocsCC({
                 )}
               </div>
               {!focusMode && (
-              <div className="flex flex-wrap items-center gap-2 px-4 py-2 border-b bg-muted/20">
+              <>
+              <div className="flex shrink-0 items-center gap-2 border-b px-3 py-1.5 xl:hidden">
+                <button
+                  type="button"
+                  onClick={() => setMobileMetaOpen(v => !v)}
+                  className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs text-muted-foreground hover:bg-accent"
+                >
+                  <Icon
+                    name="chevron-down"
+                    size={12}
+                    className={cn(mobileMetaOpen && "rotate-180")}
+                  />
+                  {t.docs.docMeta}
+                </button>
+                {saveLabel ? (
+                  <span className="ms-auto text-[11px] text-muted-foreground">
+                    {saveLabel}
+                  </span>
+                ) : null}
+              </div>
+              <div
+                className={cn(
+                  "shrink-0 border-b bg-muted/20 max-xl:overflow-x-auto",
+                  !mobileMetaOpen && "max-xl:hidden",
+                )}
+              >
+              <div className="flex items-center gap-2 px-3 py-2 max-xl:w-max xl:flex-wrap xl:px-4">
                 {LIFE_AREAS.map(area => (
                   <button
                     key={area}
                     type="button"
                     onClick={() => void onAreaChange(area)}
                     className={cn(
-                      "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs",
+                      "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs",
                       doc.area === area
                         ? "border-foreground/25 bg-card font-medium"
                         : "opacity-50 hover:opacity-90",
@@ -1048,13 +1196,13 @@ export function DocsCC({
                     {areaLabel(area, t.life)}
                   </button>
                 ))}
-                <span className="mx-1 h-4 w-px bg-border" />
+                <span className="mx-1 h-4 w-px shrink-0 bg-border" />
                 <select
                   value={doc.status}
                   onChange={e =>
                     void onStatusChange(e.target.value as DocStatus)
                   }
-                  className="h-7 rounded-full border bg-card text-xs"
+                  className="h-7 shrink-0 rounded-full border bg-card text-xs"
                   aria-label={t.docs.status}
                 >
                   {DOC_STATUSES.map(status => (
@@ -1066,7 +1214,7 @@ export function DocsCC({
                 <button
                   type="button"
                   onClick={() => setWordGoalOpen(true)}
-                  className="rounded-full border px-2.5 py-1 text-xs text-muted-foreground hover:bg-card"
+                  className="shrink-0 rounded-full border px-2.5 py-1 text-xs text-muted-foreground hover:bg-card"
                 >
                   {t.docs.wordGoal}
                   {doc.wordGoal
@@ -1074,7 +1222,7 @@ export function DocsCC({
                     : ""}
                 </button>
                 <select
-                  className="h-7 rounded-full border bg-card text-xs"
+                  className="h-7 shrink-0 rounded-full border bg-card text-xs"
                   value={doc.folderId ?? ""}
                   onChange={e => {
                     const folderId = e.target.value || null;
@@ -1098,7 +1246,7 @@ export function DocsCC({
                 </select>
                 {(doc.area === "PHD" || phdProjects.length > 0) && (
                   <select
-                    className="h-7 rounded-full border bg-card text-xs max-w-[10rem]"
+                    className="h-7 max-w-[10rem] shrink-0 rounded-full border bg-card text-xs"
                     value={doc.projectId ?? ""}
                     onChange={e => {
                       const projectId = e.target.value || null;
@@ -1126,7 +1274,7 @@ export function DocsCC({
                     ))}
                   </select>
                 )}
-                <div className="flex flex-wrap gap-1">
+                <div className="flex shrink-0 flex-nowrap gap-1">
                   {tags.map(tag => {
                     const active = doc.tags.some(x => x.id === tag.id);
                     return (
@@ -1157,10 +1305,13 @@ export function DocsCC({
                   })}
                 </div>
               </div>
+              </div>
+              </>
               )}
-              <div className="flex-1 overflow-auto p-4">
+              <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-2 pb-2 pt-1 sm:p-4">
                 <DocEditor
                   key={doc.id}
+                  className="min-h-0 flex-1"
                   content={doc.content}
                   placeholder={t.docs.editorPlaceholder}
                   dir={language === "FA" ? "rtl" : "ltr"}
@@ -1215,8 +1366,10 @@ export function DocsCC({
           )}
         </section>
 
-        {!focusMode && (
+                {!focusMode && (
+        <>
         <DocSidePanel
+          className="hidden h-full min-h-0 xl:flex xl:flex-col"
           doc={doc}
           outline={outline}
           taskQuery={taskQuery}
@@ -1319,6 +1472,121 @@ export function DocsCC({
             setCompareOpen(true);
           }}
         />
+        <Sheet open={mobileToolsOpen} onOpenChange={setMobileToolsOpen}>
+          <SheetContent
+            side={language === "FA" ? "left" : "right"}
+            className="w-[min(100%,22rem)] gap-0 p-0"
+          >
+            <SheetHeader className="sr-only">
+              <SheetTitle>{t.docs.docTools}</SheetTitle>
+            </SheetHeader>
+            <DocSidePanel
+          className="flex h-full min-h-0 flex-col rounded-none border-0 shadow-none"
+          doc={doc}
+          outline={outline}
+          taskQuery={taskQuery}
+          taskHits={taskHits}
+          onTaskQueryChange={setTaskQuery}
+          onLinkTask={id => void onLinkTask(id)}
+          onUnlinkTask={id => void onUnlinkTask(id)}
+          onCreateTask={() => void onCreateTaskFromTitle()}
+          onAddSource={async input => {
+            if (!doc) return;
+            await addDocSource({ docId: doc.id, ...input });
+            await reloadDoc(doc.id);
+          }}
+          onUpdateSource={async (id, input) => {
+            if (!doc) return;
+            await updateDocSource(id, input);
+            await reloadDoc(doc.id);
+          }}
+          onDeleteSource={async id => {
+            if (!doc) return;
+            await deleteDocSource(id);
+            await reloadDoc(doc.id);
+          }}
+          onAttachSourcePdf={async (sourceId, file) => {
+            if (!doc) return;
+            const fd = new FormData();
+            fd.set("file", file);
+            const result = await attachDocSourcePdf(sourceId, fd);
+            if (!result.success && result.error) {
+              window.alert(result.error);
+              return;
+            }
+            await reloadDoc(doc.id);
+          }}
+          onClearSourcePdf={async sourceId => {
+            if (!doc) return;
+            const result = await clearDocSourcePdf(sourceId);
+            if (!result.success && result.error) {
+              window.alert(result.error);
+              return;
+            }
+            await reloadDoc(doc.id);
+          }}
+          onAddQuote={async input => {
+            if (!doc) return;
+            await addDocQuote({ docId: doc.id, ...input });
+            await reloadDoc(doc.id);
+          }}
+          onUpdateQuote={async (id, input) => {
+            if (!doc) return;
+            await updateDocQuote(id, input);
+            await reloadDoc(doc.id);
+          }}
+          onDeleteQuote={async id => {
+            if (!doc) return;
+            await deleteDocQuote(id);
+            await reloadDoc(doc.id);
+          }}
+          onInsertQuote={(quote: DocQuoteItem) => {
+            if (!doc) return;
+            const escape = (s: string) =>
+              s
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+            const citeParts = [
+              quote.sourceTitle,
+              quote.note,
+            ].filter(Boolean);
+            const cite = citeParts.length
+              ? `<p><em>— ${escape(citeParts.join(" · "))}</em></p>`
+              : "";
+            const chunk = `<blockquote><p>${escape(quote.text)}</p>${cite}</blockquote><p></p>`;
+            const next = `${contentRef.current || doc.content}${chunk}`;
+            contentRef.current = next;
+            setDoc({ ...doc, content: next });
+            scheduleSave({ content: next });
+          }}
+          onSaveVersion={async (note?: string) => {
+            if (!doc) return;
+            await flushPendingSave({ write: true });
+            await saveDocVersion(doc.id, note);
+            await reloadDoc(doc.id);
+          }}
+          onRestoreVersion={async versionId => {
+            if (!doc) return;
+            // Drop pending autosave so it cannot overwrite the restored content
+            await flushPendingSave({ write: false });
+            await restoreDocVersion(doc.id, versionId);
+            const detail = await reloadDoc(doc.id);
+            if (detail) {
+              titleRef.current = detail.title;
+              contentRef.current = detail.content;
+            }
+            await refreshList();
+          }}
+          onChecklistToTasks={() => openChecklistPreview()}
+          onCompareVersions={versionId => {
+            setCompareVersionId(versionId ?? null);
+            setCompareOpen(true);
+          }}
+        />
+          </SheetContent>
+        </Sheet>
+        </>
         )}
       </div>
 

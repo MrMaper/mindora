@@ -42,6 +42,7 @@ export function DocSidePanel({
   onRestoreVersion,
   onChecklistToTasks,
   onCompareVersions,
+  className,
 }: {
   doc: DocDetail | null;
   outline: OutlineHeading[];
@@ -92,6 +93,7 @@ export function DocSidePanel({
   onRestoreVersion: (versionId: string) => Promise<void>;
   onChecklistToTasks?: () => void;
   onCompareVersions?: (versionId?: string) => void;
+  className?: string;
 }) {
   const t = useTranslation();
   const language = useLanguage();
@@ -105,7 +107,12 @@ export function DocSidePanel({
   ];
 
   return (
-    <aside className="rounded-2xl border bg-card shadow-sm flex flex-col min-h-0 overflow-hidden">
+    <aside
+      className={cn(
+        "rounded-2xl border bg-card shadow-sm flex flex-col min-h-0 overflow-hidden",
+        className,
+      )}
+    >
       <div className="flex border-b overflow-x-auto">
         {tabs.map(item => (
           <button

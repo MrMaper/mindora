@@ -532,75 +532,102 @@ export async function updateTaskRecurrenceSeriesAction(input: {
   return { success: true };
 }
 
-export async function rescheduleTaskDueDate(
-  taskId: string,
-  dueDateKey: string,
-  time?: string | null,
-  dueAtIso?: string | null,
-): Promise<ActionResult> {
-  const session = await auth();
-  if (!session?.user) return { success: false, error: "غیرمجاز" };
+export async function rescheduleTaskDueDate(input: {
+  taskId: string;
+  dueDateKey: string;
+  /** `""` = date-only (clear duration). `HH:MM` = set clock. `null` = keep clock via move. */
+  time?: string | null;
+  /** Client-local instant (ISO). Preferred so UTC servers keep the wall clock. */
+  dueAtIso?: string | null;
+  /** `Date#getTimezoneOffset()` from the client. */
+  timezoneOffsetMinutes?: number;
+}): Promise<ActionResult> {
+  try {
+    const session = await auth();
+    if (!session?.user) return { success: false, error: "غیرمجاز" };
 
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(dueDateKey)) {
-    return { success: false, error: "تاریخ نامعتبر است" };
-  }
+    const { taskId, dueDateKey } = input;
+    const time = input.time ?? null;
+    const dueAtIso = input.dueAtIso ?? null;
+    const tz = input.timezoneOffsetMinutes;
 
-  const existing = await db.task.findUnique({
-    where: { id: taskId },
-    select: {
-      assignedToId: true,
-      createdById: true,
-      dueDate: true,
-      durationMinutes: true,
-      status: true,
-      area: true,
-      waitingOn: true,
-      project: { select: { area: true } },
-    },
-  });
-  if (!existing) return { success: false, error: "کار پیدا نشد" };
-
-  if (
-    !canAccessPersonalTask(session.user.id, session.user.role, existing)
-  ) {
-    return { success: false, error: "اجازه ویرایش ندارید" };
-  }
-
-  let nextDue: Date;
-  if (dueAtIso) {
-    nextDue = new Date(dueAtIso);
-    if (Number.isNaN(nextDue.getTime())) {
+    if (!taskId || !/^\d{4}-\d{2}-\d{2}$/.test(dueDateKey)) {
       return { success: false, error: "تاریخ نامعتبر است" };
     }
-  } else if (time && /^(\d{2}):(\d{2})$/.test(time)) {
-    const [hours, minutes] = time.split(":").map(Number);
-    nextDue = parseLocalDate(dueDateKey);
-    nextDue.setHours(hours!, minutes!, 0, 0);
-  } else if (time === "") {
-    nextDue = withDateOnly(parseLocalDate(dueDateKey));
-  } else {
-    nextDue = moveDueToDay(
-      existing.dueDate,
-      dueDateKey,
-      existing.durationMinutes,
-    );
+
+    const existing = await db.task.findUnique({
+      where: { id: taskId },
+      select: {
+        assignedToId: true,
+        createdById: true,
+        dueDate: true,
+        durationMinutes: true,
+        status: true,
+        area: true,
+        waitingOn: true,
+        project: { select: { area: true } },
+      },
+    });
+    if (!existing) return { success: false, error: "کار پیدا نشد" };
+
+    if (
+      !canAccessPersonalTask(session.user.id, session.user.role, existing)
+    ) {
+      return { success: false, error: "اجازه ویرایش ندارید" };
+    }
+
+    const hasOffset =
+      typeof tz === "number" && Number.isFinite(tz);
+
+    let nextDue: Date;
+    if (dueAtIso) {
+      nextDue = new Date(dueAtIso);
+      if (Number.isNaN(nextDue.getTime())) {
+        return { success: false, error: "تاریخ نامعتبر است" };
+      }
+    } else if (time && /^(\d{2}):(\d{2})$/.test(time)) {
+      const [hours, minutes] = time.split(":").map(Number);
+      nextDue = hasOffset
+        ? dueFromWallClock(dueDateKey, hours!, minutes!, tz!)
+        : (() => {
+            const d = parseLocalDate(dueDateKey);
+            d.setHours(hours!, minutes!, 0, 0);
+            return d;
+          })();
+    } else if (time === "") {
+      nextDue = hasOffset
+        ? dueFromWallClock(dueDateKey, 12, 0, tz!)
+        : withDateOnly(parseLocalDate(dueDateKey));
+    } else {
+      nextDue = moveDueToDay(
+        existing.dueDate,
+        dueDateKey,
+        existing.durationMinutes,
+      );
+    }
+
+    const area = existing.area ?? existing.project?.area ?? null;
+    await db.task.update({
+      where: { id: taskId },
+      data: {
+        dueDate: nextDue,
+        ...(time === "" ? { durationMinutes: null } : {}),
+        status: resolvePersonalTaskPlanningStatus(existing.status, nextDue, {
+          area,
+          waitingOn: existing.waitingOn,
+        }),
+      },
+    });
+
+    revalidateLife();
+    return { success: true };
+  } catch (error) {
+    console.error("rescheduleTaskDueDate", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "ذخیره جابه‌جایی ناموفق بود",
+    };
   }
-
-  const area = existing.area ?? existing.project?.area ?? null;
-  await db.task.update({
-    where: { id: taskId },
-    data: {
-      dueDate: nextDue,
-      ...(time === "" ? { durationMinutes: null } : {}),
-      status: resolvePersonalTaskPlanningStatus(existing.status, nextDue, {
-        area,
-        waitingOn: existing.waitingOn,
-      }),
-    },
-  });
-
-  revalidateLife();
-  return { success: true };
 }
 
 /** Set exact clock and/or duration (week/day grid drag + resize). */
@@ -612,70 +639,87 @@ export async function rescheduleTaskSchedule(
     /** Client-local instant (ISO). Preferred so UTC servers keep the wall clock. */
     dueAtIso?: string;
     durationMinutes?: number | null;
+    timezoneOffsetMinutes?: number;
   },
 ): Promise<ActionResult> {
-  const session = await auth();
-  if (!session?.user) return { success: false, error: "غیرمجاز" };
+  try {
+    const session = await auth();
+    if (!session?.user) return { success: false, error: "غیرمجاز" };
 
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(input.dueDateKey)) {
-    return { success: false, error: "تاریخ نامعتبر است" };
-  }
-  if (!/^(\d{2}):(\d{2})$/.test(input.time)) {
-    return { success: false, error: "ساعت نامعتبر است" };
-  }
-
-  const existing = await db.task.findUnique({
-    where: { id: taskId },
-    select: {
-      assignedToId: true,
-      createdById: true,
-      status: true,
-      area: true,
-      waitingOn: true,
-      project: { select: { area: true } },
-    },
-  });
-  if (!existing) return { success: false, error: "کار پیدا نشد" };
-
-  if (
-    !canAccessPersonalTask(session.user.id, session.user.role, existing)
-  ) {
-    return { success: false, error: "اجازه ویرایش ندارید" };
-  }
-
-  let nextDue: Date;
-  if (input.dueAtIso) {
-    nextDue = new Date(input.dueAtIso);
-    if (Number.isNaN(nextDue.getTime())) {
+    if (!taskId || !/^\d{4}-\d{2}-\d{2}$/.test(input.dueDateKey)) {
       return { success: false, error: "تاریخ نامعتبر است" };
     }
-  } else {
-    const [hours, minutes] = input.time.split(":").map(Number);
-    nextDue = parseLocalDate(input.dueDateKey);
-    nextDue.setHours(hours!, minutes!, 0, 0);
+    if (!/^(\d{2}):(\d{2})$/.test(input.time)) {
+      return { success: false, error: "ساعت نامعتبر است" };
+    }
+
+    const existing = await db.task.findUnique({
+      where: { id: taskId },
+      select: {
+        assignedToId: true,
+        createdById: true,
+        status: true,
+        area: true,
+        waitingOn: true,
+        project: { select: { area: true } },
+      },
+    });
+    if (!existing) return { success: false, error: "کار پیدا نشد" };
+
+    if (
+      !canAccessPersonalTask(session.user.id, session.user.role, existing)
+    ) {
+      return { success: false, error: "اجازه ویرایش ندارید" };
+    }
+
+    const tz = input.timezoneOffsetMinutes;
+    const hasOffset = typeof tz === "number" && Number.isFinite(tz);
+
+    let nextDue: Date;
+    if (input.dueAtIso) {
+      nextDue = new Date(input.dueAtIso);
+      if (Number.isNaN(nextDue.getTime())) {
+        return { success: false, error: "تاریخ نامعتبر است" };
+      }
+    } else {
+      const [hours, minutes] = input.time.split(":").map(Number);
+      nextDue = hasOffset
+        ? dueFromWallClock(input.dueDateKey, hours!, minutes!, tz!)
+        : (() => {
+            const d = parseLocalDate(input.dueDateKey);
+            d.setHours(hours!, minutes!, 0, 0);
+            return d;
+          })();
+    }
+
+    let durationMinutes: number | null | undefined = input.durationMinutes;
+    if (durationMinutes !== undefined && durationMinutes !== null) {
+      if (durationMinutes <= 0) durationMinutes = null;
+      else durationMinutes = Math.min(24 * 60, Math.round(durationMinutes));
+    }
+
+    const area = existing.area ?? existing.project?.area ?? null;
+    await db.task.update({
+      where: { id: taskId },
+      data: {
+        dueDate: nextDue,
+        ...(durationMinutes !== undefined ? { durationMinutes } : {}),
+        status: resolvePersonalTaskPlanningStatus(existing.status, nextDue, {
+          area,
+          waitingOn: existing.waitingOn,
+        }),
+      },
+    });
+
+    revalidateLife();
+    return { success: true };
+  } catch (error) {
+    console.error("rescheduleTaskSchedule", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "ذخیره زمان‌بندی ناموفق بود",
+    };
   }
-
-  let durationMinutes: number | null | undefined = input.durationMinutes;
-  if (durationMinutes !== undefined && durationMinutes !== null) {
-    if (durationMinutes <= 0) durationMinutes = null;
-    else durationMinutes = Math.min(24 * 60, Math.round(durationMinutes));
-  }
-
-  const area = existing.area ?? existing.project?.area ?? null;
-  await db.task.update({
-    where: { id: taskId },
-    data: {
-      dueDate: nextDue,
-      ...(durationMinutes !== undefined ? { durationMinutes } : {}),
-      status: resolvePersonalTaskPlanningStatus(existing.status, nextDue, {
-        area,
-        waitingOn: existing.waitingOn,
-      }),
-    },
-  });
-
-  revalidateLife();
-  return { success: true };
 }
 
 /**

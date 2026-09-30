@@ -692,6 +692,26 @@
   height: 0;
 }
 
+@media (max-width: 1279px) {
+  .doc-editor {
+    font-size: 1rem;
+    line-height: 1.8;
+    -webkit-text-size-adjust: 100%;
+  }
+  .doc-editor h1 {
+    font-size: 1.45rem;
+  }
+  .doc-editor h2 {
+    font-size: 1.2rem;
+  }
+  .doc-editor table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
 /* Native <select>: custom chevron so spacing is controllable (RTL + LTR).
    Browser-native arrows ignore padding on many platforms (esp. Windows). */
 select:not([multiple]):not([size]) {
