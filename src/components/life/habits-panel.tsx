@@ -27,7 +27,7 @@ const HabitHeatmap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="mb-3 h-[5.5rem] animate-pulse rounded-md bg-muted/40" />
+      <div className="mb-3 h-[4.5rem] animate-pulse rounded-md bg-muted/40" />
     ),
   },
 );
@@ -65,7 +65,7 @@ function HeatmapWhenVisible({
   }, [visible]);
 
   return (
-    <div ref={ref} className="mb-3 min-h-[5.5rem]">
+    <div ref={ref} className="mb-3 min-h-[4.5rem]">
       {visible ? (
         <HabitHeatmap
           habits={habits}
@@ -74,7 +74,7 @@ function HeatmapWhenVisible({
           onFilterChange={onFilterChange}
         />
       ) : (
-        <div className="h-[5.5rem] rounded-md bg-muted/30" aria-hidden />
+        <div className="h-[4.5rem] rounded-md bg-muted/30" aria-hidden />
       )}
     </div>
   );
@@ -292,8 +292,8 @@ export function HabitsPanel({
   const list = view === "archived" ? archivedHabits : habits;
 
   return (
-    <section className="rounded-xl border bg-card p-4">
-      <div className="mb-3 flex items-start justify-between gap-2">
+    <section className="rounded-xl border bg-card p-3">
+      <div className="mb-2 flex items-start justify-between gap-2">
         <div>
           <h2 className="text-sm font-semibold">{t.habits.title}</h2>
           <p className="mt-0.5 text-xs text-muted-foreground">{t.habits.hint}</p>

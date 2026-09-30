@@ -36,14 +36,11 @@ interface TasksTableProps {
   formatDate: (date: Date | null, durationMinutes?: number | null) => string;
 }
 
+/** Compact single-line rows; due/assignee keep readable min widths. */
 const GRID =
-  "md:grid gap-x-4 px-4 py-2.5 items-center border-b border-border-subtle";
-/**
- * Path sits under the title (not its own track) so status / person / due
- * keep readable width instead of crushing into the left edge.
- */
+  "md:grid gap-x-3 px-3 py-1.5 items-center border-b border-border-subtle";
 const GRID_COLUMNS =
-  "minmax(0, 1fr) max-content 2.75rem minmax(8rem, 11rem) max-content 2.75rem";
+  "minmax(0, 1.4fr) minmax(0, 0.85fr) max-content 2.5rem minmax(6.5rem, 8.5rem) max-content 2.5rem";
 
 function areaTitle(area: TaskRow["area"], t: TasksTableProps["t"]) {
   if (area === "PHD") return t.dashboard.areaPhd as string;
@@ -57,12 +54,20 @@ function isOverdue(task: TaskRow): boolean {
   return isOverdueTask(task);
 }
 
-function TaskPlaceLine({ task, t }: { task: TaskRow; t: TasksTableProps["t"] }) {
+function TaskPlace({ task, t }: { task: TaskRow; t: TasksTableProps["t"] }) {
   const area = areaTitle(task.area, t);
   const path =
     task.projectId && !isAreaBucketId(task.projectId) ? task.projectName : null;
-  const place = [path || (t.tasks.noProject as string), area].filter(Boolean).join(" · ");
-  return <div className="mt-0.5 truncate text-[11px] text-text-tertiary">{place}</div>;
+  return (
+    <div className="min-w-0 leading-tight">
+      <div className="truncate text-xs text-text-secondary">
+        {path || t.tasks.noProject}
+      </div>
+      {area ? (
+        <div className="truncate text-[10px] text-text-tertiary">{area}</div>
+      ) : null}
+    </div>
+  );
 }
 
 export function TasksTable({
@@ -91,6 +96,7 @@ export function TasksTable({
 
   const columns = [
     { key: "title", label: t.tasks.taskColumn as string },
+    { key: "project", label: t.tasks.projectColumn as string },
     { key: "status", label: t.tasks.statusColumn as string },
     { key: "priority", label: t.tasks.priorityColumn as string },
     { key: "assignee", label: t.tasks.assigneeColumn as string },
@@ -151,70 +157,72 @@ export function TasksTable({
   return (
     <>
       <div className="rounded-lg border border-border-default bg-bg-surface overflow-x-auto">
-        <div className="min-w-[36rem]">
-        <div
-          className={cn(GRID, "hidden md:grid min-h-9 bg-bg-sunken py-2")}
-          style={{ gridTemplateColumns: GRID_COLUMNS }}
-        >
-          {columns.map(col => {
-            if (!col.key) return <span key="actions" />;
-            const active = filters.sort === col.key;
+        <div className="min-w-[48rem]">
+          <div
+            className={cn(GRID, "hidden md:grid h-9 bg-bg-sunken py-0")}
+            style={{ gridTemplateColumns: GRID_COLUMNS }}
+          >
+            {columns.map(col => {
+              if (!col.key) return <span key="actions" />;
+              const active = filters.sort === col.key;
+              return (
+                <button
+                  key={col.key}
+                  type="button"
+                  aria-sort={
+                    active ? (filters.order === "asc" ? "ascending" : "descending") : "none"
+                  }
+                  onClick={() => onSortChange(col.key)}
+                  className="flex min-w-0 cursor-pointer items-center gap-1 justify-self-start whitespace-nowrap text-start text-2xs font-semibold uppercase tracking-caps text-text-tertiary hover:text-text-secondary"
+                >
+                  {col.label}
+                  {active && (
+                    <Icon
+                      name={filters.order === "asc" ? "chevron-up" : "chevron-down"}
+                      size={11}
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {sections.map(section => {
+            const hidden = Boolean(group) && collapsed.has(section.key);
             return (
-              <button
-                key={col.key}
-                type="button"
-                aria-sort={active ? (filters.order === "asc" ? "ascending" : "descending") : "none"}
-                onClick={() => onSortChange(col.key)}
-                className="flex min-w-0 cursor-pointer items-center gap-1 justify-self-start whitespace-nowrap text-start text-2xs font-semibold uppercase tracking-caps text-text-tertiary hover:text-text-secondary"
-              >
-                {col.label}
-                {active && (
-                  <Icon
-                    name={filters.order === "asc" ? "chevron-up" : "chevron-down"}
-                    size={11}
-                  />
-                )}
-              </button>
+              <React.Fragment key={section.key}>
+                {group ? (
+                  <button
+                    type="button"
+                    onClick={() => toggleGroup(section.key)}
+                    className="flex w-full items-center gap-2 border-b border-border-subtle bg-bg-sunken/70 px-3 py-1.5 text-start"
+                  >
+                    <Icon name={hidden ? "chevron-left" : "chevron-down"} size={14} />
+                    <span className="text-xs font-semibold text-text-primary">
+                      {groupLabel(section.key, section.tasks[0])}
+                    </span>
+                    <span className="text-xs text-text-tertiary">{section.tasks.length}</span>
+                  </button>
+                ) : null}
+                {hidden
+                  ? null
+                  : section.tasks.map(task => (
+                      <TaskLine
+                        key={task.id}
+                        task={task}
+                        t={t}
+                        currentUserId={currentUserId}
+                        currentUserRole={currentUserRole}
+                        onRowClick={onRowClick}
+                        onEdit={onEdit}
+                        onDelete={onDelete}
+                        onLogTime={() => setWorkLogOpenTaskId(task.id)}
+                        formatDate={formatDate}
+                      />
+                    ))}
+              </React.Fragment>
             );
           })}
-        </div>
-
-        {sections.map(section => {
-          const hidden = Boolean(group) && collapsed.has(section.key);
-          return (
-            <React.Fragment key={section.key}>
-              {group ? (
-                <button
-                  type="button"
-                  onClick={() => toggleGroup(section.key)}
-                  className="flex w-full items-center gap-2 border-b border-border-subtle bg-bg-sunken/70 px-4 py-2 text-start"
-                >
-                  <Icon name={hidden ? "chevron-left" : "chevron-down"} size={14} />
-                  <span className="text-xs font-semibold text-text-primary">
-                    {groupLabel(section.key, section.tasks[0])}
-                  </span>
-                  <span className="text-xs text-text-tertiary">{section.tasks.length}</span>
-                </button>
-              ) : null}
-              {hidden
-                ? null
-                : section.tasks.map(task => (
-                    <TaskLine
-                      key={task.id}
-                      task={task}
-                      t={t}
-                      currentUserId={currentUserId}
-                      currentUserRole={currentUserRole}
-                      onRowClick={onRowClick}
-                      onEdit={onEdit}
-                      onDelete={onDelete}
-                      onLogTime={() => setWorkLogOpenTaskId(task.id)}
-                      formatDate={formatDate}
-                    />
-                  ))}
-            </React.Fragment>
-          );
-        })}
         </div>
       </div>
 
@@ -286,6 +294,7 @@ function TaskLine({
     );
   }
   const overdue = isOverdue(task);
+  const dueLabel = formatDate(task.dueDate, task.durationMinutes);
 
   return (
     <>
@@ -303,20 +312,22 @@ function TaskLine({
               }
             : undefined
         }
-        className="flex w-full items-start gap-3 border-b border-border-subtle px-3 py-3 text-start hover:bg-bg-sunken/50 md:hidden"
+        className="flex w-full items-start gap-3 border-b border-border-subtle px-3 py-2.5 text-start hover:bg-bg-sunken/50 md:hidden"
       >
         <div className="min-w-0 flex-1">
           <div className="text-sm font-medium text-text-primary">{task.title}</div>
-          <TaskPlaceLine task={task} t={t} />
-          <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-text-tertiary">
-            <StatusBadge status={statusToDisplay(task.status)} className="shrink-0 whitespace-nowrap" />
+          <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-text-tertiary">
+            <StatusBadge
+              status={statusToDisplay(task.status)}
+              className="shrink-0 whitespace-nowrap"
+            />
             <span
               className={cn(
                 "shrink-0 whitespace-nowrap tabular-nums",
                 overdue && "font-medium text-destructive",
               )}
             >
-              {formatDate(task.dueDate, task.durationMinutes)}
+              {dueLabel}
             </span>
           </div>
         </div>
@@ -332,29 +343,31 @@ function TaskLine({
       </div>
       <div
         onClick={canEdit ? () => onRowClick(task) : undefined}
-        className={cn(GRID, "hidden min-h-13 cursor-pointer hover:bg-bg-sunken/50 md:grid")}
+        className={cn(GRID, "hidden min-h-10 cursor-pointer hover:bg-bg-sunken/50 md:grid")}
         style={{ gridTemplateColumns: GRID_COLUMNS }}
       >
         <div className="min-w-0">
-          <div className="truncate text-sm font-medium text-text-primary">{task.title}</div>
-          <TaskPlaceLine task={task} t={t} />
-          {task.labels.length > 0 && (
-            <div className="mt-1 flex flex-wrap gap-1">
+          <div className="truncate text-sm font-medium leading-snug text-text-primary">
+            {task.title}
+          </div>
+          {task.labels.length > 0 ? (
+            <div className="mt-0.5 flex flex-wrap gap-1">
               {task.labels.map(label => (
                 <Tag key={label.id} color={label.color}>
                   {label.name}
                 </Tag>
               ))}
             </div>
-          )}
+          ) : null}
         </div>
+        <TaskPlace task={task} t={t} />
         <div className="justify-self-start">
           <StatusBadge status={statusToDisplay(task.status)} className="whitespace-nowrap" />
         </div>
         <div className="flex justify-center">
           <PriorityIcon priority={priorityToDisplay(task.priority)} />
         </div>
-        <div className="flex min-w-0 items-center gap-2">
+        <div className="flex min-w-0 items-center gap-1.5">
           {task.assignedTo ? (
             <>
               <Avatar
@@ -363,7 +376,10 @@ function TaskLine({
                 size="sm"
                 className="shrink-0"
               />
-              <span className="min-w-0 truncate text-xs text-text-secondary" title={task.assignedTo.name}>
+              <span
+                className="min-w-0 truncate text-xs text-text-secondary"
+                title={task.assignedTo.name}
+              >
                 {task.assignedTo.name}
               </span>
             </>
@@ -373,11 +389,11 @@ function TaskLine({
         </div>
         <span
           className={cn(
-            "inline-block w-max max-w-none justify-self-start whitespace-nowrap text-xs tabular-nums text-text-tertiary",
+            "inline-block shrink-0 justify-self-start whitespace-nowrap text-xs tabular-nums text-text-tertiary",
             overdue && "font-medium text-destructive",
           )}
         >
-          {formatDate(task.dueDate, task.durationMinutes)}
+          {dueLabel}
         </span>
         <span className="justify-self-center" onClick={event => event.stopPropagation()}>
           <Menu

@@ -22,12 +22,11 @@ export function TeamSwitcher({
   language,
   onTeamChange,
 }: TeamSwitcherProps) {
+  const t = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
 
   if (teams.length === 0) return null;
-
-  const t = useTranslation();
 
   const handleChange = (teamId: string) => {
     onTeamChange(teamId);

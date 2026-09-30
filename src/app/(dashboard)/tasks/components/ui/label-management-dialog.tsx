@@ -12,13 +12,18 @@ interface LabelManagementDialogProps {
   isOpen: boolean;
   onClose: () => void;
   form: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     control: ReturnType<typeof import("react-hook-form").useForm>["control"];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     handleSubmit: (fn: (data: any) => void) => (e: React.BaseSyntheticEvent) => void;
     isPending?: boolean;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
   };
   labels: LabelRow[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   t: Record<string, any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onCreateSubmit: (data: any) => void;
   onDeleteLabel: (id: string) => void;
   labelError: string | null;

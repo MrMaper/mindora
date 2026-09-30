@@ -895,7 +895,7 @@ export async function createDocFolder(input: {
   const name = input.name.trim();
   if (!name) return { success: false, error: "نام پوشه لازم است" };
   const description = input.description?.trim() || null;
-  let parentId: string | null = input.parentId ?? null;
+  const parentId: string | null = input.parentId ?? null;
   if (parentId) {
     const parent = await db.docFolder.findFirst({
       where: { id: parentId, userId: session.user.id },

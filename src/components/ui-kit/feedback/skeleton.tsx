@@ -21,7 +21,7 @@ export function Skeleton({
     return (
       <ShadcnSkeleton
         className={cn("rounded-full", className)}
-        style={{ width, height, ...(rest.style as any) }}
+        style={{ width, height, ...(rest.style as React.CSSProperties) }}
         {...rest}
       />
     );
@@ -31,7 +31,7 @@ export function Skeleton({
     return (
       <ShadcnSkeleton
         className={cn("rounded-md", className)}
-        style={{ width, height, ...(rest.style as any) }}
+        style={{ width, height, ...(rest.style as React.CSSProperties) }}
         {...rest}
       />
     );
@@ -46,7 +46,7 @@ export function Skeleton({
           className={cn("h-3 rounded", i === lines - 1 && lines > 1 && "w-3/4")}
           style={{
             width: i === lines - 1 && lines > 1 ? undefined : width,
-            ...(rest.style as any),
+            ...(rest.style as React.CSSProperties),
           }}
         />
       ))}

@@ -275,7 +275,7 @@ export async function getProjectsHub(
     return { area, bucket, paths, openTaskCount, activePathCount, pref };
   });
 
-  let sections = sectionsRaw
+  const sections = sectionsRaw
     .filter(section => {
       if (!q) return true;
       const bucketHit =

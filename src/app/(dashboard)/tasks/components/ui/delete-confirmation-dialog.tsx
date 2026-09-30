@@ -7,6 +7,7 @@ interface DeleteConfirmationDialogProps {
   isOpen: boolean;
   onClose: () => void;
   task: TaskRow | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   t: Record<string, any>;
   onConfirm: () => void;
   isPending: boolean;

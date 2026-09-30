@@ -18,7 +18,7 @@ function HabitsPanelSkeleton() {
       <div className="mb-3 h-4 w-24 animate-pulse rounded bg-muted/50" />
       <div className="mb-3 h-3 w-40 animate-pulse rounded bg-muted/40" />
       <div className="mb-3 h-9 animate-pulse rounded-md bg-muted/40" />
-      <div className="mb-3 h-[5.5rem] animate-pulse rounded-md bg-muted/30" />
+      <div className="mb-3 h-[4.5rem] animate-pulse rounded-md bg-muted/30" />
       <div className="space-y-2">
         <div className="h-12 animate-pulse rounded-lg bg-muted/35" />
         <div className="h-12 animate-pulse rounded-lg bg-muted/30" />

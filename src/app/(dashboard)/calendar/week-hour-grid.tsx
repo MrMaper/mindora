@@ -107,6 +107,10 @@ function TimedBlock({
   onResizeCommit: (taskId: string, durationMinutes: number) => void;
 }) {
   const language = useLanguage();
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: task.id,
+    data: { task },
+  });
   const area = taskArea(task);
   const start = new Date(task.dueDate!);
   if (Number.isNaN(start.getTime())) return null;
@@ -123,11 +127,6 @@ function TimedBlock({
     language === "EN" ? "EN" : "FA",
     task.durationMinutes,
   );
-
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
-    id: task.id,
-    data: { task },
-  });
 
   function onResizePointerDown(e: React.PointerEvent) {
     e.stopPropagation();
