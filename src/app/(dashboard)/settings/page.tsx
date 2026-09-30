@@ -4,7 +4,7 @@ import { requireAuth } from "@/lib/require-role";
 import { getUserPreferences } from "@/features/settings/queries";
 import { getUserById } from "@/features/users/queries";
 import { SettingsCC } from "./settings-cc";
-import { parseSettingsTab } from "./use-settings";
+import { parseSettingsTab } from "./settings-tabs";
 import type { Language, Theme } from "@/types/db";
 import { localizedTitle } from "@/lib/page-title";
 import { pendingBaleLink } from "@/features/external/bots/bale/user-link";

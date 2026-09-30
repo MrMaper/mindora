@@ -13,6 +13,9 @@ import {
 import { cn } from "@/lib/utils";
 
 const WEEKS = 20;
+const CELL = 12; // px — fixed so weekday labels stay row-aligned
+const GAP = 3;
+
 const LEVEL_CLASS = [
   "bg-muted",
   "bg-emerald-200 dark:bg-emerald-950",
@@ -20,6 +23,10 @@ const LEVEL_CLASS = [
   "bg-emerald-500 dark:bg-emerald-600",
   "bg-emerald-700 dark:bg-emerald-400",
 ] as const;
+
+/** Sat → Fri short labels (matches startOfWeek Saturday grid). */
+const WEEKDAY_FA = ["ش", "ی", "د", "س", "چ", "پ", "ج"] as const;
+const WEEKDAY_EN = ["Sa", "Su", "Mo", "Tu", "We", "Th", "Fr"] as const;
 
 function intensity(
   count: number,
@@ -59,13 +66,14 @@ export function HabitHeatmap({
   const todayKey = toDateKey(new Date());
   const single = filterId !== "all";
   const isFa = language === "FA";
+  const weekdayShort = isFa ? WEEKDAY_FA : WEEKDAY_EN;
 
   const columns: HabitHeatDay[][] = [];
   for (let i = 0; i < days.length; i += 7) {
     columns.push(days.slice(i, i + 7));
   }
 
-  // FA + dir=rtl: put newest first in the array so it lands on the right
+  // FA + dir=rtl: newest week on the inline-start (right)
   const displayColumns = isFa ? [...columns].reverse() : columns;
 
   const monthMarks: { col: number; label: string }[] = [];
@@ -80,10 +88,6 @@ export function HabitHeatmap({
     }
   });
 
-  const weekdayShort = isFa
-    ? ["ش", "ی", "د", "س", "چ", "پ", "ج"]
-    : ["Sa", "Su", "Mo", "Tu", "We", "Th", "Fr"];
-
   function tip(day: HabitHeatDay): string {
     const d = parseLocalDate(day.dateKey);
     const dateLabel = formatJalaliShort(d, language);
@@ -97,21 +101,12 @@ export function HabitHeatmap({
 
   if (columns.length === 0) return null;
 
-  const weekLabels = (
-    <div className="flex w-5 shrink-0 flex-col gap-[3px]" aria-hidden>
-      {weekdayShort.map((label, row) => (
-        <div
-          key={`${label}-${row}`}
-          className={cn(
-            "flex h-3 items-center text-[9px] leading-none text-muted-foreground",
-            isFa ? "justify-start pe-0.5" : "justify-end pe-0.5",
-          )}
-        >
-          {label}
-        </div>
-      ))}
-    </div>
-  );
+  const labelColW = isFa ? 14 : 18;
+  const gridWidth =
+    labelColW +
+    GAP +
+    displayColumns.length * CELL +
+    Math.max(0, displayColumns.length - 1) * GAP;
 
   return (
     <div className="mb-4 w-full">
@@ -136,72 +131,96 @@ export function HabitHeatmap({
         </div>
       </div>
 
-      <div className="w-full overflow-x-auto">
+      <div className="w-full overflow-x-auto pb-1">
         <div
-          className="flex w-full min-w-[18rem] flex-col gap-1"
+          className="inline-flex flex-col gap-1"
+          style={{ width: gridWidth }}
           dir={isFa ? "rtl" : "ltr"}
         >
-          {/* Month row: spacer for weekday col + one label per week */}
-          <div className="flex w-full gap-[3px]">
-            <div className="w-5 shrink-0" aria-hidden />
-            <div
-              className="grid min-w-0 flex-1 gap-[3px]"
-              style={{
-                gridTemplateColumns: `repeat(${displayColumns.length}, minmax(0, 1fr))`,
-              }}
-            >
-              {displayColumns.map((_, idx) => {
-                const mark = monthMarks.find(m => m.col === idx);
+          {/* Months aligned to week columns */}
+          <div
+            className="grid items-end"
+            style={{
+              gridTemplateColumns: `${labelColW}px repeat(${displayColumns.length}, ${CELL}px)`,
+              columnGap: GAP,
+            }}
+          >
+            <div aria-hidden />
+            {displayColumns.map((_, idx) => {
+              const mark = monthMarks.find(m => m.col === idx);
+              return (
+                <div
+                  key={`m-${idx}`}
+                  className="truncate text-[9px] leading-none text-muted-foreground"
+                >
+                  {mark?.label ?? ""}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Weekday labels + cells share the same 7 equal rows */}
+          <div
+            className="grid"
+            style={{
+              gridTemplateColumns: `${labelColW}px repeat(${displayColumns.length}, ${CELL}px)`,
+              gridTemplateRows: `repeat(7, ${CELL}px)`,
+              gap: GAP,
+            }}
+          >
+            {weekdayShort.map((label, row) => (
+              <div
+                key={`wd-${row}`}
+                className={cn(
+                  "flex items-center text-[9px] leading-none text-muted-foreground",
+                  isFa ? "justify-start" : "justify-end",
+                )}
+                style={{ gridColumn: 1, gridRow: row + 1 }}
+                title={label}
+              >
+                {label}
+              </div>
+            ))}
+
+            {displayColumns.map((col, ci) =>
+              col.map((day, row) => {
+                const future = day.dateKey > todayKey;
+                const level = future
+                  ? 0
+                  : intensity(day.count, habits.length, single);
                 return (
                   <div
-                    key={`m-${idx}`}
-                    className="truncate text-[9px] leading-none text-muted-foreground"
-                  >
-                    {mark?.label ?? ""}
-                  </div>
+                    key={day.dateKey}
+                    title={future ? undefined : tip(day)}
+                    className={cn(
+                      "rounded-[2px]",
+                      LEVEL_CLASS[level],
+                      future && "opacity-30",
+                      day.dateKey === todayKey && "ring-1 ring-foreground/40",
+                    )}
+                    style={{
+                      gridColumn: ci + 2,
+                      gridRow: row + 1,
+                      width: CELL,
+                      height: CELL,
+                    }}
+                  />
                 );
-              })}
-            </div>
+              }),
+            )}
           </div>
 
-          <div className="flex w-full gap-[3px]">
-            {weekLabels}
-            <div
-              className="grid min-w-0 flex-1 gap-[3px]"
-              style={{
-                gridTemplateColumns: `repeat(${displayColumns.length}, minmax(0, 1fr))`,
-              }}
-            >
-              {displayColumns.map((col, ci) => (
-                <div key={ci} className="flex flex-col gap-[3px]">
-                  {col.map(day => {
-                    const future = day.dateKey > todayKey;
-                    const level = future
-                      ? 0
-                      : intensity(day.count, habits.length, single);
-                    return (
-                      <div
-                        key={day.dateKey}
-                        title={future ? undefined : tip(day)}
-                        className={cn(
-                          "aspect-square w-full min-h-3 rounded-[2px]",
-                          LEVEL_CLASS[level],
-                          future && "opacity-30",
-                          day.dateKey === todayKey &&
-                            "ring-1 ring-foreground/40",
-                        )}
-                      />
-                    );
-                  })}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex items-center justify-start gap-1 pt-1 text-[10px] text-muted-foreground">
+          <div
+            className="flex items-center gap-1 pt-0.5 text-[10px] text-muted-foreground"
+            style={{ paddingInlineStart: labelColW + GAP }}
+          >
             <span>{t.habits.heatmapLess}</span>
             {LEVEL_CLASS.map((cls, i) => (
-              <span key={i} className={cn("h-2.5 w-2.5 rounded-[2px]", cls)} />
+              <span
+                key={i}
+                className={cn("rounded-[2px]", cls)}
+                style={{ width: 10, height: 10 }}
+              />
             ))}
             <span>{t.habits.heatmapMore}</span>
           </div>

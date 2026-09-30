@@ -20,12 +20,8 @@ interface ProfileCCProps {
 
 export function ProfileCC({ user, language, baleCode }: ProfileCCProps) {
   const avatarInputRef = React.useRef<HTMLInputElement>(null);
-  const p = useProfile(user.id);
+  const p = useProfile(user.id, user.name);
   const t = useTranslation();
-
-  React.useEffect(() => {
-    p.profileForm.reset({ name: user.name });
-  }, [user.name]);
 
   return (
     <div style={{ maxWidth: 560 }} className="min-w-0 w-full overflow-x-hidden px-0.5">

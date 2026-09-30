@@ -8,7 +8,7 @@ import { updateProfileSchema, type UpdateProfileInput } from "@/schemas/users";
 import { changePasswordSchema, type ChangePasswordInput } from "@/schemas/auth";
 import { updateProfile, changePassword, uploadUserAvatar } from "@/features/users/actions";
 
-export function useProfile(userId: string) {
+export function useProfile(userId: string, initialName = "") {
   const router = useRouter();
 
   const [profileSuccess, setProfileSuccess] = React.useState(false);
@@ -24,7 +24,12 @@ export function useProfile(userId: string) {
 
   const profileForm = useForm<UpdateProfileInput>({
     resolver: localizedZodResolver(updateProfileSchema),
+    defaultValues: { name: initialName },
   });
+
+  React.useEffect(() => {
+    profileForm.reset({ name: initialName });
+  }, [initialName, profileForm]);
 
   const passwordForm = useForm<ChangePasswordInput>({
     resolver: localizedZodResolver(changePasswordSchema),

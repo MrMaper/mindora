@@ -7,10 +7,11 @@ import { useTranslation } from "@/i18n/provider";
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Controller } from "react-hook-form";
-import { useSettings, type SettingsTab } from "./use-settings";
+import { useSettings } from "./use-settings";
+import type { SettingsTab } from "./settings-tabs";
 import { useProfile } from "../profile/use-profile";
 import type { Language, Theme } from "@/types/db";
-import { UserPreferencesData } from "@/features/settings/queries";
+import type { UserPreferencesData } from "@/features/settings/queries";
 import type { ChangePasswordInput } from "@/schemas/auth";
 import type { UseFormReturn } from "react-hook-form";
 import {
@@ -172,11 +173,7 @@ function ProfileSettingsSection({
   baleCode?: string | null;
 }) {
   const avatarInputRef = React.useRef<HTMLInputElement>(null);
-  const p = useProfile(user.id);
-
-  React.useEffect(() => {
-    p.profileForm.reset({ name: user.name });
-  }, [user.name]);
+  const p = useProfile(user.id, user.name);
 
   return (
     <section>
@@ -319,6 +316,7 @@ function ProfileSettingsSection({
             render={({ field, fieldState }) => (
               <Input
                 {...field}
+                value={field.value ?? ""}
                 label={t.profile.fullName}
                 error={fieldState.error?.message}
               />

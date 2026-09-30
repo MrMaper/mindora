@@ -15,24 +15,9 @@ import {
 import { applyThemeToDocument } from "@/lib/theme";
 import { useTranslation } from "@/i18n/provider";
 import type { Language, Theme } from "@/types/db";
+import type { SettingsTab } from "./settings-tabs";
 
-export type SettingsTab =
-  | "profile"
-  | "security"
-  | "notifications"
-  | "appearance";
-
-const TABS: SettingsTab[] = [
-  "profile",
-  "security",
-  "notifications",
-  "appearance",
-];
-
-export function parseSettingsTab(raw: string | null | undefined): SettingsTab {
-  if (raw && (TABS as string[]).includes(raw)) return raw as SettingsTab;
-  return "profile";
-}
+export type { SettingsTab } from "./settings-tabs";
 
 export function useSettings(
   initialLanguage: Language,
