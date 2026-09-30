@@ -33,7 +33,6 @@ interface SidebarNavProps {
   notificationsHref: string;
   notificationsLabel: string;
   notificationsBadge?: number;
-  profileHref: string;
   userName: string;
   userEmail: string;
   userImage?: string;
@@ -87,7 +86,6 @@ export function SidebarNav({
   notificationsHref,
   notificationsLabel,
   notificationsBadge = 0,
-  profileHref,
   userName,
   userEmail,
   userImage,
@@ -148,20 +146,8 @@ export function SidebarNav({
           onNavigate={onNavigate}
         />
 
-        <Link
-          href={profileHref}
-          onClick={onNavigate}
-          className={cn(
-            "mt-1.5 flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm transition-colors",
-            isRouteActive(pathname, profileHref)
-              ? "bg-primary/10 text-primary"
-              : "hover:bg-accent",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-          )}
-          aria-current={
-            isRouteActive(pathname, profileHref) ? "page" : undefined
-          }
-        >
+        {/* Identity only — settings lives above; only sign-out is interactive. */}
+        <div className="mt-1.5 flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm">
           <Avatar name={userName} src={userImage} size="sm" />
           <div className="min-w-0 flex-1">
             <div className="truncate text-[13px] font-medium">{userName}</div>
@@ -170,7 +156,7 @@ export function SidebarNav({
             </div>
           </div>
           <SignOutButton />
-        </Link>
+        </div>
       </div>
     </nav>
   );

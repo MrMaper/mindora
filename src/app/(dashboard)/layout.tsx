@@ -77,7 +77,6 @@ export default async function DashboardLayout({
           notificationsHref="/notifications"
           notificationsLabel={t.nav.notifications}
           notificationsBadge={0}
-          profileHref="/settings?tab=profile"
           userName={session.user.name ?? "Admin"}
           userEmail={session.user.email ?? ""}
           userImage={session.user.image ?? undefined}
@@ -190,7 +189,6 @@ export default async function DashboardLayout({
             notificationsHref="/notifications"
             notificationsLabel={t.nav.notifications}
             notificationsBadge={unreadCount}
-            profileHref="/settings?tab=profile"
             userName={session.user.name ?? "User"}
             userEmail={session.user.email ?? ""}
             userImage={session.user.image ?? undefined}

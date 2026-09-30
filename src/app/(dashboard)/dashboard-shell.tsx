@@ -24,7 +24,6 @@ interface DashboardShellProps {
   notificationsHref: string;
   notificationsLabel: string;
   notificationsBadge?: number;
-  profileHref: string;
   userName: string;
   userEmail: string;
   userImage?: string;
@@ -45,7 +44,6 @@ export function DashboardShell({
   notificationsHref,
   notificationsLabel,
   notificationsBadge = 0,
-  profileHref,
   userName,
   userEmail,
   userImage,
@@ -86,7 +84,6 @@ export function DashboardShell({
       notificationsHref={notificationsHref}
       notificationsLabel={notificationsLabel}
       notificationsBadge={notificationsBadge}
-      profileHref={profileHref}
       userName={userName}
       userEmail={userEmail}
       userImage={userImage}

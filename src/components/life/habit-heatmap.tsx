@@ -13,7 +13,6 @@ import {
 import { cn } from "@/lib/utils";
 
 const WEEKS = 20;
-const CELL = 12; // px — fixed so weekday labels stay row-aligned
 const GAP = 3;
 
 const LEVEL_CLASS = [
@@ -24,7 +23,7 @@ const LEVEL_CLASS = [
   "bg-emerald-700 dark:bg-emerald-400",
 ] as const;
 
-/** Sat → Fri short labels (matches startOfWeek Saturday grid). */
+/** Sat → Fri (matches startOfWeek Saturday grid). */
 const WEEKDAY_FA = ["ش", "ی", "د", "س", "چ", "پ", "ج"] as const;
 const WEEKDAY_EN = ["Sa", "Su", "Mo", "Tu", "We", "Th", "Fr"] as const;
 
@@ -67,6 +66,7 @@ export function HabitHeatmap({
   const single = filterId !== "all";
   const isFa = language === "FA";
   const weekdayShort = isFa ? WEEKDAY_FA : WEEKDAY_EN;
+  const labelCol = isFa ? "0.875rem" : "1.125rem";
 
   const columns: HabitHeatDay[][] = [];
   for (let i = 0; i < days.length; i += 7) {
@@ -75,6 +75,7 @@ export function HabitHeatmap({
 
   // FA + dir=rtl: newest week on the inline-start (right)
   const displayColumns = isFa ? [...columns].reverse() : columns;
+  const weekCount = displayColumns.length;
 
   const monthMarks: { col: number; label: string }[] = [];
   let prevMonth = "";
@@ -99,14 +100,9 @@ export function HabitHeatmap({
       .replace("{date}", dateLabel);
   }
 
-  if (columns.length === 0) return null;
+  if (weekCount === 0) return null;
 
-  const labelColW = isFa ? 14 : 18;
-  const gridWidth =
-    labelColW +
-    GAP +
-    displayColumns.length * CELL +
-    Math.max(0, displayColumns.length - 1) * GAP;
+  const colsTemplate = `${labelCol} repeat(${weekCount}, minmax(0, 1fr))`;
 
   return (
     <div className="mb-4 w-full">
@@ -131,59 +127,56 @@ export function HabitHeatmap({
         </div>
       </div>
 
-      <div className="w-full overflow-x-auto pb-1">
+      <div className="w-full min-w-0" dir={isFa ? "rtl" : "ltr"}>
+        {/* Month labels — same column track as the heat grid */}
         <div
-          className="inline-flex flex-col gap-1"
-          style={{ width: gridWidth }}
-          dir={isFa ? "rtl" : "ltr"}
+          className="mb-1 grid items-end"
+          style={{
+            gridTemplateColumns: colsTemplate,
+            columnGap: GAP,
+          }}
         >
-          {/* Months aligned to week columns */}
-          <div
-            className="grid items-end"
-            style={{
-              gridTemplateColumns: `${labelColW}px repeat(${displayColumns.length}, ${CELL}px)`,
-              columnGap: GAP,
-            }}
-          >
-            <div aria-hidden />
-            {displayColumns.map((_, idx) => {
-              const mark = monthMarks.find(m => m.col === idx);
-              return (
-                <div
-                  key={`m-${idx}`}
-                  className="truncate text-[9px] leading-none text-muted-foreground"
-                >
-                  {mark?.label ?? ""}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Weekday labels + cells share the same 7 equal rows */}
-          <div
-            className="grid"
-            style={{
-              gridTemplateColumns: `${labelColW}px repeat(${displayColumns.length}, ${CELL}px)`,
-              gridTemplateRows: `repeat(7, ${CELL}px)`,
-              gap: GAP,
-            }}
-          >
-            {weekdayShort.map((label, row) => (
+          <div aria-hidden />
+          {displayColumns.map((_, idx) => {
+            const mark = monthMarks.find(m => m.col === idx);
+            return (
               <div
-                key={`wd-${row}`}
+                key={`m-${idx}`}
+                className="min-w-0 truncate text-[9px] leading-none text-muted-foreground"
+              >
+                {mark?.label ?? ""}
+              </div>
+            );
+          })}
+        </div>
+
+        {/*
+          One grid: label column + week columns, 7 shared rows.
+          Cells use aspect-square so row height = column width; labels
+          stretch to that same row — stays aligned at any container width.
+        */}
+        <div
+          className="grid w-full"
+          style={{
+            gridTemplateColumns: colsTemplate,
+            gridTemplateRows: "repeat(7, auto)",
+            gap: GAP,
+          }}
+        >
+          {weekdayShort.map((label, row) => (
+            <React.Fragment key={`row-${row}`}>
+              <div
                 className={cn(
-                  "flex items-center text-[9px] leading-none text-muted-foreground",
+                  "flex items-center self-stretch text-[9px] leading-none text-muted-foreground",
                   isFa ? "justify-start" : "justify-end",
                 )}
                 style={{ gridColumn: 1, gridRow: row + 1 }}
-                title={label}
               >
                 {label}
               </div>
-            ))}
-
-            {displayColumns.map((col, ci) =>
-              col.map((day, row) => {
+              {displayColumns.map((col, ci) => {
+                const day = col[row];
+                if (!day) return null;
                 const future = day.dateKey > todayKey;
                 const level = future
                   ? 0
@@ -193,37 +186,28 @@ export function HabitHeatmap({
                     key={day.dateKey}
                     title={future ? undefined : tip(day)}
                     className={cn(
-                      "rounded-[2px]",
+                      "aspect-square w-full min-h-0 rounded-[2px]",
                       LEVEL_CLASS[level],
                       future && "opacity-30",
                       day.dateKey === todayKey && "ring-1 ring-foreground/40",
                     )}
-                    style={{
-                      gridColumn: ci + 2,
-                      gridRow: row + 1,
-                      width: CELL,
-                      height: CELL,
-                    }}
+                    style={{ gridColumn: ci + 2, gridRow: row + 1 }}
                   />
                 );
-              }),
-            )}
-          </div>
+              })}
+            </React.Fragment>
+          ))}
+        </div>
 
-          <div
-            className="flex items-center gap-1 pt-0.5 text-[10px] text-muted-foreground"
-            style={{ paddingInlineStart: labelColW + GAP }}
-          >
-            <span>{t.habits.heatmapLess}</span>
-            {LEVEL_CLASS.map((cls, i) => (
-              <span
-                key={i}
-                className={cn("rounded-[2px]", cls)}
-                style={{ width: 10, height: 10 }}
-              />
-            ))}
-            <span>{t.habits.heatmapMore}</span>
-          </div>
+        <div
+          className="mt-1.5 flex items-center gap-1 text-[10px] text-muted-foreground"
+          style={{ paddingInlineStart: `calc(${labelCol} + ${GAP}px)` }}
+        >
+          <span>{t.habits.heatmapLess}</span>
+          {LEVEL_CLASS.map((cls, i) => (
+            <span key={i} className={cn("size-2.5 rounded-[2px]", cls)} />
+          ))}
+          <span>{t.habits.heatmapMore}</span>
         </div>
       </div>
     </div>
