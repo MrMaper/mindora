@@ -95,43 +95,32 @@ export function SortableKanbanCard({
   }
 
   return (
-    <div ref={setNodeRef} style={style} className="flex flex-col gap-0.5">
-      <div className="relative">
-        {/* Drag handle only — keeps card scroll/tap open working on mobile. */}
-        <button
-          type="button"
-          className={cn(
-            "absolute start-1 top-1 z-10 inline-flex size-8 items-center justify-center rounded-md",
-            "touch-none text-muted-foreground hover:bg-accent hover:text-foreground",
-            "cursor-grab active:cursor-grabbing",
-          )}
-          aria-label={t.common.drag}
-          {...attributes}
-          {...listeners}
-        >
-          <Icon name="grip-vertical" size={16} />
-        </button>
-        <KanbanCard
-          issueKey={task.id.slice(-6).toUpperCase()}
-          title={task.title}
-          priority={priorityToDisplay(task.priority)}
-          labels={task.labels.map(l => ({ name: l.name, color: l.color }))}
-          assignee={
-            task.assignedTo
-              ? {
-                  name: task.assignedTo.name,
-                  src: task.assignedTo.avatar ?? undefined,
-                }
-              : undefined
-          }
-          due={formatDate(task.dueDate, language, task.durationMinutes)}
-          overdue={isOverdue(task)}
-          attachments={linkedDocs.length > 0 ? linkedDocs.length : undefined}
-          state={selected ? "selected" : undefined}
-          className="ps-9"
-          onClick={onClick}
-        />
-      </div>
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="flex cursor-grab flex-col gap-0.5 active:cursor-grabbing"
+      {...attributes}
+      {...listeners}
+    >
+      <KanbanCard
+        issueKey={task.id.slice(-6).toUpperCase()}
+        title={task.title}
+        priority={priorityToDisplay(task.priority)}
+        labels={task.labels.map(l => ({ name: l.name, color: l.color }))}
+        assignee={
+          task.assignedTo
+            ? {
+                name: task.assignedTo.name,
+                src: task.assignedTo.avatar ?? undefined,
+              }
+            : undefined
+        }
+        due={formatDate(task.dueDate, language, task.durationMinutes)}
+        overdue={isOverdue(task)}
+        attachments={linkedDocs.length > 0 ? linkedDocs.length : undefined}
+        state={selected ? "selected" : undefined}
+        onClick={onClick}
+      />
       {task.waitingOn ? (
         <span className="mx-1 inline-flex w-fit rounded border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-400">
           {t.tasks.waitingOn}

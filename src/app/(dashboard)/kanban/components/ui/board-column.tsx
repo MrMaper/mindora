@@ -41,7 +41,7 @@ export function BoardColumn({
 
   return (
     <div className="w-[min(15rem,82vw)] sm:w-70 flex-none flex flex-col max-h-full">
-      <div className="flex items-center gap-2 px-1 py-2.5 flex-nowrap">
+      <div className="flex items-center justify-center gap-2 px-1 py-2.5 flex-nowrap">
         <span
           className="size-2.5 rounded-full flex-none"
           style={{ background: `var(--status-${display})` }}

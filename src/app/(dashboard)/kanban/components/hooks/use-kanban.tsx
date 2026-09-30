@@ -143,6 +143,11 @@ export function useKanban(
 
   const columnsRef = React.useRef(columns);
   columnsRef.current = columns;
+  /** Status before this drag — onDragOver mutates columns early. */
+  const dragOriginRef = React.useRef<{
+    id: string;
+    status: BoardStatus;
+  } | null>(null);
 
   function findContainerIn(
     cols: BoardColumns,
@@ -163,6 +168,7 @@ export function useKanban(
     const id = String(event.active.id);
     const status = findContainer(id);
     if (!status) return;
+    dragOriginRef.current = { id, status };
     setActiveTaskCard(
       (columnsRef.current[status] ?? []).find(t => t.id === id) ?? null,
     );
@@ -200,6 +206,8 @@ export function useKanban(
 
   function onDragEnd(event: DragEndEvent) {
     const { active, over } = event;
+    const origin = dragOriginRef.current;
+    dragOriginRef.current = null;
     setActiveTaskCard(null);
     if (!over) return;
 
@@ -258,6 +266,15 @@ export function useKanban(
       orderedIds.push(activeId);
     }
 
+    const fromStatus = origin?.id === activeId ? origin.status : activeStatus;
+    const statusChanged = fromStatus !== overStatus;
+    const prevIds = (prev[overStatus] ?? []).map(t => t.id);
+    const orderChanged =
+      statusChanged ||
+      prevIds.length !== orderedIds.length ||
+      prevIds.some((id, i) => id !== orderedIds[i]);
+    if (!statusChanged && !orderChanged) return;
+
     startTransition(async () => {
       try {
         const result = await moveTask({
@@ -266,12 +283,16 @@ export function useKanban(
           orderedIds,
         });
         if (!result?.success) {
-          toast.error(result?.error ?? "جابجایی ذخیره نشد");
+          toast.error(result?.error || "جابجایی ذخیره نشد");
           router.refresh();
         }
       } catch (error) {
         console.error("moveTask failed", error);
-        toast.error("جابجایی ذخیره نشد");
+        toast.error(
+          error instanceof Error && error.message
+            ? error.message
+            : "جابجایی ذخیره نشد",
+        );
         router.refresh();
       }
     });
