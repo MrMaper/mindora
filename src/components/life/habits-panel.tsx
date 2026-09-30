@@ -2,9 +2,11 @@
 
 import * as React from "react";
 import dynamic from "next/dynamic";
+import { toast } from "sonner";
 import { Button } from "@/components/ui-kit/forms/button";
 import { IconButton } from "@/components/ui-kit/forms/icon-button";
 import { Input } from "@/components/ui-kit/forms/input";
+import { Select } from "@/components/ui-kit/forms/select";
 import { Menu, type MenuItem } from "@/components/ui-kit/overlays/menu";
 import { useTranslation } from "@/i18n/provider";
 import {
@@ -21,18 +23,20 @@ import {
 } from "@/features/habits/actions";
 import { HABIT_HEATMAP_WEEKS } from "@/features/habits/constants";
 import { cn } from "@/lib/utils";
+import type { LifeArea, RecurrenceInterval } from "@/types/db";
 
 const HabitHeatmap = dynamic(
   () => import("@/components/life/habit-heatmap").then(m => m.HabitHeatmap),
   {
     ssr: false,
     loading: () => (
-      <div className="mb-3 h-[4.5rem] animate-pulse rounded-md bg-muted/40" />
+      <div className="mb-3 h-[7.5rem] animate-pulse rounded-md bg-muted/40" />
     ),
   },
 );
 
 type HabitsView = "active" | "archived";
+type HabitCadence = "DAILY" | "WEEKLY";
 
 function HeatmapWhenVisible({
   habits,
@@ -65,7 +69,7 @@ function HeatmapWhenVisible({
   }, [visible]);
 
   return (
-    <div ref={ref} className="mb-3 min-h-[4.5rem]">
+    <div ref={ref} className="mb-3 min-h-[7.5rem] w-full min-w-0">
       {visible ? (
         <HabitHeatmap
           habits={habits}
@@ -74,9 +78,57 @@ function HeatmapWhenVisible({
           onFilterChange={onFilterChange}
         />
       ) : (
-        <div className="h-[4.5rem] rounded-md bg-muted/30" aria-hidden />
+        <div className="h-[7.5rem] w-full rounded-md bg-muted/30" aria-hidden />
       )}
     </div>
+  );
+}
+
+function CadenceChips({
+  value,
+  onChange,
+  disabled,
+  dailyLabel,
+  weeklyLabel,
+}: {
+  value: HabitCadence;
+  onChange: (next: HabitCadence) => void;
+  disabled?: boolean;
+  dailyLabel: string;
+  weeklyLabel: string;
+}) {
+  return (
+    <div className="flex flex-wrap gap-1" role="group">
+      {(
+        [
+          ["DAILY", dailyLabel],
+          ["WEEKLY", weeklyLabel],
+        ] as const
+      ).map(([key, label]) => (
+        <button
+          key={key}
+          type="button"
+          disabled={disabled}
+          onClick={() => onChange(key)}
+          className={cn(
+            "rounded-md border px-2 py-1 text-[11px] font-medium transition-colors",
+            value === key
+              ? "border-primary/40 bg-primary/10 text-primary"
+              : "border-transparent bg-muted/60 text-muted-foreground hover:bg-muted",
+          )}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function MetaChip({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex items-center rounded-md bg-muted/70 px-1.5 py-0.5 text-[10px] text-muted-foreground">
+      {children}
+    </span>
   );
 }
 
@@ -92,11 +144,38 @@ export function HabitsPanel({
   const [habits, setHabits] = React.useState(initialHabits);
   const [archivedHabits, setArchivedHabits] = React.useState<HabitItem[]>([]);
   const [title, setTitle] = React.useState("");
+  const [cadence, setCadence] = React.useState<HabitCadence>("DAILY");
+  const [area, setArea] = React.useState<LifeArea | "">("");
   const [pending, setPending] = React.useState(false);
   const [heatFilter, setHeatFilter] = React.useState("all");
   const [heatDays, setHeatDays] = React.useState(initialHeatDays);
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [editTitle, setEditTitle] = React.useState("");
+  const [editCadence, setEditCadence] = React.useState<HabitCadence>("DAILY");
+  const [editArea, setEditArea] = React.useState<LifeArea | "">("");
+
+  const areaOptions = React.useMemo(
+    () => [
+      { value: "", label: t.habits.areaNone },
+      { value: "PHD", label: t.dashboard.areaPhd },
+      { value: "WORK", label: t.dashboard.areaWork },
+      { value: "LIFE", label: t.dashboard.areaLife },
+      { value: "LANG", label: t.dashboard.areaLang },
+    ],
+    [t],
+  );
+
+  function areaLabel(value: LifeArea | null | undefined): string | null {
+    if (!value) return null;
+    if (value === "PHD") return t.dashboard.areaPhd;
+    if (value === "WORK") return t.dashboard.areaWork;
+    if (value === "LANG") return t.dashboard.areaLang;
+    return t.dashboard.areaLife;
+  }
+
+  function cadenceLabel(value: RecurrenceInterval): string {
+    return value === "WEEKLY" ? t.habits.cadenceWeekly : t.habits.cadenceDaily;
+  }
 
   React.useEffect(() => {
     setHabits(initialHabits);
@@ -151,16 +230,26 @@ export function HabitsPanel({
   }
 
   async function onAdd() {
-    if (!title.trim()) return;
+    if (!title.trim()) {
+      toast.error(t.habits.titleRequired);
+      return;
+    }
     setPending(true);
-    const result = await createHabitAction({ title });
+    const result = await createHabitAction({
+      title,
+      cadence,
+      area: area || null,
+    });
     setPending(false);
     if (result.success) {
       setTitle("");
+      setCadence("DAILY");
+      setArea("");
       if (view !== "active") setView("active");
+      toast.success(t.habits.added);
       await softReloadActive();
-    } else if (result.error) {
-      window.alert(result.error);
+    } else {
+      toast.error(result.error ?? t.common.error);
     }
   }
 
@@ -183,7 +272,7 @@ export function HabitsPanel({
     const result = await toggleHabitDoneAction(id);
     if (!result.success) {
       setHabits(prev);
-      if (result.error) window.alert(result.error);
+      toast.error(result.error ?? t.common.error);
       return;
     }
     const streak = Number(result.data?.streak);
@@ -212,12 +301,13 @@ export function HabitsPanel({
     const result = await archiveHabitAction(id);
     setPending(false);
     if (!result.success) {
-      if (result.error) window.alert(result.error);
+      toast.error(result.error ?? t.common.error);
       return;
     }
     if (heatFilter === id) setHeatFilter("all");
     if (editingId === id) setEditingId(null);
     setHabits(rows => rows.filter(h => h.id !== id));
+    toast.success(t.habits.archivedToast);
     void softReloadActive();
   }
 
@@ -225,48 +315,70 @@ export function HabitsPanel({
     setPending(true);
     const result = await restoreHabitAction(id);
     setPending(false);
-    if (!result.success && result.error) {
-      window.alert(result.error);
+    if (!result.success) {
+      toast.error(result.error ?? t.common.error);
       return;
     }
     if (editingId === id) setEditingId(null);
     setArchivedHabits(rows => rows.filter(h => h.id !== id));
+    toast.success(t.habits.restoredToast);
   }
 
   function startEdit(habit: HabitItem) {
     setEditingId(habit.id);
     setEditTitle(habit.title);
+    setEditCadence(habit.cadence === "WEEKLY" ? "WEEKLY" : "DAILY");
+    setEditArea(habit.area ?? "");
   }
 
   function cancelEdit() {
     setEditingId(null);
     setEditTitle("");
+    setEditCadence("DAILY");
+    setEditArea("");
   }
 
   async function onSaveEdit(id: string) {
     const next = editTitle.trim();
     if (!next) {
-      window.alert(t.habits.editTitlePlaceholder);
+      toast.error(t.habits.titleRequired);
       return;
     }
     setPending(true);
-    const result = await updateHabitAction({ habitId: id, title: next });
+    const result = await updateHabitAction({
+      habitId: id,
+      title: next,
+      cadence: editCadence,
+      area: editArea || null,
+    });
     setPending(false);
     if (!result.success) {
-      if (result.error) window.alert(result.error);
+      toast.error(result.error ?? t.common.error);
       return;
     }
+    const streak = Number(result.data?.streak);
+    const best = Number(result.data?.bestStreak);
+    const patch = (h: HabitItem): HabitItem =>
+      h.id === id
+        ? {
+            ...h,
+            title: next,
+            cadence: editCadence,
+            area: editArea || null,
+            streak: Number.isFinite(streak) ? streak : h.streak,
+            bestStreak: Number.isFinite(best) ? best : h.bestStreak,
+          }
+        : h;
+
     setEditingId(null);
     setEditTitle("");
     if (view === "archived") {
-      setArchivedHabits(rows =>
-        rows.map(h => (h.id === id ? { ...h, title: next } : h)),
-      );
+      setArchivedHabits(rows => rows.map(patch));
     } else {
-      setHabits(rows =>
-        rows.map(h => (h.id === id ? { ...h, title: next } : h)),
-      );
+      setHabits(rows => rows.map(patch));
+      void softReloadActive();
     }
+    toast.success(t.habits.saved);
   }
 
   async function onDelete(id: string) {
@@ -275,7 +387,7 @@ export function HabitsPanel({
     const result = await deleteHabitAction(id);
     setPending(false);
     if (!result.success) {
-      if (result.error) window.alert(result.error);
+      toast.error(result.error ?? t.common.error);
       return;
     }
     if (heatFilter === id) setHeatFilter("all");
@@ -286,6 +398,7 @@ export function HabitsPanel({
       setHabits(rows => rows.filter(h => h.id !== id));
       void softReloadActive();
     }
+    toast.success(t.habits.deletedToast);
   }
 
   const canAdd = title.trim().length > 0 && !pending;
@@ -300,23 +413,43 @@ export function HabitsPanel({
         </div>
       </div>
 
-      <div className="mb-3 flex gap-2">
-        <Input
-          value={title}
-          onChange={e => setTitle(e.target.value)}
-          placeholder={t.habits.newPlaceholder}
-          onKeyDown={e => {
-            if (e.key === "Enter") void onAdd();
-          }}
-        />
-        <Button
-          size="sm"
-          variant="primary"
-          disabled={!canAdd}
-          onClick={() => void onAdd()}
-        >
-          {t.habits.add}
-        </Button>
+      <div className="mb-3 space-y-2">
+        <div className="flex gap-2">
+          <Input
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+            placeholder={t.habits.newPlaceholder}
+            onKeyDown={e => {
+              if (e.key === "Enter") void onAdd();
+            }}
+          />
+          <Button
+            size="sm"
+            variant="primary"
+            disabled={!canAdd}
+            onClick={() => void onAdd()}
+          >
+            {t.habits.add}
+          </Button>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <CadenceChips
+            value={cadence}
+            onChange={setCadence}
+            disabled={pending}
+            dailyLabel={t.habits.cadenceDaily}
+            weeklyLabel={t.habits.cadenceWeekly}
+          />
+          <div className="min-w-[8.5rem] flex-1 sm:max-w-[11rem]">
+            <Select
+              options={areaOptions}
+              value={area}
+              onChange={value => setArea((value as LifeArea | "") || "")}
+              placeholder={t.habits.areaLabel}
+              disabled={pending}
+            />
+          </div>
+        </div>
       </div>
 
       <div
@@ -404,7 +537,7 @@ export function HabitsPanel({
             return (
               <li
                 key={h.id}
-                className="flex items-center gap-2 rounded-lg border px-3 py-2"
+                className="flex items-start gap-2 rounded-lg border px-3 py-2"
               >
                 {view === "active" && !isEditing ? (
                   <button
@@ -412,7 +545,7 @@ export function HabitsPanel({
                     disabled={pending}
                     onClick={() => void onToggle(h.id)}
                     className={cn(
-                      "flex h-5 w-5 shrink-0 items-center justify-center rounded border text-[11px]",
+                      "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border text-[11px]",
                       h.doneToday
                         ? "border-primary bg-primary text-primary-foreground"
                         : "hover:bg-accent",
@@ -425,7 +558,7 @@ export function HabitsPanel({
                   </button>
                 ) : (
                   <span
-                    className="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-dashed text-[10px] text-muted-foreground"
+                    className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border border-dashed text-[10px] text-muted-foreground"
                     aria-hidden
                   >
                     —
@@ -433,12 +566,12 @@ export function HabitsPanel({
                 )}
 
                 {isEditing ? (
-                  <>
+                  <div className="flex min-w-0 flex-1 flex-col gap-2">
                     <Input
                       value={editTitle}
                       onChange={e => setEditTitle(e.target.value)}
                       placeholder={t.habits.editTitlePlaceholder}
-                      className="min-w-0 flex-1"
+                      className="min-w-0"
                       autoFocus
                       disabled={pending}
                       onKeyDown={e => {
@@ -446,31 +579,59 @@ export function HabitsPanel({
                         if (e.key === "Escape") cancelEdit();
                       }}
                     />
-                    <Button
-                      size="sm"
-                      variant="primary"
-                      disabled={pending || !editTitle.trim()}
-                      onClick={() => void onSaveEdit(h.id)}
-                    >
-                      {t.habits.save}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      disabled={pending}
-                      onClick={cancelEdit}
-                    >
-                      {t.habits.cancel}
-                    </Button>
-                  </>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <CadenceChips
+                        value={editCadence}
+                        onChange={setEditCadence}
+                        disabled={pending}
+                        dailyLabel={t.habits.cadenceDaily}
+                        weeklyLabel={t.habits.cadenceWeekly}
+                      />
+                      <div className="min-w-[8.5rem] flex-1 sm:max-w-[11rem]">
+                        <Select
+                          options={areaOptions}
+                          value={editArea}
+                          onChange={value =>
+                            setEditArea((value as LifeArea | "") || "")
+                          }
+                          placeholder={t.habits.areaLabel}
+                          disabled={pending}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        size="sm"
+                        variant="primary"
+                        disabled={pending || !editTitle.trim()}
+                        onClick={() => void onSaveEdit(h.id)}
+                      >
+                        {t.habits.save}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        disabled={pending}
+                        onClick={cancelEdit}
+                      >
+                        {t.habits.cancel}
+                      </Button>
+                    </div>
+                  </div>
                 ) : (
                   <>
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-sm">{h.title}</div>
-                      <div className="text-[11px] tabular-nums text-muted-foreground">
-                        {t.habits.streakLabel
-                          .replace("{streak}", String(h.streak))
-                          .replace("{best}", String(h.bestStreak))}
+                      <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                        <MetaChip>{cadenceLabel(h.cadence)}</MetaChip>
+                        {areaLabel(h.area) ? (
+                          <MetaChip>{areaLabel(h.area)}</MetaChip>
+                        ) : null}
+                        <span className="text-[11px] tabular-nums text-muted-foreground">
+                          {t.habits.streakLabel
+                            .replace("{streak}", String(h.streak))
+                            .replace("{best}", String(h.bestStreak))}
+                        </span>
                       </div>
                     </div>
                     <Menu

@@ -409,14 +409,20 @@ export function parseCapture(input: string, now = new Date()): ParsedCapture {
     pair = timed.pair;
     time = timed.time;
     if (!time && dated.night) time = "21:00";
+    let dayPartNoon = false;
     if (!time) {
       const part = takeDayPart(pair);
       pair = part.pair;
       time = part.time;
+      // ظهر → 12:00 would otherwise collapse to date-only via hasDueTime.
+      dayPartNoon = part.time === "12:00";
     }
     const lasting = takeDuration(pair);
     pair = lasting.pair;
     durationMinutes = lasting.durationMinutes;
+    if (dayPartNoon && (durationMinutes == null || durationMinutes <= 0)) {
+      durationMinutes = 60;
+    }
     const recurring = takeRecurrence(pair, true);
     pair = recurring.pair;
     recurrence = recurring.recurrence;

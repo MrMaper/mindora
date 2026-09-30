@@ -1,5 +1,6 @@
 import { prisma as db } from "@/lib/db";
 import { spawnNextIfRecurring } from "@/features/life/recurrence";
+import { syncResearchLinksFromTaskStatus } from "@/features/research/sync-links";
 import { sendMessage } from "./actions";
 
 const DONE_WORDS = new Set(["تمام", "تموم", "done"]);
@@ -85,7 +86,10 @@ export async function completeFromBaleReply(
     return;
   }
 
-  await db.task.update({ where: { id: task.id }, data: { status: "DONE" } });
+  await db.task.update({
+    where: { id: task.id },
+    data: { status: "DONE", waitingOn: false },
+  });
   await db.activityLog.create({
     data: {
       entity: "task",
@@ -96,6 +100,11 @@ export async function completeFromBaleReply(
       newValue: { status: "DONE", via: "bale" },
     },
   });
-  await spawnNextIfRecurring(task.id, user.id);
+  await syncResearchLinksFromTaskStatus(task.id, "DONE");
+  try {
+    await spawnNextIfRecurring(task.id, user.id);
+  } catch (error) {
+    console.error("spawnNextIfRecurring after Bale DONE failed", error);
+  }
   await sendMessage({ chat_id: chatId, text: `«${task.title}» تمام شد.` });
 }

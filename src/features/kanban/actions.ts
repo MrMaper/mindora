@@ -7,6 +7,10 @@ import { notify } from "@/lib/notify";
 import type { BoardStatus } from "./types";
 import { spawnNextIfRecurring } from "@/features/life/recurrence";
 import { syncResearchLinksFromTaskStatus } from "@/features/research/sync-links";
+import {
+  canAccessPersonalTask,
+  personalTaskOwnership,
+} from "@/lib/task-access";
 
 export interface ActionResult {
   success: boolean;
@@ -44,38 +48,105 @@ export async function moveTask(params: {
 
   const existing = await db.task.findUnique({
     where: { id: params.taskId },
-    select: { status: true, title: true, assignedToId: true },
+    select: {
+      status: true,
+      title: true,
+      assignedToId: true,
+      createdById: true,
+      waitingOn: true,
+    },
   });
   if (!existing) return { success: false, error: "کار پیدا نشد" };
 
-  await db.$transaction(
-    params.orderedIds.map((id, index) =>
-      db.task.update({
-        where: { id },
-        data:
-          id === params.taskId
-            ? {
-                status: params.toStatus,
-                position: index,
-                ...(params.toStatus === "DONE" ? { waitingOn: false } : {}),
-              }
-            : { position: index },
-      })
-    )
-  );
+  if (
+    !canAccessPersonalTask(session.user.id, session.user.role, existing)
+  ) {
+    return { success: false, error: "اجازه ویرایش ندارید" };
+  }
 
-  if (existing.status !== params.toStatus) {
-    await logActivity({
-      entityId: params.taskId,
-      action: "status_changed",
-      performedBy: session.user.id,
-      oldValue: { status: existing.status },
-      newValue: { status: params.toStatus },
-    });
+  const uniqueOrdered = [...new Set(params.orderedIds)];
+  if (!uniqueOrdered.includes(params.taskId)) {
+    uniqueOrdered.push(params.taskId);
+  }
 
-    await syncResearchLinksFromTaskStatus(params.taskId, params.toStatus);
+  const ownedRows =
+    session.user.role === "ADMIN"
+      ? uniqueOrdered.map(id => ({ id }))
+      : await db.task.findMany({
+          where: {
+            AND: [
+              { id: { in: uniqueOrdered } },
+              personalTaskOwnership(session.user.id),
+            ],
+          },
+          select: { id: true },
+        });
+  const ownedIds = new Set(ownedRows.map(row => row.id));
+  if (!ownedIds.has(params.taskId)) {
+    return { success: false, error: "اجازه ویرایش ندارید" };
+  }
+  const safeOrdered = uniqueOrdered.filter(id => ownedIds.has(id));
 
-    if (params.toStatus === "DONE") {
+  let toStatus = params.toStatus;
+  if (
+    existing.waitingOn &&
+    toStatus !== "DONE" &&
+    toStatus !== "IN_PROGRESS"
+  ) {
+    toStatus = "BACKLOG";
+  }
+
+  try {
+    if (safeOrdered.length > 0) {
+      await db.$transaction(
+        safeOrdered.map((id, index) =>
+          db.task.update({
+            where: { id },
+            data:
+              id === params.taskId
+                ? {
+                    status: toStatus,
+                    position: index,
+                    ...(toStatus === "DONE" ? { waitingOn: false } : {}),
+                  }
+                : { position: index },
+          }),
+        ),
+      );
+    } else {
+      await db.task.update({
+        where: { id: params.taskId },
+        data: {
+          status: toStatus,
+          ...(toStatus === "DONE" ? { waitingOn: false } : {}),
+        },
+      });
+    }
+  } catch (error) {
+    console.error("moveTask transaction failed", error);
+    return { success: false, error: "جابجایی ذخیره نشد" };
+  }
+
+  if (existing.status !== toStatus) {
+    try {
+      await logActivity({
+        entityId: params.taskId,
+        action: "status_changed",
+        performedBy: session.user.id,
+        oldValue: { status: existing.status },
+        newValue: { status: toStatus },
+      });
+    } catch (error) {
+      console.error("activityLog after board move failed", error);
+    }
+
+    try {
+      await syncResearchLinksFromTaskStatus(params.taskId, toStatus);
+    } catch (error) {
+      console.error("syncResearchLinksFromTaskStatus after board move failed", error);
+    }
+
+    if (toStatus === "DONE") {
       try {
         await spawnNextIfRecurring(params.taskId, session.user.id);
       } catch (error) {
@@ -84,12 +155,16 @@ export async function moveTask(params: {
     }
 
     if (existing.assignedToId && existing.assignedToId !== session.user.id) {
-      await notify({
-        userId: existing.assignedToId,
-        type: "STATUS_CHANGED",
-        title: `وضعیت به «${params.toStatus.replace("_", " ")}» در «${existing.title}» تغییر کرد`,
-        data: { taskId: params.taskId },
-      });
+      try {
+        await notify({
+          userId: existing.assignedToId,
+          type: "STATUS_CHANGED",
+          title: `وضعیت به «${toStatus.replace("_", " ")}» در «${existing.title}» تغییر کرد`,
+          data: { taskId: params.taskId },
+        });
+      } catch (error) {
+        console.error("notify after board move failed", error);
+      }
     }
   }
 

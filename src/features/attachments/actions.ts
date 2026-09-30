@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma as db } from "@/lib/db";
 import { uploadAttachment as uploadToStorage } from "@/lib/storage";
+import { canAccessPersonalTask } from "@/lib/task-access";
 import { getAttachments } from "./queries";
 import type { AttachmentRow } from "./types";
 
@@ -12,50 +13,98 @@ export interface ActionResult {
   error?: string;
 }
 
-async function logActivity(opts: { entityId: string; action: string; performedBy: string; newValue?: unknown }) {
+async function logActivity(opts: {
+  entityId: string;
+  action: string;
+  performedBy: string;
+  newValue?: unknown;
+}) {
   await db.activityLog.create({
     data: {
       entity: "task",
       entityId: opts.entityId,
       action: opts.action,
       performedBy: opts.performedBy,
-      newValue: opts.newValue === undefined ? undefined : (opts.newValue as object),
+      newValue:
+        opts.newValue === undefined ? undefined : (opts.newValue as object),
     },
   });
 }
 
-export async function getAttachmentsAction(taskId: string): Promise<AttachmentRow[]> {
+export async function getAttachmentsAction(
+  taskId: string,
+): Promise<AttachmentRow[]> {
   const session = await auth();
   if (!session?.user) return [];
+
+  const task = await db.task.findUnique({
+    where: { id: taskId },
+    select: { assignedToId: true, createdById: true },
+  });
+  if (
+    !task ||
+    !canAccessPersonalTask(session.user.id, session.user.role, task)
+  ) {
+    return [];
+  }
+
   return getAttachments(taskId);
 }
 
-export async function uploadAttachment(taskId: string, formData: FormData): Promise<ActionResult> {
+export async function uploadAttachment(
+  taskId: string,
+  formData: FormData,
+): Promise<ActionResult> {
   const session = await auth();
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
-  const task = await db.task.findUnique({ where: { id: taskId }, select: { id: true } });
+  const task = await db.task.findUnique({
+    where: { id: taskId },
+    select: { id: true, assignedToId: true, createdById: true },
+  });
   if (!task) return { success: false, error: "کار پیدا نشد" };
+  if (
+    !canAccessPersonalTask(session.user.id, session.user.role, task)
+  ) {
+    return { success: false, error: "اجازه ویرایش ندارید" };
+  }
 
   const file = formData.get("file") as File | null;
-  if (!file || file.size === 0) return { success: false, error: "فایلی انتخاب نشده است" };
-  if (file.size > 10 * 1024 * 1024) return { success: false, error: "فایل باید کوچکتر از ۱۰ مگابایت باشد" };
+  if (!file || file.size === 0) {
+    return { success: false, error: "فایلی انتخاب نشده است" };
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    return { success: false, error: "فایل باید کوچکتر از ۱۰ مگابایت باشد" };
+  }
 
   const url = await uploadToStorage(file, taskId);
   if (!url) {
-    return { success: false, error: "ذخیره‌سازی پیکربندی نشده است. متغیرهای محیطی S3 را برای فعال‌سازی پیوست‌ها اضافه کنید" };
+    return {
+      success: false,
+      error:
+        "ذخیره‌سازی پیکربندی نشده است. متغیرهای محیطی S3 را برای فعال‌سازی پیوست‌ها اضافه کنید",
+    };
   }
 
-  await db.attachment.create({ data: { taskId, url, filename: file.name } });
+  await db.attachment.create({
+    data: { taskId, url, filename: file.name },
+  });
 
-  await logActivity({ entityId: taskId, action: "attachment_added", performedBy: session.user.id, newValue: { filename: file.name } });
+  await logActivity({
+    entityId: taskId,
+    action: "attachment_added",
+    performedBy: session.user.id,
+    newValue: { filename: file.name },
+  });
 
   revalidatePath("/tasks");
   revalidatePath("/kanban");
   return { success: true };
 }
 
-export async function deleteAttachment(attachmentId: string): Promise<ActionResult> {
+export async function deleteAttachment(
+  attachmentId: string,
+): Promise<ActionResult> {
   const session = await auth();
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
@@ -75,12 +124,13 @@ export async function deleteAttachment(attachmentId: string): Promise<ActionResu
   });
   if (!attachment) return { success: false, error: "پیوست پیدا نشد" };
 
-  const uid = session.user.id;
-  const isAdmin = session.user.role === "ADMIN";
-  const ownsTask =
-    attachment.task.assignedToId === uid ||
-    attachment.task.createdById === uid;
-  if (!isAdmin && !ownsTask) {
+  if (
+    !canAccessPersonalTask(
+      session.user.id,
+      session.user.role,
+      attachment.task,
+    )
+  ) {
     return { success: false, error: "اجازه حذف این پیوست را نداری" };
   }
 
@@ -88,7 +138,7 @@ export async function deleteAttachment(attachmentId: string): Promise<ActionResu
   await logActivity({
     entityId: attachment.taskId,
     action: "attachment_removed",
-    performedBy: uid,
+    performedBy: session.user.id,
     newValue: { filename: attachment.filename },
   });
   revalidatePath("/tasks");

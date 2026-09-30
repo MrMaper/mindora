@@ -327,6 +327,10 @@ export async function movePathToArea(input: {
       where: { projectId: pathId },
       data: { area: toArea },
     }),
+    db.doc.updateMany({
+      where: { projectId: pathId, deletedAt: null },
+      data: { area: toArea },
+    }),
   ]);
 
   revalidateAreaSurfaces(fromArea);
@@ -480,6 +484,12 @@ export async function deleteProject(id: string): Promise<ActionResult> {
     return { success: false, error: parsed.error.issues[0]?.message };
   }
 
+  const project = await db.project.findUnique({
+    where: { id },
+    select: { area: true },
+  });
+  if (!project) return { success: false, error: "مسیر پیدا نشد" };
+
   const activeTasks = await db.task.count({
     where: { projectId: id, status: { not: "DONE" } },
   });
@@ -487,9 +497,48 @@ export async function deleteProject(id: string): Promise<ActionResult> {
     return { success: false, error: `نمی‌توان مسیری با ${activeTasks} کار فعال را حذف کرد` };
   }
 
-  await db.project.delete({ where: { id } });
+  // DONE (and any leftover) rows keep continuity — rehome to the area bucket
+  // so FKs do not block delete and research library is not orphaned.
+  const bucketId = personalAreaProjectId(session.user.id, project.area);
+  await db.$transaction([
+    db.task.updateMany({
+      where: { projectId: id },
+      data: { projectId: bucketId },
+    }),
+    db.doc.updateMany({
+      where: { projectId: id },
+      data: { projectId: bucketId },
+    }),
+    db.docSource.updateMany({
+      where: { projectId: id },
+      data: { projectId: bucketId },
+    }),
+    db.langCard.updateMany({
+      where: { projectId: id },
+      data: { projectId: bucketId },
+    }),
+    db.langSession.updateMany({
+      where: { projectId: id },
+      data: { projectId: bucketId },
+    }),
+    db.langListeningClip.updateMany({
+      where: { projectId: id },
+      data: { projectId: bucketId },
+    }),
+    db.examTrack.updateMany({
+      where: { projectId: id },
+      data: { projectId: bucketId },
+    }),
+    db.mockAttempt.updateMany({
+      where: { projectId: id },
+      data: { projectId: bucketId },
+    }),
+    db.project.delete({ where: { id } }),
+  ]);
 
   revalidatePath("/projects");
+  revalidatePath("/research");
+  revalidatePath("/docs");
   return { success: true };
 }
 

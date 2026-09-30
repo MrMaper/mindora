@@ -227,6 +227,8 @@ export async function updateDoc(
       title: true,
       content: true,
       contentText: true,
+      area: true,
+      projectId: true,
     },
   });
   if (!existing) return { success: false, error: "سند پیدا نشد" };
@@ -272,6 +274,16 @@ export async function updateDoc(
   if (input.archived !== undefined) data.archived = input.archived;
   if (input.folderId !== undefined) data.folderId = input.folderId;
   if (input.projectId !== undefined) data.projectId = input.projectId;
+
+  // Area chip alone must not leave a path from another area attached.
+  if (
+    input.area !== undefined &&
+    input.projectId === undefined &&
+    input.area !== existing.area
+  ) {
+    const { projectIdForArea } = await import("@/features/life/workspace");
+    data.projectId = projectIdForArea(session.user.id, input.area);
+  }
 
   if (data.content !== undefined && data.content !== existing.content) {
     await maybeCreateAutoVersion(id, existing, data.contentText ?? "");
@@ -345,26 +357,44 @@ export async function linkDocTask(
   const session = await auth();
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
-  const doc = await assertDocOwner(docId, session.user.id);
+  const doc = await db.doc.findFirst({
+    where: { id: docId, userId: session.user.id, deletedAt: null },
+    select: { id: true, templateKey: true },
+  });
   if (!doc) return { success: false, error: "سند پیدا نشد" };
 
-  const task = await db.task.findFirst({
-    where: {
-      id: taskId,
-      OR: [
-        { assignedToId: session.user.id },
-        { createdById: session.user.id },
-      ],
+  const task = await db.task.findUnique({
+    where: { id: taskId },
+    select: {
+      id: true,
+      area: true,
+      assignedToId: true,
+      createdById: true,
+      project: { select: { area: true } },
     },
-    select: { id: true },
   });
   if (!task) return { success: false, error: "کار پیدا نشد" };
 
-  await db.docTask.upsert({
-    where: { docId_taskId: { docId, taskId } },
-    create: { docId, taskId },
-    update: {},
-  });
+  const { canAccessPersonalTask } = await import("@/lib/task-access");
+  if (
+    !canAccessPersonalTask(session.user.id, session.user.role, task)
+  ) {
+    return { success: false, error: "کار پیدا نشد" };
+  }
+
+  const area = task.area ?? task.project?.area ?? null;
+  if (area === "PHD" && doc.templateKey === "sourceNote") {
+    const { replacePhdDocTaskLinks } = await import(
+      "@/features/research/doc-task-links"
+    );
+    await replacePhdDocTaskLinks(docId, taskId);
+  } else {
+    await db.docTask.upsert({
+      where: { docId_taskId: { docId, taskId } },
+      create: { docId, taskId },
+      update: {},
+    });
+  }
 
   revalidateDocs(docId);
   return { success: true };
@@ -399,7 +429,7 @@ export async function searchLinkableTasks(
       title: { contains: q, mode: "insensitive" },
       OR: [
         { assignedToId: session.user.id },
-        { createdById: session.user.id },
+        { createdById: session.user.id, assignedToId: null },
       ],
     },
     take: 8,
@@ -422,7 +452,7 @@ export async function createTaskFromDoc(input: {
 
   const doc = await db.doc.findFirst({
     where: { id: input.docId, userId: session.user.id },
-    select: { id: true, area: true },
+    select: { id: true, area: true, templateKey: true },
   });
   if (!doc) return { success: false, error: "سند پیدا نشد" };
 
@@ -431,6 +461,30 @@ export async function createTaskFromDoc(input: {
   );
   const { teamId } = await ensurePersonalWorkspace(session.user.id);
   const area = input.area ?? doc.area;
+
+  // Reuse the single PhD reading card when linking from a source note.
+  if (area === "PHD" && doc.templateKey === "sourceNote") {
+    const existingLink = await db.docTask.findFirst({
+      where: {
+        docId: doc.id,
+        task: {
+          OR: [{ area: "PHD" }, { project: { area: "PHD" } }],
+        },
+      },
+      orderBy: { taskId: "asc" },
+      select: { taskId: true },
+    });
+    if (existingLink) {
+      const { replacePhdDocTaskLinks } = await import(
+        "@/features/research/doc-task-links"
+      );
+      await replacePhdDocTaskLinks(doc.id, existingLink.taskId);
+      revalidateDocs(doc.id);
+      revalidatePath("/tasks");
+      revalidatePath("/kanban");
+      return { success: true, data: { id: existingLink.taskId } };
+    }
+  }
 
   const task = await db.task.create({
     data: {
@@ -447,9 +501,16 @@ export async function createTaskFromDoc(input: {
     select: { id: true },
   });
 
-  await db.docTask.create({
-    data: { docId: doc.id, taskId: task.id },
-  });
+  if (area === "PHD" && doc.templateKey === "sourceNote") {
+    const { replacePhdDocTaskLinks } = await import(
+      "@/features/research/doc-task-links"
+    );
+    await replacePhdDocTaskLinks(doc.id, task.id);
+  } else {
+    await db.docTask.create({
+      data: { docId: doc.id, taskId: task.id },
+    });
+  }
 
   revalidateDocs(doc.id);
   revalidatePath("/tasks");

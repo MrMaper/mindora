@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui-kit/forms/button";
 import { useLanguage, useTranslation } from "@/i18n/provider";
 import { logFocusSession } from "@/features/life/actions";
+import { focusPickGroup } from "@/features/life/focus-slots";
 import type { TaskRow } from "@/features/tasks/types";
 import { cn, formatNumber } from "@/lib/utils";
 
@@ -31,9 +32,11 @@ function clock(total: number, language: "FA" | "EN") {
 
 export function FocusSessionProvider({
   tasks,
+  todayKey,
   children,
 }: {
   tasks: TaskRow[];
+  todayKey: string;
   children: React.ReactNode;
 }) {
   const t = useTranslation();
@@ -155,6 +158,7 @@ export function FocusSessionProvider({
       <SessionState.Provider
         value={{
           tasks,
+          todayKey,
           task,
           phase,
           remaining,
@@ -176,6 +180,7 @@ export function FocusSessionProvider({
 
 type SessionStateValue = {
   tasks: TaskRow[];
+  todayKey: string;
   task: TaskRow | null;
   phase: Phase;
   remaining: number;
@@ -216,6 +221,7 @@ export function FocusSessionCard() {
 
   const {
     tasks,
+    todayKey,
     task,
     phase,
     remaining,
@@ -238,6 +244,21 @@ export function FocusSessionCard() {
           ? t.dashboard.areaLang
           : t.dashboard.areaLife
     : null;
+
+  const pickGroups = [
+    {
+      label: t.dashboard.focusPickOverdue,
+      tasks: tasks.filter(item => focusPickGroup(item, todayKey) === "overdue"),
+    },
+    {
+      label: t.dashboard.focusPickToday,
+      tasks: tasks.filter(item => focusPickGroup(item, todayKey) === "today"),
+    },
+    {
+      label: t.dashboard.focusPickUndated,
+      tasks: tasks.filter(item => focusPickGroup(item, todayKey) === "undated"),
+    },
+  ];
   const projectName =
     task?.projectName && task.projectName !== areaName ? task.projectName : null;
   const context = [areaName, projectName].filter(Boolean).join(" · ");
@@ -327,16 +348,40 @@ export function FocusSessionCard() {
               {tasks.length === 0 ? (
                 <p className="px-2 py-3 text-xs text-muted-foreground">{t.dashboard.focusPickEmpty}</p>
               ) : (
-                tasks.map(item => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => choose(item)}
-                    className="block w-full truncate rounded-md px-2 py-2 text-start text-sm hover:bg-accent"
-                  >
-                    {item.title}
-                  </button>
-                ))
+                pickGroups.map(group =>
+                  group.tasks.length === 0 ? null : (
+                    <div key={group.label} className="py-1">
+                      <p className="px-2 py-1 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                        {group.label}
+                      </p>
+                      {group.tasks.map(item => {
+                        const area =
+                          item.area === "PHD"
+                            ? t.dashboard.areaPhd
+                            : item.area === "LANG"
+                              ? t.dashboard.areaLang
+                              : item.area === "WORK"
+                                ? t.dashboard.areaWork
+                                : item.area === "LIFE"
+                                  ? t.dashboard.areaLife
+                                  : null;
+                        return (
+                          <button
+                            key={item.id}
+                            type="button"
+                            onClick={() => choose(item)}
+                            className="block w-full truncate rounded-md px-2 py-2 text-start text-sm hover:bg-accent"
+                          >
+                            {item.title}
+                            {area ? (
+                              <span className="text-muted-foreground"> · {area}</span>
+                            ) : null}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ),
+                )
               )}
             </div>
           ) : null}

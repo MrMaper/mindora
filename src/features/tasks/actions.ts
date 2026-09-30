@@ -13,7 +13,7 @@ import { formatJalaliShort, parseLocalDate, resolveBoardPlanningStatus } from "@
 import { isHubArea } from "@/lib/project-namespace";
 import { isBoardStatus } from "@/features/kanban/types";
 import { notify } from "@/lib/notify";
-import type { LifeArea, RecurrenceInterval } from "@/types/db";
+import type { LifeArea, RecurrenceInterval, TaskStatus } from "@/types/db";
 import {
   sendBaleTaskNotification,
   sendBaleAssignmentNotification,
@@ -23,6 +23,7 @@ import {
 } from "@/features/external/bots/bale/notifications";
 import type { TaskDetail } from "./types";
 import { canAccessPersonalTask } from "@/lib/task-access";
+import { applyTaskStatusChange } from "@/features/tasks/apply-status";
 
 function revalidateTasks(extra: string[] = []) {
   revalidatePath("/tasks");
@@ -379,17 +380,25 @@ export async function updateTask(
   const projectChanged = (existing.projectId ?? null) !== projectId;
 
   if (statusChanged) {
-    await logActivity({
-      entityId: id,
-      action: "status_changed",
-      performedBy: session.user.id,
-      oldValue: { status: existing.status },
-      newValue: { status: nextStatus },
-    });
-    const { syncResearchLinksFromTaskStatus } = await import(
-      "@/features/research/sync-links"
-    );
-    await syncResearchLinksFromTaskStatus(id, nextStatus);
+    try {
+      await logActivity({
+        entityId: id,
+        action: "status_changed",
+        performedBy: session.user.id,
+        oldValue: { status: existing.status },
+        newValue: { status: nextStatus },
+      });
+    } catch (error) {
+      console.error("activityLog after form status change failed", error);
+    }
+    try {
+      const { syncResearchLinksFromTaskStatus } = await import(
+        "@/features/research/sync-links"
+      );
+      await syncResearchLinksFromTaskStatus(id, nextStatus);
+    } catch (error) {
+      console.error("syncResearchLinksFromTaskStatus after form edit failed", error);
+    }
   }
 
   if (assigneeChanged) {
@@ -564,85 +573,73 @@ export async function updateTaskStatus(
     return { success: false, error: "وضعیت نامعتبر است" };
   }
 
-  const existing = await db.task.findUnique({
-    where: { id },
-    select: {
-      status: true,
-      title: true,
-      assignedToId: true,
-      createdById: true,
-    },
-  });
-  if (!existing) return { success: false, error: "کار پیدا نشد" };
-
-  if (
-    !canAccessPersonalTask(session.user.id, session.user.role, existing)
-  ) {
-    return {
-      success: false,
-      error: "به این کار دسترسی ندارید",
-    };
-  }
-
-  await db.task.update({
-    where: { id },
-    data: {
-      status,
-      ...(status === "DONE" ? { waitingOn: false } : {}),
-    },
-  });
-
-  if (existing.status !== status) {
-    await logActivity({
-      entityId: id,
-      action: "status_changed",
-      performedBy: session.user.id,
-      oldValue: { status: existing.status },
-      newValue: { status },
+  try {
+    const applied = await applyTaskStatusChange({
+      taskId: id,
+      userId: session.user.id,
+      role: session.user.role,
+      status: status as TaskStatus,
     });
+    if (!applied.ok) return { success: false, error: applied.error };
 
-    const { syncResearchLinksFromTaskStatus } = await import(
-      "@/features/research/sync-links"
-    );
-    await syncResearchLinksFromTaskStatus(id, status);
-
-    if (status === "DONE" && existing.status !== "DONE") {
+    if (applied.changed) {
       try {
-        await spawnNextIfRecurring(id, session.user.id);
+        const { syncResearchLinksFromTaskStatus } = await import(
+          "@/features/research/sync-links"
+        );
+        await syncResearchLinksFromTaskStatus(id, applied.nextStatus);
       } catch (error) {
-        console.error("spawnNextIfRecurring after DONE failed", error);
+        console.error("syncResearchLinksFromTaskStatus failed", error);
+      }
+
+      if (
+        applied.assignedToId &&
+        applied.assignedToId !== session.user.id
+      ) {
+        try {
+          await notify({
+            userId: applied.assignedToId,
+            type: "STATUS_CHANGED",
+            title: `وضعیت به «${applied.nextStatus.replace("_", " ")}» در «${applied.title}» تغییر کرد`,
+            data: { taskId: id },
+          });
+        } catch (error) {
+          console.error("notify status change failed", error);
+        }
+      }
+
+      if (applied.assignedToId) {
+        try {
+          await sendBaleStatusChangeNotification(applied.assignedToId, {
+            id,
+            title: applied.title,
+            oldStatus: applied.previousStatus,
+            newStatus: applied.nextStatus,
+          });
+        } catch (error) {
+          console.error("Bale status DM failed", error);
+        }
+      }
+
+      try {
+        await sendBaleTaskNotification("status_changed", {
+          id,
+          title: applied.title,
+          changedFields: {
+            status: { old: applied.previousStatus, new: applied.nextStatus },
+          },
+        });
+      } catch (error) {
+        console.error("Bale status channel failed", error);
       }
     }
 
-    if (existing.assignedToId && existing.assignedToId !== session.user.id) {
-      await notify({
-        userId: existing.assignedToId,
-        type: "STATUS_CHANGED",
-        title: `وضعیت به «${status.replace("_", " ")}» در «${existing.title}» تغییر کرد`,
-        data: { taskId: id },
-      });
-    }
-
-    if (existing.assignedToId) {
-      await sendBaleStatusChangeNotification(existing.assignedToId, {
-        id,
-        title: existing.title,
-        oldStatus: existing.status,
-        newStatus: status,
-      });
-    }
-
-    await sendBaleTaskNotification("status_changed", {
-      id,
-      title: existing.title,
-      changedFields: {
-        status: { old: existing.status, new: status },
-      },
-    });
+    revalidateTasks(["/calendar", "/research", "/review"]);
+    return { success: true };
+  } catch (error) {
+    console.error("updateTaskStatus failed", error);
+    return { success: false, error: "تغییر وضعیت نشد" };
   }
-
-  revalidateTasks(["/calendar", "/research", "/review"]);
-  return { success: true };
 }
 
 // ─── Fetch full task detail (for client-side drawer loading) ─────────────

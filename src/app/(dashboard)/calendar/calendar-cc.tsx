@@ -28,6 +28,7 @@ import { listDocsByTaskIdsAction } from "@/features/docs/actions";
 import { EditTaskDrawer } from "../kanban/components/ui/edit-task-drawer";
 import { useLanguage, useTranslation } from "@/i18n/provider";
 import { formatNumber, cn } from "@/lib/utils";
+import { toast } from "sonner";
 import {
   LIFE_AREAS,
   PERSIAN_WEEKDAYS_SAT,
@@ -52,6 +53,7 @@ import {
   toDueDateKey,
   toGregorianDate,
   weekCells,
+  zonedDateKey,
   coerceLifeArea,
 } from "@/lib/life";
 import {
@@ -166,11 +168,59 @@ function coerceCalendarTask(task: TaskRow): TaskRow {
     ].join("-");
     return { ...task, dueDate: withDateOnly(parseLocalDate(key)) };
   }
+  // Iran date-only on a UTC host (08:30 UTC) — keep as local noon for the grid.
+  if (
+    due.getUTCHours() === 8 &&
+    due.getUTCMinutes() === 30 &&
+    due.getUTCSeconds() === 0 &&
+    due.getUTCMilliseconds() === 0
+  ) {
+    const key = zonedDateKey(due);
+    return { ...task, dueDate: withDateOnly(parseLocalDate(key)) };
+  }
   return task;
 }
 
 function coerceCalendarTasks(list: TaskRow[]): TaskRow[] {
   return list.map(coerceCalendarTask);
+}
+
+/** Prefer the row with the newer `updatedAt` so a soft RSC refresh cannot
+ *  clobber an optimistic drag before the write is visible. On a tie, keep
+ *  `a` (local/prev) — stale RSC payloads often share the same timestamp. */
+function preferFresherTask(a: TaskRow, b: TaskRow): TaskRow {
+  const aTime = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+  const bTime = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+  if (bTime !== aTime) return bTime > aTime ? b : a;
+  return a;
+}
+
+function mergeCalendarTasks(
+  prev: TaskRow[],
+  incoming: TaskRow[],
+  pendingIds?: ReadonlySet<string>,
+): TaskRow[] {
+  const map = new Map<string, TaskRow>();
+  for (const task of prev) map.set(task.id, task);
+  for (const task of incoming) {
+    if (pendingIds?.has(task.id)) continue;
+    const existing = map.get(task.id);
+    map.set(task.id, existing ? preferFresherTask(existing, task) : task);
+  }
+  return [...map.values()];
+}
+
+function withOptimisticDue(
+  task: TaskRow,
+  dueDate: Date,
+  durationMinutes: number | null,
+): TaskRow {
+  return {
+    ...task,
+    dueDate,
+    durationMinutes,
+    updatedAt: new Date(),
+  };
 }
 
 function isSameDay(a: Date, b: Date) {
@@ -477,6 +527,8 @@ export function CalendarCC({
     React.useState<HourDragPreview | null>(null);
   const hourDragPreviewRef = React.useRef<HourDragPreview | null>(null);
   const loadedRanges = React.useRef(new Set<string>());
+  /** Task ids with an in-flight calendar reschedule — ignore soft RSC overwrites. */
+  const pendingReschedules = React.useRef(new Set<string>());
   const lastPointer = React.useRef<{ x: number; y: number } | null>(null);
   const grabOffsetPx = React.useRef(0);
   const dragDurationRef = React.useRef(60);
@@ -517,7 +569,13 @@ export function CalendarCC({
   }, []);
 
   React.useEffect(() => {
-    setTasks(coerceCalendarTasks(initialTasks));
+    setTasks(prev =>
+      mergeCalendarTasks(
+        prev,
+        coerceCalendarTasks(initialTasks),
+        pendingReschedules.current,
+      ),
+    );
   }, [initialTasks]);
 
   React.useEffect(() => {
@@ -584,11 +642,13 @@ export function CalendarCC({
     let cancelled = false;
     loadCalendarRange(from.toISOString(), to.toISOString()).then(next => {
       if (cancelled) return;
-      setTasks(prev => {
-        const ids = new Set(prev.map(task => task.id));
-        const extra = coerceCalendarTasks(next).filter(task => !ids.has(task.id));
-        return extra.length ? [...prev, ...extra] : prev;
-      });
+      setTasks(prev =>
+        mergeCalendarTasks(
+          prev,
+          coerceCalendarTasks(next),
+          pendingReschedules.current,
+        ),
+      );
     });
     return () => {
       cancelled = true;
@@ -795,20 +855,39 @@ export function CalendarCC({
     setTasks(prev =>
       prev.map(t =>
         t.id === taskId
-          ? { ...t, dueDate: nextDue, durationMinutes: nextDuration }
+          ? withOptimisticDue(t, nextDue, nextDuration)
           : t,
       ),
     );
     setSelected(nextDue);
     edit.syncDueFromCalendar(taskId, nextDue, nextDuration ?? null);
+    pendingReschedules.current.add(taskId);
 
-    const result = await rescheduleTaskSchedule(taskId, {
-      dueDateKey,
-      time,
-      dueAtIso: nextDue.toISOString(),
-      durationMinutes: nextDuration,
-    });
-    if (!result.success) {
+    try {
+      const result = await rescheduleTaskSchedule(taskId, {
+        dueDateKey,
+        time,
+        dueAtIso: nextDue.toISOString(),
+        durationMinutes: nextDuration,
+      });
+      if (!result?.success) {
+        setTasks(prev =>
+          prev.map(t =>
+            t.id === taskId
+              ? {
+                  ...t,
+                  dueDate: previousDue,
+                  durationMinutes: previousDuration,
+                  updatedAt: new Date(),
+                }
+              : t,
+          ),
+        );
+        edit.syncDueFromCalendar(taskId, new Date(previousDue), previousDuration);
+        toast.error(result?.error ?? t.common.error);
+      }
+    } catch (error) {
+      console.error("rescheduleTaskSchedule failed", error);
       setTasks(prev =>
         prev.map(t =>
           t.id === taskId
@@ -816,11 +895,15 @@ export function CalendarCC({
                 ...t,
                 dueDate: previousDue,
                 durationMinutes: previousDuration,
+                updatedAt: new Date(),
               }
             : t,
         ),
       );
       edit.syncDueFromCalendar(taskId, new Date(previousDue), previousDuration);
+      toast.error(t.common.error);
+    } finally {
+      pendingReschedules.current.delete(taskId);
     }
   }
 
@@ -842,25 +925,55 @@ export function CalendarCC({
       24 * 60,
       Math.max(SNAP_MINUTES, Math.round(durationMinutes)),
     );
+    if ((previousDuration ?? null) === nextDuration) return;
 
     setTasks(prev =>
-      prev.map(t => (t.id === taskId ? { ...t, durationMinutes: nextDuration } : t)),
+      prev.map(t =>
+        t.id === taskId ? withOptimisticDue(t, due, nextDuration) : t,
+      ),
     );
     edit.syncDueFromCalendar(taskId, due, nextDuration);
+    pendingReschedules.current.add(taskId);
 
-    const result = await rescheduleTaskSchedule(taskId, {
-      dueDateKey,
-      time,
-      dueAtIso: due.toISOString(),
-      durationMinutes: nextDuration,
-    });
-    if (!result.success) {
+    try {
+      const result = await rescheduleTaskSchedule(taskId, {
+        dueDateKey,
+        time,
+        dueAtIso: due.toISOString(),
+        durationMinutes: nextDuration,
+      });
+      if (!result?.success) {
+        setTasks(prev =>
+          prev.map(t =>
+            t.id === taskId
+              ? {
+                  ...t,
+                  durationMinutes: previousDuration,
+                  updatedAt: new Date(),
+                }
+              : t,
+          ),
+        );
+        edit.syncDueFromCalendar(taskId, due, previousDuration);
+        toast.error(result?.error ?? t.common.error);
+      }
+    } catch (error) {
+      console.error("rescheduleTaskSchedule resize failed", error);
       setTasks(prev =>
         prev.map(t =>
-          t.id === taskId ? { ...t, durationMinutes: previousDuration } : t,
+          t.id === taskId
+            ? {
+                ...t,
+                durationMinutes: previousDuration,
+                updatedAt: new Date(),
+              }
+            : t,
         ),
       );
       edit.syncDueFromCalendar(taskId, due, previousDuration);
+      toast.error(t.common.error);
+    } finally {
+      pendingReschedules.current.delete(taskId);
     }
   }
 
@@ -1023,20 +1136,39 @@ export function CalendarCC({
     setTasks(prev =>
       prev.map(t =>
         t.id === taskId
-          ? { ...t, dueDate: nextDue, durationMinutes: nextDuration }
+          ? withOptimisticDue(t, nextDue, nextDuration)
           : t,
       ),
     );
     setSelected(nextDue);
     edit.syncDueFromCalendar(taskId, nextDue, nextDuration);
+    pendingReschedules.current.add(taskId);
 
-    const result = await rescheduleTaskDueDate(
-      taskId,
-      dueDateKey,
-      time,
-      nextDue.toISOString(),
-    );
-    if (!result.success) {
+    try {
+      const result = await rescheduleTaskDueDate(
+        taskId,
+        dueDateKey,
+        time,
+        nextDue.toISOString(),
+      );
+      if (!result?.success) {
+        setTasks(prev =>
+          prev.map(t =>
+            t.id === taskId
+              ? {
+                  ...t,
+                  dueDate: previousDue,
+                  durationMinutes: previousDuration,
+                  updatedAt: new Date(),
+                }
+              : t,
+          ),
+        );
+        edit.syncDueFromCalendar(taskId, new Date(previousDue), previousDuration);
+        toast.error(result?.error ?? t.common.error);
+      }
+    } catch (error) {
+      console.error("rescheduleTaskDueDate failed", error);
       setTasks(prev =>
         prev.map(t =>
           t.id === taskId
@@ -1044,11 +1176,15 @@ export function CalendarCC({
                 ...t,
                 dueDate: previousDue,
                 durationMinutes: previousDuration,
+                updatedAt: new Date(),
               }
             : t,
         ),
       );
       edit.syncDueFromCalendar(taskId, new Date(previousDue), previousDuration);
+      toast.error(t.common.error);
+    } finally {
+      pendingReschedules.current.delete(taskId);
     }
   }
 

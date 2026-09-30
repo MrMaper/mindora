@@ -120,13 +120,14 @@ export function LifeTaskList({
     setPendingId(id);
     try {
       const result = await completePersonalTask(id);
-      if (!result.success) {
-        toast.error(result.error ?? t.common.error);
+      if (!result?.success) {
+        toast.error(result?.error ?? t.common.error);
         return;
       }
       setHiddenIds(prev => new Set(prev).add(id));
       router.refresh();
-    } catch {
+    } catch (error) {
+      console.error("markDone failed", error);
       toast.error(t.common.error);
     } finally {
       setPendingId(null);

@@ -3,7 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma as db } from "@/lib/db";
-import type { LifeArea, SourceReadingStatus } from "@/types/db";
+import type {
+  LifeArea,
+  RecurrenceInterval,
+  SourceReadingStatus,
+  TaskStatus,
+} from "@/types/db";
 import { ensureHeadingIds, htmlToPlainText } from "@/features/docs/utils";
 import { getDocTemplate } from "@/features/docs/templates";
 import {
@@ -22,11 +27,15 @@ import { dueFromWallClock, isUserAreaBucket, personalAreaProjectId } from "@/lib
 import {
   ensurePersonalWorkspace,
 } from "@/features/life/workspace";
+import { canAccessPersonalTask } from "@/lib/task-access";
+import { newRecurrenceSeriesId } from "@/features/life/recurrence";
 import {
   isLibraryBinderSystemKey,
+  RESEARCH_TASK_TO_DOC_STATUS,
   SOURCE_READING_TO_DOC,
   SOURCE_READING_TO_TASK,
 } from "./status-sync";
+import { replacePhdDocTaskLinks } from "./doc-task-links";
 
 export interface ActionResult {
   success: boolean;
@@ -110,17 +119,23 @@ export async function createDocLinkedToTask(input: {
   const session = await auth();
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
-  const task = await db.task.findFirst({
-    where: {
-      id: input.taskId,
-      OR: [
-        { assignedToId: session.user.id },
-        { createdById: session.user.id },
-      ],
+  const task = await db.task.findUnique({
+    where: { id: input.taskId },
+    select: {
+      id: true,
+      title: true,
+      projectId: true,
+      status: true,
+      assignedToId: true,
+      createdById: true,
     },
-    select: { id: true, title: true, projectId: true },
   });
   if (!task) return { success: false, error: "کار پیدا نشد" };
+  if (
+    !canAccessPersonalTask(session.user.id, session.user.role, task)
+  ) {
+    return { success: false, error: "کار پیدا نشد" };
+  }
 
   const template = input.templateKey
     ? getDocTemplate(input.templateKey)
@@ -145,13 +160,16 @@ export async function createDocLinkedToTask(input: {
     if (member) projectId = task.projectId;
   }
 
+  const docStatus =
+    RESEARCH_TASK_TO_DOC_STATUS[task.status as TaskStatus] ?? "IDEA";
+
   const doc = await db.doc.create({
     data: {
       title,
       content,
       contentText: htmlToPlainText(content),
       area: "PHD",
-      status: "DRAFTING",
+      status: docStatus,
       templateKey: template.key,
       projectId,
       userId: session.user.id,
@@ -311,31 +329,6 @@ async function createPerPaperSourceNoteDoc(
   return doc.id;
 }
 
-/** Enforce one PhD pipeline card per source note. */
-async function replacePhdDocTaskLinks(
-  noteDocId: string,
-  taskId: string,
-): Promise<void> {
-  const existing = await db.docTask.findMany({
-    where: {
-      docId: noteDocId,
-      task: { area: "PHD" },
-    },
-    select: { taskId: true },
-  });
-  const stale = existing.filter(e => e.taskId !== taskId).map(e => e.taskId);
-  if (stale.length > 0) {
-    await db.docTask.deleteMany({
-      where: { docId: noteDocId, taskId: { in: stale } },
-    });
-  }
-  await db.docTask.upsert({
-    where: { docId_taskId: { docId: noteDocId, taskId } },
-    create: { docId: noteDocId, taskId },
-    update: {},
-  });
-}
-
 async function ensureReadingTaskForSourceNote(input: {
   userId: string;
   sourceTitle: string;
@@ -344,6 +337,7 @@ async function ensureReadingTaskForSourceNote(input: {
   readingStatus?: SourceReadingStatus;
   dueDate?: Date | null;
   durationMinutes?: number | null;
+  recurrence?: RecurrenceInterval;
 }): Promise<{ taskId: string; created: boolean }> {
   const { teamId } = await ensurePersonalWorkspace(input.userId);
   const taskProjectId =
@@ -353,23 +347,43 @@ async function ensureReadingTaskForSourceNote(input: {
     where: {
       docId: input.noteDocId,
       task: {
-        area: "PHD",
         OR: [
-          { assignedToId: input.userId },
-          { createdById: input.userId },
+          { area: "PHD" },
+          { project: { area: "PHD" } },
+        ],
+        AND: [
+          {
+            OR: [
+              { assignedToId: input.userId },
+              { createdById: input.userId, assignedToId: null },
+            ],
+          },
         ],
       },
     },
+    orderBy: { taskId: "asc" },
     select: { taskId: true },
   });
   if (existing) {
     await replacePhdDocTaskLinks(input.noteDocId, existing.taskId);
-    if (input.dueDate !== undefined) {
+    if (input.dueDate !== undefined || input.recurrence) {
+      const recurrence = input.recurrence ?? "NONE";
       await db.task.update({
         where: { id: existing.taskId },
         data: {
-          dueDate: input.dueDate,
-          durationMinutes: input.durationMinutes ?? null,
+          ...(input.dueDate !== undefined
+            ? {
+                dueDate: input.dueDate,
+                durationMinutes: input.durationMinutes ?? null,
+              }
+            : {}),
+          ...(input.recurrence
+            ? {
+                recurrence,
+                recurrenceSeriesId:
+                  recurrence !== "NONE" ? newRecurrenceSeriesId() : null,
+              }
+            : {}),
         },
       });
     }
@@ -378,6 +392,7 @@ async function ensureReadingTaskForSourceNote(input: {
 
   const reading = input.readingStatus ?? "TO_READ";
   const status = SOURCE_READING_TO_TASK[reading] ?? "BACKLOG";
+  const recurrence = input.recurrence ?? "NONE";
 
   const task = await db.task.create({
     data: {
@@ -392,6 +407,9 @@ async function ensureReadingTaskForSourceNote(input: {
       assignedToId: input.userId,
       dueDate: input.dueDate ?? null,
       durationMinutes: input.durationMinutes ?? null,
+      recurrence,
+      recurrenceSeriesId:
+        recurrence !== "NONE" ? newRecurrenceSeriesId() : null,
       docs: { create: { docId: input.noteDocId } },
     },
     select: { id: true },
@@ -505,6 +523,7 @@ export async function createSourceNoteFromSourceAction(
   }
 
   const projectId = source.projectId ?? source.doc.projectId ?? null;
+  const binderDocId = source.docId;
   const noteId = await createPerPaperSourceNoteDoc(
     session.user.id,
     source,
@@ -515,6 +534,12 @@ export async function createSourceNoteFromSourceAction(
   // Move the canonical source off the binder onto the per-paper note.
   await db.docSource.update({
     where: { id: source.id },
+    data: { docId: noteId },
+  });
+
+  // Rehome quotes that still lived on the binder (writing-doc quotes stay put).
+  await db.docQuote.updateMany({
+    where: { sourceId: source.id, docId: binderDocId },
     data: { docId: noteId },
   });
 
@@ -612,6 +637,8 @@ export async function addPhdSourceAction(input: {
   durationMinutes?: number | null;
   /** Client `Date#getTimezoneOffset()` so date-only noon stays noon on UTC servers. */
   timezoneOffsetMinutes?: number;
+  /** Optional recurrence for the reading card (capture). */
+  recurrence?: RecurrenceInterval;
 }): Promise<ActionResult> {
   const session = await auth();
   if (!session?.user) return { success: false, error: "غیرمجاز" };
@@ -727,6 +754,7 @@ export async function addPhdSourceAction(input: {
       readingStatus,
       dueDate: due,
       durationMinutes,
+      recurrence: input.recurrence,
     });
     taskId = card.taskId;
   }
@@ -744,17 +772,22 @@ export async function linkSourceToTaskAction(input: {
   const session = await auth();
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
-  const task = await db.task.findFirst({
-    where: {
-      id: input.taskId,
-      OR: [
-        { assignedToId: session.user.id },
-        { createdById: session.user.id },
-      ],
+  const task = await db.task.findUnique({
+    where: { id: input.taskId },
+    select: {
+      id: true,
+      status: true,
+      area: true,
+      assignedToId: true,
+      createdById: true,
     },
-    select: { id: true, status: true, area: true },
   });
   if (!task) return { success: false, error: "کار پیدا نشد" };
+  if (
+    !canAccessPersonalTask(session.user.id, session.user.role, task)
+  ) {
+    return { success: false, error: "کار پیدا نشد" };
+  }
 
   const continuity = await ensureSourceContinuityAction(input.sourceId, {
     createReadingCard: false,
@@ -823,7 +856,7 @@ export async function searchPhdTasksForLinkAction(
       title: { contains: q, mode: "insensitive" },
       OR: [
         { assignedToId: session.user.id },
-        { createdById: session.user.id },
+        { createdById: session.user.id, assignedToId: null },
       ],
     },
     take: 8,

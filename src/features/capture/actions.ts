@@ -15,7 +15,7 @@ import { RESEARCH_SCOPE_COOKIE } from "@/features/research/scope-cookie";
 import { prisma as db } from "@/lib/db";
 import { hasModule } from "@/lib/modules";
 import { getUserModuleFlags } from "@/lib/require-role";
-import { toDateKey } from "@/lib/life";
+import { clientLocalNow, toDateKey } from "@/lib/life";
 import type { LifeArea } from "@/types/db";
 import {
   captureProduct,
@@ -70,7 +70,8 @@ export async function universalCapture(input: {
     return { success: false, error: "ثبت سریع برای فضای شخصی عضو است" };
   }
 
-  const parsed = parseCapture(input.text);
+  const now = clientLocalNow(input.timezoneOffsetMinutes);
+  const parsed = parseCapture(input.text, now);
   const title = parsed.title.trim();
   if (!title) return { success: false, error: "عنوان خالی است" };
 
@@ -124,7 +125,7 @@ export async function universalCapture(input: {
       ? input.dueDateFallback
       : undefined;
   const dueDate =
-    parsed.dateKey ?? fallback ?? (parsed.time ? toDateKey(new Date()) : undefined);
+    parsed.dateKey ?? fallback ?? (parsed.time ? toDateKey(now) : undefined);
 
   // Explicit /source, or /research + DOI → library source + reading card
   if (product === "source" && hasModule(flags, "research")) {
@@ -163,6 +164,7 @@ export async function universalCapture(input: {
       time: parsed.time,
       durationMinutes: parsed.durationMinutes,
       timezoneOffsetMinutes: input.timezoneOffsetMinutes,
+      recurrence: parsed.recurrence,
     });
     if (!created.success || !created.data?.id) {
       return { success: false, error: created.error ?? "خطا" };
@@ -175,6 +177,72 @@ export async function universalCapture(input: {
         id: taskId ?? String(created.data.id),
         kind: "task",
         product: "source",
+      },
+    };
+  }
+
+  // Explicit /research (no DOI): always PHD + research path cookie; area chip ignored.
+  if (product === "research") {
+    if (!hasModule(flags, "research") || !hasModule(flags, "docs")) {
+      const created = await quickCapture({
+        title,
+        area,
+        recurrence: parsed.recurrence,
+        dueDate,
+        time: parsed.time,
+        durationMinutes: parsed.durationMinutes,
+        timezoneOffsetMinutes: input.timezoneOffsetMinutes,
+      });
+      if (!created.success || !created.data?.id) {
+        return { success: false, error: created.error ?? "خطا" };
+      }
+      return {
+        success: true,
+        data: { id: created.data.id, kind: "task", product: "task" },
+      };
+    }
+
+    const researchProjectId = await resolveCaptureResearchProjectId(
+      session.user.id,
+    );
+    const created = await quickCapture({
+      title,
+      area: "PHD",
+      projectId:
+        researchProjectId ?? projectIdForArea(session.user.id, "PHD"),
+      recurrence: parsed.recurrence,
+      dueDate,
+      time: parsed.time,
+      durationMinutes: parsed.durationMinutes,
+      timezoneOffsetMinutes: input.timezoneOffsetMinutes,
+    });
+    if (!created.success || !created.data?.id) {
+      return { success: false, error: created.error ?? "خطا" };
+    }
+
+    const linked = await createDocLinkedToTask({
+      taskId: created.data.id,
+      title,
+      templateKey: "researchIdea",
+      projectId: researchProjectId,
+    });
+    if (!linked.success) {
+      // Roll back the orphan PhD task so Capture stays atomic.
+      await db.task.delete({ where: { id: created.data.id } }).catch(() => {
+        /* best-effort */
+      });
+      return {
+        success: false,
+        error: linked.error ?? "سند پژوهش ساخته نشد",
+      };
+    }
+
+    return {
+      success: true,
+      data: {
+        id: created.data.id,
+        kind: "task",
+        product: "research",
       },
     };
   }
@@ -192,25 +260,12 @@ export async function universalCapture(input: {
     return { success: false, error: created.error ?? "خطا" };
   }
 
-  // Only explicit /research (no DOI) attaches a writing doc — not every PhD-area guess.
-  if (
-    product === "research" &&
-    hasModule(flags, "research") &&
-    hasModule(flags, "docs")
-  ) {
-    await createDocLinkedToTask({
-      taskId: created.data.id,
-      title,
-      templateKey: "researchIdea",
-    });
-  }
-
   return {
     success: true,
     data: {
       id: created.data.id,
       kind: "task",
-      product: product === "research" ? "research" : "task",
+      product: "task",
     },
   };
 }

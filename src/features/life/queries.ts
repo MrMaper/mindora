@@ -1,15 +1,16 @@
 import { prisma as db } from "@/lib/db";
 import { toTaskRow } from "@/features/tasks/queries";
 import {
-  addDays,
-  endOfDay,
-  endOfWeek,
+  endOfZonedDay,
+  endOfZonedWeek,
   isOverdueTask,
-  startOfDay,
-  startOfWeek,
-  toDateKey,
-  weekCells,
+  startOfZonedDay,
+  startOfZonedWeek,
+  toDueDateKey,
+  zonedDateKey,
+  zonedWeekCells,
   areaProjectIdsForUser,
+  LIFE_AREAS,
 } from "@/lib/life";
 import {
   personalLifeTaskWhere,
@@ -74,13 +75,14 @@ export async function getPersonalDashboard(
   userId: string,
   modules?: { language?: boolean; research?: boolean },
 ) {
-  const todayStart = startOfDay();
-  const todayEnd = endOfDay();
-  const weekStart = startOfWeek();
-  const weekEnd = endOfWeek();
-  const yesterdayStart = addDays(todayStart, -1);
-  const yesterdayEnd = endOfDay(yesterdayStart);
-  const todayKey = toDateKey(todayStart);
+  // Asia/Tehran day — UTC hosts must not starve "today" / hub picks after Iran midnight.
+  const todayStart = startOfZonedDay();
+  const todayEnd = endOfZonedDay();
+  const weekStart = startOfZonedWeek();
+  const weekEnd = endOfZonedWeek();
+  const yesterdayStart = new Date(todayStart.getTime() - 86_400_000);
+  const yesterdayEnd = new Date(todayStart.getTime() - 1);
+  const todayKey = zonedDateKey();
 
   const mine = personalTaskOwnership(userId);
   const lifeOnly = personalLifeTaskWhere(userId);
@@ -101,6 +103,7 @@ export async function getPersonalDashboard(
     prefs,
     focusPickRows,
     areaRows,
+    openTasksForBalance,
     vocabDue,
     langWeekAgg,
     langProfile,
@@ -192,15 +195,16 @@ export async function getPersonalDashboard(
         ],
       },
     }),
+    // Week-load bars: all personal areas including PhD + Language hubs.
     db.task.findMany({
       where: {
         AND: [
-          lifeOnly,
+          mine,
           { status: { not: "DONE" } },
           { dueDate: { gte: weekStart, lte: weekEnd } },
         ],
       },
-      select: { dueDate: true },
+      select: { dueDate: true, durationMinutes: true },
     }),
     db.userPreferences.findUnique({
       where: { userId },
@@ -256,16 +260,18 @@ export async function getPersonalDashboard(
         id: true,
         name: true,
         area: true,
-        _count: {
-          select: {
-            tasks: {
-              where: {
-                AND: [mine, { status: { not: "DONE" } }],
-              },
-            },
-          },
-        },
       },
+    }),
+    // Balance %: count open work by resolved area (bucket + named paths + hubs).
+    db.task.findMany({
+      where: {
+        AND: [mine, { status: { not: "DONE" } }],
+      },
+      select: {
+        area: true,
+        project: { select: { area: true } },
+      },
+      take: 3000,
     }),
     wantLanguage
       ? db.langCard.count({
@@ -315,12 +321,23 @@ export async function getPersonalDashboard(
   const countByDay = new Map<string, number>();
   for (const task of weekOpenTasks) {
     if (!task.dueDate) continue;
-    const key = toDateKey(new Date(task.dueDate));
+    const key = toDueDateKey(new Date(task.dueDate), task.durationMinutes);
     countByDay.set(key, (countByDay.get(key) ?? 0) + 1);
   }
 
-  const weekDays: WeekDayStripItem[] = weekCells(todayStart).map(date => {
-    const dateKey = toDateKey(date);
+  const openByArea: Record<LifeArea, number> = {
+    PHD: 0,
+    WORK: 0,
+    LIFE: 0,
+    LANG: 0,
+  };
+  for (const task of openTasksForBalance) {
+    const area = (task.area ?? task.project?.area ?? null) as LifeArea | null;
+    if (area && LIFE_AREAS.includes(area)) openByArea[area] += 1;
+  }
+
+  const weekDays: WeekDayStripItem[] = zonedWeekCells().map(date => {
+    const dateKey = zonedDateKey(date);
     return {
       dateKey,
       date,
@@ -365,7 +382,7 @@ export async function getPersonalDashboard(
     overdue: overdueRows.filter(task => !focusIdSet.has(task.id)),
     today: todayRows.filter(t => !focusIdSet.has(t.id)),
     week: weekRows.filter(t => {
-      const key = t.dueDate ? toDateKey(new Date(t.dueDate)) : "";
+      const key = t.dueDate ? toDueDateKey(new Date(t.dueDate)) : "";
       return key !== todayKey && !focusIdSet.has(t.id);
     }),
     inbox: inbox.map(withArea).filter(task => !focusIdSet.has(task.id)),
@@ -385,7 +402,7 @@ export async function getPersonalDashboard(
       id: row.id,
       name: row.name,
       area: row.area,
-      openTasks: row._count.tasks,
+      openTasks: row.area ? openByArea[row.area as LifeArea] ?? 0 : 0,
     })),
     attention: {
       vocabDue,
@@ -416,8 +433,8 @@ export async function getCalendarTasks(userId: string, from: Date, to: Date) {
 }
 
 export async function getWeeklyReview(userId: string) {
-  const weekStart = startOfWeek();
-  const weekEnd = endOfWeek();
+  const weekStart = startOfZonedWeek();
+  const weekEnd = endOfZonedWeek();
   const lifeOnly = personalLifeTaskWhere(userId);
 
   const [completed, leftover, inbox] = await Promise.all([

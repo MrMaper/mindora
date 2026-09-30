@@ -96,7 +96,21 @@ export function SortableKanbanCard({
 
   return (
     <div ref={setNodeRef} style={style} className="flex flex-col gap-0.5">
-      <div {...attributes} {...listeners}>
+      <div className="relative">
+        {/* Drag handle only — keeps card scroll/tap open working on mobile. */}
+        <button
+          type="button"
+          className={cn(
+            "absolute start-1 top-1 z-10 inline-flex size-8 items-center justify-center rounded-md",
+            "touch-none text-muted-foreground hover:bg-accent hover:text-foreground",
+            "cursor-grab active:cursor-grabbing",
+          )}
+          aria-label={t.common.drag}
+          {...attributes}
+          {...listeners}
+        >
+          <Icon name="grip-vertical" size={16} />
+        </button>
         <KanbanCard
           issueKey={task.id.slice(-6).toUpperCase()}
           title={task.title}
@@ -114,6 +128,7 @@ export function SortableKanbanCard({
           overdue={isOverdue(task)}
           attachments={linkedDocs.length > 0 ? linkedDocs.length : undefined}
           state={selected ? "selected" : undefined}
+          className="ps-9"
           onClick={onClick}
         />
       </div>

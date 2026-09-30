@@ -19,7 +19,12 @@ export async function syncResearchLinksFromTaskStatus(
     select: {
       area: true,
       project: { select: { area: true } },
-      docs: { select: { docId: true } },
+      docs: {
+        select: {
+          docId: true,
+          doc: { select: { templateKey: true } },
+        },
+      },
     },
   });
   if (!task) return;
@@ -33,6 +38,11 @@ export async function syncResearchLinksFromTaskStatus(
   const reading = RESEARCH_TASK_TO_SOURCE_READING[toStatus];
   if (!docStatus && !reading) return;
 
+  // Only paint readingStatus on per-paper source notes — not every cited host.
+  const sourceNoteIds = task.docs
+    .filter(d => d.doc.templateKey === "sourceNote")
+    .map(d => d.docId);
+
   await Promise.all([
     docStatus
       ? db.doc.updateMany({
@@ -40,9 +50,9 @@ export async function syncResearchLinksFromTaskStatus(
           data: { status: docStatus },
         })
       : Promise.resolve(),
-    reading
+    reading && sourceNoteIds.length > 0
       ? db.docSource.updateMany({
-          where: { docId: { in: docIds } },
+          where: { docId: { in: sourceNoteIds } },
           data: { readingStatus: reading },
         })
       : Promise.resolve(),
@@ -51,7 +61,7 @@ export async function syncResearchLinksFromTaskStatus(
 
 /**
  * After a library reading status change, mirror onto the single DocTask-linked
- * PhD pipeline card (and keep the host note status aligned).
+ * PhD pipeline card (and keep linked note statuses aligned).
  */
 export async function syncResearchLinksFromSourceReading(
   sourceId: string,
@@ -67,13 +77,6 @@ export async function syncResearchLinksFromSourceReading(
   const nextDocStatus = SOURCE_READING_TO_DOC[readingStatus];
   if (!nextStatus) return;
 
-  if (nextDocStatus) {
-    await db.doc.updateMany({
-      where: { id: source.docId, area: "PHD", deletedAt: null },
-      data: { status: nextDocStatus },
-    });
-  }
-
   const links = await db.docTask.findMany({
     where: { docId: source.docId },
     select: {
@@ -86,6 +89,7 @@ export async function syncResearchLinksFromSourceReading(
         },
       },
     },
+    orderBy: { taskId: "asc" },
   });
 
   const phdTasks = links
@@ -93,15 +97,60 @@ export async function syncResearchLinksFromSourceReading(
     .filter(t => {
       const area = t.area ?? t.project?.area ?? null;
       return area === "PHD";
-    });
+    })
+    .sort((a, b) => a.id.localeCompare(b.id));
 
-  // One-card policy: if multiple links somehow exist, sync only the first
-  // (newest create order is undefined — prefer earliest by id stability).
   const primary = phdTasks[0];
-  if (!primary) return;
+  if (!primary) {
+    if (nextDocStatus) {
+      await db.doc.updateMany({
+        where: { id: source.docId, area: "PHD", deletedAt: null },
+        data: { status: nextDocStatus },
+      });
+    }
+    return;
+  }
+
+  // Writing (IN_PROGRESS) maps forward to READING — never demote on READING re-sync.
+  if (
+    readingStatus === "READING" &&
+    (primary.status === "IN_PROGRESS" || primary.status === "REVIEW")
+  ) {
+    return;
+  }
+
+  // No-op when already aligned — avoid rewriting sibling docs unnecessarily.
+  if (primary.status === nextStatus) {
+    if (nextDocStatus) {
+      await db.doc.updateMany({
+        where: { id: source.docId, area: "PHD", deletedAt: null },
+        data: { status: nextDocStatus },
+      });
+    }
+    return;
+  }
 
   await db.task.update({
     where: { id: primary.id },
     data: { status: nextStatus },
   });
+
+  // Align every DocTask-linked PHD doc on this card (idea + source note).
+  const siblingDocs = await db.docTask.findMany({
+    where: { taskId: primary.id },
+    select: { docId: true },
+  });
+  const siblingIds = siblingDocs.map(d => d.docId);
+  const taskDocStatus = RESEARCH_TASK_TO_DOC_STATUS[nextStatus];
+  if (taskDocStatus && siblingIds.length > 0) {
+    await db.doc.updateMany({
+      where: { id: { in: siblingIds }, area: "PHD", deletedAt: null },
+      data: { status: taskDocStatus },
+    });
+  } else if (nextDocStatus) {
+    await db.doc.updateMany({
+      where: { id: source.docId, area: "PHD", deletedAt: null },
+      data: { status: nextDocStatus },
+    });
+  }
 }

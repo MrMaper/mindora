@@ -89,6 +89,66 @@ export function endOfDay(date = new Date()): Date {
   return d;
 }
 
+/**
+ * FA-first calendar zone for Today / focus picks.
+ * UTC hosts must not treat "today" as the UTC day — Iran can already be the next morning.
+ */
+export const LIFE_APP_TIMEZONE = "Asia/Tehran";
+/** `Date#getTimezoneOffset()` for Asia/Tehran (no DST). */
+export const LIFE_APP_TZ_OFFSET_MINUTES = -210;
+
+export function zonedDateKey(
+  date: Date = new Date(),
+  timeZone: string = LIFE_APP_TIMEZONE,
+): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
+}
+
+/** Absolute instant of 00:00:00.000 in Asia/Tehran on that calendar day. */
+export function startOfZonedDay(date: Date = new Date()): Date {
+  return dueFromWallClock(
+    zonedDateKey(date),
+    0,
+    0,
+    LIFE_APP_TZ_OFFSET_MINUTES,
+  );
+}
+
+/** Absolute instant of 23:59:59.999 in Asia/Tehran on that calendar day. */
+export function endOfZonedDay(date: Date = new Date()): Date {
+  return new Date(startOfZonedDay(date).getTime() + 86_400_000 - 1);
+}
+
+/** Saturday-start week in Asia/Tehran (absolute bounds). */
+export function startOfZonedWeek(date: Date = new Date()): Date {
+  const start = startOfZonedDay(date);
+  const weekday = new Intl.DateTimeFormat("en-US", {
+    timeZone: LIFE_APP_TIMEZONE,
+    weekday: "short",
+  }).format(date);
+  const day =
+    { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 }[weekday] ?? 0;
+  const diff = (day + 1) % 7;
+  return new Date(start.getTime() - diff * 86_400_000);
+}
+
+export function endOfZonedWeek(date: Date = new Date()): Date {
+  return new Date(startOfZonedWeek(date).getTime() + 7 * 86_400_000 - 1);
+}
+
+export function zonedWeekCells(date: Date = new Date()): Date[] {
+  const start = startOfZonedWeek(date);
+  return Array.from(
+    { length: 7 },
+    (_, i) => new Date(start.getTime() + i * 86_400_000),
+  );
+}
+
 /** Saturday-start week, matching a typical Iranian week. */
 export function startOfWeek(date = new Date()): Date {
   const d = startOfDay(date);
@@ -125,6 +185,48 @@ export function resolveBoardPlanningStatus<S extends string>(
 ): S | "BACKLOG" | "TODO" {
   if (requested !== "BACKLOG" && requested !== "TODO") return requested;
   return planningStatusFromDue(due, now);
+}
+
+/**
+ * Personal Life OS planning status:
+ * - waiting follow-ups stay BACKLOG (unless Done / In Progress)
+ * - PhD / Language hub stages are never remapped by due date
+ * - WORK/LIFE use Inbox ↔ This Week from due
+ */
+export function resolvePersonalTaskPlanningStatus<S extends string>(
+  requested: S,
+  due: Date | null | undefined,
+  opts?: {
+    area?: string | null;
+    waitingOn?: boolean;
+    now?: Date;
+  },
+): S | "BACKLOG" | "TODO" {
+  if (
+    opts?.waitingOn &&
+    requested !== "DONE" &&
+    requested !== "IN_PROGRESS"
+  ) {
+    return "BACKLOG";
+  }
+  if (opts?.area === "PHD" || opts?.area === "LANG") {
+    return requested;
+  }
+  return resolveBoardPlanningStatus(requested, due, opts?.now);
+}
+
+/**
+ * Wall-clock "now" for the caller's timezone on a UTC host.
+ * `timezoneOffsetMinutes` is `Date#getTimezoneOffset()` (Iran → -210).
+ */
+export function clientLocalNow(timezoneOffsetMinutes?: number | null): Date {
+  if (
+    typeof timezoneOffsetMinutes !== "number" ||
+    !Number.isFinite(timezoneOffsetMinutes)
+  ) {
+    return new Date();
+  }
+  return new Date(Date.now() - timezoneOffsetMinutes * 60_000);
 }
 
 export function addDays(date: Date, days: number): Date {
@@ -183,6 +285,39 @@ export function formatClock(
   return startLabel;
 }
 
+function isUtcNoon(value: Date): boolean {
+  return (
+    value.getUTCHours() === 12 &&
+    value.getUTCMinutes() === 0 &&
+    value.getUTCSeconds() === 0 &&
+    value.getUTCMilliseconds() === 0
+  );
+}
+
+function isLocalNoon(value: Date): boolean {
+  return (
+    value.getHours() === 12 &&
+    value.getMinutes() === 0 &&
+    value.getSeconds() === 0 &&
+    value.getMilliseconds() === 0
+  );
+}
+
+/** FA date-only rows written with `dueFromWallClock(..., 12, 0, -210)` → 08:30 UTC. */
+function isTehranNoon(value: Date): boolean {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: LIFE_APP_TIMEZONE,
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(value);
+  const hour = parts.find(part => part.type === "hour")?.value;
+  const minute = parts.find(part => part.type === "minute")?.value;
+  const second = parts.find(part => part.type === "second")?.value;
+  return hour === "12" && minute === "00" && second === "00";
+}
+
 /** Noon means “day only” unless a duration marks a real noon meeting. */
 export function hasDueTime(
   date: Date,
@@ -190,16 +325,11 @@ export function hasDueTime(
 ): boolean {
   if (durationMinutes != null && durationMinutes > 0) return true;
   const value = new Date(date);
-  if (value.getHours() === 12 && value.getMinutes() === 0) return false;
+  if (isLocalNoon(value)) return false;
   // Legacy date-only rows written as noon UTC on a UTC host (afternoon in +3:30).
-  if (
-    value.getUTCHours() === 12 &&
-    value.getUTCMinutes() === 0 &&
-    value.getUTCSeconds() === 0 &&
-    value.getUTCMilliseconds() === 0
-  ) {
-    return false;
-  }
+  if (isUtcNoon(value)) return false;
+  // Iran date-only on a UTC host (local noon Asia/Tehran via dueFromWallClock).
+  if (isTehranNoon(value)) return false;
   return true;
 }
 
@@ -212,14 +342,12 @@ export function toDueDateKey(
   durationMinutes?: number | null,
 ): string {
   const value = new Date(date);
-  if (
-    (durationMinutes == null || durationMinutes <= 0) &&
-    !(value.getHours() === 12 && value.getMinutes() === 0) &&
-    value.getUTCHours() === 12 &&
-    value.getUTCMinutes() === 0 &&
-    value.getUTCSeconds() === 0 &&
-    value.getUTCMilliseconds() === 0
-  ) {
+  if (durationMinutes != null && durationMinutes > 0) {
+    return toDateKey(value);
+  }
+  if (isLocalNoon(value)) return toDateKey(value);
+  if (isTehranNoon(value)) return zonedDateKey(value);
+  if (isUtcNoon(value)) {
     return [
       value.getUTCFullYear(),
       String(value.getUTCMonth() + 1).padStart(2, "0"),
@@ -444,8 +572,6 @@ export function isOverdueTask(
   if (hasDueTime(due, task.durationMinutes)) {
     return due.getTime() < now.getTime();
   }
-  return (
-    dueCalendarDayStart(due, task.durationMinutes).getTime() <
-    startOfDay(now).getTime()
-  );
+  // Date-only: compare Asia/Tehran calendar keys so UTC hosts don't lag Iran.
+  return toDueDateKey(due, task.durationMinutes) < zonedDateKey(now);
 }

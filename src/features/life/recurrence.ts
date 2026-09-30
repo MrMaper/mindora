@@ -1,5 +1,10 @@
 import { prisma as db } from "@/lib/db";
-import { nextRecurrenceDate, planningStatusFromDue, startOfDay } from "@/lib/life";
+import {
+  nextRecurrenceDate,
+  planningStatusFromDue,
+  resolvePersonalTaskPlanningStatus,
+  startOfDay,
+} from "@/lib/life";
 import type { RecurrenceInterval } from "@/types/db";
 import { randomUUID } from "crypto";
 
@@ -31,6 +36,7 @@ export async function spawnNextIfRecurring(taskId: string, userId: string) {
       durationMinutes: true,
       projectId: true,
       teamId: true,
+      docs: { select: { docId: true } },
     },
   });
   if (!task || task.recurrence === "NONE") return;
@@ -47,24 +53,64 @@ export async function spawnNextIfRecurring(taskId: string, userId: string) {
     });
   }
 
-  await db.task.create({
-    data: {
-      title: task.title,
-      description: task.description,
-      status: planningStatusFromDue(nextDue),
-      priority: task.priority,
-      type: task.type,
-      area: task.area,
-      recurrence: task.recurrence,
+  // Idempotent: do not spawn a second live sibling after undo→DONE again.
+  const openSibling = await db.task.findFirst({
+    where: {
       recurrenceSeriesId: seriesId,
-      recurrenceEndsAt: task.recurrenceEndsAt,
-      dueDate: nextDue,
-      durationMinutes: task.durationMinutes,
-      projectId: task.projectId,
-      teamId: task.teamId,
-      createdById: userId,
-      assignedToId: userId,
+      status: { not: "DONE" },
+      id: { not: taskId },
     },
+    select: { id: true },
+  });
+  if (openSibling) return;
+
+  // Hub pipeline stages must not be derived from due (Idea stays BACKLOG).
+  const status = resolvePersonalTaskPlanningStatus(
+    task.area === "PHD" || task.area === "LANG"
+      ? "BACKLOG"
+      : planningStatusFromDue(nextDue),
+    nextDue,
+    { area: task.area },
+  );
+
+  await db.$transaction(async tx => {
+    const created = await tx.task.create({
+      data: {
+        title: task.title,
+        description: task.description,
+        status,
+        priority: task.priority,
+        type: task.type,
+        area: task.area,
+        recurrence: task.recurrence,
+        recurrenceSeriesId: seriesId,
+        recurrenceEndsAt: task.recurrenceEndsAt,
+        dueDate: nextDue,
+        durationMinutes: task.durationMinutes,
+        projectId: task.projectId,
+        teamId: task.teamId,
+        createdById: userId,
+        assignedToId: userId,
+      },
+      select: { id: true },
+    });
+
+    // Move DocTask links to the live occurrence so research continuity follows.
+    if (task.docs.length > 0) {
+      await tx.docTask.deleteMany({
+        where: {
+          taskId,
+          docId: { in: task.docs.map(link => link.docId) },
+        },
+      });
+      await tx.docTask.createMany({
+        data: task.docs.map(link => ({
+          docId: link.docId,
+          taskId: created.id,
+        })),
+        skipDuplicates: true,
+      });
+    }
   });
 }
 
@@ -82,13 +128,18 @@ export async function skipRecurrenceOccurrence(
       assignedToId: true,
       createdById: true,
       status: true,
+      area: true,
+      waitingOn: true,
     },
   });
   if (!task) return { ok: false, error: "کار پیدا نشد" };
   if (task.recurrence === "NONE") {
     return { ok: false, error: "این کار تکراری نیست" };
   }
-  if (task.assignedToId !== userId && task.createdById !== userId) {
+  if (
+    task.assignedToId !== userId &&
+    !(task.createdById === userId && task.assignedToId == null)
+  ) {
     return { ok: false, error: "اجازه ندارید" };
   }
   if (task.status === "DONE") {
@@ -104,9 +155,14 @@ export async function skipRecurrenceOccurrence(
     return { ok: true };
   }
 
+  const status = resolvePersonalTaskPlanningStatus(task.status, nextDue, {
+    area: task.area,
+    waitingOn: task.waitingOn,
+  });
+
   await db.task.update({
     where: { id: taskId },
-    data: { dueDate: nextDue },
+    data: { dueDate: nextDue, status },
   });
   return { ok: true };
 }
@@ -131,7 +187,10 @@ export async function updateRecurrenceSeries(
     },
   });
   if (!task) return { ok: false, error: "کار پیدا نشد" };
-  if (task.assignedToId !== userId && task.createdById !== userId) {
+  if (
+    task.assignedToId !== userId &&
+    !(task.createdById === userId && task.assignedToId == null)
+  ) {
     return { ok: false, error: "اجازه ندارید" };
   }
 
@@ -162,8 +221,16 @@ export async function updateRecurrenceSeries(
   ) {
     await db.task.updateMany({
       where: {
-        recurrenceSeriesId: seriesId,
-        status: { not: "DONE" },
+        AND: [
+          { recurrenceSeriesId: seriesId },
+          { status: { not: "DONE" } },
+          {
+            OR: [
+              { assignedToId: userId },
+              { createdById: userId, assignedToId: null },
+            ],
+          },
+        ],
       },
       data,
     });
@@ -189,15 +256,26 @@ export async function stopRecurrenceSeries(
     },
   });
   if (!task) return { ok: false, error: "کار پیدا نشد" };
-  if (task.assignedToId !== userId && task.createdById !== userId) {
+  if (
+    task.assignedToId !== userId &&
+    !(task.createdById === userId && task.assignedToId == null)
+  ) {
     return { ok: false, error: "اجازه ندارید" };
   }
 
   if (applyToSeries && task.recurrenceSeriesId) {
     await db.task.updateMany({
       where: {
-        recurrenceSeriesId: task.recurrenceSeriesId,
-        status: { not: "DONE" },
+        AND: [
+          { recurrenceSeriesId: task.recurrenceSeriesId },
+          { status: { not: "DONE" } },
+          {
+            OR: [
+              { assignedToId: userId },
+              { createdById: userId, assignedToId: null },
+            ],
+          },
+        ],
       },
       data: { recurrence: "NONE", recurrenceEndsAt: null },
     });

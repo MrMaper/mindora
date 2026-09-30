@@ -248,6 +248,17 @@ function FilledSlot({
   );
 }
 
+function pickAreaLabel(
+  area: TaskRow["area"],
+  labels: { phd: string; lang: string; work: string; life: string },
+): string | null {
+  if (area === "PHD") return labels.phd;
+  if (area === "LANG") return labels.lang;
+  if (area === "WORK") return labels.work;
+  if (area === "LIFE") return labels.life;
+  return null;
+}
+
 function Picker({
   candidates,
   todayKey,
@@ -267,7 +278,14 @@ function Picker({
   onPlace: (taskId: string) => void;
   onClose: () => void;
 }) {
+  const t = useTranslation();
   const ref = React.useRef<HTMLDivElement>(null);
+  const areaLabels = {
+    phd: t.dashboard.areaPhd,
+    lang: t.dashboard.areaLang,
+    work: t.dashboard.areaWork,
+    life: t.dashboard.areaLife,
+  };
 
   React.useEffect(() => {
     function onPointer(event: MouseEvent) {
@@ -295,16 +313,22 @@ function Picker({
               <p className="px-2 py-1 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
                 {group.label}
               </p>
-              {group.tasks.map(task => (
-                <button
-                  key={task.id}
-                  type="button"
-                  onClick={() => onPlace(task.id)}
-                  className="block w-full truncate rounded-md px-2 py-2 text-start text-sm hover:bg-accent"
-                >
-                  {task.title}
-                </button>
-              ))}
+              {group.tasks.map(task => {
+                const area = pickAreaLabel(task.area, areaLabels);
+                return (
+                  <button
+                    key={task.id}
+                    type="button"
+                    onClick={() => onPlace(task.id)}
+                    className="block w-full truncate rounded-md px-2 py-2 text-start text-sm hover:bg-accent"
+                  >
+                    {task.title}
+                    {area ? (
+                      <span className="text-muted-foreground"> · {area}</span>
+                    ) : null}
+                  </button>
+                );
+              })}
             </div>
           ),
         )

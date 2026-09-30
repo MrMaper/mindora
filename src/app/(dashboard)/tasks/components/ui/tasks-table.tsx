@@ -1,7 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Icon } from "@/components/ui-kit/foundation/icon";
-import { Avatar } from "@/components/ui-kit/data-display/avatar";
 import { Tag } from "@/components/ui-kit/data-display/tag";
 import { Button } from "@/components/ui-kit/forms/button";
 import { StatusBadge } from "@/components/ui-kit/agile/status-badge";
@@ -36,11 +35,11 @@ interface TasksTableProps {
   formatDate: (date: Date | null, durationMinutes?: number | null) => string;
 }
 
-/** Compact single-line rows; due/assignee keep readable min widths. */
+/** title · place · status · priority · due · actions */
 const GRID =
-  "md:grid gap-x-3 px-3 py-1.5 items-center border-b border-border-subtle";
+  "md:grid gap-x-3 px-3 items-center border-b border-border-subtle";
 const GRID_COLUMNS =
-  "minmax(0, 1.4fr) minmax(0, 0.85fr) max-content 2.5rem minmax(6.5rem, 8.5rem) max-content 2.5rem";
+  "minmax(0, 2fr) minmax(6.5rem, 1fr) max-content 2.5rem minmax(5.5rem, max-content) 2.5rem";
 
 function areaTitle(area: TaskRow["area"], t: TasksTableProps["t"]) {
   if (area === "PHD") return t.dashboard.areaPhd as string;
@@ -54,18 +53,17 @@ function isOverdue(task: TaskRow): boolean {
   return isOverdueTask(task);
 }
 
+/** One line: named path, else area bucket, else «no path». */
 function TaskPlace({ task, t }: { task: TaskRow; t: TasksTableProps["t"] }) {
   const area = areaTitle(task.area, t);
   const path =
-    task.projectId && !isAreaBucketId(task.projectId) ? task.projectName : null;
+    task.projectId && !isAreaBucketId(task.projectId)
+      ? task.projectName?.trim() || null
+      : null;
+  const text = path ?? (area || (t.tasks.noProject as string));
   return (
-    <div className="min-w-0 leading-tight">
-      <div className="truncate text-xs text-text-secondary">
-        {path || t.tasks.noProject}
-      </div>
-      {area ? (
-        <div className="truncate text-[10px] text-text-tertiary">{area}</div>
-      ) : null}
+    <div className="min-w-0 truncate text-xs leading-5 text-text-secondary" title={text}>
+      {text}
     </div>
   );
 }
@@ -99,7 +97,6 @@ export function TasksTable({
     { key: "project", label: t.tasks.projectColumn as string },
     { key: "status", label: t.tasks.statusColumn as string },
     { key: "priority", label: t.tasks.priorityColumn as string },
-    { key: "assignee", label: t.tasks.assigneeColumn as string },
     { key: "dueDate", label: t.tasks.dueDateColumn as string },
     { key: "", label: "" },
   ];
@@ -157,7 +154,7 @@ export function TasksTable({
   return (
     <>
       <div className="rounded-lg border border-border-default bg-bg-surface overflow-x-auto">
-        <div className="min-w-[48rem]">
+        <div className="min-w-[40rem]">
           <div
             className={cn(GRID, "hidden md:grid h-9 bg-bg-sunken py-0")}
             style={{ gridTemplateColumns: GRID_COLUMNS }}
@@ -173,7 +170,7 @@ export function TasksTable({
                     active ? (filters.order === "asc" ? "ascending" : "descending") : "none"
                   }
                   onClick={() => onSortChange(col.key)}
-                  className="flex min-w-0 cursor-pointer items-center gap-1 justify-self-start whitespace-nowrap text-start text-2xs font-semibold uppercase tracking-caps text-text-tertiary hover:text-text-secondary"
+                  className="flex h-full min-w-0 cursor-pointer items-center gap-1 justify-self-start whitespace-nowrap text-start text-2xs font-semibold uppercase tracking-caps text-text-tertiary hover:text-text-secondary"
                 >
                   {col.label}
                   {active && (
@@ -312,10 +309,10 @@ function TaskLine({
               }
             : undefined
         }
-        className="flex w-full items-start gap-3 border-b border-border-subtle px-3 py-2.5 text-start hover:bg-bg-sunken/50 md:hidden"
+        className="flex w-full items-center gap-3 border-b border-border-subtle px-3 py-2.5 text-start hover:bg-bg-sunken/50 md:hidden"
       >
         <div className="min-w-0 flex-1">
-          <div className="text-sm font-medium text-text-primary">{task.title}</div>
+          <div className="truncate text-sm font-medium text-text-primary">{task.title}</div>
           <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-text-tertiary">
             <StatusBadge
               status={statusToDisplay(task.status)}
@@ -343,17 +340,20 @@ function TaskLine({
       </div>
       <div
         onClick={canEdit ? () => onRowClick(task) : undefined}
-        className={cn(GRID, "hidden min-h-10 cursor-pointer hover:bg-bg-sunken/50 md:grid")}
+        className={cn(
+          GRID,
+          "hidden min-h-11 cursor-pointer py-2 hover:bg-bg-sunken/50 md:grid",
+        )}
         style={{ gridTemplateColumns: GRID_COLUMNS }}
       >
-        <div className="min-w-0">
-          <div className="truncate text-sm font-medium leading-snug text-text-primary">
+        <div className="flex min-w-0 flex-col justify-center gap-0.5">
+          <div className="truncate text-sm font-medium leading-5 text-text-primary">
             {task.title}
           </div>
           {task.labels.length > 0 ? (
-            <div className="mt-0.5 flex flex-wrap gap-1">
-              {task.labels.map(label => (
-                <Tag key={label.id} color={label.color}>
+            <div className="flex min-w-0 flex-nowrap gap-1 overflow-hidden">
+              {task.labels.slice(0, 3).map(label => (
+                <Tag key={label.id} color={label.color} className="shrink-0">
                   {label.name}
                 </Tag>
               ))}
@@ -361,41 +361,21 @@ function TaskLine({
           ) : null}
         </div>
         <TaskPlace task={task} t={t} />
-        <div className="justify-self-start">
+        <div className="flex items-center justify-self-start">
           <StatusBadge status={statusToDisplay(task.status)} className="whitespace-nowrap" />
         </div>
-        <div className="flex justify-center">
+        <div className="flex items-center justify-center">
           <PriorityIcon priority={priorityToDisplay(task.priority)} />
-        </div>
-        <div className="flex min-w-0 items-center gap-1.5">
-          {task.assignedTo ? (
-            <>
-              <Avatar
-                name={task.assignedTo.name}
-                src={task.assignedTo.avatar ?? undefined}
-                size="sm"
-                className="shrink-0"
-              />
-              <span
-                className="min-w-0 truncate text-xs text-text-secondary"
-                title={task.assignedTo.name}
-              >
-                {task.assignedTo.name}
-              </span>
-            </>
-          ) : (
-            <span className="text-xs text-text-tertiary">{t.tasks.unassigned}</span>
-          )}
         </div>
         <span
           className={cn(
-            "inline-block shrink-0 justify-self-start whitespace-nowrap text-xs tabular-nums text-text-tertiary",
+            "justify-self-start truncate text-xs leading-5 tabular-nums text-text-tertiary",
             overdue && "font-medium text-destructive",
           )}
         >
           {dueLabel}
         </span>
-        <span className="justify-self-center" onClick={event => event.stopPropagation()}>
+        <span className="flex items-center justify-self-center" onClick={event => event.stopPropagation()}>
           <Menu
             trigger={
               <IconButton icon="more-horizontal" aria-label={t.tasks.taskActionsLabel} size="sm" />

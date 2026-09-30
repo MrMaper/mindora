@@ -5,13 +5,15 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { localizedZodResolver } from "@/lib/validation-message";
 import {
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   closestCorners,
 } from "@dnd-kit/core";
 import type { DragEndEvent, DragOverEvent, DragStartEvent } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
+import { toast } from "sonner";
 import { createTaskSchema, updateTaskSchema } from "@/schemas/tasks";
 import {
   createTask,
@@ -130,46 +132,69 @@ export function useKanban(
     },
   }) as import("react-hook-form").UseFormReturn<UpdateTaskInput>;
 
+  // Mouse: small move to start. Touch: long-press so column scroll still works.
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } })
+    useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 220, tolerance: 8 },
+    }),
   );
   const collisionDetection = closestCorners;
 
-  function findContainer(id: string): BoardStatus | null {
+  const columnsRef = React.useRef(columns);
+  columnsRef.current = columns;
+
+  function findContainerIn(
+    cols: BoardColumns,
+    id: string,
+  ): BoardStatus | null {
     if (isBoardStatus(id) && boardStatuses.includes(id)) return id;
     for (const status of boardStatuses) {
-      if ((columns[status] ?? []).some(t => t.id === id)) return status;
+      if ((cols[status] ?? []).some(t => t.id === id)) return status;
     }
     return null;
   }
 
+  function findContainer(id: string): BoardStatus | null {
+    return findContainerIn(columnsRef.current, id);
+  }
+
   function onDragStart(event: DragStartEvent) {
-    const id = event.active.id as string;
+    const id = String(event.active.id);
     const status = findContainer(id);
     if (!status) return;
-    setActiveTaskCard(columns[status].find(t => t.id === id) ?? null);
+    setActiveTaskCard(
+      (columnsRef.current[status] ?? []).find(t => t.id === id) ?? null,
+    );
   }
 
   function onDragOver(event: DragOverEvent) {
     const { active, over } = event;
     if (!over) return;
-    const activeId = active.id as string;
-    const overId = over.id as string;
-    const activeStatus = findContainer(activeId);
-    const overStatus = findContainer(overId);
-    if (!activeStatus || !overStatus || activeStatus === overStatus) return;
+    const activeId = String(active.id);
+    const overId = String(over.id);
 
     setColumns(prev => {
-      const activeItems = prev[activeStatus];
-      const overItems = prev[overStatus];
+      const activeStatus = findContainerIn(prev, activeId);
+      const overStatus = findContainerIn(prev, overId);
+      if (!activeStatus || !overStatus || activeStatus === overStatus) return prev;
+
+      const activeItems = [...(prev[activeStatus] ?? [])];
+      const overItems = [...(prev[overStatus] ?? [])];
       const activeIndex = activeItems.findIndex(t => t.id === activeId);
       if (activeIndex === -1) return prev;
+
       const overIndex = overItems.findIndex(t => t.id === overId);
-      const moved = { ...activeItems[activeIndex], status: overStatus };
-      const newActiveItems = activeItems.filter(t => t.id !== activeId);
-      const insertAt = overIndex >= 0 ? overIndex : overItems.length;
-      const newOverItems = [...overItems.slice(0, insertAt), moved, ...overItems.slice(insertAt)];
-      return { ...prev, [activeStatus]: newActiveItems, [overStatus]: newOverItems };
+      const [movedRaw] = activeItems.splice(activeIndex, 1);
+      if (!movedRaw) return prev;
+      const moved = { ...movedRaw, status: overStatus };
+      // Dropping on the column shell → append; on a card → insert at that card.
+      const insertAt =
+        overIndex >= 0
+          ? overIndex
+          : overItems.length;
+      overItems.splice(insertAt, 0, moved);
+      return { ...prev, [activeStatus]: activeItems, [overStatus]: overItems };
     });
   }
 
@@ -177,28 +202,78 @@ export function useKanban(
     const { active, over } = event;
     setActiveTaskCard(null);
     if (!over) return;
-    const activeId = active.id as string;
-    const overId = over.id as string;
-    const activeStatus = findContainer(activeId);
-    if (!activeStatus) return;
 
-    const overStatus = findContainer(overId) ?? activeStatus;
-    let resultingColumns = columns;
+    const activeId = String(active.id);
+    const overId = String(over.id);
+    const prev = columnsRef.current;
+
+    const activeStatus = findContainerIn(prev, activeId);
+    if (!activeStatus) return;
+    const overStatus = findContainerIn(prev, overId) ?? activeStatus;
+
+    let next: BoardColumns = prev;
 
     if (activeStatus === overStatus) {
-      const items = columns[activeStatus];
+      const items = [...(prev[activeStatus] ?? [])];
       const oldIndex = items.findIndex(t => t.id === activeId);
-      const newIndex = items.findIndex(t => t.id === overId);
+      let newIndex = items.findIndex(t => t.id === overId);
+      if (isBoardStatus(overId) && boardStatuses.includes(overId)) {
+        newIndex = Math.max(0, items.length - 1);
+      }
       if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
-        resultingColumns = { ...columns, [activeStatus]: arrayMove(items, oldIndex, newIndex) };
-        setColumns(resultingColumns);
+        next = {
+          ...prev,
+          [activeStatus]: arrayMove(items, oldIndex, newIndex),
+        };
+        setColumns(next);
+        columnsRef.current = next;
+      }
+    } else {
+      // Touch / missed onDragOver: still move across columns here.
+      const sourceItems = [...(prev[activeStatus] ?? [])];
+      const destItems = [...(prev[overStatus] ?? [])].filter(
+        t => t.id !== activeId,
+      );
+      const fromIndex = sourceItems.findIndex(t => t.id === activeId);
+      if (fromIndex !== -1) {
+        const [movedRaw] = sourceItems.splice(fromIndex, 1);
+        if (movedRaw) {
+          const moved = { ...movedRaw, status: overStatus };
+          let insertAt = destItems.findIndex(t => t.id === overId);
+          if (insertAt < 0) insertAt = destItems.length;
+          destItems.splice(insertAt, 0, moved);
+          next = {
+            ...prev,
+            [activeStatus]: sourceItems,
+            [overStatus]: destItems,
+          };
+          setColumns(next);
+          columnsRef.current = next;
+        }
       }
     }
 
-    const orderedIds = resultingColumns[overStatus].map(t => t.id);
+    const orderedIds = (next[overStatus] ?? []).map(t => t.id);
+    if (!orderedIds.includes(activeId)) {
+      orderedIds.push(activeId);
+    }
+
     startTransition(async () => {
-      const result = await moveTask({ taskId: activeId, toStatus: overStatus, orderedIds });
-      if (!result.success) router.refresh();
+      try {
+        const result = await moveTask({
+          taskId: activeId,
+          toStatus: overStatus,
+          orderedIds,
+        });
+        if (!result?.success) {
+          toast.error(result?.error ?? "جابجایی ذخیره نشد");
+          router.refresh();
+        }
+      } catch (error) {
+        console.error("moveTask failed", error);
+        toast.error("جابجایی ذخیره نشد");
+        router.refresh();
+      }
     });
   }
 

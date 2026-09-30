@@ -7,6 +7,7 @@ import { createWorkLogSchema, updateWorkLogSchema } from "@/schemas/work-logs";
 import type { ActionResult } from "@/features/tasks/actions";
 import type { WorkLogRow, WorkLogDetail } from "./types";
 import { sendBaleTaskNotification } from "../external/bots/bale/notifications";
+import { canAccessPersonalTask } from "@/lib/task-access";
 
 async function logActivity(opts: {
   entityId: string;
@@ -44,6 +45,7 @@ export async function createWorkLog(formData: FormData): Promise<ActionResult> {
       id: true,
       title: true,
       assignedToId: true,
+      createdById: true,
       projectId: true,
       assignedTo: { select: { name: true } },
       project: { select: { name: true } },
@@ -51,10 +53,12 @@ export async function createWorkLog(formData: FormData): Promise<ActionResult> {
   });
   if (!task) return { success: false, error: "کار پیدا نشد" };
 
-  const isAdmin = session.user.role === "ADMIN";
-  const isAssignee = task.assignedToId === session.user.id;
-
-  if (!isAdmin && !isAssignee) {
+  if (
+    !canAccessPersonalTask(session.user.id, session.user.role, {
+      assignedToId: task.assignedToId,
+      createdById: task.createdById,
+    })
+  ) {
     return { success: false, error: "فقط مسئول این کار می‌تواند ساعت ثبت کند" };
   }
 

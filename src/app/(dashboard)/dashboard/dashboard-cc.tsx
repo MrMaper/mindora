@@ -405,7 +405,7 @@ function WeekBalanceCard({
       {areas.length === 0 ? (
         <p className="text-xs text-muted-foreground">—</p>
       ) : (
-        <div className="flex flex-wrap gap-x-3 gap-y-1.5 text-xs">
+        <div className="flex flex-wrap justify-center gap-x-3 gap-y-1.5 text-xs">
           {areas.map(area => {
             const pct =
               areaTotal > 0
@@ -654,7 +654,7 @@ export function DashboardCC({
   }
 
   return (
-    <FocusSessionProvider tasks={sessionTasks}>
+    <FocusSessionProvider tasks={sessionTasks} todayKey={todayKey}>
     <>
       <div className="flex flex-col gap-4">
         <div className="flex flex-wrap items-start justify-between gap-2">
@@ -796,12 +796,17 @@ export function DashboardCC({
                 onOpen={openTask}
                 onDone={taskId => {
                   startTransition(async () => {
-                    const result = await completePersonalTask(taskId);
-                    if (!result.success) {
-                      toast.error(result.error ?? t.common.error);
-                      return;
+                    try {
+                      const result = await completePersonalTask(taskId);
+                      if (!result?.success) {
+                        toast.error(result?.error ?? t.common.error);
+                        return;
+                      }
+                      router.refresh();
+                    } catch (error) {
+                      console.error("focus markDone failed", error);
+                      toast.error(t.common.error);
                     }
-                    router.refresh();
                   });
                 }}
               />

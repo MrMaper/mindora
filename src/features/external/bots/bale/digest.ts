@@ -1,6 +1,7 @@
 import { prisma as db } from "@/lib/db";
 import { endOfDay, isOverdueTask, startOfDay, toDateKey } from "@/lib/life";
 import { taskWhereExcludeHub } from "@/lib/project-namespace";
+import { personalTaskOwnership } from "@/lib/task-access";
 import { getBaleRuntime } from "./config";
 import { baleAppOrigin, deliverBale } from "./deliver";
 
@@ -38,9 +39,7 @@ export async function ensureBaleDigest(userId: string): Promise<void> {
   if (now.getHours() < hour) return;
   if (user.preferences?.baleDigestSentOn === todayKey) return;
 
-  const mine = {
-    OR: [{ assignedToId: userId }, { createdById: userId, assignedToId: null }],
-  };
+  const mine = personalTaskOwnership(userId);
   const today = startOfDay(now);
   const focusIds =
     user.preferences?.todayFocusDate === todayKey
@@ -50,16 +49,24 @@ export async function ensureBaleDigest(userId: string): Promise<void> {
   const [focusTasks, overdue, dueToday, habits] = await Promise.all([
     focusIds.length
       ? db.task.findMany({
-          where: { id: { in: focusIds }, status: { not: "DONE" } },
+          where: {
+            AND: [
+              mine,
+              { id: { in: focusIds } },
+              { status: { not: "DONE" } },
+            ],
+          },
           select: { id: true, title: true },
         })
       : Promise.resolve([]),
     db.task.findMany({
       where: {
-        ...mine,
-        ...taskWhereExcludeHub(),
-        status: { not: "DONE" },
-        dueDate: { lt: today },
+        AND: [
+          mine,
+          taskWhereExcludeHub(),
+          { status: { not: "DONE" } },
+          { dueDate: { lt: today } },
+        ],
       },
       select: { title: true, dueDate: true, durationMinutes: true, status: true },
       orderBy: { dueDate: "asc" },
@@ -67,10 +74,12 @@ export async function ensureBaleDigest(userId: string): Promise<void> {
     }),
     db.task.findMany({
       where: {
-        ...mine,
-        ...taskWhereExcludeHub(),
-        status: { not: "DONE" },
-        dueDate: { gte: today, lte: endOfDay(today) },
+        AND: [
+          mine,
+          taskWhereExcludeHub(),
+          { status: { not: "DONE" } },
+          { dueDate: { gte: today, lte: endOfDay(today) } },
+        ],
       },
       select: { title: true, dueDate: true, durationMinutes: true, status: true },
       take: 12,

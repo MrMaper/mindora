@@ -4,23 +4,23 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma as db } from "@/lib/db";
 import { skipRecurrenceOccurrence, stopRecurrenceSeries, updateRecurrenceSeries, newRecurrenceSeriesId } from "@/features/life/recurrence";
+import { applyTaskStatusChange } from "@/features/tasks/apply-status";
 import {
-  addDays,
   dueFromWallClock,
-  endOfDay,
   endOfWeek,
   moveDueToDay,
   parseLocalDate,
   planningStatusFromDue,
-  resolveBoardPlanningStatus,
-  startOfDay,
+  resolvePersonalTaskPlanningStatus,
+  startOfZonedDay,
   toDateKey,
   withDateOnly,
+  zonedDateKey,
 } from "@/lib/life";
 import type { LifeArea, RecurrenceInterval } from "@/types/db";
 import { ensurePersonalWorkspace, projectIdForArea } from "./workspace";
 import { getCalendarTasks } from "./queries";
-import { taskWhereExcludeHub } from "@/lib/project-namespace";
+import { isHubArea, taskWhereExcludeHub } from "@/lib/project-namespace";
 import {
   FOCUS_SLOT_COUNT,
   isTodayFocusCandidate,
@@ -81,6 +81,8 @@ function resolveDue(
 export async function quickCapture(input: {
   title: string;
   area?: LifeArea;
+  /** Named research/work path; defaults to the area bucket. */
+  projectId?: string | null;
   recurrence?: RecurrenceInterval;
   dueDate?: string;
   time?: string | null;
@@ -95,7 +97,21 @@ export async function quickCapture(input: {
 
   const { teamId } = await ensurePersonalWorkspace(session.user.id);
   const area = input.area ?? "LIFE";
-  const projectId = projectIdForArea(session.user.id, area);
+  let projectId = input.projectId ?? projectIdForArea(session.user.id, area);
+  if (input.projectId) {
+    const member = await db.projectMember.findFirst({
+      where: {
+        userId: session.user.id,
+        projectId: input.projectId,
+        project: { status: { not: "ARCHIVED" } },
+      },
+      select: { id: true },
+    });
+    if (!member) {
+      return { success: false, error: "به این مسیر دسترسی ندارید" };
+    }
+    projectId = input.projectId;
+  }
 
   const recurrence = input.recurrence ?? "NONE";
   const due = resolveDue(input.dueDate, input.time, input.timezoneOffsetMinutes);
@@ -103,10 +119,13 @@ export async function quickCapture(input: {
     due && input.time && input.durationMinutes && input.durationMinutes > 0
       ? Math.min(24 * 60, Math.round(input.durationMinutes))
       : null;
+  const status = isHubArea(area)
+    ? "BACKLOG"
+    : planningStatusFromDue(due);
   const task = await db.task.create({
     data: {
       title,
-      status: planningStatusFromDue(due),
+      status,
       priority: "NONE",
       type: "TASK",
       area,
@@ -128,11 +147,37 @@ export async function quickCapture(input: {
 }
 
 export async function completePersonalTask(taskId: string): Promise<ActionResult> {
-  // Same status path as board/drawer so Done lands in Kanban «تمام» and stays DONE.
-  const { updateTaskStatus } = await import("@/features/tasks/actions");
-  const result = await updateTaskStatus(taskId, "DONE");
-  if (result.success) revalidateLife(["/research"]);
-  return result;
+  const session = await auth();
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
+
+  try {
+    // Shared writer — do not call another "use server" action from here (Next can
+    // surface that as a bare client toast «خطا»).
+    const result = await applyTaskStatusChange({
+      taskId,
+      userId: session.user.id,
+      role: session.user.role,
+      status: "DONE",
+    });
+    if (!result.ok) return { success: false, error: result.error };
+
+    if (result.changed) {
+      try {
+        const { syncResearchLinksFromTaskStatus } = await import(
+          "@/features/research/sync-links"
+        );
+        await syncResearchLinksFromTaskStatus(taskId, result.nextStatus);
+      } catch (error) {
+        console.error("syncResearchLinksFromTaskStatus after Done failed", error);
+      }
+    }
+
+    revalidateLife(["/research"]);
+    return { success: true };
+  } catch (error) {
+    console.error("completePersonalTask failed", error);
+    return { success: false, error: "تمام کردن کار نشد" };
+  }
 }
 
 export async function planTaskThisWeek(taskId: string): Promise<ActionResult> {
@@ -141,23 +186,41 @@ export async function planTaskThisWeek(taskId: string): Promise<ActionResult> {
 
   const existing = await db.task.findUnique({
     where: { id: taskId },
-    select: { dueDate: true, durationMinutes: true },
+    select: {
+      dueDate: true,
+      durationMinutes: true,
+      assignedToId: true,
+      createdById: true,
+      status: true,
+      area: true,
+      waitingOn: true,
+      project: { select: { area: true } },
+    },
   });
   if (!existing) return { success: false, error: "کار پیدا نشد" };
 
+  if (
+    !canAccessPersonalTask(session.user.id, session.user.role, existing)
+  ) {
+    return { success: false, error: "اجازه ویرایش ندارید" };
+  }
+
+  const area = existing.area ?? existing.project?.area ?? null;
   const weekEnd = endOfWeek(new Date());
   const dueDate = moveDueToDay(
     existing.dueDate,
     toDateKey(weekEnd),
     existing.durationMinutes,
   );
+  const status = resolvePersonalTaskPlanningStatus(
+    isHubArea(area) ? existing.status : "TODO",
+    dueDate,
+    { area, waitingOn: existing.waitingOn },
+  );
 
   await db.task.update({
     where: { id: taskId },
-    data: {
-      status: "TODO",
-      dueDate,
-    },
+    data: { status, dueDate },
   });
 
   revalidateLife();
@@ -176,25 +239,35 @@ export async function planTaskForToday(taskId: string): Promise<ActionResult> {
       createdById: true,
       dueDate: true,
       durationMinutes: true,
+      status: true,
+      area: true,
+      waitingOn: true,
+      project: { select: { area: true } },
     },
   });
   if (!existing) return { success: false, error: "کار پیدا نشد" };
 
-  const allowed =
-    session.user.role === "ADMIN" ||
-    existing.assignedToId === session.user.id ||
-    existing.createdById === session.user.id;
-  if (!allowed) return { success: false, error: "اجازه ویرایش ندارید" };
+  if (
+    !canAccessPersonalTask(session.user.id, session.user.role, existing)
+  ) {
+    return { success: false, error: "اجازه ویرایش ندارید" };
+  }
 
+  const area = existing.area ?? existing.project?.area ?? null;
   const dueDate = moveDueToDay(
     existing.dueDate,
-    toDateKey(new Date()),
+    zonedDateKey(),
     existing.durationMinutes,
+  );
+  const status = resolvePersonalTaskPlanningStatus(
+    isHubArea(area) ? existing.status : "TODO",
+    dueDate,
+    { area, waitingOn: existing.waitingOn },
   );
 
   await db.task.update({
     where: { id: taskId },
-    data: { status: "TODO", dueDate },
+    data: { status, dueDate },
   });
 
   revalidateLife();
@@ -205,10 +278,10 @@ export async function moveYesterdayToToday(): Promise<ActionResult & { data?: { 
   const session = await auth();
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
-  const todayStart = startOfDay();
-  const yesterdayStart = addDays(todayStart, -1);
-  const yesterdayEnd = endOfDay(yesterdayStart);
-  const todayKey = toDateKey(todayStart);
+  const todayStart = startOfZonedDay();
+  const yesterdayStart = new Date(todayStart.getTime() - 86_400_000);
+  const yesterdayEnd = new Date(todayStart.getTime() - 1);
+  const todayKey = zonedDateKey();
 
   const mine = {
     OR: [
@@ -219,20 +292,26 @@ export async function moveYesterdayToToday(): Promise<ActionResult & { data?: { 
 
   const rows = await db.task.findMany({
     where: {
-      ...mine,
-      ...taskWhereExcludeHub(),
-      status: { not: "DONE" },
-      dueDate: { gte: yesterdayStart, lte: yesterdayEnd },
+      AND: [
+        mine,
+        taskWhereExcludeHub(),
+        { status: { not: "DONE" } },
+        { waitingOn: false },
+        { dueDate: { gte: yesterdayStart, lte: yesterdayEnd } },
+      ],
     },
     select: { id: true, dueDate: true, durationMinutes: true },
   });
 
   for (const row of rows) {
+    const dueDate = moveDueToDay(row.dueDate, todayKey, row.durationMinutes);
     await db.task.update({
       where: { id: row.id },
       data: {
-        status: "TODO",
-        dueDate: moveDueToDay(row.dueDate, todayKey, row.durationMinutes),
+        status: resolvePersonalTaskPlanningStatus("TODO", dueDate, {
+          waitingOn: false,
+        }),
+        dueDate,
       },
     });
   }
@@ -242,7 +321,7 @@ export async function moveYesterdayToToday(): Promise<ActionResult & { data?: { 
 }
 
 async function readFocusSlots(userId: string): Promise<(string | null)[]> {
-  const todayKey = toDateKey(new Date());
+  const todayKey = zonedDateKey();
   const prefs = await db.userPreferences.upsert({
     where: { userId },
     create: {
@@ -258,7 +337,7 @@ async function readFocusSlots(userId: string): Promise<(string | null)[]> {
 }
 
 async function writeFocusSlots(userId: string, slots: (string | null)[]) {
-  const todayKey = toDateKey(new Date());
+  const todayKey = zonedDateKey();
   const todayFocusIds = serializeFocusSlots(slots);
   await db.userPreferences.update({
     where: { userId },
@@ -314,7 +393,7 @@ export async function setTodayFocus(ids: string[]): Promise<ActionResult> {
   if (owned.length !== new Set(real).size) {
     return { success: false, error: "کار پیدا نشد" };
   }
-  const todayKey = toDateKey(startOfDay());
+  const todayKey = zonedDateKey();
   const ownedById = new Map(owned.map(task => [task.id, task]));
   if (added.some(id => !canAddToTodayFocus(ownedById.get(id)!, todayKey))) {
     return { success: false, error: "فقط کار عقب‌افتاده، کار امروز، یا کار بدون زمان را می‌توان اولویت کرد" };
@@ -336,7 +415,7 @@ export async function toggleTodayFocus(taskId: string): Promise<ActionResult> {
   } else {
     const [task] = await loadOwnedTasks(session.user.id, [taskId]);
     if (!task) return { success: false, error: "کار پیدا نشد" };
-    if (!canAddToTodayFocus(task, toDateKey(startOfDay()))) {
+    if (!canAddToTodayFocus(task, zonedDateKey())) {
       return { success: false, error: "فقط کار عقب‌افتاده، کار امروز، یا کار بدون زمان را می‌توان اولویت کرد" };
     }
     const hole = slots.indexOf(null);
@@ -383,7 +462,7 @@ export async function logFocusSession(input: {
       taskId: task.id,
       userId: session.user.id,
       hours,
-      date: parseLocalDate(toDateKey(new Date())),
+      date: parseLocalDate(zonedDateKey()),
       description: "جلسه تمرکز",
     },
   });
@@ -474,6 +553,9 @@ export async function rescheduleTaskDueDate(
       dueDate: true,
       durationMinutes: true,
       status: true,
+      area: true,
+      waitingOn: true,
+      project: { select: { area: true } },
     },
   });
   if (!existing) return { success: false, error: "کار پیدا نشد" };
@@ -504,12 +586,16 @@ export async function rescheduleTaskDueDate(
     );
   }
 
+  const area = existing.area ?? existing.project?.area ?? null;
   await db.task.update({
     where: { id: taskId },
     data: {
       dueDate: nextDue,
       ...(time === "" ? { durationMinutes: null } : {}),
-      status: resolveBoardPlanningStatus(existing.status, nextDue),
+      status: resolvePersonalTaskPlanningStatus(existing.status, nextDue, {
+        area,
+        waitingOn: existing.waitingOn,
+      }),
     },
   });
 
@@ -540,7 +626,14 @@ export async function rescheduleTaskSchedule(
 
   const existing = await db.task.findUnique({
     where: { id: taskId },
-    select: { assignedToId: true, createdById: true, status: true },
+    select: {
+      assignedToId: true,
+      createdById: true,
+      status: true,
+      area: true,
+      waitingOn: true,
+      project: { select: { area: true } },
+    },
   });
   if (!existing) return { success: false, error: "کار پیدا نشد" };
 
@@ -568,12 +661,16 @@ export async function rescheduleTaskSchedule(
     else durationMinutes = Math.min(24 * 60, Math.round(durationMinutes));
   }
 
+  const area = existing.area ?? existing.project?.area ?? null;
   await db.task.update({
     where: { id: taskId },
     data: {
       dueDate: nextDue,
       ...(durationMinutes !== undefined ? { durationMinutes } : {}),
-      status: resolveBoardPlanningStatus(existing.status, nextDue),
+      status: resolvePersonalTaskPlanningStatus(existing.status, nextDue, {
+        area,
+        waitingOn: existing.waitingOn,
+      }),
     },
   });
 

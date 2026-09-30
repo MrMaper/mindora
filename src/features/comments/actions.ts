@@ -7,6 +7,7 @@ import { createCommentSchema, updateCommentSchema } from "@/schemas/comments";
 import { getComments } from "./queries";
 import { notify } from "@/lib/notify";
 import { sendBaleTaskNotification, sendBaleCommentNotification } from "@/features/external/bots/bale/notifications";
+import { canAccessPersonalTask } from "@/lib/task-access";
 import { EDIT_WINDOW_MS } from "./types";
 import type { CommentRow } from "./types";
 
@@ -35,6 +36,18 @@ async function logActivity(opts: {
 export async function getCommentsAction(taskId: string): Promise<CommentRow[]> {
   const session = await auth();
   if (!session?.user) return [];
+
+  const task = await db.task.findUnique({
+    where: { id: taskId },
+    select: { assignedToId: true, createdById: true },
+  });
+  if (
+    !task ||
+    !canAccessPersonalTask(session.user.id, session.user.role, task)
+  ) {
+    return [];
+  }
+
   return getComments(taskId);
 }
 
@@ -52,6 +65,11 @@ export async function createComment(taskId: string, formData: FormData): Promise
     select: { id: true, title: true, assignedToId: true, createdById: true },
   });
   if (!task) return { success: false, error: "کار پیدا نشد" };
+  if (
+    !canAccessPersonalTask(session.user.id, session.user.role, task)
+  ) {
+    return { success: false, error: "اجازه ویرایش ندارید" };
+  }
 
   const mentionIds = new Set<string>();
   for (const raw of formData.getAll("mentions")) {

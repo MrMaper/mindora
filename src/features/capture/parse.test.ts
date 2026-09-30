@@ -111,4 +111,13 @@ describe("parseCapture", () => {
       title: "گزارش",
     });
   });
+
+  it("keeps ظهر as a timed noon meeting (not date-only)", () => {
+    expect(parseCapture("فردا ظهر جلسه", now)).toMatchObject({
+      dateKey: "2026-09-28",
+      time: "12:00",
+      durationMinutes: 60,
+      title: "جلسه",
+    });
+  });
 });

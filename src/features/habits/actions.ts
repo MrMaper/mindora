@@ -109,6 +109,8 @@ export async function restoreHabitAction(habitId: string): Promise<ActionResult>
 export async function updateHabitAction(input: {
   habitId: string;
   title: string;
+  area?: LifeArea | null;
+  cadence?: RecurrenceInterval;
 }): Promise<ActionResult> {
   const session = await auth();
   if (!session?.user) return { success: false, error: "غیرمجاز" };
@@ -116,15 +118,63 @@ export async function updateHabitAction(input: {
   if (!title) return { success: false, error: "عنوان لازم است" };
   const habit = await db.habit.findFirst({
     where: { id: input.habitId, userId: session.user.id },
-    select: { id: true },
+    select: { id: true, cadence: true },
   });
   if (!habit) return { success: false, error: "عادت پیدا نشد" };
+
+  const cadence =
+    input.cadence === "WEEKLY" || input.cadence === "DAILY"
+      ? input.cadence
+      : undefined;
+  let area: LifeArea | null | undefined = undefined;
+  if (input.area !== undefined) {
+    area =
+      input.area === "PHD" ||
+      input.area === "WORK" ||
+      input.area === "LIFE" ||
+      input.area === "LANG"
+        ? input.area
+        : null;
+  }
+
+  const data: {
+    title: string;
+    cadence?: RecurrenceInterval;
+    area?: LifeArea | null;
+    streak?: number;
+    bestStreak?: number;
+  } = { title };
+  if (cadence) data.cadence = cadence;
+  if (area !== undefined) data.area = area;
+
+  if (cadence && cadence !== habit.cadence) {
+    const todayKey = toDateKey(new Date());
+    const logs = await db.habitLog.findMany({
+      where: { habitId: input.habitId },
+      select: { dateKey: true },
+      orderBy: { dateKey: "asc" },
+    });
+    const stats = computeHabitStreaks(
+      logs.map(l => l.dateKey),
+      todayKey,
+      cadence,
+    );
+    data.streak = stats.streak;
+    data.bestStreak = stats.bestStreak;
+  }
+
   await db.habit.update({
     where: { id: input.habitId },
-    data: { title },
+    data,
   });
   revalidateHabits();
-  return { success: true };
+  return {
+    success: true,
+    data: {
+      streak: data.streak,
+      bestStreak: data.bestStreak,
+    },
+  };
 }
 
 export async function deleteHabitAction(habitId: string): Promise<ActionResult> {

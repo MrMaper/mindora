@@ -19,7 +19,7 @@ The server parses the text again. The dialog preview uses the same rules.
 | `فردا ساعت ۱۰ مقاله STT را بررسی کنم` | Task, tomorrow, 10:00, area PhD (دکتری) |
 | `ایده: …` or `یادداشت:` / `note:` / `idea:` | Doc with status IDEA |
 | `/task` `/note` `/idea` `/research` `/source` `/habit` | Forces that kind. Persian aliases: `/یادداشت` `/ایده` `/پژوهش` `/منبع` `/عادت` |
-| `/research` (no DOI) | PhD task **plus** a linked research idea doc. Path follows the last research scope cookie (or inbox). |
+| `/research` (no DOI) | PhD task **plus** a linked research idea doc. Area is always PhD (chip ignored). Path follows the last research scope cookie (or inbox). Hub stage stays Idea (`BACKLOG`) — due date does not remap the pipeline. |
 | `/source` or `/منبع`, or `/research` + a DOI | Library source + per-paper note + reading card. Due date/time from the sentence are kept on the card. Crossref fills metadata when DOI is present. A bare PhD keyword + DOI without `/source` or `/research` stays a normal dated task. |
 | `عادت:` or `/habit` | Habit. `هر هفته` / weekly → weekly; otherwise daily. |
 | `هر روز` `هر هفته` `هر ماه` | Task recurrence (one live occurrence). Completing or skipping spawns / advances the next due; the calendar does not pre-create every future day. |

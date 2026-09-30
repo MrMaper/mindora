@@ -102,6 +102,12 @@ Goal: every member surface is usable one-handed on a phone — no clipped filter
 
 ---
 
+## Known relationship / auth bugs (audit 2026-09-30)
+
+**Status: fixed** (auth IDOR including comment/attachment, hub planning, capture research path, research sync, recurrence spawn, waitingOn on board moves, path-delete rehome, Bale digest ownership, Bale DONE sync, capture research rollback, doc area→bucket, series ownership). Re-open only if a regression shows up.
+
+---
+
 ## Other known later items (not this doc’s focus)
 
 - Universal Capture stays on the local rules in `docs/CAPTURE.md`. Do not add an LLM parser unless asked.
@@ -134,7 +140,7 @@ Goal: every member surface is usable one-handed on a phone — no clipped filter
 - Citations/quotes reference canonical sources (no DocSource fork); quotes promote off binder first
 - Quote → draft insert from library + PDF annotator «بریز در پیش‌نویس» (empty-draft hint)
 - Pipeline ↔ Doc.status ↔ readingStatus sync via DocTask links (one card per note)
-- Capture: `/research` links a doc; `/source` or `/research`+DOI builds source + card with due; preview matches product; path from research cookie
+- Capture: `/research` links a doc on the research-scope path cookie; `/source` or `/research`+DOI builds source + card with due; preview matches product; hub stages not remapped by due
 - Writing desk: truncated resume + cite-from-here opens library cite panel
 - Path required when library scope=all; binders filtered from Writing/cite/Today
 - Research tabs in URL (`?tab=library|writing`); Today chips for sources + drafts

@@ -44,13 +44,14 @@ describe("isTodayFocusCandidate", () => {
 });
 
 describe("focusPickGroup", () => {
-  const now = new Date(2026, 8, 27, 15, 0, 0);
+  // 15:00 Tehran on 2026-09-27
+  const now = new Date("2026-09-27T11:30:00.000Z");
 
   it("groups a past timed due today as overdue", () => {
     expect(
       focusPickGroup(
         {
-          dueDate: new Date(2026, 8, 27, 10, 0, 0),
+          dueDate: new Date("2026-09-27T06:30:00.000Z"), // 10:00 Tehran
           durationMinutes: 30,
           status: "TODO",
         },
@@ -64,7 +65,7 @@ describe("focusPickGroup", () => {
     expect(
       focusPickGroup(
         {
-          dueDate: new Date(2026, 8, 27, 12, 0, 0),
+          dueDate: new Date("2026-09-27T08:30:00.000Z"), // noon Tehran
           durationMinutes: null,
           status: "TODO",
         },

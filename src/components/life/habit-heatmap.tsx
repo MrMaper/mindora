@@ -14,9 +14,9 @@ import { cn } from "@/lib/utils";
 
 import { HABIT_HEATMAP_WEEKS } from "@/features/habits/constants";
 
-const WEEKS = HABIT_HEATMAP_WEEKS;
-const CELL = 11; // px — fixed size like before full-width stretch
 const GAP = 3;
+const CELL_MIN = 10;
+const CELL_MAX = 18;
 
 const LEVEL_CLASS = [
   "bg-muted",
@@ -69,7 +69,10 @@ export function HabitHeatmap({
   const single = filterId !== "all";
   const isFa = language === "FA";
   const weekdayShort = isFa ? WEEKDAY_FA : WEEKDAY_EN;
-  const labelColW = isFa ? 14 : 18;
+  const labelColW = isFa ? 16 : 22;
+
+  const shellRef = React.useRef<HTMLDivElement>(null);
+  const [cell, setCell] = React.useState(CELL_MIN);
 
   const columns: HabitHeatDay[][] = [];
   for (let i = 0; i < days.length; i += 7) {
@@ -79,6 +82,23 @@ export function HabitHeatmap({
   // FA + dir=rtl: newest week on the inline-start (right)
   const displayColumns = isFa ? [...columns].reverse() : columns;
   const weekCount = displayColumns.length;
+
+  React.useLayoutEffect(() => {
+    const el = shellRef.current;
+    if (!el || weekCount === 0) return;
+
+    const measure = () => {
+      const width = el.clientWidth;
+      const available = width - labelColW - GAP * weekCount;
+      const next = Math.floor(available / weekCount);
+      setCell(Math.max(CELL_MIN, Math.min(CELL_MAX, next)));
+    };
+
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [weekCount, labelColW]);
 
   const monthMarks: { col: number; label: string }[] = [];
   let prevMonth = "";
@@ -105,17 +125,17 @@ export function HabitHeatmap({
 
   if (weekCount === 0) return null;
 
-  const gridCols = `${labelColW}px repeat(${weekCount}, ${CELL}px)`;
-  const gridWidth =
-    labelColW + weekCount * CELL + GAP * weekCount;
+  const gridWidth = labelColW + weekCount * cell + GAP * weekCount;
+  const gridCols = `${labelColW}px repeat(${weekCount}, ${cell}px)`;
+  const step = cell + GAP;
 
   return (
-    <div className="mb-3 w-full">
+    <div className="mb-3 w-full min-w-0">
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
         <span className="text-[11px] font-medium text-muted-foreground">
           {t.habits.heatmap}
         </span>
-        <div className="flex flex-wrap gap-1">
+        <div className="flex min-w-0 flex-wrap justify-end gap-1">
           <FilterChip
             active={filterId === "all"}
             onClick={() => onFilterChange("all")}
@@ -132,35 +152,39 @@ export function HabitHeatmap({
         </div>
       </div>
 
-      <div className="w-full min-w-0 overflow-x-auto pb-1" dir={isFa ? "rtl" : "ltr"}>
-        <div style={{ width: gridWidth, maxWidth: "100%" }}>
+      <div ref={shellRef} className="w-full min-w-0" dir={isFa ? "rtl" : "ltr"}>
+        <div className="w-full" style={{ minHeight: 7 * cell + 6 * GAP + 28 }}>
+          {/* Month captions — absolute so names are not clipped to one cell */}
           <div
-            className="mb-1 grid items-end"
-            style={{
-              gridTemplateColumns: gridCols,
-              columnGap: GAP,
-            }}
+            className="relative mb-1 h-3.5 w-full"
+            style={{ maxWidth: gridWidth }}
           >
-            <div aria-hidden />
-            {displayColumns.map((_, idx) => {
-              const mark = monthMarks.find(m => m.col === idx);
-              return (
-                <div
-                  key={`m-${idx}`}
-                  className="truncate text-[9px] leading-none text-muted-foreground"
-                  style={{ width: CELL }}
-                >
-                  {mark?.label ?? ""}
-                </div>
-              );
-            })}
+            {monthMarks.map(mark => (
+              <span
+                key={`${mark.col}-${mark.label}`}
+                className="absolute top-0 whitespace-nowrap text-[10px] leading-none text-muted-foreground"
+                style={
+                  isFa
+                    ? {
+                        right: labelColW + GAP + mark.col * step,
+                      }
+                    : {
+                        left: labelColW + GAP + mark.col * step,
+                      }
+                }
+              >
+                {mark.label}
+              </span>
+            ))}
           </div>
 
           <div
             className="grid"
             style={{
+              width: gridWidth,
+              maxWidth: "100%",
               gridTemplateColumns: gridCols,
-              gridTemplateRows: `repeat(7, ${CELL}px)`,
+              gridTemplateRows: `repeat(7, ${cell}px)`,
               gap: GAP,
             }}
           >
@@ -168,8 +192,8 @@ export function HabitHeatmap({
               <React.Fragment key={`row-${row}`}>
                 <div
                   className={cn(
-                    "flex items-center text-[9px] leading-none text-muted-foreground",
-                    isFa ? "justify-start" : "justify-end",
+                    "flex items-center text-[10px] leading-none text-muted-foreground",
+                    isFa ? "justify-start pe-0.5" : "justify-end pe-0.5",
                   )}
                   style={{ gridColumn: 1, gridRow: row + 1 }}
                 >
@@ -195,8 +219,8 @@ export function HabitHeatmap({
                       style={{
                         gridColumn: ci + 2,
                         gridRow: row + 1,
-                        width: CELL,
-                        height: CELL,
+                        width: cell,
+                        height: cell,
                       }}
                     />
                   );
@@ -204,22 +228,29 @@ export function HabitHeatmap({
               </React.Fragment>
             ))}
           </div>
-        </div>
 
-        <div
-          className="mt-1.5 flex items-center gap-1 text-[10px] text-muted-foreground"
-          style={{ paddingInlineStart: `${labelColW + GAP}px` }}
-        >
-          <span>{t.habits.heatmapLess}</span>
-          {LEVEL_CLASS.map((cls, i) => (
-            <span
-              key={cls}
-              className={cn("inline-block rounded-[2px]", cls)}
-              style={{ width: CELL - 2, height: CELL - 2 }}
-              title={String(i)}
-            />
-          ))}
-          <span>{t.habits.heatmapMore}</span>
+          {/* Legend: کمتر → … → بیشتر in reading direction (RTL-aware via dir) */}
+          <div
+            className="mt-2 flex items-center gap-1.5 text-[10px] text-muted-foreground"
+            style={{
+              width: gridWidth,
+              maxWidth: "100%",
+              paddingInlineStart: labelColW + GAP,
+            }}
+          >
+            <span>{t.habits.heatmapLess}</span>
+            {LEVEL_CLASS.map(cls => (
+              <span
+                key={cls}
+                className={cn("inline-block rounded-[2px]", cls)}
+                style={{
+                  width: Math.max(8, cell - 2),
+                  height: Math.max(8, cell - 2),
+                }}
+              />
+            ))}
+            <span>{t.habits.heatmapMore}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -240,7 +271,7 @@ function FilterChip({
       type="button"
       onClick={onClick}
       className={cn(
-        "max-w-[7rem] truncate rounded-md border px-1.5 py-0.5 text-[10px] transition-colors",
+        "max-w-[9rem] truncate rounded-md border px-1.5 py-0.5 text-[10px] transition-colors",
         active
           ? "border-primary/40 bg-primary/10 text-primary"
           : "border-transparent bg-muted/60 text-muted-foreground hover:bg-muted",

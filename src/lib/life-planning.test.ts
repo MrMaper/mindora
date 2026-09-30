@@ -7,6 +7,7 @@ import {
   isOverdueTask,
   planningStatusFromDue,
   resolveBoardPlanningStatus,
+  resolvePersonalTaskPlanningStatus,
   startOfWeek,
   withDateOnly,
 } from "./life";
@@ -51,13 +52,14 @@ describe("hasDueTime", () => {
 });
 
 describe("isOverdueTask", () => {
-  const now = new Date(2026, 8, 30, 16, 0, 0); // Wed 30 Sep 2026, 16:00
+  // 2026-09-30 12:30 UTC = 16:00 Tehran — still Sept 30 in Asia/Tehran
+  const now = new Date("2026-09-30T12:30:00.000Z");
 
   it("marks a timed due today overdue after its clock", () => {
     expect(
       isOverdueTask(
         {
-          dueDate: new Date(2026, 8, 30, 10, 0, 0),
+          dueDate: new Date("2026-09-30T06:30:00.000Z"), // 10:00 Tehran
           status: "TODO",
           durationMinutes: 60,
         },
@@ -70,7 +72,7 @@ describe("isOverdueTask", () => {
     expect(
       isOverdueTask(
         {
-          dueDate: new Date(2026, 8, 30, 18, 0, 0),
+          dueDate: new Date("2026-09-30T14:30:00.000Z"), // 18:00 Tehran
           status: "TODO",
           durationMinutes: null,
         },
@@ -83,7 +85,7 @@ describe("isOverdueTask", () => {
     expect(
       isOverdueTask(
         {
-          dueDate: withDateOnly(new Date(2026, 8, 30)),
+          dueDate: dueFromWallClock("2026-09-30", 12, 0, -210),
           status: "TODO",
           durationMinutes: null,
         },
@@ -109,11 +111,26 @@ describe("isOverdueTask", () => {
     expect(
       isOverdueTask(
         {
-          dueDate: withDateOnly(new Date(2026, 8, 29)),
+          dueDate: dueFromWallClock("2026-09-29", 12, 0, -210),
           status: "TODO",
           durationMinutes: null,
         },
         now,
+      ),
+    ).toBe(true);
+  });
+
+  it("treats UTC evening as next Tehran morning for date-only overdue", () => {
+    // 20:57 UTC Sept 30 → Oct 1 00:27 Tehran; Sept 30 date-only is overdue
+    const iranNextMorning = new Date("2026-09-30T20:57:00.000Z");
+    expect(
+      isOverdueTask(
+        {
+          dueDate: dueFromWallClock("2026-09-30", 12, 0, -210),
+          status: "TODO",
+          durationMinutes: null,
+        },
+        iranNextMorning,
       ),
     ).toBe(true);
   });
@@ -159,5 +176,43 @@ describe("resolveBoardPlanningStatus", () => {
     expect(
       resolveBoardPlanningStatus("TODO", addDays(endOfWeek(now), 14), now),
     ).toBe("BACKLOG");
+  });
+});
+
+describe("resolvePersonalTaskPlanningStatus", () => {
+  const now = new Date(2026, 8, 30, 12, 0, 0);
+
+  it("never remaps PhD / Language by due", () => {
+    expect(
+      resolvePersonalTaskPlanningStatus("BACKLOG", now, {
+        area: "PHD",
+        now,
+      }),
+    ).toBe("BACKLOG");
+    expect(
+      resolvePersonalTaskPlanningStatus("IN_PROGRESS", null, {
+        area: "LANG",
+        now,
+      }),
+    ).toBe("IN_PROGRESS");
+  });
+
+  it("parks waiting tasks in Inbox", () => {
+    expect(
+      resolvePersonalTaskPlanningStatus("TODO", now, {
+        area: "LIFE",
+        waitingOn: true,
+        now,
+      }),
+    ).toBe("BACKLOG");
+  });
+
+  it("still plans non-hub work from due", () => {
+    expect(
+      resolvePersonalTaskPlanningStatus("BACKLOG", now, {
+        area: "WORK",
+        now,
+      }),
+    ).toBe("TODO");
   });
 });
