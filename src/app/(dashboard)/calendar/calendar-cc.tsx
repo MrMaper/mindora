@@ -49,6 +49,7 @@ import {
   startOfDay,
   startOfWeek,
   toDateKey,
+  toDueDateKey,
   toGregorianDate,
   weekCells,
   coerceLifeArea,
@@ -555,7 +556,7 @@ export function CalendarCC({
       if (!task.dueDate) continue;
       const due = new Date(task.dueDate);
       if (Number.isNaN(due.getTime())) continue;
-      const key = toDateKey(due);
+      const key = toDueDateKey(due, task.durationMinutes);
       const list = map.get(key) ?? [];
       list.push(task);
       map.set(key, list);

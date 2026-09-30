@@ -32,7 +32,7 @@ The server parses the text again. The dialog preview uses the same rules.
 
 Area chips in the dialog override the guess. Life is the default area. The bare word «کار» does not switch the area to work; شغل، اداره، دفتر، work, and job do. The dialog lists these rules under «چطور جمله را می‌خواند؟» and shows the title that will be stored.
 
-PhD and language tasks are saved on the member’s tasks, with area, project, due date, and clock. Dated ones appear on the calendar (all four area chips on by default). They stay off Today’s lists; their full home remains Research / Language, All tasks, and the board.
+PhD and language tasks are saved on the member’s tasks, with area, project, due date, and clock. Dated ones appear on the calendar (all four area chips on by default). Overdue styling applies on month chips, week/day hour blocks, all-day chips, and the selected-day side list. Deadline reminders include hub tasks too. They stay off Today’s main lists (inbox / overdue / week); their full home remains Research / Language, All tasks, and the board — but they can still be chosen as Today priorities or for a focus session when overdue, due today, or undated. Research reading cards created from capture use the browser timezone offset so date-only noon is not written as UTC noon on the server.
 
 If the sentence has no day, the open page supplies one: Today uses today, Calendar uses the selected day. Other pages leave the task undated (inbox) unless the sentence names a day. A clock time with no day is stored on today.
 

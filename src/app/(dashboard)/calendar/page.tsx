@@ -38,7 +38,7 @@ export default async function CalendarPage() {
     getCalendarTasks(session.user.id, from, to),
     getAssignableUsers(session.user.id),
     getLabels(),
-    getUserProjects(session.user.id, "life"),
+    getUserProjects(session.user.id, "assignable"),
   ]);
 
   return (

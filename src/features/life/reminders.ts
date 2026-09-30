@@ -8,11 +8,11 @@ import {
   endOfDay,
   formatClock,
   formatJalaliShort,
+  hasDueTime,
   isOverdueTask,
   startOfDay,
   toDateKey,
 } from "@/lib/life";
-import { taskWhereExcludeHub } from "@/lib/project-namespace";
 import { getBaleRuntime } from "@/features/external/bots/bale/config";
 import { baleAppOrigin, deliverBale } from "@/features/external/bots/bale/deliver";
 
@@ -42,8 +42,7 @@ function bucketForDue(
 }
 
 function hasRealClock(due: Date, durationMinutes?: number | null): boolean {
-  if (durationMinutes != null && durationMinutes > 0) return true;
-  return !(due.getHours() === 12 && due.getMinutes() === 0);
+  return hasDueTime(due, durationMinutes);
 }
 
 export type TimedReminderPayload = {
@@ -85,7 +84,6 @@ export async function ensureTimedDueReminders(
   const tasks = await db.task.findMany({
     where: {
       ...mine,
-      ...taskWhereExcludeHub(),
       status: { not: "DONE" },
       dueDate: { gte: windowStart, lte: windowEnd },
     },
@@ -230,7 +228,6 @@ export async function ensureDeadlineReminders(userId?: string): Promise<void> {
   const tasks = await db.task.findMany({
     where: {
       ...mine,
-      ...taskWhereExcludeHub(),
       status: { not: "DONE" },
       dueDate: { lte: horizon, not: null },
     },

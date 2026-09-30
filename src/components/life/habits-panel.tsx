@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui-kit/forms/button";
 import { IconButton } from "@/components/ui-kit/forms/icon-button";
 import { Input } from "@/components/ui-kit/forms/input";
@@ -19,28 +19,82 @@ import {
   type HabitHeatDay,
   type HabitItem,
 } from "@/features/habits/actions";
-import {
-  HabitHeatmap,
-  HABIT_HEATMAP_WEEKS,
-} from "@/components/life/habit-heatmap";
+import { HABIT_HEATMAP_WEEKS } from "@/features/habits/constants";
 import { cn } from "@/lib/utils";
+
+const HabitHeatmap = dynamic(
+  () => import("@/components/life/habit-heatmap").then(m => m.HabitHeatmap),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="mb-3 h-[5.5rem] animate-pulse rounded-md bg-muted/40" />
+    ),
+  },
+);
 
 type HabitsView = "active" | "archived";
 
+function HeatmapWhenVisible({
+  habits,
+  days,
+  filterId,
+  onFilterChange,
+}: {
+  habits: HabitItem[];
+  days: HabitHeatDay[];
+  filterId: string;
+  onFilterChange: (id: string) => void;
+}) {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = React.useState(false);
+
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el || visible) return;
+    const io = new IntersectionObserver(
+      entries => {
+        if (entries.some(e => e.isIntersecting)) {
+          setVisible(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "160px 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [visible]);
+
+  return (
+    <div ref={ref} className="mb-3 min-h-[5.5rem]">
+      {visible ? (
+        <HabitHeatmap
+          habits={habits}
+          days={days}
+          filterId={filterId}
+          onFilterChange={onFilterChange}
+        />
+      ) : (
+        <div className="h-[5.5rem] rounded-md bg-muted/30" aria-hidden />
+      )}
+    </div>
+  );
+}
+
 export function HabitsPanel({
   initialHabits = [],
+  initialHeatDays = [],
 }: {
   initialHabits?: HabitItem[];
+  initialHeatDays?: HabitHeatDay[];
 }) {
   const t = useTranslation();
-  const router = useRouter();
   const [view, setView] = React.useState<HabitsView>("active");
   const [habits, setHabits] = React.useState(initialHabits);
   const [archivedHabits, setArchivedHabits] = React.useState<HabitItem[]>([]);
   const [title, setTitle] = React.useState("");
   const [pending, setPending] = React.useState(false);
   const [heatFilter, setHeatFilter] = React.useState("all");
-  const [heatDays, setHeatDays] = React.useState<HabitHeatDay[]>([]);
+  const [heatDays, setHeatDays] = React.useState(initialHeatDays);
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [editTitle, setEditTitle] = React.useState("");
 
@@ -49,38 +103,51 @@ export function HabitsPanel({
   }, [initialHabits]);
 
   React.useEffect(() => {
-    void getHabitHeatmapAction({
-      habitId: heatFilter === "all" ? null : heatFilter,
-      weeks: HABIT_HEATMAP_WEEKS,
-    }).then(setHeatDays);
-  }, [heatFilter]);
+    setHeatDays(initialHeatDays);
+  }, [initialHeatDays]);
 
-  async function loadHeat(filter: string) {
-    const days = await getHabitHeatmapAction({
-      habitId: filter === "all" ? null : filter,
+  React.useEffect(() => {
+    if (heatFilter === "all") {
+      setHeatDays(initialHeatDays);
+      return;
+    }
+    let cancelled = false;
+    void getHabitHeatmapAction({
+      habitId: heatFilter,
       weeks: HABIT_HEATMAP_WEEKS,
+    }).then(days => {
+      if (!cancelled) setHeatDays(days);
     });
+    return () => {
+      cancelled = true;
+    };
+  }, [heatFilter, initialHeatDays]);
+
+  async function softReloadActive() {
+    const [rows, days] = await Promise.all([
+      listHabitsAction(),
+      getHabitHeatmapAction({
+        habitId: heatFilter === "all" ? null : heatFilter,
+        weeks: HABIT_HEATMAP_WEEKS,
+      }),
+    ]);
+    setHabits(rows);
     setHeatDays(days);
   }
 
-  async function refresh(nextView: HabitsView = view) {
-    if (nextView === "archived") {
-      const rows = await listHabitsAction({ archived: true });
-      setArchivedHabits(rows);
-    } else {
-      const rows = await listHabitsAction();
-      setHabits(rows);
-      await loadHeat(heatFilter);
-    }
-    router.refresh();
+  async function softReloadArchived() {
+    const rows = await listHabitsAction({ archived: true });
+    setArchivedHabits(rows);
   }
 
   async function switchView(next: HabitsView) {
     setEditingId(null);
     setView(next);
-    setPending(true);
-    await refresh(next);
-    setPending(false);
+    if (next === "archived" && archivedHabits.length === 0) {
+      setPending(true);
+      await softReloadArchived();
+      setPending(false);
+    }
   }
 
   async function onAdd() {
@@ -91,26 +158,67 @@ export function HabitsPanel({
     if (result.success) {
       setTitle("");
       if (view !== "active") setView("active");
-      await refresh("active");
+      await softReloadActive();
     } else if (result.error) {
       window.alert(result.error);
     }
   }
 
   async function onToggle(id: string) {
-    setPending(true);
-    await toggleHabitDoneAction(id);
-    setPending(false);
-    await refresh("active");
+    const prev = habits;
+    setHabits(rows =>
+      rows.map(h => {
+        if (h.id !== id) return h;
+        const nextDone = !h.doneToday;
+        return {
+          ...h,
+          doneToday: nextDone,
+          streak: nextDone ? h.streak + 1 : Math.max(0, h.streak - 1),
+          bestStreak: nextDone
+            ? Math.max(h.bestStreak, h.streak + 1)
+            : h.bestStreak,
+        };
+      }),
+    );
+    const result = await toggleHabitDoneAction(id);
+    if (!result.success) {
+      setHabits(prev);
+      if (result.error) window.alert(result.error);
+      return;
+    }
+    const streak = Number(result.data?.streak);
+    const best = Number(result.data?.bestStreak);
+    const done = result.data?.done === true;
+    setHabits(rows =>
+      rows.map(h =>
+        h.id === id
+          ? {
+              ...h,
+              doneToday: done,
+              streak: Number.isFinite(streak) ? streak : h.streak,
+              bestStreak: Number.isFinite(best) ? best : h.bestStreak,
+            }
+          : h,
+      ),
+    );
+    void getHabitHeatmapAction({
+      habitId: heatFilter === "all" ? null : heatFilter,
+      weeks: HABIT_HEATMAP_WEEKS,
+    }).then(setHeatDays);
   }
 
   async function onArchive(id: string) {
     setPending(true);
-    await archiveHabitAction(id);
+    const result = await archiveHabitAction(id);
     setPending(false);
+    if (!result.success) {
+      if (result.error) window.alert(result.error);
+      return;
+    }
     if (heatFilter === id) setHeatFilter("all");
     if (editingId === id) setEditingId(null);
-    await refresh("active");
+    setHabits(rows => rows.filter(h => h.id !== id));
+    void softReloadActive();
   }
 
   async function onRestore(id: string) {
@@ -122,7 +230,7 @@ export function HabitsPanel({
       return;
     }
     if (editingId === id) setEditingId(null);
-    await refresh("archived");
+    setArchivedHabits(rows => rows.filter(h => h.id !== id));
   }
 
   function startEdit(habit: HabitItem) {
@@ -150,7 +258,15 @@ export function HabitsPanel({
     }
     setEditingId(null);
     setEditTitle("");
-    await refresh(view);
+    if (view === "archived") {
+      setArchivedHabits(rows =>
+        rows.map(h => (h.id === id ? { ...h, title: next } : h)),
+      );
+    } else {
+      setHabits(rows =>
+        rows.map(h => (h.id === id ? { ...h, title: next } : h)),
+      );
+    }
   }
 
   async function onDelete(id: string) {
@@ -164,7 +280,12 @@ export function HabitsPanel({
     }
     if (heatFilter === id) setHeatFilter("all");
     if (editingId === id) setEditingId(null);
-    await refresh(view);
+    if (view === "archived") {
+      setArchivedHabits(rows => rows.filter(h => h.id !== id));
+    } else {
+      setHabits(rows => rows.filter(h => h.id !== id));
+      void softReloadActive();
+    }
   }
 
   const canAdd = title.trim().length > 0 && !pending;
@@ -235,7 +356,7 @@ export function HabitsPanel({
       </div>
 
       {view === "active" ? (
-        <HabitHeatmap
+        <HeatmapWhenVisible
           habits={habits}
           days={heatDays}
           filterId={heatFilter}

@@ -28,6 +28,7 @@ import {
   yToMinutes,
 } from "@/lib/calendar-schedule";
 import { AREA_VISUAL } from "@/lib/area-visual";
+import { Icon } from "@/components/ui-kit/foundation/icon";
 import type { TaskRow } from "@/features/tasks/types";
 import type { LifeArea } from "@/types/db";
 
@@ -176,7 +177,8 @@ function TimedBlock({
       className={cn(
         "absolute inset-x-0.5 z-[2] flex flex-col overflow-hidden rounded-md text-[11px] font-medium leading-tight shadow-sm",
         AREA_CHIP[area],
-        overdue && "ring-1 ring-[var(--status-blocked)]",
+        overdue &&
+          "ring-2 ring-[var(--status-blocked)] shadow-[inset_3px_0_0_0_var(--status-blocked)]",
         conflict && "ring-2 ring-amber-400",
         task.status === "DONE" && "opacity-45 line-through",
         isDragging && "opacity-40",
@@ -195,8 +197,13 @@ function TimedBlock({
             ? `${task.title} · ${clock}${conflict ? " ⚠" : ""}`
             : task.title
         }
-        className="flex min-h-0 flex-1 cursor-grab touch-none flex-col items-center justify-center gap-0.5 overflow-hidden px-1 py-0.5 text-center active:cursor-grabbing"
+        className="relative flex min-h-0 flex-1 cursor-grab touch-none flex-col items-center justify-center gap-0.5 overflow-hidden px-1 py-0.5 text-center active:cursor-grabbing"
       >
+        {overdue ? (
+          <span className="pointer-events-none absolute start-0.5 top-0.5 opacity-95">
+            <Icon name="alert-triangle" size={10} />
+          </span>
+        ) : null}
         <span className="line-clamp-2 w-full">{task.title}</span>
         {clock ? (
           <span className="block w-full tabular-nums opacity-90">{clock}</span>
@@ -238,17 +245,27 @@ function AllDayChip({
         if (!isDragging) onOpen();
       }}
       className={cn(
-        "flex w-full min-w-0 items-center gap-1.5 truncate rounded-md border border-black/10 px-2 py-1 text-start text-[11px] font-medium leading-4 shadow-sm",
+        "flex w-full min-w-0 items-center gap-1.5 truncate rounded-md border px-2 py-1 text-start text-[11px] font-medium leading-4 shadow-sm",
         AREA_CHIP[area],
-        overdue && "ring-1 ring-[var(--status-blocked)]",
+        overdue
+          ? "border-[var(--status-blocked-border)] ring-2 ring-[var(--status-blocked)]"
+          : "border-black/10",
         task.status === "DONE" && "opacity-45 line-through",
         isDragging && "opacity-40",
         "cursor-grab active:cursor-grabbing touch-none",
       )}
     >
-      <span
-        className={cn("size-1.5 shrink-0 rounded-full bg-white/80", AREA_DOT[area])}
-      />
+      {overdue ? (
+        <Icon
+          name="alert-triangle"
+          size={11}
+          className="shrink-0 text-[var(--status-blocked)]"
+        />
+      ) : (
+        <span
+          className={cn("size-1.5 shrink-0 rounded-full bg-white/80", AREA_DOT[area])}
+        />
+      )}
       <span className="min-w-0 truncate">{task.title}</span>
     </button>
   );

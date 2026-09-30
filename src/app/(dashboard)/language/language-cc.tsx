@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useLanguage, useTranslation } from "@/i18n/provider";
 import { Button } from "@/components/ui-kit/forms/button";
 import { Input } from "@/components/ui-kit/forms/input";
@@ -109,33 +109,44 @@ function skillLabel(
 
 export function LanguageCC(props: LanguageCCProps) {
   return (
-    <Suspense fallback={<LanguageCCInner {...props} />}>
+    <Suspense
+      fallback={
+        <div className="h-40 animate-pulse rounded-xl border bg-muted/30" aria-hidden />
+      }
+    >
       <LanguageCCInner {...props} />
     </Suspense>
   );
+}
+
+function parseLanguageTab(raw: string | null | undefined): LanguageTab {
+  if (
+    raw === "vocab" ||
+    raw === "listening" ||
+    raw === "skills" ||
+    raw === "exams" ||
+    raw === "notes" ||
+    raw === "today"
+  ) {
+    return raw;
+  }
+  return "today";
 }
 
 function LanguageCCInner({ hub, scope, projects }: LanguageCCProps) {
   const t = useTranslation();
   const language = useLanguage();
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [, startTabTransition] = React.useTransition();
 
-  const tabParam = searchParams.get("tab");
+  const urlTab = parseLanguageTab(searchParams.get("tab"));
+  const [tab, setOptimisticTab] = React.useOptimistic(urlTab);
   const filterParam = searchParams.get("filter");
-  const initialTab: LanguageTab =
-    tabParam === "vocab" ||
-    tabParam === "listening" ||
-    tabParam === "skills" ||
-    tabParam === "exams" ||
-    tabParam === "notes" ||
-    tabParam === "today"
-      ? tabParam
-      : "today";
   const initialReviewFilter =
     filterParam === "hard" ? ("hard" as const) : ("all" as const);
 
-  const [tab, setTab] = React.useState<LanguageTab>(initialTab);
   const [drillSkill, setDrillSkill] = React.useState<LangSkill | null>(null);
   const [skill, setSkill] = React.useState<LangSkill>(hub.suggestSkill);
   const [minutes, setMinutes] = React.useState("30");
@@ -156,28 +167,17 @@ function LanguageCCInner({ hub, scope, projects }: LanguageCCProps) {
     String(hub.profile.weeklyGoalMin),
   );
 
-  React.useEffect(() => {
-    const next = searchParams.get("tab");
-    if (
-      next === "vocab" ||
-      next === "listening" ||
-      next === "skills" ||
-      next === "exams" ||
-      next === "notes" ||
-      next === "today"
-    ) {
-      setTab(next);
-    }
-  }, [searchParams]);
-
   function goTab(next: LanguageTab) {
     setDrillSkill(null);
-    setTab(next);
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("tab", next);
-    if (next !== "vocab") params.delete("filter");
-    params.delete("practice");
-    router.replace(`?${params.toString()}`, { scroll: false });
+    startTabTransition(() => {
+      setOptimisticTab(next);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("tab", next);
+      if (next !== "vocab") params.delete("filter");
+      params.delete("practice");
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    });
   }
 
   function openListeningTab() {

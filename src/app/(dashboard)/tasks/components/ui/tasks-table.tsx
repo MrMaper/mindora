@@ -37,10 +37,13 @@ interface TasksTableProps {
 }
 
 const GRID =
-  "md:grid gap-x-3 gap-y-1 px-4 items-center border-b border-border-subtle";
-/** Title flexes; due stays one line via max-content + nowrap on the cell. */
+  "md:grid gap-x-4 px-4 py-2.5 items-center border-b border-border-subtle";
+/**
+ * Path sits under the title (not its own track) so status / person / due
+ * keep readable width instead of crushing into the left edge.
+ */
 const GRID_COLUMNS =
-  "minmax(10rem, 1.6fr) minmax(5.5rem, 0.85fr) minmax(6.5rem, auto) 4.5rem minmax(5.5rem, 0.8fr) max-content 2.5rem";
+  "minmax(0, 1fr) max-content 2.75rem minmax(8rem, 11rem) max-content 2.75rem";
 
 function areaTitle(area: TaskRow["area"], t: TasksTableProps["t"]) {
   if (area === "PHD") return t.dashboard.areaPhd as string;
@@ -54,18 +57,12 @@ function isOverdue(task: TaskRow): boolean {
   return isOverdueTask(task);
 }
 
-function TaskPlace({ task, t }: { task: TaskRow; t: TasksTableProps["t"] }) {
+function TaskPlaceLine({ task, t }: { task: TaskRow; t: TasksTableProps["t"] }) {
   const area = areaTitle(task.area, t);
   const path =
     task.projectId && !isAreaBucketId(task.projectId) ? task.projectName : null;
-  return (
-    <div className="min-w-0">
-      <div className="truncate text-xs text-text-secondary">
-        {path || t.tasks.noProject}
-      </div>
-      {area ? <div className="truncate text-[11px] text-text-tertiary">{area}</div> : null}
-    </div>
-  );
+  const place = [path || (t.tasks.noProject as string), area].filter(Boolean).join(" · ");
+  return <div className="mt-0.5 truncate text-[11px] text-text-tertiary">{place}</div>;
 }
 
 export function TasksTable({
@@ -94,7 +91,6 @@ export function TasksTable({
 
   const columns = [
     { key: "title", label: t.tasks.taskColumn as string },
-    { key: "project", label: t.tasks.projectColumn as string },
     { key: "status", label: t.tasks.statusColumn as string },
     { key: "priority", label: t.tasks.priorityColumn as string },
     { key: "assignee", label: t.tasks.assigneeColumn as string },
@@ -155,9 +151,9 @@ export function TasksTable({
   return (
     <>
       <div className="rounded-lg border border-border-default bg-bg-surface overflow-x-auto">
-        <div className="min-w-[44rem]">
+        <div className="min-w-[36rem]">
         <div
-          className={cn(GRID, "hidden md:grid h-9 bg-bg-sunken")}
+          className={cn(GRID, "hidden md:grid min-h-9 bg-bg-sunken py-2")}
           style={{ gridTemplateColumns: GRID_COLUMNS }}
         >
           {columns.map(col => {
@@ -169,7 +165,7 @@ export function TasksTable({
                 type="button"
                 aria-sort={active ? (filters.order === "asc" ? "ascending" : "descending") : "none"}
                 onClick={() => onSortChange(col.key)}
-                className="flex cursor-pointer items-center gap-1 whitespace-nowrap text-start text-2xs font-semibold uppercase tracking-caps text-text-tertiary hover:text-text-secondary"
+                className="flex min-w-0 cursor-pointer items-center gap-1 justify-self-start whitespace-nowrap text-start text-2xs font-semibold uppercase tracking-caps text-text-tertiary hover:text-text-secondary"
               >
                 {col.label}
                 {active && (
@@ -311,9 +307,15 @@ function TaskLine({
       >
         <div className="min-w-0 flex-1">
           <div className="text-sm font-medium text-text-primary">{task.title}</div>
+          <TaskPlaceLine task={task} t={t} />
           <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-text-tertiary">
-            <StatusBadge status={statusToDisplay(task.status)} />
-            <span className={cn("whitespace-nowrap tabular-nums", overdue && "font-medium text-destructive")}>
+            <StatusBadge status={statusToDisplay(task.status)} className="shrink-0 whitespace-nowrap" />
+            <span
+              className={cn(
+                "shrink-0 whitespace-nowrap tabular-nums",
+                overdue && "font-medium text-destructive",
+              )}
+            >
               {formatDate(task.dueDate, task.durationMinutes)}
             </span>
           </div>
@@ -335,6 +337,7 @@ function TaskLine({
       >
         <div className="min-w-0">
           <div className="truncate text-sm font-medium text-text-primary">{task.title}</div>
+          <TaskPlaceLine task={task} t={t} />
           {task.labels.length > 0 && (
             <div className="mt-1 flex flex-wrap gap-1">
               {task.labels.map(label => (
@@ -345,9 +348,12 @@ function TaskLine({
             </div>
           )}
         </div>
-        <TaskPlace task={task} t={t} />
-        <StatusBadge status={statusToDisplay(task.status)} />
-        <PriorityIcon priority={priorityToDisplay(task.priority)} />
+        <div className="justify-self-start">
+          <StatusBadge status={statusToDisplay(task.status)} className="whitespace-nowrap" />
+        </div>
+        <div className="flex justify-center">
+          <PriorityIcon priority={priorityToDisplay(task.priority)} />
+        </div>
         <div className="flex min-w-0 items-center gap-2">
           {task.assignedTo ? (
             <>
@@ -355,8 +361,11 @@ function TaskLine({
                 name={task.assignedTo.name}
                 src={task.assignedTo.avatar ?? undefined}
                 size="sm"
+                className="shrink-0"
               />
-              <span className="truncate text-xs text-text-secondary">{task.assignedTo.name}</span>
+              <span className="min-w-0 truncate text-xs text-text-secondary" title={task.assignedTo.name}>
+                {task.assignedTo.name}
+              </span>
             </>
           ) : (
             <span className="text-xs text-text-tertiary">{t.tasks.unassigned}</span>
@@ -364,13 +373,13 @@ function TaskLine({
         </div>
         <span
           className={cn(
-            "whitespace-nowrap text-xs tabular-nums text-text-tertiary",
+            "inline-block w-max max-w-none justify-self-start whitespace-nowrap text-xs tabular-nums text-text-tertiary",
             overdue && "font-medium text-destructive",
           )}
         >
           {formatDate(task.dueDate, task.durationMinutes)}
         </span>
-        <span onClick={event => event.stopPropagation()}>
+        <span className="justify-self-center" onClick={event => event.stopPropagation()}>
           <Menu
             trigger={
               <IconButton icon="more-horizontal" aria-label={t.tasks.taskActionsLabel} size="sm" />

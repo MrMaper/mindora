@@ -12,7 +12,9 @@ import {
 } from "@/lib/life";
 import { cn } from "@/lib/utils";
 
-const WEEKS = 20;
+import { HABIT_HEATMAP_WEEKS } from "@/features/habits/constants";
+
+const WEEKS = HABIT_HEATMAP_WEEKS;
 const GAP = 3;
 
 const LEVEL_CLASS = [
@@ -239,4 +241,4 @@ function FilterChip({
   );
 }
 
-export const HABIT_HEATMAP_WEEKS = WEEKS;
+export { HABIT_HEATMAP_WEEKS };

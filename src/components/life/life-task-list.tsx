@@ -19,12 +19,17 @@ import {
   stopTaskRecurrence,
 } from "@/features/life/actions";
 import { listDocsByTaskIdsAction } from "@/features/docs/actions";
-import { formatClock, formatJalaliShort } from "@/lib/life";
+import {
+  formatClock,
+  formatJalaliShort,
+  isOverdueTask,
+} from "@/lib/life";
 import { statusToDisplay, priorityToDisplay } from "@/features/tasks/types";
 import type { TaskRow } from "@/features/tasks/types";
 import { Icon } from "@/components/ui-kit/foundation/icon";
 import { cn } from "@/lib/utils";
 import { useDraggable } from "@dnd-kit/core";
+import { toast } from "sonner";
 
 function TaskDragHandle({ taskId, label }: { taskId: string; label: string }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
@@ -81,6 +86,7 @@ export function LifeTaskList({
   const language = useLanguage();
   const router = useRouter();
   const [pendingId, setPendingId] = React.useState<string | null>(null);
+  const [hiddenIds, setHiddenIds] = React.useState<Set<string>>(() => new Set());
   const [docsByTask, setDocsByTask] = React.useState<
     Record<string, { id: string; title: string }[]>
   >({});
@@ -100,7 +106,68 @@ export function LifeTaskList({
     };
   }, [tasks]);
 
-  if (tasks.length === 0) {
+  React.useEffect(() => {
+    setHiddenIds(prev => {
+      const next = new Set<string>();
+      for (const id of prev) {
+        if (tasks.some(task => task.id === id)) next.add(id);
+      }
+      return next.size === prev.size ? prev : next;
+    });
+  }, [tasks]);
+
+  async function onDone(id: string) {
+    setPendingId(id);
+    try {
+      const result = await completePersonalTask(id);
+      if (!result.success) {
+        toast.error(result.error ?? t.common.error);
+        return;
+      }
+      setHiddenIds(prev => new Set(prev).add(id));
+      router.refresh();
+    } catch {
+      toast.error(t.common.error);
+    } finally {
+      setPendingId(null);
+    }
+  }
+
+  async function onPlan(id: string) {
+    setPendingId(id);
+    try {
+      const result = await planTaskThisWeek(id);
+      if (!result.success) {
+        toast.error(result.error ?? t.common.error);
+        return;
+      }
+      router.refresh();
+    } catch {
+      toast.error(t.common.error);
+    } finally {
+      setPendingId(null);
+    }
+  }
+
+  async function onPlanToday(id: string) {
+    setPendingId(id);
+    try {
+      const result = await planTaskForToday(id);
+      if (!result.success) {
+        toast.error(result.error ?? t.common.error);
+        return;
+      }
+      router.refresh();
+    } catch {
+      toast.error(t.common.error);
+    } finally {
+      setPendingId(null);
+    }
+  }
+
+  const visibleTasks = tasks.filter(task => !hiddenIds.has(task.id));
+
+  if (visibleTasks.length === 0) {
     return (
       <div className="py-6 px-2 text-center text-sm text-muted-foreground">
         {empty}
@@ -108,35 +175,15 @@ export function LifeTaskList({
     );
   }
 
-  async function onDone(id: string) {
-    setPendingId(id);
-    await completePersonalTask(id);
-    setPendingId(null);
-    router.refresh();
-  }
-
-  async function onPlan(id: string) {
-    setPendingId(id);
-    await planTaskThisWeek(id);
-    setPendingId(null);
-    router.refresh();
-  }
-
-  async function onPlanToday(id: string) {
-    setPendingId(id);
-    await planTaskForToday(id);
-    setPendingId(null);
-    router.refresh();
-  }
-
   return (
     <ul className="flex flex-col divide-y divide-border-subtle">
-      {tasks.map(task => {
+      {visibleTasks.map(task => {
         const linked = docsByTask[task.id] ?? [];
         const primaryDoc = linked[0];
         const busy = pendingId === task.id;
         const showDoc =
           !!primaryDoc && (task.area === "PHD" || linked.length > 0);
+        const overdue = isOverdueTask(task);
 
         const menuItems: MenuItem[] = [];
         if (onTaskClick) {
@@ -303,13 +350,21 @@ export function LifeTaskList({
                 {onTaskClick ? (
                   <button
                     type="button"
-                    className="min-w-0 flex-1 truncate text-start text-sm font-medium hover:text-primary focus-visible:outline-none focus-visible:underline"
+                    className={cn(
+                      "min-w-0 flex-1 truncate text-start text-sm font-medium hover:text-primary focus-visible:outline-none focus-visible:underline",
+                      overdue && "text-destructive",
+                    )}
                     onClick={() => onTaskClick(task)}
                   >
                     {task.title}
                   </button>
                 ) : (
-                  <div className="min-w-0 flex-1 truncate text-sm font-medium">
+                  <div
+                    className={cn(
+                      "min-w-0 flex-1 truncate text-sm font-medium",
+                      overdue && "text-destructive",
+                    )}
+                  >
                     {task.title}
                   </div>
                 )}
@@ -323,7 +378,12 @@ export function LifeTaskList({
                   className="shrink-0"
                 />
                 {dueLabel ? (
-                  <span className="shrink-0 whitespace-nowrap text-[11px] tabular-nums text-muted-foreground">
+                  <span
+                    className={cn(
+                      "shrink-0 whitespace-nowrap text-[11px] tabular-nums text-muted-foreground",
+                      overdue && "font-medium text-destructive",
+                    )}
+                  >
                     {dueLabel}
                   </span>
                 ) : null}

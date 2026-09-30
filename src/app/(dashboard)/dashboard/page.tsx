@@ -5,7 +5,8 @@ import { getPersonalDashboard } from "@/features/life/queries";
 import { getAssignableUsers } from "@/features/users/queries";
 import { getLabels } from "@/features/labels/queries";
 import { getUserProjects } from "@/features/projects/queries";
-import { listHabitsAction } from "@/features/habits/actions";
+import { listHabitsForUser, getHabitHeatmapForUser } from "@/features/habits/queries";
+import { HABIT_HEATMAP_WEEKS } from "@/features/habits/constants";
 import {
   ensureDailyRemindersCached,
   ensurePersonalWorkspaceCached,
@@ -37,19 +38,26 @@ export default async function DashboardPage() {
   });
   await syncPlanningStatusesCached(session.user.id);
 
-  const [data, users, labels, userProjects, habits, prefs] = await Promise.all([
-    getPersonalDashboard(session.user.id, {
-      language: flags.language,
-      research: flags.research,
-    }),
-    getAssignableUsers(session.user.id),
-    getLabels(),
-    getUserProjects(session.user.id, "life"),
-    flags.habits
-      ? listHabitsAction()
-      : Promise.resolve([] as Awaited<ReturnType<typeof listHabitsAction>>),
-    getUserPreferencesCached(session.user.id),
-  ]);
+  const habitsPromise = flags.habits
+    ? listHabitsForUser(session.user.id)
+    : Promise.resolve([] as Awaited<ReturnType<typeof listHabitsForUser>>);
+  const heatPromise = flags.habits
+    ? getHabitHeatmapForUser(session.user.id, { weeks: HABIT_HEATMAP_WEEKS })
+    : Promise.resolve([] as Awaited<ReturnType<typeof getHabitHeatmapForUser>>);
+
+  const [data, users, labels, userProjects, habits, heatDays, prefs] =
+    await Promise.all([
+      getPersonalDashboard(session.user.id, {
+        language: flags.language,
+        research: flags.research,
+      }),
+      getAssignableUsers(session.user.id),
+      getLabels(),
+      getUserProjects(session.user.id, "life"),
+      habitsPromise,
+      heatPromise,
+      getUserPreferencesCached(session.user.id),
+    ]);
 
   return (
     <DashboardCC
@@ -74,6 +82,7 @@ export default async function DashboardPage() {
         research: flags.research,
       }}
       habits={flags.habits ? habits : []}
+      habitHeatDays={flags.habits ? heatDays : []}
       showOnboarding={!prefs?.onboardingCompletedAt}
       users={users}
       labels={labels}

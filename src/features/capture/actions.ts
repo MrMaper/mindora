@@ -162,6 +162,7 @@ export async function universalCapture(input: {
       dueDate,
       time: parsed.time,
       durationMinutes: parsed.durationMinutes,
+      timezoneOffsetMinutes: input.timezoneOffsetMinutes,
     });
     if (!created.success || !created.data?.id) {
       return { success: false, error: created.error ?? "خطا" };

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { KanbanCC } from "@/app/(dashboard)/kanban/components/client";
 import {
   ResearchPipelineAside,
@@ -53,7 +53,11 @@ function parseTab(raw: string | null | undefined): ResearchTab {
 
 export function ResearchCC(props: ResearchCCProps) {
   return (
-    <Suspense fallback={<ResearchCCInner {...props} />}>
+    <Suspense
+      fallback={
+        <div className="h-40 animate-pulse rounded-xl border bg-muted/30" aria-hidden />
+      }
+    >
       <ResearchCCInner {...props} />
     </Suspense>
   );
@@ -77,22 +81,21 @@ function ResearchCCInner({
   const t = useTranslation();
   const areaIds = useAreaBuckets();
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [tab, setTab] = React.useState<ResearchTab>(
-    parseTab(searchParams.get("tab") ?? initialTab),
-  );
-
-  React.useEffect(() => {
-    setTab(parseTab(searchParams.get("tab")));
-  }, [searchParams]);
+  const [, startTabTransition] = React.useTransition();
+  const urlTab = parseTab(searchParams.get("tab") ?? initialTab);
+  const [tab, setOptimisticTab] = React.useOptimistic(urlTab);
 
   function changeTab(next: ResearchTab) {
-    setTab(next);
-    const params = new URLSearchParams(searchParams.toString());
-    if (next === "pipeline") params.delete("tab");
-    else params.set("tab", next);
-    const qs = params.toString();
-    router.replace(qs ? `/research?${qs}` : "/research", { scroll: false });
+    startTabTransition(() => {
+      setOptimisticTab(next);
+      const params = new URLSearchParams(searchParams.toString());
+      if (next === "pipeline") params.delete("tab");
+      else params.set("tab", next);
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    });
   }
 
   const docProjectId =

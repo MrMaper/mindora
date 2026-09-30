@@ -18,7 +18,7 @@ import type {
   ResearchSourceItem,
 } from "./types";
 import { formatApaLike, normalizeDoi } from "./cite";
-import { isUserAreaBucket, personalAreaProjectId } from "@/lib/life";
+import { dueFromWallClock, isUserAreaBucket, personalAreaProjectId } from "@/lib/life";
 import {
   ensurePersonalWorkspace,
 } from "@/features/life/workspace";
@@ -610,6 +610,8 @@ export async function addPhdSourceAction(input: {
   dueDate?: string;
   time?: string | null;
   durationMinutes?: number | null;
+  /** Client `Date#getTimezoneOffset()` so date-only noon stays noon on UTC servers. */
+  timezoneOffsetMinutes?: number;
 }): Promise<ActionResult> {
   const session = await auth();
   if (!session?.user) return { success: false, error: "غیرمجاز" };
@@ -628,11 +630,23 @@ export async function addPhdSourceAction(input: {
 
   let due: Date | null = null;
   if (input.dueDate && /^\d{4}-\d{2}-\d{2}$/.test(input.dueDate)) {
-    const [y, m, d] = input.dueDate.split("-").map(Number);
+    const hasOffset =
+      typeof input.timezoneOffsetMinutes === "number" &&
+      Number.isFinite(input.timezoneOffsetMinutes);
     const hhmm = input.time?.match(/^(\d{1,2}):(\d{2})$/);
     const hours = hhmm ? Number(hhmm[1]) : 12;
     const minutes = hhmm ? Number(hhmm[2]) : 0;
-    due = new Date(y!, m! - 1, d!, hours, minutes, 0, 0);
+    if (hasOffset) {
+      due = dueFromWallClock(
+        input.dueDate,
+        hours,
+        minutes,
+        input.timezoneOffsetMinutes!,
+      );
+    } else {
+      const [y, m, d] = input.dueDate.split("-").map(Number);
+      due = new Date(y!, m! - 1, d!, hours, minutes, 0, 0);
+    }
   }
   const durationMinutes =
     due && input.time && input.durationMinutes && input.durationMinutes > 0

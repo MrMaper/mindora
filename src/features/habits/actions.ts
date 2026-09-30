@@ -3,31 +3,22 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma as db } from "@/lib/db";
-import {
-  addDays,
-  startOfDay,
-  startOfWeek,
-  toDateKey,
-} from "@/lib/life";
+import { toDateKey } from "@/lib/life";
 import type { LifeArea, RecurrenceInterval } from "@/types/db";
 import { computeHabitStreaks } from "@/features/habits/streaks";
+import {
+  getHabitHeatmapForUser,
+  listHabitsForUser,
+  type HabitHeatDay,
+  type HabitItem,
+} from "@/features/habits/queries";
+
+export type { HabitHeatDay, HabitItem };
 
 export interface ActionResult {
   success: boolean;
   error?: string;
   data?: Record<string, unknown>;
-}
-
-export interface HabitItem {
-  id: string;
-  title: string;
-  area: LifeArea | null;
-  cadence: RecurrenceInterval;
-  streak: number;
-  bestStreak: number;
-  lastDoneDate: string | null;
-  doneToday: boolean;
-  archived: boolean;
 }
 
 function revalidateHabits() {
@@ -40,101 +31,16 @@ export async function listHabitsAction(input?: {
 }): Promise<HabitItem[]> {
   const session = await auth();
   if (!session?.user) return [];
-  const todayKey = toDateKey(new Date());
-  const archivedOnly = input?.archived === true;
-  const rows = await db.habit.findMany({
-    where: {
-      userId: session.user.id,
-      archivedAt: archivedOnly ? { not: null } : null,
-    },
-    orderBy: archivedOnly
-      ? [{ archivedAt: "desc" }]
-      : [{ updatedAt: "desc" }],
-    select: {
-      id: true,
-      title: true,
-      area: true,
-      cadence: true,
-      streak: true,
-      bestStreak: true,
-      lastDoneDate: true,
-      archivedAt: true,
-      logs: {
-        where: { dateKey: todayKey },
-        select: { id: true },
-        take: 1,
-      },
-    },
-  });
-  return rows.map(h => ({
-    id: h.id,
-    title: h.title,
-    area: h.area,
-    cadence: h.cadence,
-    streak: h.streak,
-    bestStreak: h.bestStreak,
-    lastDoneDate: h.lastDoneDate,
-    doneToday: h.logs.length > 0,
-    archived: h.archivedAt != null,
-  }));
+  return listHabitsForUser(session.user.id, input);
 }
 
-export interface HabitHeatDay {
-  dateKey: string;
-  count: number;
-}
-
-/** Last ~20 weeks of completion counts (all habits or one). */
 export async function getHabitHeatmapAction(input?: {
   habitId?: string | null;
   weeks?: number;
 }): Promise<HabitHeatDay[]> {
   const session = await auth();
   if (!session?.user) return [];
-
-  const weeks = Math.min(52, Math.max(8, input?.weeks ?? 20));
-  const today = startOfDay(new Date());
-  // Align grid to week start (Sat), then go back `weeks` columns
-  const endWeek = startOfWeek(today);
-  const start = addDays(endWeek, -(weeks - 1) * 7);
-  const startKey = toDateKey(start);
-  const endKey = toDateKey(today);
-
-  const habitFilter =
-    input?.habitId && input.habitId !== "all"
-      ? { habitId: input.habitId, habit: { userId: session.user.id } }
-      : {
-          habit: {
-            userId: session.user.id,
-            archivedAt: null,
-          },
-        };
-
-  const logs = await db.habitLog.findMany({
-    where: {
-      ...habitFilter,
-      dateKey: { gte: startKey, lte: endKey },
-    },
-    select: { dateKey: true },
-  });
-
-  const counts = new Map<string, number>();
-  for (const log of logs) {
-    counts.set(log.dateKey, (counts.get(log.dateKey) ?? 0) + 1);
-  }
-
-  // Full Sat-aligned grid (future days in the current week stay count 0)
-  const days: HabitHeatDay[] = [];
-  const totalDays = weeks * 7;
-  for (let i = 0; i < totalDays; i++) {
-    const d = addDays(start, i);
-    const key = toDateKey(d);
-    days.push({
-      dateKey: key,
-      count: d > today ? 0 : (counts.get(key) ?? 0),
-    });
-  }
-  return days;
+  return getHabitHeatmapForUser(session.user.id, input);
 }
 
 export async function createHabitAction(input: {
@@ -278,7 +184,14 @@ export async function toggleHabitDoneAction(
       },
     });
     revalidateHabits();
-    return { success: true, data: { done: false } };
+    return {
+      success: true,
+      data: {
+        done: false,
+        streak: stats.streak,
+        bestStreak: stats.bestStreak,
+      },
+    };
   }
 
   await db.habitLog.create({
@@ -305,5 +218,12 @@ export async function toggleHabitDoneAction(
   });
 
   revalidateHabits();
-  return { success: true, data: { done: true, streak: stats.streak } };
+  return {
+    success: true,
+    data: {
+      done: true,
+      streak: stats.streak,
+      bestStreak: stats.bestStreak,
+    },
+  };
 }

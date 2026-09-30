@@ -54,7 +54,11 @@ export async function moveTask(params: {
         where: { id },
         data:
           id === params.taskId
-            ? { status: params.toStatus, position: index }
+            ? {
+                status: params.toStatus,
+                position: index,
+                ...(params.toStatus === "DONE" ? { waitingOn: false } : {}),
+              }
             : { position: index },
       })
     )
@@ -72,7 +76,11 @@ export async function moveTask(params: {
     await syncResearchLinksFromTaskStatus(params.taskId, params.toStatus);
 
     if (params.toStatus === "DONE") {
-      await spawnNextIfRecurring(params.taskId, session.user.id);
+      try {
+        await spawnNextIfRecurring(params.taskId, session.user.id);
+      } catch (error) {
+        console.error("spawnNextIfRecurring after board DONE failed", error);
+      }
     }
 
     if (existing.assignedToId && existing.assignedToId !== session.user.id) {

@@ -27,7 +27,7 @@ import {
   normalizeFocusSlots,
   serializeFocusSlots,
 } from "@/features/life/focus-slots";
-import { personalTaskOwnership } from "@/lib/task-access";
+import { personalTaskOwnership, canAccessPersonalTask } from "@/lib/task-access";
 
 export interface ActionResult {
   success: boolean;
@@ -128,24 +128,11 @@ export async function quickCapture(input: {
 }
 
 export async function completePersonalTask(taskId: string): Promise<ActionResult> {
-  const session = await auth();
-  if (!session?.user) return { success: false, error: "غیرمجاز" };
-
-  const task = await db.task.findUnique({
-    where: { id: taskId },
-    select: { id: true },
-  });
-  if (!task) return { success: false, error: "کار پیدا نشد" };
-
-  await db.task.update({
-    where: { id: taskId },
-    data: { status: "DONE" },
-  });
-
-  await spawnNextIfRecurring(taskId, session.user.id);
-
-  revalidateLife();
-  return { success: true };
+  // Same status path as board/drawer so Done lands in Kanban «تمام» and stays DONE.
+  const { updateTaskStatus } = await import("@/features/tasks/actions");
+  const result = await updateTaskStatus(taskId, "DONE");
+  if (result.success) revalidateLife(["/research"]);
+  return result;
 }
 
 export async function planTaskThisWeek(taskId: string): Promise<ActionResult> {
@@ -481,13 +468,19 @@ export async function rescheduleTaskDueDate(
 
   const existing = await db.task.findUnique({
     where: { id: taskId },
-    select: { assignedToId: true, dueDate: true, durationMinutes: true, status: true },
+    select: {
+      assignedToId: true,
+      createdById: true,
+      dueDate: true,
+      durationMinutes: true,
+      status: true,
+    },
   });
   if (!existing) return { success: false, error: "کار پیدا نشد" };
 
-  const isAdmin = session.user.role === "ADMIN";
-  const isAssignee = existing.assignedToId === session.user.id;
-  if (!isAdmin && !isAssignee) {
+  if (
+    !canAccessPersonalTask(session.user.id, session.user.role, existing)
+  ) {
     return { success: false, error: "اجازه ویرایش ندارید" };
   }
 
@@ -547,13 +540,13 @@ export async function rescheduleTaskSchedule(
 
   const existing = await db.task.findUnique({
     where: { id: taskId },
-    select: { assignedToId: true, status: true },
+    select: { assignedToId: true, createdById: true, status: true },
   });
   if (!existing) return { success: false, error: "کار پیدا نشد" };
 
-  const isAdmin = session.user.role === "ADMIN";
-  const isAssignee = existing.assignedToId === session.user.id;
-  if (!isAdmin && !isAssignee) {
+  if (
+    !canAccessPersonalTask(session.user.id, session.user.role, existing)
+  ) {
     return { success: false, error: "اجازه ویرایش ندارید" };
   }
 

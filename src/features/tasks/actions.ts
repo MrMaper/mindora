@@ -365,7 +365,11 @@ export async function updateTask(
   const becameDone =
     existing.status !== "DONE" && nextStatus === "DONE";
   if (becameDone) {
-    await spawnNextIfRecurring(id, session.user.id);
+    try {
+      await spawnNextIfRecurring(id, session.user.id);
+    } catch (error) {
+      console.error("spawnNextIfRecurring after form DONE failed", error);
+    }
   }
 
   const assigneeChanged = (existing.assignedToId ?? null) !== nextAssignedToId;
@@ -382,6 +386,10 @@ export async function updateTask(
       oldValue: { status: existing.status },
       newValue: { status: nextStatus },
     });
+    const { syncResearchLinksFromTaskStatus } = await import(
+      "@/features/research/sync-links"
+    );
+    await syncResearchLinksFromTaskStatus(id, nextStatus);
   }
 
   if (assigneeChanged) {
@@ -540,7 +548,7 @@ export async function updateTask(
     });
   }
 
-  revalidateTasks(["/calendar", "/review"]);
+  revalidateTasks(["/calendar", "/review", "/research"]);
   return { success: true };
 }
 
@@ -576,7 +584,13 @@ export async function updateTaskStatus(
     };
   }
 
-  await db.task.update({ where: { id }, data: { status } });
+  await db.task.update({
+    where: { id },
+    data: {
+      status,
+      ...(status === "DONE" ? { waitingOn: false } : {}),
+    },
+  });
 
   if (existing.status !== status) {
     await logActivity({
@@ -587,8 +601,17 @@ export async function updateTaskStatus(
       newValue: { status },
     });
 
+    const { syncResearchLinksFromTaskStatus } = await import(
+      "@/features/research/sync-links"
+    );
+    await syncResearchLinksFromTaskStatus(id, status);
+
     if (status === "DONE" && existing.status !== "DONE") {
-      await spawnNextIfRecurring(id, session.user.id);
+      try {
+        await spawnNextIfRecurring(id, session.user.id);
+      } catch (error) {
+        console.error("spawnNextIfRecurring after DONE failed", error);
+      }
     }
 
     if (existing.assignedToId && existing.assignedToId !== session.user.id) {
@@ -618,7 +641,7 @@ export async function updateTaskStatus(
     });
   }
 
-  revalidateTasks(["/calendar"]);
+  revalidateTasks(["/calendar", "/research", "/review"]);
   return { success: true };
 }
 

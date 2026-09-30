@@ -8,7 +8,7 @@ import { QuickCapture } from "@/components/life/quick-capture";
 import { CapturePageDate } from "@/components/life/capture-provider";
 import { LifeTaskList } from "@/components/life/life-task-list";
 import { TodayFocusSlots } from "@/components/life/today-focus-slots";
-import { HabitsPanel } from "@/components/life/habits-panel";
+import { HabitsPanelLazy } from "@/components/life/HabitsPanelLazy";
 import {
   FocusSessionCard,
   FocusSessionLauncher,
@@ -16,7 +16,7 @@ import {
 } from "@/components/life/focus-session";
 import { OnboardingTour } from "@/components/onboarding/onboarding-tour";
 import { usePersonalTaskEditor } from "@/components/life/use-personal-task-editor";
-import type { HabitItem } from "@/features/habits/actions";
+import type { HabitHeatDay, HabitItem } from "@/features/habits/actions";
 import {
   moveYesterdayToToday,
   setTodayFocus,
@@ -53,6 +53,46 @@ import type { LifeArea } from "@/types/db";
 
 type SideTab = "inbox" | "waiting" | "overdue" | "week";
 
+const TODAY_SIDE_TAB_KEY = "mindora:today-side-tab";
+
+function isSideTab(value: string | null | undefined): value is SideTab {
+  return (
+    value === "inbox" ||
+    value === "waiting" ||
+    value === "overdue" ||
+    value === "week"
+  );
+}
+
+function defaultSideTab(
+  overdueCount: number,
+  waitingCount: number,
+  inboxCount: number,
+): SideTab {
+  if (overdueCount > 0) return "overdue";
+  if (waitingCount > 0) return "waiting";
+  if (inboxCount > 0) return "inbox";
+  return "week";
+}
+
+function readStoredSideTab(): SideTab | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const saved = sessionStorage.getItem(TODAY_SIDE_TAB_KEY);
+    return isSideTab(saved) ? saved : null;
+  } catch {
+    return null;
+  }
+}
+
+function storeSideTab(tab: SideTab) {
+  try {
+    sessionStorage.setItem(TODAY_SIDE_TAB_KEY, tab);
+  } catch {
+    /* ignore */
+  }
+}
+
 interface DashboardCCProps {
   userName: string;
   areas: { id: string; name: string; area: LifeArea | null; openTasks: number }[];
@@ -82,6 +122,7 @@ interface DashboardCCProps {
     research: boolean;
   };
   habits?: HabitItem[];
+  habitHeatDays?: HabitHeatDay[];
   showOnboarding?: boolean;
   users: UserRow[];
   labels: LabelRow[];
@@ -287,7 +328,7 @@ function CompactKpiBar({
             type={item.onClick ? "button" : undefined}
             onClick={item.onClick}
             className={cn(
-              "min-w-0 flex-1 rounded-lg px-2.5 py-2 text-start transition-colors",
+              "min-w-0 flex-1 rounded-lg px-2.5 py-2 text-center transition-colors",
               item.onClick && "hover:bg-bg-hover",
             )}
           >
@@ -412,6 +453,7 @@ export function DashboardCC({
   attention,
   attentionModules,
   habits = [],
+  habitHeatDays = [],
   showOnboarding = false,
   users,
   labels,
@@ -422,15 +464,15 @@ export function DashboardCC({
   const t = useTranslation();
   const language = useLanguage();
   const router = useRouter();
-  const [sideTab, setSideTab] = React.useState<SideTab>(
-    overdue.length > 0
-      ? "overdue"
-      : waiting.length > 0
-        ? "waiting"
-        : inbox.length > 0
-          ? "inbox"
-          : "week",
+  const [sideTab, setSideTabState] = React.useState<SideTab>(
+    () =>
+      readStoredSideTab() ??
+      defaultSideTab(overdue.length, waiting.length, inbox.length),
   );
+  const setSideTab = React.useCallback((tab: SideTab) => {
+    setSideTabState(tab);
+    storeSideTab(tab);
+  }, []);
   const [draggingTitle, setDraggingTitle] = React.useState<string | null>(null);
   const [pending, startTransition] = React.useTransition();
   const sensors = useSensors(
@@ -858,7 +900,10 @@ export function DashboardCC({
               weekdayLabels={weekdayLabels}
             />
 
-            <HabitsPanel initialHabits={habits} />
+            <HabitsPanelLazy
+              initialHabits={habits}
+              initialHeatDays={habitHeatDays}
+            />
           </aside>
         </div>
       </div>
