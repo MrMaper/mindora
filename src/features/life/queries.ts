@@ -206,13 +206,14 @@ export async function getPersonalDashboard(
       where: { userId },
       select: { todayFocusDate: true, todayFocusIds: true },
     }),
+    // Focus/priority picks include PhD + language hub tasks; Today lists stay life-only.
     // CRITICAL: due-date OR must live under AND with ownership — never overwrite mine.OR
     // Split buckets so a long overdue list cannot starve today / undated picks.
     Promise.all([
       db.task.findMany({
         where: {
           AND: [
-            lifeOnly,
+            mine,
             { status: { not: "DONE" } },
             { waitingOn: false },
             { dueDate: { gte: todayStart, lte: todayEnd } },
@@ -225,7 +226,7 @@ export async function getPersonalDashboard(
       db.task.findMany({
         where: {
           AND: [
-            lifeOnly,
+            mine,
             { status: { not: "DONE" } },
             { waitingOn: false },
             { dueDate: null },
@@ -238,7 +239,7 @@ export async function getPersonalDashboard(
       db.task.findMany({
         where: {
           AND: [
-            lifeOnly,
+            mine,
             { status: { not: "DONE" } },
             { waitingOn: false },
             { dueDate: { lt: todayStart } },

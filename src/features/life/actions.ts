@@ -20,7 +20,7 @@ import {
 import type { LifeArea, RecurrenceInterval } from "@/types/db";
 import { ensurePersonalWorkspace, projectIdForArea } from "./workspace";
 import { getCalendarTasks } from "./queries";
-import { isHubArea, taskWhereExcludeHub } from "@/lib/project-namespace";
+import { taskWhereExcludeHub } from "@/lib/project-namespace";
 import {
   FOCUS_SLOT_COUNT,
   isTodayFocusCandidate,
@@ -304,7 +304,6 @@ function canAddToTodayFocus(
   },
   todayKey: string,
 ) {
-  if (isHubArea(task.area) || isHubArea(task.project?.area)) return false;
   return isTodayFocusCandidate(task, todayKey);
 }
 

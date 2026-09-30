@@ -8,7 +8,7 @@ The Today page always shows three slots (اولویت ۱–۳), stacked in one c
 - The target icon on an eligible row still fills the first empty slot, or removes the task if it is already pinned.
 - The header count is how many of the three are **done** (`2/3 ✓`), not how many slots are filled. A finished task stays in its slot with a check until it is removed.
 - Slot order is stored in `userPreferences.todayFocusIds` for the local day. An empty string keeps a hole so slot 2 can be filled while slot 1 is empty. A new day starts empty.
-- Pinned tasks leave the Today / overdue / week / inbox lists so they are not shown twice. PhD and language tasks stay off those lists, same as before.
+- Pinned tasks leave the Today / overdue / week / inbox lists so they are not shown twice. PhD and language tasks stay off those lists (they live in their hubs), but they **can** be chosen as one of the three priorities or for a focus session when overdue, due today, or undated.
 
 ## Focus session
 
