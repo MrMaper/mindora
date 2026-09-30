@@ -276,7 +276,7 @@ export function HabitsPanel({
                 icon: "trash",
                 onClick: () => void onDelete(h.id),
                 disabled: pending,
-                destructive: true,
+                danger: true,
               },
             ];
 
