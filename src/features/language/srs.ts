@@ -18,7 +18,8 @@ export const LEARNING_STEP_DELAYS_MIN = [3, 12] as const;
 /** How many learning goods are needed before graduating. */
 export const LEARNING_STEPS = LEARNING_STEP_DELAYS_MIN.length;
 
-export const REVIEW_DAILY_CAP = 40;
+/** Max due cards fetched per review load (not a daily quota — review all dues). */
+export const REVIEW_QUEUE_TAKE = 500;
 
 export function intervalForBox(box: number): number {
   const clamped = Math.max(0, Math.min(box, SRS_INTERVALS.length - 1));
@@ -183,7 +184,7 @@ export function reinsertInQueue<T extends { id: string }>(
 ): T[] {
   const without = rest.filter(c => c.id !== card.id);
   if (where === "end") return [...without, card];
-  const offset = where === "soon" ? 2 : 5;
+  const offset = where === "soon" ? 3 : 8;
   const at = Math.min(offset, without.length);
   return [...without.slice(0, at), card, ...without.slice(at)];
 }
@@ -196,4 +197,57 @@ export function applyRequeueHint<T extends { id: string }>(
   const rest = queue.slice(1);
   if (hint === "none") return rest.filter(c => c.id !== card.id);
   return reinsertInQueue(rest, card, hint);
+}
+
+/** Learning due cards before graduated; then earliest nextReviewAt. */
+export function sortDueForReview<
+  T extends { learningStep: number | null; nextReviewAt: Date },
+>(cards: T[]): T[] {
+  return [...cards].sort((a, b) => {
+    const aLearn = a.learningStep != null ? 0 : 1;
+    const bLearn = b.learningStep != null ? 0 : 1;
+    if (aLearn !== bLearn) return aLearn - bLearn;
+    return a.nextReviewAt.getTime() - b.nextReviewAt.getTime();
+  });
+}
+
+/** Interval preview under rating buttons, e.g. (۳ روز) / (10 min). */
+export function formatScheduleLabel(
+  result: ScheduleResult,
+  language: "FA" | "EN",
+  now: Date = new Date(),
+): string {
+  const ms = Math.max(0, result.nextReviewAt.getTime() - now.getTime());
+  const mins = Math.round(ms / 60_000);
+  const n = (value: number) =>
+    language === "FA"
+      ? new Intl.NumberFormat("fa-IR").format(value)
+      : String(value);
+
+  if (result.learningStep != null || result.intervalDays < 1) {
+    const m = Math.max(1, mins || 1);
+    if (m < 60) {
+      return language === "FA" ? `(${n(m)} دقیقه)` : `(${n(m)} min)`;
+    }
+    const h = Math.max(1, Math.round(m / 60));
+    return language === "FA" ? `(${n(h)} ساعت)` : `(${n(h)} hr)`;
+  }
+  const days = Math.max(1, result.intervalDays);
+  if (language === "FA") return `(${n(days)} روز)`;
+  return days === 1 ? `(1 day)` : `(${n(days)} days)`;
+}
+
+export function previewRatingLabel(
+  card: { box: number; learningStep: number | null },
+  rating: VocabRating,
+  language: "FA" | "EN",
+  now: Date = new Date(),
+): string {
+  const scheduled = scheduleAfterReview({
+    box: card.box,
+    learningStep: card.learningStep,
+    rating,
+    now,
+  });
+  return formatScheduleLabel(scheduled, language, now);
 }

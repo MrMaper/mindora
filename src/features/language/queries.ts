@@ -18,6 +18,7 @@ import {
   type VocabDeckProgress,
   type VocabLessonProgress,
 } from "./types";
+import { REVIEW_QUEUE_TAKE, sortDueForReview } from "./srs";
 import {
   scoreMockSections,
   type ExamKindKey,
@@ -25,7 +26,7 @@ import {
 } from "./exam-templates";
 import { VOCAB_DECK_KEYS, VOCAB_DECK_META } from "./decks/catalog-meta";
 import type { LanguageTab } from "./types";
-import { daysAgoApp, startOfAppDay } from "./day";
+import { daysAgoApp, startOfAppDay, startOfAppDayInstant } from "./day";
 
 function startOfLocalDay(d = new Date()): Date {
   return startOfAppDay(d);
@@ -139,13 +140,13 @@ function computeDayStreak(dates: Date[]): number {
   const days = new Set(dates.map(d => startOfLocalDay(d).getTime()));
   let streak = 0;
   const cursor = startOfLocalDay();
-  // allow yesterday start if nothing today yet
+  // Allow yesterday start if nothing today yet.
   if (!days.has(cursor.getTime())) {
-    cursor.setDate(cursor.getDate() - 1);
+    cursor.setUTCDate(cursor.getUTCDate() - 1);
   }
   while (days.has(cursor.getTime())) {
     streak += 1;
-    cursor.setDate(cursor.getDate() - 1);
+    cursor.setUTCDate(cursor.getUTCDate() - 1);
   }
   return streak;
 }
@@ -419,6 +420,7 @@ export async function getLanguageHubData(
   const weekStart = daysAgo(6);
   const now = new Date();
   const todayStart = startOfLocalDay();
+  const todayInstant = startOfAppDayInstant(now);
   const cardWhere = {
     userId,
     ...(pf.projectId !== undefined ? { projectId: pf.projectId } : {}),
@@ -431,6 +433,7 @@ export async function getLanguageHubData(
       lesson: i + 1,
       total: 0,
       due: 0,
+      fresh: 0,
     }));
 
   const [
@@ -450,6 +453,7 @@ export async function getLanguageHubData(
     deckStats,
     lessonStats,
     lessonDueStats,
+    lessonFreshStats,
     listeningClips,
     examTrackRows,
     recentMockRows,
@@ -518,7 +522,11 @@ export async function getLanguageHubData(
       : Promise.resolve([]),
     needVocab
       ? db.langCard.count({
-          where: { ...cardWhere, nextReviewAt: { lte: now } },
+          where: {
+            ...cardWhere,
+            reviewCount: { gt: 0 },
+            nextReviewAt: { lte: now },
+          },
         })
       : Promise.resolve(0),
     needVocab ? db.langCard.count({ where: cardWhere }) : Promise.resolve(0),
@@ -527,14 +535,18 @@ export async function getLanguageHubData(
       : Promise.resolve(0),
     needVocab
       ? db.langCard.count({
-          where: { ...cardWhere, lastReviewedAt: { gte: todayStart } },
+          where: { ...cardWhere, lastReviewedAt: { gte: todayInstant } },
         })
       : Promise.resolve(0),
     needVocab
       ? db.langCard.findMany({
-          where: { ...cardWhere, nextReviewAt: { lte: now } },
+          where: {
+            ...cardWhere,
+            reviewCount: { gt: 0 },
+            nextReviewAt: { lte: now },
+          },
           orderBy: [{ nextReviewAt: "asc" }, { createdAt: "asc" }],
-          take: 40,
+          take: Math.max(REVIEW_QUEUE_TAKE * 3, 60),
           select: cardSelect,
         })
       : Promise.resolve([]),
@@ -550,7 +562,7 @@ export async function getLanguageHubData(
       ? db.langCard.findMany({
           where: { ...cardWhere, ...hardCardWhere() },
           orderBy: [{ lapses: "desc" }, { box: "asc" }, { updatedAt: "desc" }],
-          take: 20,
+          take: REVIEW_QUEUE_TAKE,
           select: cardSelect,
         })
       : Promise.resolve([]),
@@ -587,7 +599,20 @@ export async function getLanguageHubData(
             ...cardWhere,
             deckKey: { in: [...VOCAB_DECK_KEYS] },
             lesson: { not: null },
+            reviewCount: { gt: 0 },
             nextReviewAt: { lte: now },
+          },
+          _count: { _all: true },
+        })
+      : Promise.resolve([]),
+    needVocab
+      ? db.langCard.groupBy({
+          by: ["deckKey", "lesson"],
+          where: {
+            ...cardWhere,
+            deckKey: { in: [...VOCAB_DECK_KEYS] },
+            lesson: { not: null },
+            reviewCount: 0,
           },
           _count: { _all: true },
         })
@@ -690,6 +715,11 @@ export async function getLanguageHubData(
     if (!row.deckKey || row.lesson == null) continue;
     totalByDeckLesson.set(`${row.deckKey}:${row.lesson}`, row._count._all);
   }
+  const freshByDeckLesson = new Map<string, number>();
+  for (const row of lessonFreshStats) {
+    if (!row.deckKey || row.lesson == null) continue;
+    freshByDeckLesson.set(`${row.deckKey}:${row.lesson}`, row._count._all);
+  }
   const installedByDeck = new Map(
     deckStats
       .filter(r => r.deckKey)
@@ -701,11 +731,12 @@ export async function getLanguageHubData(
     const lessons = emptyLessons(deck.lessonCount);
     let due = 0;
     for (const slot of lessons) {
-      const total = totalByDeckLesson.get(`${deck.key}:${slot.lesson}`) ?? 0;
-      const lessonDue =
-        dueByDeckLesson.get(`${deck.key}:${slot.lesson}`) ?? 0;
+      const key = `${deck.key}:${slot.lesson}`;
+      const total = totalByDeckLesson.get(key) ?? 0;
+      const lessonDue = dueByDeckLesson.get(key) ?? 0;
       slot.total = total;
       slot.due = lessonDue;
+      slot.fresh = freshByDeckLesson.get(key) ?? 0;
       due += lessonDue;
     }
     return {
@@ -816,7 +847,10 @@ export async function getLanguageHubData(
       wordCount: countWords(d.contentText),
     })),
     vocab,
-    dueCards: dueCards.map(mapCard),
+    dueCards: sortDueForReview(dueCards.map(mapCard)).slice(
+      0,
+      REVIEW_QUEUE_TAKE,
+    ),
     recentCards: recentCards.map(mapCard),
     hardCards: hardCards.map(mapCard),
     vocabDecks,
@@ -836,17 +870,21 @@ export async function listDueCards(
 ): Promise<LangCardItem[]> {
   const pf = projectFilter(opts?.scope ?? "all");
   const now = new Date();
+  const take = opts?.take ?? REVIEW_QUEUE_TAKE;
   const rows = await db.langCard.findMany({
     where: {
       userId,
+      // Review = already studied at least once. Brand-new installs stay in Study.
+      reviewCount: { gt: 0 },
       nextReviewAt: { lte: now },
       ...(pf.projectId !== undefined ? { projectId: pf.projectId } : {}),
     },
     orderBy: [{ nextReviewAt: "asc" }, { createdAt: "asc" }],
-    take: opts?.take ?? 40,
+    // Over-fetch so learning cards are not starved by older graduated dues.
+    take: Math.max(take * 3, 60),
     select: cardSelect,
   });
-  return rows.map(mapCard);
+  return sortDueForReview(rows.map(mapCard)).slice(0, take);
 }
 
 /** Hard / weak cards for focused review (not limited to due). */
@@ -861,11 +899,12 @@ export async function listHardCards(
   const rows = await db.langCard.findMany({
     where: {
       userId,
+      reviewCount: { gt: 0 },
       ...hardCardWhere(),
       ...(pf.projectId !== undefined ? { projectId: pf.projectId } : {}),
     },
     orderBy: [{ lapses: "desc" }, { box: "asc" }, { nextReviewAt: "asc" }],
-    take: opts?.take ?? 40,
+    take: opts?.take ?? REVIEW_QUEUE_TAKE,
     select: cardSelect,
   });
   return rows.map(mapCard);

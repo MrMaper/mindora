@@ -341,26 +341,29 @@ export async function installVocabDeckAction(input: {
   );
   if (!resolved.ok) return { success: false, error: resolved.error };
 
+  const projectId =
+    resolved.projectId === undefined ? null : resolved.projectId;
+
+  // Skip fronts the user already owns in this project (any deck) so
+  // reinstall / multi-pack installs never create duplicate words.
   const existing = await db.langCard.findMany({
     where: {
       userId: session.user.id,
-      deckKey: deck.key,
-      projectId: resolved.projectId === undefined ? null : resolved.projectId,
+      projectId,
     },
-    select: { front: true, lesson: true },
+    select: { front: true, deckKey: true },
   });
-  const have = new Set(
-    existing.map(c => `${(c.lesson ?? 0)}::${c.front.toLowerCase()}`),
-  );
+  const haveFront = new Set(existing.map(c => c.front.toLowerCase()));
+  const alreadyInDeck = existing.filter(c => c.deckKey === deck.key).length;
 
   const toCreate = deck.starter.filter(
-    c => !have.has(`${c.lesson}::${c.front.toLowerCase()}`),
+    c => !haveFront.has(c.front.toLowerCase()),
   );
 
   if (toCreate.length === 0) {
     return {
       success: true,
-      data: { added: 0, total: existing.length },
+      data: { added: 0, total: alreadyInDeck },
     };
   }
 
@@ -372,8 +375,7 @@ export async function installVocabDeckAction(input: {
     tags: deckTag(deck.key, c.lesson),
     deckKey: deck.key,
     lesson: c.lesson,
-    projectId:
-      resolved.projectId === undefined ? null : resolved.projectId,
+    projectId,
     box: 0,
     learningStep: 0,
     intervalDays: 0,
@@ -390,7 +392,7 @@ export async function installVocabDeckAction(input: {
     success: true,
     data: {
       added: toCreate.length,
-      total: existing.length + toCreate.length,
+      total: alreadyInDeck + toCreate.length,
     },
   };
 }
@@ -534,7 +536,11 @@ export async function listDueCardsAction(input?: {
         : input.projectId;
 
   const { listDueCards, listHardCards } = await import("./queries");
-  const take = Math.min(80, Math.max(1, input?.take ?? 40));
+  const { REVIEW_QUEUE_TAKE } = await import("./srs");
+  const take = Math.min(
+    REVIEW_QUEUE_TAKE,
+    Math.max(1, input?.take ?? REVIEW_QUEUE_TAKE),
+  );
   const cards =
     input?.filter === "hard"
       ? await listHardCards(session.user.id, { scope, take })

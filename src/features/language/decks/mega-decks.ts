@@ -12,6 +12,12 @@ const DECK_BANKS: Record<string, string[]> = {
   daily: ["daily"],
   cs: ["cs"],
   ai: ["ai"],
+  health: ["health"],
+  law: ["law"],
+  media: ["media"],
+  psychology: ["psychology"],
+  phrasal: ["phrasal"],
+  environment: ["environment"],
 };
 
 async function deckFromBanks(

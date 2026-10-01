@@ -3,7 +3,6 @@ import { notify } from "@/lib/notify";
 import { formatNumber } from "@/lib/utils";
 import { getBaleRuntime } from "@/features/external/bots/bale/config";
 import { baleAppOrigin, deliverBale } from "@/features/external/bots/bale/deliver";
-import { REVIEW_DAILY_CAP } from "./srs";
 import { startOfAppDay } from "./day";
 
 async function sendBaleVocabDm(
@@ -47,7 +46,11 @@ export async function ensureVocabReviewReminders(
   const now = new Date();
   const today = startOfAppDay(now);
   const dueCount = await db.langCard.count({
-    where: { userId, nextReviewAt: { lte: now } },
+    where: {
+      userId,
+      reviewCount: { gt: 0 },
+      nextReviewAt: { lte: now },
+    },
   });
   if (dueCount <= 0) return;
 
@@ -69,8 +72,8 @@ export async function ensureVocabReviewReminders(
       : `${n} واژه موعد مرور دارد — امروز مرور کن`;
   const body =
     language === "EN"
-      ? `Daily quota up to ${REVIEW_DAILY_CAP} cards.`
-      : `سهم روزانه تا ${formatNumber(REVIEW_DAILY_CAP, language)} کارت.`;
+      ? "Review every due card today — no daily limit."
+      : "همهٔ واژه‌های موعددار را امروز مرور کن — بدون سقف روزانه.";
 
   await notify({
     userId,

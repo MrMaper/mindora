@@ -6,7 +6,6 @@ import { useLanguage, useTranslation } from "@/i18n/provider";
 import {
   createLangCardAction,
   deleteLangCardAction,
-  importLessonCardsAction,
   installVocabDeckAction,
   listDeckCardsAction,
   listDueCardsAction,
@@ -28,12 +27,55 @@ import type {
 } from "@/features/language/types";
 import {
   applyRequeueHint,
-  REVIEW_DAILY_CAP,
+  previewRatingLabel,
+  REVIEW_QUEUE_TAKE,
+  sortDueForReview,
   type RequeueHint,
 } from "@/features/language/srs";
 import { SpeakButton } from "@/components/language/speak-button";
 import { speakWord } from "@/features/language/speak";
 import { cn, formatNumber } from "@/lib/utils";
+import { CheckIcon, LockIcon } from "lucide-react";
+import type { VocabLessonProgress } from "@/features/language/types";
+
+function isLessonStudied(
+  lesson: VocabLessonProgress,
+  localDoneLessons: Set<number>,
+): boolean {
+  if (localDoneLessons.has(lesson.lesson)) return true;
+  return lesson.total > 0 && lesson.fresh === 0;
+}
+
+/** Highest lesson number the user may open (sequential unlock). */
+function maxUnlockedLesson(
+  lessons: VocabLessonProgress[],
+  localDoneLessons: Set<number>,
+): number {
+  const withCards = lessons
+    .filter(l => l.total > 0)
+    .sort((a, b) => a.lesson - b.lesson);
+  if (withCards.length === 0) return 1;
+  let unlocked = withCards[0]!.lesson;
+  for (const l of withCards) {
+    unlocked = l.lesson;
+    if (!isLessonStudied(l, localDoneLessons)) break;
+  }
+  return unlocked;
+}
+
+function nextPlayableLesson(
+  lessons: VocabLessonProgress[],
+  current: number,
+  localDoneLessons: Set<number>,
+): number | null {
+  const withCards = lessons
+    .filter(l => l.total > 0)
+    .sort((a, b) => a.lesson - b.lesson);
+  const cur = withCards.find(l => l.lesson === current);
+  if (!cur || !isLessonStudied(cur, localDoneLessons)) return null;
+  const next = withCards.find(l => l.lesson > current);
+  return next?.lesson ?? null;
+}
 
 type VocabMode = "study" | "review" | "library" | "stats";
 type StudyStyle = "cards" | "list" | "type";
@@ -107,6 +149,42 @@ function deckMeta(
         hint: t.deckAiHint,
         short: t.filterAi,
       };
+    case "health":
+      return {
+        title: t.deckHealthTitle,
+        hint: t.deckHealthHint,
+        short: t.filterHealth,
+      };
+    case "law":
+      return {
+        title: t.deckLawTitle,
+        hint: t.deckLawHint,
+        short: t.filterLaw,
+      };
+    case "media":
+      return {
+        title: t.deckMediaTitle,
+        hint: t.deckMediaHint,
+        short: t.filterMedia,
+      };
+    case "psychology":
+      return {
+        title: t.deckPsychologyTitle,
+        hint: t.deckPsychologyHint,
+        short: t.filterPsychology,
+      };
+    case "phrasal":
+      return {
+        title: t.deckPhrasalTitle,
+        hint: t.deckPhrasalHint,
+        short: t.filterPhrasal,
+      };
+    case "environment":
+      return {
+        title: t.deckEnvironmentTitle,
+        hint: t.deckEnvironmentHint,
+        short: t.filterEnvironment,
+      };
     case "504":
       return {
         title: t.deck504Title,
@@ -171,12 +249,10 @@ export function LanguageVocabPanel({
     installedDecks[0]?.key ?? decks[0]?.key ?? "levels";
 
   const [mode, setMode] = React.useState<VocabMode>(
-    initialReviewFilter === "hard" || stats.dueCount > 0
-      ? "review"
-      : "study",
+    initialReviewFilter === "hard" ? "review" : "study",
   );
   const [studyStyle, setStudyStyle] = React.useState<StudyStyle>("cards");
-  const [direction, setDirection] = React.useState<DirectionMode>("mixed");
+  const [direction, setDirection] = React.useState<DirectionMode>("en-fa");
   const [reviewFilter, setReviewFilter] = React.useState<"all" | "hard">(
     initialReviewFilter,
   );
@@ -187,12 +263,9 @@ export function LanguageVocabPanel({
 
   const [reviewQueue, setReviewQueue] = React.useState<LangCardItem[]>(() => {
     if (initialReviewFilter === "hard") {
-      return hardCards.slice(0, REVIEW_DAILY_CAP);
+      return hardCards.slice(0, REVIEW_QUEUE_TAKE);
     }
-    return dueCards.slice(
-      0,
-      Math.max(0, REVIEW_DAILY_CAP - (stats.reviewedToday ?? 0)),
-    );
+    return sortDueForReview(dueCards).slice(0, REVIEW_QUEUE_TAKE);
   });
   const [studyQueue, setStudyQueue] = React.useState<LangCardItem[]>([]);
   const [revealed, setRevealed] = React.useState(false);
@@ -200,6 +273,8 @@ export function LanguageVocabPanel({
     () => new Set(),
   );
   const [pending, setPending] = React.useState(false);
+  const pendingRef = React.useRef(false);
+  const answeredThisSessionRef = React.useRef<Set<string>>(new Set());
   const [message, setMessage] = React.useState<string | null>(null);
   const [newFront, setNewFront] = React.useState("");
   const [newBack, setNewBack] = React.useState("");
@@ -207,63 +282,57 @@ export function LanguageVocabPanel({
   const [newTags, setNewTags] = React.useState("");
   const [sessionDone, setSessionDone] = React.useState(0);
   const [autoSpeak, setAutoSpeak] = React.useState(true);
-  const [importOpen, setImportOpen] = React.useState(false);
-  const [importText, setImportText] = React.useState("");
-  /** Unique cards rated today — daily card budget. */
-  const [cardsDoneToday, setCardsDoneToday] = React.useState(
-    () => stats.reviewedToday ?? 0,
-  );
+  /** Lessons finished this session (deckKey → lesson numbers). */
+  const [sessionDoneLessons, setSessionDoneLessons] = React.useState<
+    Record<string, number[]>
+  >({});
   const seededReviewRef = React.useRef(false);
-  const cardsDoneTodayRef = React.useRef(cardsDoneToday);
-  cardsDoneTodayRef.current = cardsDoneToday;
-  const touchedTodayRef = React.useRef<Set<string>>(new Set());
 
   const reviewCard = reviewQueue[0] ?? null;
   const studyCard = studyQueue[0] ?? null;
-  const dailyLeft = Math.max(0, REVIEW_DAILY_CAP - cardsDoneToday);
-
-  React.useEffect(() => {
-    setCardsDoneToday(prev => Math.max(prev, stats.reviewedToday ?? 0));
-  }, [stats.reviewedToday]);
 
   React.useEffect(() => {
     if (mode !== "review") {
       seededReviewRef.current = false;
+      answeredThisSessionRef.current = new Set();
       return;
     }
     if (seededReviewRef.current) return;
     seededReviewRef.current = true;
+    answeredThisSessionRef.current = new Set();
     if (reviewFilter === "hard") {
-      setReviewQueue(hardCards.slice(0, REVIEW_DAILY_CAP));
+      setReviewQueue(hardCards.slice(0, REVIEW_QUEUE_TAKE));
       setRevealed(false);
       return;
     }
-    const base = Math.max(
-      cardsDoneTodayRef.current,
-      stats.reviewedToday ?? 0,
-    );
-    setCardsDoneToday(base);
-    setReviewQueue(
-      dueCards.slice(0, Math.max(0, REVIEW_DAILY_CAP - base)),
-    );
+    setReviewQueue(sortDueForReview(dueCards).slice(0, REVIEW_QUEUE_TAKE));
     setRevealed(false);
-    touchedTodayRef.current = new Set();
-  }, [mode, dueCards, hardCards, stats.reviewedToday, reviewFilter]);
+  }, [mode, dueCards, hardCards, reviewFilter]);
 
   async function loadReviewQueue(filter: "all" | "hard") {
+    if (pendingRef.current) return;
+    pendingRef.current = true;
     setPending(true);
     setMessage(null);
     const result = await listDueCardsAction({
-      take: REVIEW_DAILY_CAP,
+      take: REVIEW_QUEUE_TAKE,
       filter,
       ...(projectId !== undefined ? { projectId } : {}),
     });
+    pendingRef.current = false;
     setPending(false);
     if (!result.success) {
       if (result.error) window.alert(result.error);
       return;
     }
-    const cards = mapCards(result.data?.cards);
+    const answered = answeredThisSessionRef.current;
+    const cards = sortDueForReview(
+      mapCards(result.data?.cards).filter(c => {
+        if (!answered.has(c.id)) return true;
+        // Learning cards may become due again same session after a short delay.
+        return c.learningStep != null;
+      }),
+    );
     if (cards.length === 0) {
       setMessage(
         filter === "hard"
@@ -282,18 +351,8 @@ export function LanguageVocabPanel({
     setReviewFilter("hard");
     setMode("review");
     seededReviewRef.current = false;
+    answeredThisSessionRef.current = new Set();
     void loadReviewQueue("hard");
-  }
-
-  function noteCardTouched(card: LangCardItem) {
-    if (touchedTodayRef.current.has(card.id)) return;
-    touchedTodayRef.current.add(card.id);
-    const dayStart = new Date();
-    dayStart.setHours(0, 0, 0, 0);
-    const alreadyToday =
-      card.lastReviewedAt != null &&
-      card.lastReviewedAt.getTime() >= dayStart.getTime();
-    if (!alreadyToday) setCardsDoneToday(n => n + 1);
   }
 
   function advanceQueue(
@@ -312,39 +371,53 @@ export function LanguageVocabPanel({
     kind: "review" | "study",
     card: LangCardItem,
     rating: VocabRating,
+    opts?: { dismissFromSession?: boolean; requeueAs?: RequeueHint },
   ) {
+    if (pendingRef.current) return;
+    pendingRef.current = true;
     setPending(true);
     const result = await reviewLangCardAction({
       cardId: card.id,
       rating,
     });
+    pendingRef.current = false;
     setPending(false);
     if (!result.success) {
       if (result.error) window.alert(result.error);
       return;
     }
-    const hint =
+    // Study first-pass dismisses from this lesson queue even when SRS would
+    // requeue for short-term learning (that belongs in Review).
+    const serverHint =
       (result.data?.requeueInSession as RequeueHint | undefined) ?? "none";
-    noteCardTouched(card);
-    advanceQueue(kind, card, hint);
+    const hint: RequeueHint = opts?.dismissFromSession
+      ? "none"
+      : (opts?.requeueAs ?? serverHint);
+
+    const updated: LangCardItem = {
+      ...card,
+      reviewCount: card.reviewCount + 1,
+      lastReviewedAt: new Date(),
+      learningStep:
+        (result.data?.learningStep as number | null | undefined) ??
+        card.learningStep,
+      box: Number(result.data?.box ?? card.box),
+      nextReviewAt:
+        result.data?.nextReviewAt != null
+          ? new Date(String(result.data.nextReviewAt))
+          : card.nextReviewAt,
+    };
+
+    // Block review refill races for graduated cards only — never block
+    // learning cards (or study intros) from coming back when due.
+    if (kind === "review" && serverHint === "none" && updated.learningStep == null) {
+      answeredThisSessionRef.current.add(card.id);
+    }
+    advanceQueue(kind, updated, hint);
     setSessionDone(n => n + 1);
     setRevealed(false);
     if (kind === "study") {
-      setBank(prev =>
-        prev.map(c =>
-          c.id === card.id
-            ? {
-                ...c,
-                reviewCount: c.reviewCount + 1,
-                lastReviewedAt: new Date(),
-                learningStep:
-                  (result.data?.learningStep as number | null | undefined) ??
-                  c.learningStep,
-                box: Number(result.data?.box ?? c.box),
-              }
-            : c,
-        ),
-      );
+      setBank(prev => prev.map(c => (c.id === card.id ? updated : c)));
     }
   }
 
@@ -354,7 +427,12 @@ export function LanguageVocabPanel({
 
   React.useEffect(() => {
     let cancelled = false;
+    // Drop previous lesson bank immediately so completion can't leak across lessons.
     setBankLoading(true);
+    setBank([]);
+    setStudyQueue([]);
+    setSessionDone(0);
+    setRevealed(false);
     void listDeckCardsAction({
       deckKey,
       lesson,
@@ -369,12 +447,11 @@ export function LanguageVocabPanel({
       }
       const cards = mapCards(result.data?.cards);
       setBank(cards);
+      // Study = first-pass intros only. Learning reps belong in Review.
       const fresh = cards.filter(c => c.reviewCount === 0);
-      const queue = fresh.length > 0 ? fresh : cards;
-      setStudyQueue(queue);
-      setSessionDone(0);
-      setRevealed(false);
+      setStudyQueue(fresh);
       setExpandedIds(new Set());
+      answeredThisSessionRef.current = new Set();
     });
     return () => {
       cancelled = true;
@@ -466,41 +543,6 @@ export function LanguageVocabPanel({
     router.refresh();
   }
 
-  async function onImport() {
-    if (!importText.trim()) return;
-    setPending(true);
-    setMessage(null);
-    const result = await importLessonCardsAction({
-      deckKey,
-      lesson,
-      text: importText,
-      ...(projectId !== undefined ? { projectId } : {}),
-    });
-    setPending(false);
-    if (result.success) {
-      const added = Number(result.data?.added ?? 0);
-      const skipped = Number(result.data?.skipped ?? 0);
-      let msg = t.language.lessonImported.replace(
-        "{n}",
-        formatNumber(added, language),
-      );
-      if (skipped > 0) {
-        msg +=
-          " " +
-          t.language.vocabImportSkipped.replace(
-            "{n}",
-            formatNumber(skipped, language),
-          );
-      }
-      setMessage(msg);
-      setImportText("");
-      setImportOpen(false);
-      router.refresh();
-    } else if (result.error) {
-      window.alert(result.error);
-    }
-  }
-
   async function onRateReview(rating: VocabRating) {
     if (!reviewCard) return;
     await rateCard("review", reviewCard, rating);
@@ -511,6 +553,7 @@ export function LanguageVocabPanel({
 
   React.useEffect(() => {
     function onKey(e: KeyboardEvent) {
+      if (pendingRef.current) return;
       const tag = (e.target as HTMLElement | null)?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
 
@@ -563,12 +606,30 @@ export function LanguageVocabPanel({
   }, [mode, studyStyle, reviewCard, studyCard, revealed]);
 
   async function onStudyKnow(knew: boolean) {
-    if (!studyCard) return;
-    await rateCard("study", studyCard, knew ? "good" : "again");
+    if (!studyCard || pendingRef.current) return;
+    if (knew) {
+      // Advance learning with good; leave this study session (review does SRS reps).
+      await rateCard("study", studyCard, "good", { dismissFromSession: true });
+    } else {
+      // Don't ask again immediately — send to end of remaining lesson cards.
+      await rateCard("study", studyCard, "again", { requeueAs: "end" });
+    }
   }
 
   async function onTypedRate(card: LangCardItem, rating: VocabRating) {
-    await rateCard(mode === "review" ? "review" : "study", card, rating);
+    if (pendingRef.current) return;
+    const kind = mode === "review" ? "review" : "study";
+    if (kind === "study" && (rating === "good" || rating === "easy")) {
+      await rateCard("study", card, "good", { dismissFromSession: true });
+      return;
+    }
+    if (kind === "study" && (rating === "again" || rating === "hard")) {
+      await rateCard("study", card, rating, {
+        requeueAs: rating === "again" ? "end" : "later",
+      });
+      return;
+    }
+    await rateCard(kind, card, rating);
   }
 
   function skipStudyCard() {
@@ -596,6 +657,110 @@ export function LanguageVocabPanel({
   const studyTotal = studyQueue.length + sessionDone;
   const studyProgress =
     studyTotal > 0 ? Math.round((sessionDone / studyTotal) * 100) : 0;
+
+  const selectedDeck =
+    installedDecks.find(d => d.key === deckKey) ??
+    decks.find(d => d.key === deckKey);
+
+  const bankMatchesLesson =
+    bank.length > 0 &&
+    bank.every(c => c.lesson == null || c.lesson === lesson);
+
+  const bankAllStudied =
+    !bankLoading &&
+    bankMatchesLesson &&
+    bank.every(c => c.reviewCount > 0);
+
+  const lessonsFreshKey =
+    selectedDeck?.lessons
+      .map(l => `${l.lesson}:${l.total}:${l.fresh}`)
+      .join("|") ?? "";
+
+  const sessionDoneKey = (sessionDoneLessons[deckKey] ?? []).join(",");
+
+  const localDoneLessons = React.useMemo(() => {
+    const done = new Set<number>();
+    for (const l of selectedDeck?.lessons ?? []) {
+      if (l.total > 0 && l.fresh === 0) done.add(l.lesson);
+    }
+    // Session marks only count when server also shows no fresh cards
+    // (guards against race marks when switching lessons).
+    for (const n of sessionDoneLessons[deckKey] ?? []) {
+      const meta = selectedDeck?.lessons.find(l => l.lesson === n);
+      if (meta && meta.total > 0 && meta.fresh === 0) done.add(n);
+    }
+    if (bankAllStudied) done.add(lesson);
+    return done;
+  }, [
+    sessionDoneKey,
+    deckKey,
+    lessonsFreshKey,
+    bankAllStudied,
+    lesson,
+    selectedDeck?.lessons,
+    sessionDoneLessons,
+  ]);
+
+  React.useEffect(() => {
+    if (mode !== "study") return;
+    if (!bankAllStudied) return;
+    setSessionDoneLessons(prev => {
+      if (prev[deckKey]?.includes(lesson)) return prev;
+      return {
+        ...prev,
+        [deckKey]: [...(prev[deckKey] ?? []), lesson],
+      };
+    });
+    // Intentionally no router.refresh() here: refresh remounts this panel, clears
+    // session marks, reloads an already-studied bank, and loops RSC fetches.
+  }, [mode, bankAllStudied, deckKey, lesson]);
+
+  // Drop false session completions after server fresh counts arrive.
+  React.useEffect(() => {
+    if (!selectedDeck) return;
+    setSessionDoneLessons(prev => {
+      const cur = prev[deckKey];
+      if (!cur?.length) return prev;
+      const kept = cur.filter(n => {
+        const meta = selectedDeck.lessons.find(l => l.lesson === n);
+        if (!meta || meta.total <= 0) return false;
+        if (meta.fresh === 0) return true;
+        // Keep optimistic mark while this lesson’s bank is loading or verified done.
+        if (n === lesson && (bankLoading || bankAllStudied)) return true;
+        return false;
+      });
+      if (
+        kept.length === cur.length &&
+        kept.every((n, i) => n === cur[i])
+      ) {
+        return prev;
+      }
+      return { ...prev, [deckKey]: kept };
+    });
+  }, [
+    deckKey,
+    lessonsFreshKey,
+    selectedDeck,
+    lesson,
+    bankAllStudied,
+    bankLoading,
+  ]);
+
+  const unlockedLesson = maxUnlockedLesson(
+    selectedDeck?.lessons ?? [],
+    localDoneLessons,
+  );
+
+  React.useEffect(() => {
+    if (mode !== "study") return;
+    if (lesson > unlockedLesson) setLesson(unlockedLesson);
+  }, [mode, lesson, unlockedLesson]);
+
+  const nextStudyLesson = nextPlayableLesson(
+    selectedDeck?.lessons ?? [],
+    lesson,
+    localDoneLessons,
+  );
 
   const modes: { id: VocabMode; label: string; badge?: number }[] = [
     { id: "study", label: t.language.vocabModeStudy },
@@ -651,39 +816,28 @@ export function LanguageVocabPanel({
       )}
 
       {/* Compact stats */}
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 flex-1 min-w-[16rem]">
-          {(
-            [
-              [stats.streakDays, t.language.vocabStreak],
-              [stats.dueCount, t.language.vocabDue],
-              [stats.reviewedToday, t.language.vocabReviewedToday],
-              [stats.newCount, t.language.vocabNewLabel],
-            ] as const
-          ).map(([n, label], i) => (
-            <div
-              key={i}
-              className="rounded-xl border bg-card px-3 py-2.5 text-center"
-            >
-              <p className="text-xl font-semibold tabular-nums leading-none">
-                {formatNumber(n, language)}
-              </p>
-              <p className="text-[10px] text-muted-foreground mt-1">{label}</p>
-            </div>
-          ))}
-        </div>
-        <label className="flex items-center gap-2 rounded-xl border bg-card px-3 py-2 text-xs text-muted-foreground cursor-pointer select-none shrink-0">
-          <input
-            type="checkbox"
-            checked={autoSpeak}
-            onChange={e => setAutoSpeak(e.target.checked)}
-            className="rounded border"
-          />
-          {t.language.vocabAutoSpeak}
-        </label>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        {(
+          [
+            [stats.streakDays, t.language.vocabStreak],
+            [stats.dueCount, t.language.vocabDue],
+            [stats.reviewedToday, t.language.vocabReviewedToday],
+            [stats.newCount, t.language.vocabNewLabel],
+          ] as const
+        ).map(([n, label], i) => (
+          <div
+            key={i}
+            className="rounded-xl border bg-card px-3 py-2.5 text-center"
+          >
+            <p className="text-xl font-semibold tabular-nums leading-none">
+              {formatNumber(n, language)}
+            </p>
+            <p className="text-[10px] text-muted-foreground mt-1">{label}</p>
+          </div>
+        ))}
       </div>
 
-      {/* Direction — study & review */}
+      {/* Direction + auto-speak — study & review */}
       {(mode === "study" || mode === "review") && (
         <div className="flex flex-wrap items-center gap-1.5">
           {(
@@ -710,6 +864,15 @@ export function LanguageVocabPanel({
               {label}
             </button>
           ))}
+          <label className="flex items-center gap-2 rounded-md border px-2.5 py-1 text-xs text-muted-foreground cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={autoSpeak}
+              onChange={e => setAutoSpeak(e.target.checked)}
+              className="rounded border"
+            />
+            {t.language.vocabAutoSpeak}
+          </label>
         </div>
       )}
 
@@ -731,12 +894,13 @@ export function LanguageVocabPanel({
                 lesson={lesson}
                 language={language}
                 t={t.language}
-                showEmptyLessons
+                lockProgression
+                localDoneLessons={localDoneLessons}
                 onDeck={key => {
                   setDeckKey(key);
                   setLesson(1);
                 }}
-                onLesson={setLesson}
+                onLesson={n => setLesson(n)}
               />
 
               <div className="flex flex-wrap items-center gap-1.5">
@@ -764,43 +928,12 @@ export function LanguageVocabPanel({
                     {label}
                   </button>
                 ))}
-                <button
-                  type="button"
-                  onClick={() => setImportOpen(o => !o)}
-                  className={cn(
-                    "ms-auto rounded-md border px-2.5 py-1 text-xs",
-                    importOpen
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:bg-accent",
-                  )}
-                >
-                  {t.language.vocabImportToggle}
-                </button>
                 {bankLoading && (
-                  <span className="text-[11px] text-muted-foreground">
+                  <span className="ms-auto text-[11px] text-muted-foreground">
                     {t.common.loading}
                   </span>
                 )}
               </div>
-
-              {importOpen && (
-                <ImportLessonBox
-                  text={importText}
-                  pending={pending}
-                  language={language}
-                  lesson={lesson}
-                  hint={t.language.lessonImportHint}
-                  placeholder={t.language.vocabImportPlaceholder}
-                  submitLabel={
-                    pending
-                      ? t.language.vocabImportBusy
-                      : t.language.importLesson
-                  }
-                  lessonLabel={t.language.deckLesson}
-                  onChange={setImportText}
-                  onSubmit={() => void onImport()}
-                />
-              )}
 
               {studyStyle === "cards" && (
                 <>
@@ -812,53 +945,69 @@ export function LanguageVocabPanel({
                       />
                     </div>
                   )}
-                  <FlipCard
-                    card={studyCard}
-                    direction={direction}
-                    revealed={revealed}
-                    pending={pending}
-                    remaining={studyQueue.length}
-                    language={language}
-                    autoSpeak={autoSpeak}
-                    speakLabel={t.language.vocabSpeak}
-                    labels={{
-                      empty: t.language.vocabStudyCaughtUp,
-                      reveal: t.language.revealCard,
-                      remaining: t.language.vocabRemaining,
-                      hint: t.language.vocabSpaceHint,
-                    }}
-                    footer={
-                      revealed ? (
-                        <div className="px-4 pb-4 flex flex-wrap gap-2 justify-center">
-                          <Button
-                            size="sm"
-                            variant="danger"
-                            disabled={pending}
-                            onClick={() => void onStudyKnow(false)}
-                          >
-                            {t.language.vocabDontKnow}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="subtle"
-                            disabled={pending}
-                            onClick={skipStudyCard}
-                          >
-                            {t.language.vocabSkip}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="primary"
-                            disabled={pending}
-                            onClick={() => void onStudyKnow(true)}
-                          >
-                            {t.language.vocabKnow}
-                          </Button>
-                        </div>
-                      ) : null
-                    }
-                    onReveal={() => setRevealed(true)}
-                  />
+                  {!bankLoading && !studyCard ? (
+                    <StudyLessonDone
+                      title={
+                        nextStudyLesson != null
+                          ? t.language.vocabStudyCaughtUp
+                          : t.language.vocabStudyAllDone
+                      }
+                      nextLabel={t.language.vocabNextLesson}
+                      reviewLabel={t.language.vocabModeReview}
+                      nextLesson={nextStudyLesson}
+                      language={language}
+                      onNextLesson={n => setLesson(n)}
+                      onReview={() => setMode("review")}
+                    />
+                  ) : (
+                    <FlipCard
+                      card={studyCard}
+                      direction={direction}
+                      revealed={revealed}
+                      pending={pending}
+                      remaining={studyQueue.length}
+                      language={language}
+                      autoSpeak={autoSpeak}
+                      speakLabel={t.language.vocabSpeak}
+                      labels={{
+                        empty: t.language.vocabStudyCaughtUp,
+                        reveal: t.language.revealCard,
+                        remaining: t.language.vocabRemaining,
+                        hint: t.language.vocabSpaceHint,
+                      }}
+                      footer={
+                        revealed ? (
+                          <div className="px-4 pb-4 flex flex-wrap gap-2 justify-center">
+                            <Button
+                              size="sm"
+                              variant="danger"
+                              disabled={pending}
+                              onClick={() => void onStudyKnow(false)}
+                            >
+                              {t.language.vocabDontKnow}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="subtle"
+                              disabled={pending}
+                              onClick={skipStudyCard}
+                            >
+                              {t.language.vocabSkip}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="primary"
+                              disabled={pending}
+                              onClick={() => void onStudyKnow(true)}
+                            >
+                              {t.language.vocabKnow}
+                            </Button>
+                          </div>
+                        ) : null
+                      }
+                      onReveal={() => setRevealed(true)}
+                    />
+                  )}
                 </>
               )}
 
@@ -872,32 +1021,48 @@ export function LanguageVocabPanel({
                       />
                     </div>
                   )}
-                  <TypeCard
-                    card={studyCard}
-                    direction={direction}
-                    pending={pending}
-                    remaining={studyQueue.length}
-                    language={language}
-                    autoSpeak={autoSpeak}
-                    speakLabel={t.language.vocabSpeak}
-                    empty={t.language.vocabStudyCaughtUp}
-                    remainingLabel={t.language.vocabRemaining}
-                    labels={{
-                      placeholder: t.language.vocabTypePlaceholder,
-                      check: t.language.vocabTypeCheck,
-                      exact: t.language.vocabTypeExact,
-                      close: t.language.vocabTypeClose,
-                      wrong: t.language.vocabTypeWrong,
-                      expected: t.language.vocabTypeExpected,
-                      continue: t.language.vocabTypeContinue,
-                      hint: t.language.vocabTypeHint,
-                      skip: t.language.vocabSkip,
-                    }}
-                    onSkip={skipStudyCard}
-                    onDone={(rating) => {
-                      if (studyCard) void onTypedRate(studyCard, rating);
-                    }}
-                  />
+                  {!bankLoading && !studyCard ? (
+                    <StudyLessonDone
+                      title={
+                        nextStudyLesson != null
+                          ? t.language.vocabStudyCaughtUp
+                          : t.language.vocabStudyAllDone
+                      }
+                      nextLabel={t.language.vocabNextLesson}
+                      reviewLabel={t.language.vocabModeReview}
+                      nextLesson={nextStudyLesson}
+                      language={language}
+                      onNextLesson={n => setLesson(n)}
+                      onReview={() => setMode("review")}
+                    />
+                  ) : (
+                    <TypeCard
+                      card={studyCard}
+                      direction={direction}
+                      pending={pending}
+                      remaining={studyQueue.length}
+                      language={language}
+                      autoSpeak={autoSpeak}
+                      speakLabel={t.language.vocabSpeak}
+                      empty={t.language.vocabStudyCaughtUp}
+                      remainingLabel={t.language.vocabRemaining}
+                      labels={{
+                        placeholder: t.language.vocabTypePlaceholder,
+                        check: t.language.vocabTypeCheck,
+                        exact: t.language.vocabTypeExact,
+                        close: t.language.vocabTypeClose,
+                        wrong: t.language.vocabTypeWrong,
+                        expected: t.language.vocabTypeExpected,
+                        continue: t.language.vocabTypeContinue,
+                        hint: t.language.vocabTypeHint,
+                        skip: t.language.vocabSkip,
+                      }}
+                      onSkip={skipStudyCard}
+                      onDone={(rating) => {
+                        if (studyCard) void onTypedRate(studyCard, rating);
+                      }}
+                    />
+                  )}
                 </>
               )}
 
@@ -987,12 +1152,10 @@ export function LanguageVocabPanel({
             <span className="ms-auto text-[11px] text-muted-foreground tabular-nums">
               {reviewFilter === "hard"
                 ? `${formatNumber(reviewQueue.length, language)} · ${t.language.vocabFilterHard}`
-                : t.language.vocabDailyLeft
-                    .replace("{n}", formatNumber(dailyLeft, language))
-                    .replace(
-                      "{cap}",
-                      formatNumber(REVIEW_DAILY_CAP, language),
-                    )}
+                : t.language.vocabDailyLeft.replace(
+                    "{n}",
+                    formatNumber(reviewQueue.length, language),
+                  )}
             </span>
             <Button
               size="sm"
@@ -1009,17 +1172,7 @@ export function LanguageVocabPanel({
               <p className="text-base font-medium">
                 {reviewFilter === "hard"
                   ? t.language.vocabHardQueueEmpty
-                  : cardsDoneToday >= REVIEW_DAILY_CAP
-                    ? t.language.vocabDailyDone
-                        .replace(
-                          "{done}",
-                          formatNumber(cardsDoneToday, language),
-                        )
-                        .replace(
-                          "{cap}",
-                          formatNumber(REVIEW_DAILY_CAP, language),
-                        )
-                    : t.language.vocabCaughtUp}
+                  : t.language.vocabCaughtUp}
               </p>
               <p className="text-sm text-muted-foreground mt-1">
                 {stats.dueCount > 0
@@ -1027,7 +1180,7 @@ export function LanguageVocabPanel({
                   : t.language.vocabReviewGoStudy}
               </p>
               <div className="mt-4 flex flex-wrap justify-center gap-2">
-                {stats.dueCount > 0 || cardsDoneToday >= REVIEW_DAILY_CAP ? (
+                {stats.dueCount > 0 ? (
                   <Button
                     size="sm"
                     variant="primary"
@@ -1118,9 +1271,12 @@ export function LanguageVocabPanel({
                         variant={variant}
                         disabled={pending}
                         onClick={() => void onRateReview(rating)}
-                        className="w-full"
+                        className="w-full flex flex-col gap-0.5 h-auto py-2"
                       >
-                        {label}
+                        <span>{label}</span>
+                        <span className="text-[10px] font-normal opacity-80 tabular-nums">
+                          {previewRatingLabel(reviewCard, rating, language)}
+                        </span>
                       </Button>
                     ))}
                   </div>
@@ -1219,14 +1375,14 @@ export function LanguageVocabPanel({
             {decks.map(deck => {
               const meta = deckMeta(deck.key, t.language);
               const filledLessons = deck.lessons.filter(l => l.total > 0).length;
-              const seenPct =
-                deck.installed > 0
-                  ? Math.round((deck.seen / deck.installed) * 100)
-                  : 0;
-              const masteredPct =
-                deck.installed > 0
-                  ? Math.round((deck.mastered / deck.installed) * 100)
-                  : 0;
+              const installed = deck.installed > 0;
+              const totalShown = installed ? deck.installed : deck.starterCount;
+              const seenPct = installed
+                ? Math.round((deck.seen / deck.installed) * 100)
+                : 0;
+              const masteredPct = installed
+                ? Math.round((deck.mastered / deck.installed) * 100)
+                : 0;
               return (
                 <div
                   key={deck.key}
@@ -1243,16 +1399,16 @@ export function LanguageVocabPanel({
                     </div>
                     <Button
                       size="sm"
-                      variant={deck.installed > 0 ? "subtle" : "primary"}
+                      variant={installed ? "subtle" : "primary"}
                       disabled={pending}
                       onClick={() => void onInstall(deck.key)}
                     >
-                      {deck.installed > 0
+                      {installed
                         ? t.language.deckSyncStarter
                         : t.language.deckInstall}
                     </Button>
                   </div>
-                  {deck.installed > 0 && (
+                  {installed && (
                     <DeckProgressBar
                       seenPct={seenPct}
                       masteredPct={masteredPct}
@@ -1260,33 +1416,39 @@ export function LanguageVocabPanel({
                   )}
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground tabular-nums">
                     <span>
-                      {formatNumber(deck.installed, language)}{" "}
-                      {t.language.vocabTotalLabel}
+                      {formatNumber(totalShown, language)}{" "}
+                      {installed
+                        ? t.language.vocabTotalLabel
+                        : t.language.deckWordCount}
                     </span>
+                    {installed ? (
+                      <>
+                        <span>
+                          {formatNumber(deck.seen, language)}{" "}
+                          {t.language.vocabSeen}
+                        </span>
+                        <span>
+                          {formatNumber(deck.mastered, language)}{" "}
+                          {t.language.vocabMastered}
+                        </span>
+                        <span>
+                          {formatNumber(deck.fresh, language)}{" "}
+                          {t.language.vocabFresh}
+                        </span>
+                        {deck.due > 0 && (
+                          <span className="text-primary">
+                            {formatNumber(deck.due, language)}{" "}
+                            {t.language.vocabDueShort}
+                          </span>
+                        )}
+                      </>
+                    ) : null}
                     <span>
-                      {formatNumber(deck.seen, language)}{" "}
-                      {t.language.vocabSeen}
-                    </span>
-                    <span>
-                      {formatNumber(deck.mastered, language)}{" "}
-                      {t.language.vocabMastered}
-                    </span>
-                    <span>
-                      {formatNumber(deck.fresh, language)}{" "}
-                      {t.language.vocabFresh}
-                    </span>
-                    {deck.due > 0 && (
-                      <span className="text-primary">
-                        {formatNumber(deck.due, language)}{" "}
-                        {t.language.vocabDueShort}
-                      </span>
-                    )}
-                    <span>
-                      {formatNumber(filledLessons, language)}{" "}
+                      {formatNumber(deck.lessonCount, language)}{" "}
                       {t.language.deckLesson}
                     </span>
                   </div>
-                  {deck.installed > 0 && (
+                  {installed && (
                     <div className="flex flex-wrap gap-1 pt-1">
                       {deck.lessons
                         .filter(l => l.total > 0)
@@ -1484,7 +1646,7 @@ function EmptyInstall({
   cta: string;
 }) {
   return (
-    <div className="rounded-2xl border bg-card px-6 py-12 text-center">
+    <div className="rounded-2xl border bg-card px-6 py-12 flex flex-col items-center text-center">
       <p className="text-base font-medium">{title}</p>
       <Button
         size="sm"
@@ -1495,6 +1657,45 @@ function EmptyInstall({
       >
         {cta}
       </Button>
+    </div>
+  );
+}
+
+function StudyLessonDone({
+  title,
+  nextLabel,
+  reviewLabel,
+  nextLesson,
+  language,
+  onNextLesson,
+  onReview,
+}: {
+  title: string;
+  nextLabel: string;
+  reviewLabel: string;
+  nextLesson: number | null;
+  language: "FA" | "EN";
+  onNextLesson: (n: number) => void;
+  onReview: () => void;
+}) {
+  return (
+    <div className="rounded-2xl border bg-card px-6 py-12 flex flex-col items-center text-center gap-3">
+      <p className="text-base font-medium">{title}</p>
+      <div className="flex flex-wrap justify-center gap-2">
+        {nextLesson != null ? (
+          <Button
+            size="sm"
+            variant="primary"
+            onClick={() => onNextLesson(nextLesson)}
+          >
+            {nextLabel} {formatNumber(nextLesson, language)}
+          </Button>
+        ) : (
+          <Button size="sm" variant="subtle" onClick={onReview}>
+            {reviewLabel}
+          </Button>
+        )}
+      </div>
     </div>
   );
 }
@@ -1522,63 +1723,14 @@ function DeckProgressBar({
   );
 }
 
-function ImportLessonBox({
-  text,
-  pending,
-  language,
-  lesson,
-  hint,
-  placeholder,
-  submitLabel,
-  lessonLabel,
-  onChange,
-  onSubmit,
-}: {
-  text: string;
-  pending: boolean;
-  language: "FA" | "EN";
-  lesson: number;
-  hint: string;
-  placeholder: string;
-  submitLabel: string;
-  lessonLabel: string;
-  onChange: (v: string) => void;
-  onSubmit: () => void;
-}) {
-  return (
-    <div className="rounded-xl border bg-card p-3 space-y-2">
-      <p className="text-[11px] text-muted-foreground">
-        {lessonLabel} {formatNumber(lesson, language)} · {hint}
-      </p>
-      <textarea
-        value={text}
-        onChange={e => onChange(e.target.value)}
-        rows={5}
-        placeholder={placeholder}
-        className="w-full rounded-lg border bg-background px-3 py-2 text-sm font-mono leading-relaxed resize-y min-h-[6rem]"
-        dir="auto"
-      />
-      <div className="flex justify-end">
-        <Button
-          size="sm"
-          variant="primary"
-          disabled={pending || !text.trim()}
-          onClick={onSubmit}
-        >
-          {submitLabel}
-        </Button>
-      </div>
-    </div>
-  );
-}
-
 function DeckLessonPicker({
   decks,
   deckKey,
   lesson,
   language,
   t,
-  showEmptyLessons,
+  lockProgression,
+  localDoneLessons,
   onDeck,
   onLesson,
 }: {
@@ -1587,30 +1739,34 @@ function DeckLessonPicker({
   lesson: number;
   language: "FA" | "EN";
   t: ReturnType<typeof useTranslation>["language"];
-  showEmptyLessons?: boolean;
+  lockProgression?: boolean;
+  localDoneLessons?: Set<number>;
   onDeck: (key: string) => void;
   onLesson: (n: number) => void;
 }) {
   const selected = decks.find(d => d.key === deckKey);
-  const lessons = showEmptyLessons
-    ? (selected?.lessons ?? [])
-    : (selected?.lessons ?? []).filter(l => l.total > 0);
+  const lessons = (selected?.lessons ?? []).filter(l => l.total > 0);
+  const done = localDoneLessons ?? new Set<number>();
+  const unlocked = lockProgression
+    ? maxUnlockedLesson(selected?.lessons ?? [], done)
+    : Number.POSITIVE_INFINITY;
 
   return (
-    <div className="rounded-xl border bg-card p-3 space-y-2.5">
+    <div className="rounded-2xl border bg-card/80 p-3.5 space-y-3 shadow-sm">
       <div className="flex gap-1.5 overflow-x-auto pb-0.5">
         {decks.map(d => {
           const meta = deckMeta(d.key, t);
+          const active = deckKey === d.key;
           return (
             <button
               key={d.key}
               type="button"
               onClick={() => onDeck(d.key)}
               className={cn(
-                "shrink-0 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors",
-                deckKey === d.key
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:bg-accent",
+                "shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-all",
+                active
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "bg-muted/60 text-muted-foreground hover:bg-accent hover:text-foreground",
               )}
             >
               {meta.short}
@@ -1619,24 +1775,59 @@ function DeckLessonPicker({
         })}
       </div>
       {lessons.length > 0 && (
-        <div className="flex gap-1 overflow-x-auto">
-          {lessons.map(l => (
-            <button
-              key={l.lesson}
-              type="button"
-              onClick={() => onLesson(l.lesson)}
-              className={cn(
-                "shrink-0 rounded-md px-2 py-1 text-[11px] tabular-nums border transition-colors",
-                lesson === l.lesson
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : l.total === 0
-                    ? "border-dashed text-muted-foreground/70 hover:bg-accent"
-                    : "hover:bg-accent text-muted-foreground",
-              )}
-            >
-              {t.deckLesson} {formatNumber(l.lesson, language)}
-            </button>
-          ))}
+        <div className="flex gap-2 overflow-x-auto pb-0.5">
+          {lessons.map(l => {
+            const studied = isLessonStudied(l, done);
+            const locked = lockProgression && l.lesson > unlocked;
+            const active = lesson === l.lesson;
+            return (
+              <button
+                key={l.lesson}
+                type="button"
+                disabled={locked}
+                title={
+                  locked
+                    ? t.vocabLessonLocked
+                    : studied
+                      ? t.vocabLessonDone
+                      : undefined
+                }
+                onClick={() => {
+                  if (!locked) onLesson(l.lesson);
+                }}
+                className={cn(
+                  "relative shrink-0 flex flex-col items-center justify-center gap-1.5",
+                  "h-16 min-w-[3.25rem] px-1.5 rounded-xl border text-xs tabular-nums transition-all",
+                  locked &&
+                    "opacity-45 cursor-not-allowed border-dashed bg-muted/30 text-muted-foreground",
+                  !locked &&
+                    active &&
+                    "border-primary bg-primary text-primary-foreground shadow-md scale-[1.03]",
+                  !locked &&
+                    !active &&
+                    studied &&
+                    "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/15",
+                  !locked &&
+                    !active &&
+                    !studied &&
+                    "border-border/80 bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground hover:bg-accent/60",
+                )}
+              >
+                {locked ? (
+                  <LockIcon className="size-3.5 opacity-70" aria-hidden />
+                ) : studied && !active ? (
+                  <CheckIcon className="size-3.5" aria-hidden />
+                ) : (
+                  <span className="text-[10px] opacity-70 leading-none">
+                    {t.deckLesson}
+                  </span>
+                )}
+                <span className="font-semibold leading-none mt-0.5">
+                  {formatNumber(l.lesson, language)}
+                </span>
+              </button>
+            );
+          })}
         </div>
       )}
     </div>
@@ -2021,55 +2212,55 @@ function StudyList({
           const { prompt, answer } = sides(card, dir);
           return (
             <li key={card.id}>
-              <div className="flex items-start gap-1 px-2 py-1">
-                <button
-                  type="button"
-                  onClick={() => onToggle(card.id)}
-                  className="min-w-0 flex-1 text-start px-2 py-2 hover:bg-accent/50 rounded-lg transition-colors"
-                >
-                  <div className="flex items-baseline gap-3">
-                    <span className="text-[10px] text-muted-foreground tabular-nums w-5 shrink-0">
-                      {formatNumber(i + 1, language)}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p
-                        className="text-base font-semibold tracking-tight"
-                        dir="auto"
-                      >
-                        {prompt}
-                      </p>
-                      {open ? (
-                        <div className="mt-1.5 space-y-1">
-                          <p
-                            className="text-sm text-foreground/85 leading-relaxed"
-                            dir="auto"
-                          >
-                            {answer}
-                          </p>
-                          {card.example && (
-                            <p className="text-xs text-muted-foreground italic">
-                              {card.example}
-                            </p>
-                          )}
-                        </div>
-                      ) : (
-                        <p className="text-[11px] text-muted-foreground mt-0.5">
-                          {tapHint}
-                          {direction === "mixed"
-                            ? ` · ${dir === "en-fa" ? "EN→FA" : "FA→EN"}`
-                            : ""}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </button>
+              <div
+                dir="ltr"
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2.5",
+                  "hover:bg-accent/40 transition-colors",
+                  open && "bg-primary/[0.04]",
+                )}
+              >
+                <span className="w-5 shrink-0 text-[11px] text-muted-foreground tabular-nums text-center">
+                  {formatNumber(i + 1, language)}
+                </span>
                 <SpeakButton
                   text={card.front}
                   label={speakLabel}
                   size="sm"
-                  className="mt-2 me-1 shrink-0"
+                  className="shrink-0"
                 />
+                <button
+                  type="button"
+                  onClick={() => onToggle(card.id)}
+                  className="shrink-0 text-left text-base font-semibold tracking-tight rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  {prompt}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onToggle(card.id)}
+                  className={cn(
+                    "min-w-0 flex-1 text-start truncate rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    open
+                      ? "text-sm text-foreground/85"
+                      : "text-[11px] text-muted-foreground",
+                  )}
+                  dir="auto"
+                >
+                  {open ? answer : tapHint}
+                  {!open && direction === "mixed"
+                    ? ` · ${dir === "en-fa" ? "EN→FA" : "FA→EN"}`
+                    : ""}
+                </button>
               </div>
+              {open && card.example ? (
+                <p
+                  className="px-3 pb-2.5 ps-14 text-xs text-muted-foreground italic leading-relaxed"
+                  dir="auto"
+                >
+                  {card.example}
+                </p>
+              ) : null}
             </li>
           );
         })}

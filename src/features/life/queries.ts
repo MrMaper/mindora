@@ -269,7 +269,11 @@ export async function getPersonalDashboard(
     }),
     wantLanguage
       ? db.langCard.count({
-          where: { userId, nextReviewAt: { lte: new Date() } },
+          where: {
+            userId,
+            reviewCount: { gt: 0 },
+            nextReviewAt: { lte: new Date() },
+          },
         })
       : Promise.resolve(0),
     wantLanguage

@@ -32,8 +32,11 @@ import { useDraggable } from "@dnd-kit/core";
 import { toast } from "sonner";
 
 function TaskDragHandle({ taskId, label }: { taskId: string; label: string }) {
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `task:${taskId}`,
+    disabled: !mounted,
   });
   return (
     <button
@@ -44,8 +47,9 @@ function TaskDragHandle({ taskId, label }: { taskId: string; label: string }) {
         isDragging && "opacity-40",
       )}
       aria-label={label}
-      {...listeners}
-      {...attributes}
+      // dnd-kit aria ids differ SSR vs client — attach only after mount
+      {...(mounted ? listeners : null)}
+      {...(mounted ? attributes : null)}
     >
       <Icon name="grip-vertical" size={14} />
     </button>

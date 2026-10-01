@@ -68,11 +68,11 @@ export interface LangVocabStats {
   dueCount: number;
   totalCount: number;
   newCount: number;
-  /** Distinct cards touched today (daily card budget). */
+  /** Distinct cards rated today (Study or Review). */
   reviewedToday: number;
   /** Total rating events today (incl. requeues). */
   reviewsToday: number;
-  /** Consecutive local days with at least one vocab review. */
+  /** Consecutive Tehran days with at least one vocab rating. */
   streakDays: number;
 }
 
@@ -80,6 +80,8 @@ export interface VocabLessonProgress {
   lesson: number;
   total: number;
   due: number;
+  /** reviewCount === 0 in this lesson */
+  fresh: number;
 }
 
 export interface VocabDeckProgress {

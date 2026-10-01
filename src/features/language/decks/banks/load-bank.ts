@@ -34,7 +34,46 @@ export async function loadBank_ai() {
   return (await import("./parts/ai")).default;
 }
 
-export type BankKey = "general_a2" | "general_b1" | "general_b2" | "academic" | "business" | "science" | "daily" | "cs" | "ai";
+export async function loadBank_health() {
+  return (await import("./parts/health")).default;
+}
+
+export async function loadBank_law() {
+  return (await import("./parts/law")).default;
+}
+
+export async function loadBank_media() {
+  return (await import("./parts/media")).default;
+}
+
+export async function loadBank_psychology() {
+  return (await import("./parts/psychology")).default;
+}
+
+export async function loadBank_phrasal() {
+  return (await import("./parts/phrasal")).default;
+}
+
+export async function loadBank_environment() {
+  return (await import("./parts/environment")).default;
+}
+
+export type BankKey =
+  | "general_a2"
+  | "general_b1"
+  | "general_b2"
+  | "academic"
+  | "business"
+  | "science"
+  | "daily"
+  | "cs"
+  | "ai"
+  | "health"
+  | "law"
+  | "media"
+  | "psychology"
+  | "phrasal"
+  | "environment";
 
 export async function loadBank(
   key: string,
@@ -58,6 +97,18 @@ export async function loadBank(
       return loadBank_cs();
     case "ai":
       return loadBank_ai();
+    case "health":
+      return loadBank_health();
+    case "law":
+      return loadBank_law();
+    case "media":
+      return loadBank_media();
+    case "psychology":
+      return loadBank_psychology();
+    case "phrasal":
+      return loadBank_phrasal();
+    case "environment":
+      return loadBank_environment();
     default:
       return [];
   }

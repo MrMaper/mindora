@@ -107,6 +107,8 @@ Goal: every member surface is usable one-handed on a phone — no clipped filter
 
 ### Reminders (shipped)
 - Day buckets (overdue / today / approaching) + **timed** reminders (~15 min before clock dues)
+- Vocab due reminders: review **all** due cards (no 40-card daily quota); Study stays lesson-based for new words
+- Vocab stats cards: `newCount` = unstudied (`reviewCount=0`); `dueCount` = studied + due; `reviewedToday` = distinct cards rated since Tehran midnight; streak from `LangVocabDay`
 - In-app + Bale (when linked) + optional browser Notification while shell is open
 - Cron `/api/cron/deadline-reminders` should run every 5–10 minutes (not only daily)
 - Optional **batch deadline reminders** (`UserPreferences.batchDeadlineReminders`, off by default) merges same-day deadline alerts into one notification; timed reminders stay per-task
