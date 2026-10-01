@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLanguage, useTranslation } from "@/i18n/provider";
+import { Badge } from "@/components/ui-kit/data-display/badge";
 import { Button } from "@/components/ui-kit/forms/button";
 import { Input } from "@/components/ui-kit/forms/input";
 import { Menu } from "@/components/ui-kit/overlays/menu";
@@ -14,12 +15,14 @@ import {
   createSourceNoteFromSourceAction,
   insertCitationIntoDocAction,
   linkSourceToTaskAction,
+  listResearchSourcesAction,
   lookupDoiAction,
   searchPhdTasksForLinkAction,
 } from "@/features/research/actions";
 import {
   attachDocSourcePdf,
   clearDocSourcePdf,
+  deleteDocSource,
   updateDocSource,
 } from "@/features/docs/actions";
 import { formatApaLike, sourcesToBibTeX } from "@/features/research/cite";
@@ -27,6 +30,7 @@ import type { ResearchProjectItem, ResearchSourceItem } from "@/features/researc
 import type { DocListItem } from "@/features/docs/types";
 import type { SourceReadingStatus } from "@/types/db";
 import { cn } from "@/lib/utils";
+import { prefersLtrText } from "@/lib/text-direction";
 import { projectIdForCreate } from "@/features/research/active-project";
 import { PdfAnnotatorDialog } from "@/components/docs/pdf-annotator-dialog";
 
@@ -82,6 +86,7 @@ export function ResearchLibraryPanel({
     notes: "",
   });
   const [flash, setFlash] = React.useState<string | null>(null);
+  const addLock = React.useRef(false);
 
   const needsPathPick = projectId === undefined;
 
@@ -89,24 +94,57 @@ export function ResearchLibraryPanel({
     setSources(initialSources);
   }, [initialSources]);
 
+  // Server-backed search when query/status changes (SSR list is capped).
+  React.useEffect(() => {
+    const q = search.trim();
+    if (!q && statusFilter === "ALL") {
+      setSources(initialSources);
+      return;
+    }
+    let cancelled = false;
+    const handle = window.setTimeout(() => {
+      void listResearchSourcesAction({
+        search: q || undefined,
+        readingStatus: statusFilter,
+        projectId:
+          projectId === undefined
+            ? undefined
+            : projectId === null
+              ? "NONE"
+              : projectId,
+      }).then(rows => {
+        if (!cancelled) setSources(rows);
+      });
+    }, 250);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(handle);
+    };
+  }, [search, statusFilter, projectId, initialSources]);
+
   React.useEffect(() => {
     if (citeDocs[0] && !citeDocId) setCiteDocId(citeDocs[0].id);
     if (citeDocs[0] && !quoteDocId) setQuoteDocId(citeDocs[0].id);
     if (citeDocs[0] && !annotatorDraftId) setAnnotatorDraftId(citeDocs[0].id);
+  }, [citeDocs, citeDocId, quoteDocId, annotatorDraftId]);
+
+  // One-shot: Writing → Library "cite from here" preselects the draft only.
+  React.useEffect(() => {
     try {
       const pref = sessionStorage.getItem("research-cite-doc");
-      if (pref && citeDocs.some(d => d.id === pref)) {
+      if (!pref) return;
+      if (citeDocs.some(d => d.id === pref)) {
         setCiteDocId(pref);
         setAnnotatorDraftId(pref);
         setQuoteDocId(pref);
-        sessionStorage.removeItem("research-cite-doc");
-        // Open cite UI on the first visible source when arriving from Writing.
-        if (initialSources[0]) setCiteFor(initialSources[0].id);
+        setFlash(t.life.pickSourceToCite);
       }
+      sessionStorage.removeItem("research-cite-doc");
     } catch {
       /* ignore */
     }
-  }, [citeDocs, citeDocId, quoteDocId, annotatorDraftId, initialSources]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   React.useEffect(() => {
     if (!linkFor || linkQuery.trim().length < 1) {
@@ -126,15 +164,10 @@ export function ResearchLibraryPanel({
   }, [linkFor, linkQuery]);
 
   const filtered = sources.filter(s => {
+    // When searching/filtering via server, rows are already scoped; keep a
+    // light client pass for status so the chips stay snappy before the fetch.
     if (statusFilter !== "ALL" && s.readingStatus !== statusFilter) return false;
-    const q = search.trim().toLowerCase();
-    if (!q) return true;
-    return (
-      s.title.toLowerCase().includes(q) ||
-      (s.authors ?? "").toLowerCase().includes(q) ||
-      (s.doi ?? "").toLowerCase().includes(q) ||
-      (s.notes ?? "").toLowerCase().includes(q)
-    );
+    return true;
   });
 
   function readingLabel(status: SourceReadingStatus) {
@@ -151,12 +184,13 @@ export function ResearchLibraryPanel({
   }
 
   async function onAdd() {
-    if (!form.title.trim()) return;
+    if (!form.title.trim() || addLock.current) return;
     const pid = resolveProjectId();
     if (pid === undefined) {
       window.alert(t.life.pickPathRequired);
       return;
     }
+    addLock.current = true;
     setPendingId("add");
     const result = await addPhdSourceAction({
       title: form.title,
@@ -166,12 +200,18 @@ export function ResearchLibraryPanel({
       doi: form.doi || undefined,
       notes: form.notes || undefined,
       projectId: pid,
-      createReadingCard: true,
+      createReadingCard: false,
     });
     setPendingId(null);
+    addLock.current = false;
     if (result.success) {
       setForm({ title: "", authors: "", year: "", url: "", doi: "", notes: "" });
-      setFlash(t.life.sourceAdded);
+      setDoiInput("");
+      setFlash(
+        result.data?.reused === true
+          ? t.life.sourceAlreadyExists
+          : t.life.sourceAdded,
+      );
       router.refresh();
       setTimeout(() => setFlash(null), 1500);
     } else if (result.error) {
@@ -237,6 +277,24 @@ export function ResearchLibraryPanel({
           ? t.life.readingCardCreated
           : t.life.readingCardExists,
       );
+      router.refresh();
+      setTimeout(() => setFlash(null), 1500);
+    } else if (result.error) {
+      window.alert(result.error);
+    }
+  }
+
+  async function removeSource(id: string, title: string) {
+    const ok = window.confirm(
+      `${t.life.deleteSourceConfirmPrefix} «${title}» ${t.life.deleteSourceConfirmSuffix}`,
+    );
+    if (!ok) return;
+    setPendingId(id);
+    const result = await deleteDocSource(id);
+    setPendingId(null);
+    if (result.success) {
+      setSources(prev => prev.filter(s => s.id !== id));
+      setFlash(t.life.sourceDeleted);
       router.refresh();
       setTimeout(() => setFlash(null), 1500);
     } else if (result.error) {
@@ -508,28 +566,43 @@ export function ResearchLibraryPanel({
           <ul className="flex flex-col gap-2">
             {filtered.map(s => {
               const rowBusy = pendingId === s.id;
+              const bodyLtr = prefersLtrText(
+                `${s.title}\n${s.authors ?? ""}\n${s.notes ?? ""}`,
+              );
               return (
               <li
                 key={s.id}
                 className="rounded-lg border px-3 py-2.5 flex flex-col gap-2"
               >
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <div className="text-sm font-medium">{s.title}</div>
-                    <div className="text-[11px] text-muted-foreground mt-0.5">
+                <div
+                  className="flex flex-wrap items-start justify-between gap-2"
+                  dir={bodyLtr ? "ltr" : undefined}
+                >
+                  <div
+                    className={cn("min-w-0 flex-1", bodyLtr && "text-left")}
+                  >
+                    <div className="flex items-start gap-2">
+                      <div className="min-w-0 flex-1 text-sm font-medium leading-snug text-pretty">
+                        {s.title}
+                      </div>
+                      <Badge
+                        tone={s.quoteCount > 0 ? "info" : "neutral"}
+                        className="mt-0.5 shrink-0 tabular-nums"
+                        title={`${s.quoteCount} ${t.life.quoteCount}`}
+                      >
+                        {s.quoteCount} {t.life.quoteCount}
+                      </Badge>
+                    </div>
+                    <div className="mt-0.5 text-[11px] leading-snug text-muted-foreground">
                       {[s.authors, s.year, s.doi].filter(Boolean).join(" · ")}
                     </div>
-                    <div className="text-[11px] text-muted-foreground mt-0.5 flex flex-wrap items-center gap-x-1 gap-y-0.5">
+                    <div className="mt-0.5 flex flex-wrap items-center gap-x-1 gap-y-0.5 text-[11px] text-muted-foreground">
                       <Link
                         href={`/docs?id=${s.docId}`}
                         className="hover:underline"
                       >
                         {s.docTitle}
                       </Link>
-                      <span>·</span>
-                      <span>
-                        {s.quoteCount} {t.life.quoteCount}
-                      </span>
                       {s.hasSyncLink && s.linkedTaskTitle ? (
                         <>
                           <span>·</span>
@@ -553,7 +626,7 @@ export function ResearchLibraryPanel({
                       ) : null}
                     </div>
                   </div>
-                  <div className="flex flex-wrap gap-1">
+                  <div className="flex flex-wrap gap-1" dir="rtl">
                     {READING.map(st => (
                       <button
                         key={st}
@@ -573,11 +646,23 @@ export function ResearchLibraryPanel({
                   </div>
                 </div>
                 {s.notes && (
-                  <p className="text-xs text-muted-foreground line-clamp-2">
+                  <p
+                    dir={bodyLtr ? "ltr" : undefined}
+                    className={cn(
+                      "text-xs text-muted-foreground line-clamp-3 leading-relaxed",
+                      bodyLtr && "text-left text-[13px]",
+                    )}
+                  >
                     {s.notes}
                   </p>
                 )}
-                <div className="flex flex-wrap gap-1.5">
+                <div
+                  className={cn(
+                    "flex w-full flex-wrap gap-1.5",
+                    bodyLtr ? "justify-start" : "justify-end",
+                  )}
+                  dir={bodyLtr ? "ltr" : undefined}
+                >
                   <Button
                     size="sm"
                     variant="ghost"
@@ -619,6 +704,15 @@ export function ResearchLibraryPanel({
                   >
                     {t.life.insertCitation}
                   </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    disabled={rowBusy}
+                    className="text-destructive hover:text-destructive"
+                    onClick={() => void removeSource(s.id, s.title)}
+                  >
+                    {t.life.deleteSource}
+                  </Button>
                   <input
                     ref={el => {
                       fileInputRefs.current[s.id] = el;
@@ -633,7 +727,7 @@ export function ResearchLibraryPanel({
                     }}
                   />
                   <Menu
-                    align="end"
+                    align={bodyLtr ? "start" : "end"}
                     trigger={
                       <Button size="sm" variant="ghost" disabled={rowBusy}>
                         ⋯
@@ -695,6 +789,13 @@ export function ResearchLibraryPanel({
                             },
                           ]
                         : []),
+                      { divider: true },
+                      {
+                        label: t.life.deleteSource,
+                        danger: true,
+                        disabled: rowBusy,
+                        onClick: () => void removeSource(s.id, s.title),
+                      },
                     ]}
                   />
                 </div>

@@ -671,7 +671,7 @@ export async function updateDocSource(
     const { ensureSourceContinuityAction } = await import(
       "@/features/research/actions"
     );
-    await ensureSourceContinuityAction(id, { createReadingCard: true });
+    await ensureSourceContinuityAction(id, { createReadingCard: false });
 
     const { syncResearchLinksFromSourceReading } = await import(
       "@/features/research/sync-links"
@@ -758,12 +758,40 @@ export async function deleteDocSource(id: string): Promise<ActionResult> {
 
   const source = await db.docSource.findFirst({
     where: { id, doc: { userId: session.user.id } },
-    select: { id: true, docId: true },
+    select: {
+      id: true,
+      docId: true,
+      doc: {
+        select: {
+          id: true,
+          templateKey: true,
+          systemKey: true,
+          _count: { select: { sources: true } },
+        },
+      },
+    },
   });
   if (!source) return { success: false, error: "منبع پیدا نشد" };
 
   await db.docSource.delete({ where: { id } });
-  revalidateDocs(source.docId);
+
+  // Per-paper source notes exist only for this vault row — trash the shell too.
+  const host = source.doc;
+  const isPaperNote =
+    host.templateKey === "sourceNote" &&
+    (!host.systemKey || !host.systemKey.startsWith("phd-library:"));
+  if (isPaperNote && host._count.sources <= 1) {
+    await db.doc.update({
+      where: { id: host.id },
+      data: {
+        deletedAt: new Date(),
+        pinned: false,
+        archived: false,
+      },
+    });
+  }
+
+  revalidateDocs(source.docId, { research: true });
   return { success: true };
 }
 

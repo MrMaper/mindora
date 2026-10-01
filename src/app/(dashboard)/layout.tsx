@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import { signOut } from "@/auth";
 import { prisma as db } from "@/lib/db";
 import { getTranslationsAsync } from "@/i18n";
 import { getUnreadCount } from "@/features/notifications/queries";
@@ -36,8 +35,9 @@ export default async function DashboardLayout({
     where: { id: session.user.id },
     select: { id: true },
   });
-  // Stale JWT from another database still looks logged-in and then crashes.
-  if (!account) await signOut({ redirectTo: "/login" });
+  // Stale JWT from another DB still looks logged-in; clear via route handler
+  // (RSC render cannot mutate cookies — signOut here throws).
+  if (!account) redirect("/api/auth/stale-session");
 
   const isAdmin = session.user.role === "ADMIN";
 
@@ -102,9 +102,16 @@ export default async function DashboardLayout({
 
   // Member: personal workspace already warmed in Promise.all above
   const moduleFlags = flags!;
-  const researchHref = researchHrefForScope(
-    cookieStore.get(RESEARCH_SCOPE_COOKIE)?.value,
-  );
+  const rawResearchScope = cookieStore.get(RESEARCH_SCOPE_COOKIE)?.value;
+  let researchScope: string | undefined;
+  try {
+    researchScope = rawResearchScope
+      ? decodeURIComponent(rawResearchScope)
+      : undefined;
+  } catch {
+    researchScope = rawResearchScope;
+  }
+  const researchHref = researchHrefForScope(researchScope);
   const areaIds = areaProjectIdsForUser(session.user.id);
 
   const dailyItems: NavItem[] = [

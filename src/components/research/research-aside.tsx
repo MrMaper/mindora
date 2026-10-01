@@ -48,12 +48,16 @@ export function ResearchPipelineAside({
   }
 
   async function fromTemplate(key: DocTemplateKey) {
-    setPending(key);
     const pid = resolveProjectId();
+    if (pid === undefined) {
+      window.alert(t.life.pickPathRequired);
+      return;
+    }
+    setPending(key);
     const result = await createDoc({
       templateKey: key,
       area: "PHD",
-      ...(pid !== undefined ? { projectId: pid } : {}),
+      projectId: pid,
     });
     setPending(null);
     if (result.success && result.data?.id) {
@@ -209,11 +213,17 @@ export function ResearchTabBar({
     { id: "writing", label: t.life.researchTabWriting },
   ];
   return (
-    <div className="mb-2 flex gap-1 rounded-xl border bg-muted/30 p-0.5 sm:mb-3 sm:p-1">
+    <div
+      className="mb-2 flex gap-1 rounded-xl border bg-muted/30 p-0.5 sm:mb-3 sm:p-1"
+      role="tablist"
+      aria-label={t.life.researchHubTitle}
+    >
       {items.map(item => (
         <button
           key={item.id}
           type="button"
+          role="tab"
+          aria-selected={tab === item.id}
           onClick={() => onChange(item.id)}
           className={cn(
             "flex-1 rounded-lg px-2 py-1.5 text-sm font-medium transition-colors sm:py-2",

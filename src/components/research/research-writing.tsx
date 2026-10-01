@@ -34,12 +34,16 @@ export function ResearchWritingPanel({
     key: "litReview" | "chapterDraft" | "researchIdea",
     pendingKey: string,
   ) {
-    setPending(pendingKey);
     const pid = resolvePid();
+    if (pid === undefined) {
+      window.alert(t.life.pickPathRequired);
+      return;
+    }
+    setPending(pendingKey);
     const result = await createDoc({
       templateKey: key,
       area: "PHD",
-      ...(pid !== undefined ? { projectId: pid } : {}),
+      projectId: pid,
     });
     setPending(null);
     if (result.success && result.data?.id) {

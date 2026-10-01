@@ -43,8 +43,7 @@ export function Checkbox({
         id={checkboxId}
         {...(isControlled ? { checked, onCheckedChange: onChange } : {})}
         disabled={disabled}
-        // eslint-disable-next-line jsx-a11y/aria-props
-        aria-indeterminate={indeterminate}
+        indeterminate={indeterminate}
         className={cn(
           indeterminate &&
             "data-indeterminate:bg-action-primary data-indeterminate:border-action-primary",

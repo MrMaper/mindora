@@ -49,11 +49,15 @@ export function ResearchProjectSwitcher({
     router.push(q ? `${pathname}?${q}` : pathname);
   }
 
-  // Migrate legacy localStorage → cookie; one redirect only if server had no cookie yet.
+  // Keep cookie/localStorage aligned with the resolved hub scope (URL/bookmarks).
+  React.useEffect(() => {
+    persistScope(scope);
+  }, [scope]);
+
+  // One-shot: if the URL has no project yet, restore a legacy localStorage scope.
   React.useEffect(() => {
     try {
       const saved = localStorage.getItem(RESEARCH_SCOPE_STORAGE);
-      if (saved) writeResearchScopeCookie(saved);
       if (
         !searchParams.get("project") &&
         saved &&

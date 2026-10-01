@@ -252,7 +252,9 @@ export function EditTaskDrawer({
               hasRecurrenceSeries={Boolean(activeTask?.recurrenceSeriesId)}
             />
 
-            {activeTask && <TaskLinkedDocs taskId={activeTask.id} />}
+            {activeTask && activeTask.area === "PHD" ? (
+              <TaskLinkedDocs taskId={activeTask.id} />
+            ) : null}
 
             <div>
               <div className="text-2xs font-semibold uppercase tracking-caps text-text-tertiary mb-2">

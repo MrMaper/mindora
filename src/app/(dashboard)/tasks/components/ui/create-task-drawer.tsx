@@ -33,6 +33,7 @@ interface CreateTaskDrawerProps {
   currentUserId: string;
   currentUserRole: string;
   preset?: TaskFormPreset;
+  lockProject?: boolean;
 }
 
 export function CreateTaskDrawer({
@@ -53,6 +54,7 @@ export function CreateTaskDrawer({
   currentUserId,
   currentUserRole,
   preset = "life",
+  lockProject = false,
 }: CreateTaskDrawerProps) {
   const t = useTranslation();
   const isAdmin = currentUserRole === "ADMIN";
@@ -119,6 +121,7 @@ export function CreateTaskDrawer({
             currentUserId={currentUserId}
             currentUserRole={currentUserRole}
             showLabels={preset !== "research"}
+            lockProject={lockProject}
           />
         )}
       </form>

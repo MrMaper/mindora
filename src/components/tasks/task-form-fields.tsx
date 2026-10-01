@@ -45,6 +45,8 @@ export interface TaskFormFieldsProps {
   showLabels?: boolean;
   /** True when editing a task that already belongs to a recurrence series. */
   hasRecurrenceSeries?: boolean;
+  /** Lock the path picker (research hub scoped create). */
+  lockProject?: boolean;
 }
 
 function areaLabel(
@@ -82,6 +84,7 @@ export function TaskFormFields({
   currentUserRole,
   showLabels,
   hasRecurrenceSeries = false,
+  lockProject = false,
 }: TaskFormFieldsProps) {
   const t = useTranslation();
   const language = useLanguage();
@@ -269,6 +272,7 @@ export function TaskFormFields({
               label={t.tasks.pathOrProject}
               options={projectSelectOptions}
               error={fieldState.error?.message}
+              disabled={lockProject}
             />
           )}
         />

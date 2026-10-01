@@ -82,6 +82,8 @@ export async function getRecentPhdQuotes(
   const projectFilter = docProjectFilter(scope);
   const rows = await db.docQuote.findMany({
     where: {
+      // Citations used to be stored as quotes with note "citation" — keep them out.
+      NOT: { note: "citation" },
       doc: {
         userId,
         area: "PHD",

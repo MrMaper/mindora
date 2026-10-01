@@ -126,8 +126,10 @@ export async function createDocLinkedToTask(input: {
       title: true,
       projectId: true,
       status: true,
+      area: true,
       assignedToId: true,
       createdById: true,
+      project: { select: { area: true } },
     },
   });
   if (!task) return { success: false, error: "کار پیدا نشد" };
@@ -135,6 +137,10 @@ export async function createDocLinkedToTask(input: {
     !canAccessPersonalTask(session.user.id, session.user.role, task)
   ) {
     return { success: false, error: "کار پیدا نشد" };
+  }
+  const taskArea = task.area ?? task.project?.area ?? null;
+  if (taskArea !== "PHD") {
+    return { success: false, error: "فقط کارت‌های پژوهش" };
   }
 
   const template = input.templateKey
@@ -418,8 +424,8 @@ async function ensureReadingTaskForSourceNote(input: {
 }
 
 /**
- * Ensure source lives on a per-paper note with exactly one reading card.
- * Used by open-note, reading toggles, quotes, and link actions.
+ * Ensure source lives on a per-paper note. Optionally create a reading card
+ * when `createReadingCard: true` (library add does not; explicit actions do).
  */
 export async function ensureSourceContinuityAction(
   sourceId: string,
@@ -459,7 +465,7 @@ export async function ensureSourceContinuityAction(
 
   let taskId: string | undefined;
   let created = false;
-  if (opts?.createReadingCard !== false) {
+  if (opts?.createReadingCard === true) {
     const card = await ensureReadingTaskForSourceNote({
       userId: session.user.id,
       sourceTitle: source.title,
@@ -629,7 +635,7 @@ export async function addPhdSourceAction(input: {
    * scope=all cannot silently dump into inbox.
    */
   projectId?: string | null;
-  /** Default true: create reading card + DocTask on the per-paper note. */
+  /** Default false: library is a source vault; reading cards are opt-in. */
   createReadingCard?: boolean;
   /** Optional due clock for the reading card (capture). */
   dueDate?: string;
@@ -653,7 +659,69 @@ export async function addPhdSourceAction(input: {
     };
   }
   const projectId = input.projectId;
+  if (projectId !== null) {
+    const okBucket = isUserAreaBucket(projectId, session.user.id, "PHD");
+    if (!okBucket) {
+      const member = await db.projectMember.findFirst({
+        where: {
+          projectId,
+          userId: session.user.id,
+          project: { area: "PHD", status: { not: "ARCHIVED" } },
+        },
+        select: { id: true },
+      });
+      if (!member) {
+        return { success: false, error: "مسیر پژوهش نامعتبر است" };
+      }
+    }
+  }
   const readingStatus = input.readingStatus ?? "TO_READ";
+  const doiNorm = input.doi ? normalizeDoi(input.doi) : null;
+
+  // Idempotent on DOI: duplicate POSTs (and racey double-clicks) must not
+  // invent a second vault row for the same paper.
+  if (doiNorm) {
+    const existing = await db.docSource.findFirst({
+      where: {
+        doi: doiNorm,
+        doc: { userId: session.user.id, deletedAt: null },
+      },
+      orderBy: { createdAt: "asc" },
+      select: {
+        id: true,
+        docId: true,
+        title: true,
+        projectId: true,
+        readingStatus: true,
+        doc: { select: { projectId: true } },
+      },
+    });
+    if (existing) {
+      let taskId: string | undefined;
+      if (input.createReadingCard === true) {
+        const card = await ensureReadingTaskForSourceNote({
+          userId: session.user.id,
+          sourceTitle: existing.title,
+          noteDocId: existing.docId,
+          researchProjectId:
+            existing.projectId ?? existing.doc.projectId ?? projectId,
+          readingStatus: existing.readingStatus,
+        });
+        taskId = card.taskId;
+      }
+      revalidateResearch({ docs: true, docId: existing.docId });
+      revalidatePath("/kanban");
+      return {
+        success: true,
+        data: {
+          id: existing.id,
+          docId: existing.docId,
+          taskId,
+          reused: true,
+        },
+      };
+    }
+  }
 
   let due: Date | null = null;
   if (input.dueDate && /^\d{4}-\d{2}-\d{2}$/.test(input.dueDate)) {
@@ -719,7 +787,7 @@ export async function addPhdSourceAction(input: {
       authors: input.authors?.trim() || null,
       url: input.url?.trim() || null,
       year: input.year?.trim() || null,
-      doi: input.doi ? normalizeDoi(input.doi) : null,
+      doi: doiNorm,
       notes: input.notes?.trim() || null,
       readingStatus,
     },
@@ -734,6 +802,31 @@ export async function addPhdSourceAction(input: {
     },
   });
 
+  // Collapse a parallel twin created in the same moment (duplicate POST).
+  if (doiNorm) {
+    const twins = await db.docSource.findMany({
+      where: {
+        doi: doiNorm,
+        doc: { userId: session.user.id, deletedAt: null },
+      },
+      orderBy: { createdAt: "asc" },
+      select: { id: true, docId: true },
+    });
+    if (twins.length > 1) {
+      const keep = twins[0]!;
+      const drop = twins.filter(t => t.id !== keep.id);
+      for (const d of drop) {
+        await db.doc.delete({ where: { id: d.docId } }).catch(() => null);
+      }
+      revalidateResearch({ docs: true, docId: keep.docId });
+      revalidatePath("/kanban");
+      return {
+        success: true,
+        data: { id: keep.id, docId: keep.docId, reused: true },
+      };
+    }
+  }
+
   const content = buildSourceNoteHtml(source);
   await db.doc.update({
     where: { id: docId },
@@ -745,7 +838,7 @@ export async function addPhdSourceAction(input: {
   });
 
   let taskId: string | undefined;
-  if (input.createReadingCard !== false) {
+  if (input.createReadingCard === true) {
     const card = await ensureReadingTaskForSourceNote({
       userId: session.user.id,
       sourceTitle: title,
@@ -780,6 +873,7 @@ export async function linkSourceToTaskAction(input: {
       area: true,
       assignedToId: true,
       createdById: true,
+      project: { select: { area: true } },
     },
   });
   if (!task) return { success: false, error: "کار پیدا نشد" };
@@ -787,6 +881,9 @@ export async function linkSourceToTaskAction(input: {
     !canAccessPersonalTask(session.user.id, session.user.role, task)
   ) {
     return { success: false, error: "کار پیدا نشد" };
+  }
+  if ((task.area ?? task.project?.area ?? null) !== "PHD") {
+    return { success: false, error: "فقط کارت‌های پژوهش" };
   }
 
   const continuity = await ensureSourceContinuityAction(input.sourceId, {
@@ -913,14 +1010,7 @@ export async function insertCitationIntoDocAction(input: {
     },
   });
 
-  await db.docQuote.create({
-    data: {
-      docId: doc.id,
-      sourceId: source.id,
-      text: citation,
-      note: "citation",
-    },
-  });
+  // Do not create DocQuote for citations — Quotes panel is for excerpts only.
 
   revalidateResearch({ docs: true, docId: doc.id });
   return { success: true, data: { id: doc.id, sourceId: source.id } };
@@ -947,9 +1037,9 @@ export async function annotateSourceQuoteAction(input: {
   const text = input.text.trim();
   if (!text) return { success: false, error: "متن نقل‌قول خالی است" };
 
-  // Promote off binder + ensure reading card so quotes land on the real note.
+  // Ensure per-paper note exists; quotes do not invent a pipeline card.
   const continuity = await ensureSourceContinuityAction(input.sourceId, {
-    createReadingCard: true,
+    createReadingCard: false,
   });
   if (!continuity.success) {
     return {

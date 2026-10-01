@@ -11,6 +11,8 @@ import {
 import { ResearchLibraryPanel } from "@/components/research/research-library";
 import { ResearchWritingPanel } from "@/components/research/research-writing";
 import { ResearchProjectSwitcher } from "@/components/research/research-project-switcher";
+import { PageHeaderBar } from "@/components/ui-kit/layout/page-header-bar";
+import { Button } from "@/components/ui-kit/forms/button";
 import { useAreaBuckets } from "@/components/area-buckets-provider";
 import type {
   ResearchHubData,
@@ -89,6 +91,7 @@ function ResearchCCInner({
   const [, startTabTransition] = React.useTransition();
   const urlTab = parseTab(searchParams.get("tab") ?? initialTab);
   const [tab, setOptimisticTab] = React.useOptimistic(urlTab);
+  const openCreateRef = React.useRef<(() => void) | null>(null);
 
   function changeTab(next: ResearchTab) {
     startTabTransition(() => {
@@ -106,14 +109,24 @@ function ResearchCCInner({
 
   return (
     <div className="flex min-h-0 flex-col">
-      <div className="mb-2 min-w-0">
-        <h1 className="text-xl font-semibold sm:text-2xl">
-          {t.life.researchHubTitle}
-        </h1>
-        <p className="mt-0.5 hidden text-xs text-muted-foreground sm:block">
-          {t.life.researchHubHint}
-        </p>
-      </div>
+      <PageHeaderBar
+        className="mb-2 sm:mb-3"
+        title={t.life.researchHubTitle}
+        description={
+          <span className="hidden sm:inline">{t.life.researchHubHint}</span>
+        }
+        actions={
+          tab === "pipeline" ? (
+            <Button
+              variant="primary"
+              icon="plus"
+              onClick={() => openCreateRef.current?.()}
+            >
+              {t.tasks.createTaskButton}
+            </Button>
+          ) : null
+        }
+      />
 
       <ResearchProjectSwitcher scope={scope} projects={phdProjects} />
 
@@ -125,6 +138,8 @@ function ResearchCCInner({
             <KanbanCC
               key={`board-${scope}`}
               embedded
+              createRef={openCreateRef}
+              lockProjectOnCreate={scope !== "all"}
               initialColumns={initialColumns}
               users={users}
               labels={labels}

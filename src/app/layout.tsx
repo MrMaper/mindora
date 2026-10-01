@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import {
   getSessionCached,
   getUserPreferencesCached,
 } from "@/lib/request-cache";
 import { Providers } from "@/providers/Providers";
+import { ThemeBoot } from "@/components/theme-boot";
 import { peyda, geistMono } from "@/lib/font";
 import { loadTranslations } from "@/i18n/load";
-import { themeBootScript } from "@/lib/theme";
+import { resolveThemeAttr } from "@/lib/theme";
 import type { Theme } from "@/types/db";
 import "./globals.css";
 
@@ -135,21 +137,20 @@ export default async function RootLayout({
   const translations = await loadTranslations(language);
   const dir = language === "FA" ? "rtl" : "ltr";
   const lang = language === "FA" ? "fa" : "en";
+  const prefersDark =
+    (await headers()).get("sec-ch-prefers-color-scheme") === "dark";
+  const themeAttr = resolveThemeAttr(theme, prefersDark);
 
   return (
     <html
       lang={lang}
       dir={dir}
-      data-theme="light"
+      data-theme={themeAttr}
       suppressHydrationWarning
       className={`${peyda.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <head>
-        <script
-          dangerouslySetInnerHTML={{ __html: themeBootScript(theme) }}
-        />
-      </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
+        <ThemeBoot theme={theme} />
         <Providers language={language} translations={translations}>
           {children}
         </Providers>

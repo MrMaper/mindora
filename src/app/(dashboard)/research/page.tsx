@@ -44,7 +44,13 @@ export default async function ResearchPage({
 
   const { project: projectParam, tab: tabParam } = await searchParams;
   const cookieStore = await cookies();
-  const cookieScope = cookieStore.get(RESEARCH_SCOPE_COOKIE)?.value;
+  const rawCookie = cookieStore.get(RESEARCH_SCOPE_COOKIE)?.value;
+  let cookieScope: string | undefined;
+  try {
+    cookieScope = rawCookie ? decodeURIComponent(rawCookie) : undefined;
+  } catch {
+    cookieScope = rawCookie;
+  }
 
   // Prefer URL; otherwise restore last scope from cookie (avoids all→project flicker).
   const requested = parseResearchProjectScope(
@@ -65,11 +71,23 @@ export default async function ResearchPage({
       ? "all"
       : requested;
 
+  const tabQs =
+    initialTab !== "pipeline" ? `tab=${encodeURIComponent(initialTab)}` : "";
+
+  // Drop invalid ?project= from the URL (client switcher then persists "all").
+  if (
+    projectParam &&
+    projectParam !== "all" &&
+    projectParam !== "inbox" &&
+    !phdProjects.some(p => p.id === projectParam)
+  ) {
+    redirect(tabQs ? `/research?${tabQs}` : "/research");
+  }
+
   // Align URL before loading the board so the first paint matches the scope.
   if (!projectParam && safeScope !== "all") {
-    const tabQs =
-      initialTab !== "pipeline" ? `&tab=${encodeURIComponent(initialTab)}` : "";
-    redirect(`/research?project=${encodeURIComponent(safeScope)}${tabQs}`);
+    const extra = tabQs ? `&${tabQs}` : "";
+    redirect(`/research?project=${encodeURIComponent(safeScope)}${extra}`);
   }
 
   const boardProjectIds = await resolveResearchTaskProjectIds(

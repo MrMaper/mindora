@@ -110,11 +110,18 @@ export async function syncResearchLinksFromSourceReading(
     return;
   }
 
-  // Writing (IN_PROGRESS) maps forward to READING — never demote on READING re-sync.
+  // Writing (IN_PROGRESS) maps forward to READING — never demote the card on
+  // READING re-sync; still align the source-note doc status when needed.
   if (
     readingStatus === "READING" &&
     (primary.status === "IN_PROGRESS" || primary.status === "REVIEW")
   ) {
+    if (nextDocStatus) {
+      await db.doc.updateMany({
+        where: { id: source.docId, area: "PHD", deletedAt: null },
+        data: { status: nextDocStatus },
+      });
+    }
     return;
   }
 

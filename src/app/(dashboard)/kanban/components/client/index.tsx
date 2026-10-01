@@ -59,10 +59,14 @@ interface KanbanCCProps {
   /** Hide the whole filter bar (research hub). */
   showFilters?: boolean;
   /**
-   * Research hub: hide the page title header, show a compact create strip,
-   * and use denser board columns for phone layouts.
+   * Research hub: hide the page title header and use denser board columns
+   * for phone layouts. Pair with `createRef` to host Create in the hub header.
    */
   embedded?: boolean;
+  /** When set (e.g. research hub header), registers openCreate for an external button. */
+  createRef?: React.MutableRefObject<(() => void) | null>;
+  /** Lock path on create (research hub when a concrete scope is selected). */
+  lockProjectOnCreate?: boolean;
   /** Form preset for create/edit drawers. */
   formPreset?: import("@/components/tasks/task-form-fields").TaskFormPreset;
 }
@@ -84,6 +88,8 @@ export function KanbanCC({
   showProjectFilter = true,
   showFilters = true,
   embedded = false,
+  createRef,
+  lockProjectOnCreate = false,
   formPreset = "life",
 }: KanbanCCProps) {
   const k = useKanban(initialColumns, filters, {
@@ -161,20 +167,17 @@ export function KanbanCC({
     k.openCreate(defaults);
   }
 
+  React.useEffect(() => {
+    if (!createRef) return;
+    createRef.current = handleOpenCreate;
+    return () => {
+      createRef.current = null;
+    };
+  });
+
   return (
     <div className={embedded ? "flex min-h-0 flex-col" : undefined}>
-      {embedded ? (
-        <div className="mb-2 flex items-center justify-end">
-          <Button
-            variant="primary"
-            size="sm"
-            icon="plus"
-            onClick={handleOpenCreate}
-          >
-            {t.tasks.createTaskButton}
-          </Button>
-        </div>
-      ) : (
+      {embedded ? null : (
         <PageHeaderBar
           className="mb-4"
           title={title ?? t.board.title}
@@ -318,6 +321,7 @@ export function KanbanCC({
         currentUserId={currentUserId}
         currentUserRole={currentUserRole}
         preset={formPreset}
+        lockProject={lockProjectOnCreate}
       />
 
       <EditTaskDrawer

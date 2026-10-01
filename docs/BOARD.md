@@ -41,6 +41,6 @@ Linked continuity (when a card has `DocTask` links):
 | Writing (`IN_PROGRESS`) | `REVIEW` | `READING` |
 | Done | `READY` | `DONE` |
 
-Library reading changes reverse-sync onto the **single** linked PhD card (one DocTask per source note; linking replaces any previous card). Reading toggles auto-promote legacy binder hosts onto a per-paper note and create a reading card if missing, so status changes are never inert.
+Library reading changes reverse-sync onto the **single** linked PhD card when one exists (one DocTask per source note; linking replaces any previous card). Toggling reading status does **not** invent a card — use «کارت خواندن» explicitly.
 
-Sources are path-scoped (`DocSource.projectId`). Adding a source creates a **per-paper source note** with status aligned to reading (`TO_READ` → doc `IDEA` / card `BACKLOG`). Binder docs are index-only leftovers and filtered from Writing / cite / Today. Explicit actions: «وصل به کارت» from the library and «چسباندن منبع» from a card. Citations/quotes reference the canonical source and do not fork rows.
+Sources are path-scoped (`DocSource.projectId`). Adding a source creates a **per-paper source note** + `DocSource` only (library vault). A pipeline reading card is opt-in (`createReadingCard` / «کارت خواندن»). Capture `/source` still opts in so a tracked read lands on the board. Binder docs are index-only leftovers and filtered from Writing / cite / Today. Explicit actions: «وصل به کارت» from the library and «چسباندن منبع» from a card. Citations/quotes reference the canonical source and do not fork rows.
