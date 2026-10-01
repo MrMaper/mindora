@@ -7,6 +7,7 @@ import { Avatar } from "@/components/ui-kit/data-display/avatar";
 import type { WorkLogRow } from "@/features/work-logs/types";
 import { useLanguage } from "@/i18n/provider";
 import { formatHours } from "@/lib/utils";
+import { formatJalaliShort, parseLocalDate, zonedDateKey } from "@/lib/life";
 
 interface WorkLogListProps {
   workLogs: WorkLogRow[];
@@ -22,12 +23,16 @@ export function WorkLogList({ workLogs, currentUserId, onRefresh, isLoading = fa
 
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
 
-  const formatDate = (date: Date, locale: string, options?: Intl.DateTimeFormatOptions) => {
-    return new Date(date).toLocaleDateString(locale, options ?? {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
+  const formatLogDay = (date: Date): string => {
+    const day = parseLocalDate(zonedDateKey(new Date(date)));
+    if (language === "EN") {
+      return day.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    }
+    return formatJalaliShort(day, "FA");
   };
 
   const handleDelete = async (id: string) => {
@@ -87,11 +92,14 @@ export function WorkLogList({ workLogs, currentUserId, onRefresh, isLoading = fa
             <div className="flex items-center gap-3 text-xs text-text-secondary mt-1">
               <span className="flex items-center gap-1">
                 <Icon name="calendar" size={12} className="text-text-tertiary" />
-                {formatDate(log.date, dateLocale)}
+                {formatLogDay(log.date)}
               </span>
               <span className="flex items-center gap-1">
                 <Icon name="clock" size={12} className="text-text-tertiary" />
-                {formatDate(log.createdAt, dateLocale, { hour: "2-digit", minute: "2-digit" })}
+                {new Date(log.createdAt).toLocaleString(dateLocale, {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
               </span>
             </div>
 

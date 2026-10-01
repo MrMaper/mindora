@@ -1,5 +1,6 @@
 import { prisma as db } from "@/lib/db";
 import type { SourceReadingStatus, TaskStatus } from "@/types/db";
+import { completedAtWrite } from "@/features/tasks/completed-at";
 import {
   RESEARCH_TASK_TO_DOC_STATUS,
   RESEARCH_TASK_TO_SOURCE_READING,
@@ -130,7 +131,10 @@ export async function syncResearchLinksFromSourceReading(
 
   await db.task.update({
     where: { id: primary.id },
-    data: { status: nextStatus },
+    data: {
+      status: nextStatus,
+      ...(completedAtWrite(primary.status, nextStatus) ?? {}),
+    },
   });
 
   // Align every DocTask-linked PHD doc on this card (idea + source note).

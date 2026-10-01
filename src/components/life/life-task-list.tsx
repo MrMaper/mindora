@@ -267,6 +267,7 @@ export function LifeTaskList({
                 taskId={task.id}
                 taskTitle={task.title}
                 assignedToId={task.assignedTo?.id ?? null}
+              createdById={task.createdBy?.id ?? null}
                 currentUserId={currentUserId}
                 currentUserRole={currentUserRole}
               />

@@ -306,6 +306,8 @@ model Task {
   recurrenceEndsAt   DateTime?
   createdById  String
   assignedToId String?
+  /// Set when status becomes DONE. Cleared if the task is reopened.
+  completedAt  DateTime?
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
   attachments  Attachment[]

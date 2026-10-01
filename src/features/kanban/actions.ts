@@ -8,6 +8,7 @@ import type { BoardStatus } from "./types";
 import { spawnNextIfRecurring } from "@/features/life/recurrence";
 import { syncResearchLinksFromTaskStatus } from "@/features/research/sync-links";
 import { canAccessPersonalTask } from "@/lib/task-access";
+import { completedAtWrite } from "@/features/tasks/completed-at";
 
 export interface ActionResult {
   success: boolean;
@@ -87,6 +88,7 @@ export async function moveTask(params: {
         status: toStatus,
         position,
         ...(toStatus === "DONE" ? { waitingOn: false } : {}),
+        ...(completedAtWrite(existing.status, toStatus) ?? {}),
       },
     });
 

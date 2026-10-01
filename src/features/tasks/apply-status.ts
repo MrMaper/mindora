@@ -2,6 +2,7 @@ import { prisma as db } from "@/lib/db";
 import { spawnNextIfRecurring } from "@/features/life/recurrence";
 import { canAccessPersonalTask } from "@/lib/task-access";
 import type { TaskStatus } from "@/types/db";
+import { completedAtWrite } from "@/features/tasks/completed-at";
 
 export type ApplyStatusResult =
   | {
@@ -72,6 +73,7 @@ export async function applyTaskStatusChange(input: {
     data: {
       status: nextStatus,
       ...(nextStatus === "DONE" ? { waitingOn: false } : {}),
+      ...(completedAtWrite(existing.status, nextStatus) ?? {}),
     },
   });
 

@@ -124,6 +124,32 @@ export function endOfZonedDay(date: Date = new Date()): Date {
   return new Date(startOfZonedDay(date).getTime() + 86_400_000 - 1);
 }
 
+/** Noon in Asia/Tehran for a `YYYY-MM-DD` key. Work logs store this so the day round-trips. */
+export function workLogInstantFromKey(dateKey: string): Date {
+  return dueFromWallClock(dateKey, 12, 0, LIFE_APP_TZ_OFFSET_MINUTES);
+}
+
+export function zonedDayStartFromKey(dateKey: string): Date {
+  return dueFromWallClock(dateKey, 0, 0, LIFE_APP_TZ_OFFSET_MINUTES);
+}
+
+export function zonedDayEndFromKey(dateKey: string): Date {
+  return new Date(zonedDayStartFromKey(dateKey).getTime() + 86_400_000 - 1);
+}
+
+/** Inclusive Tehran calendar days from `fromKey` through `toKey`. */
+export function zonedDateKeysBetween(fromKey: string, toKey: string): string[] {
+  const keys: string[] = [];
+  let cursor = zonedDayStartFromKey(fromKey).getTime();
+  const end = zonedDayStartFromKey(toKey).getTime();
+  if (cursor > end) return zonedDateKeysBetween(toKey, fromKey);
+  for (let i = 0; i < 400 && cursor <= end; i++) {
+    keys.push(zonedDateKey(new Date(cursor)));
+    cursor += 86_400_000;
+  }
+  return keys;
+}
+
 /** Saturday-start week in Asia/Tehran (absolute bounds). */
 export function startOfZonedWeek(date: Date = new Date()): Date {
   const start = startOfZonedDay(date);

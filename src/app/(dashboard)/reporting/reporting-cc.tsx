@@ -1,6 +1,6 @@
 "use client";
-import { useTranslation } from "@/i18n/provider";
 
+import { useTranslation } from "@/i18n/provider";
 import * as React from "react";
 import type { UserRow } from "@/features/users/types";
 import type { Language } from "@/types/db";
@@ -11,6 +11,7 @@ import {
   ReportingInfoCard,
   ReportingPreviewColumns,
 } from "@/components/ui/reporting";
+import { zonedDateKey } from "@/lib/life";
 
 interface ReportingCCProps {
   users: UserRow[];
@@ -54,8 +55,8 @@ export function ReportingCC({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: selectedUserId,
-          dateFrom: dateRange.from.toISOString().split("T")[0],
-          dateTo: dateRange.to.toISOString().split("T")[0],
+          dateFrom: zonedDateKey(dateRange.from),
+          dateTo: zonedDateKey(dateRange.to),
         }),
       });
 
@@ -69,7 +70,7 @@ export function ReportingCC({
       const a = document.createElement("a");
       a.href = url;
       const contentDisposition = response.headers.get("Content-Disposition");
-      let filename = `گزارش_ساعات_${dateRange.from.toISOString().split("T")[0]}_تا_${dateRange.to.toISOString().split("T")[0]}.xlsx`;
+      let filename = `گزارش_ساعات_${zonedDateKey(dateRange.from)}_تا_${zonedDateKey(dateRange.to)}.xlsx`;
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename\*=UTF-8''(.+)/);
         if (filenameMatch) {
@@ -88,21 +89,9 @@ export function ReportingCC({
     }
   };
 
-  const handleUserChange = (value: string) => {
-    setSelectedUserId(value);
-    setError(null);
-  };
-
-  const handleDateRangeChange = (
-    range: { from: Date | null; to: Date | null } | null,
-  ) => {
-    setDateRange(range);
-    setError(null);
-  };
-
   return (
-    <div className="flex flex-col gap-6 max-w-4xl mx-auto">
-      <ReportingHeader language={language} />
+    <div className="flex min-w-0 flex-col gap-6 overflow-x-hidden">
+      <ReportingHeader />
 
       <Card className="p-4">
         <ReportingForm
@@ -112,14 +101,20 @@ export function ReportingCC({
           dateRange={dateRange}
           isGenerating={isGenerating}
           error={error}
-          onUserChange={handleUserChange}
-          onDateRangeChange={handleDateRangeChange}
+          onUserChange={value => {
+            setSelectedUserId(value);
+            setError(null);
+          }}
+          onDateRangeChange={range => {
+            setDateRange(range);
+            setError(null);
+          }}
           onGenerate={handleGenerateReport}
         />
       </Card>
 
-      <ReportingInfoCard language={language} />
-      <ReportingPreviewColumns language={language} />
+      <ReportingInfoCard />
+      <ReportingPreviewColumns />
     </div>
   );
 }

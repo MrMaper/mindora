@@ -88,7 +88,11 @@ export async function completeFromBaleReply(
 
   await db.task.update({
     where: { id: task.id },
-    data: { status: "DONE", waitingOn: false },
+    data: {
+      status: "DONE",
+      waitingOn: false,
+      completedAt: new Date(),
+    },
   });
   await db.activityLog.create({
     data: {

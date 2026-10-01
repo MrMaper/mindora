@@ -4,7 +4,11 @@ import {
   hasDueTime,
   startOfZonedDay,
   toDueDateKey,
+  workLogInstantFromKey,
   zonedDateKey,
+  zonedDateKeysBetween,
+  zonedDayEndFromKey,
+  zonedDayStartFromKey,
 } from "@/lib/life";
 
 describe("Asia/Tehran day bounds", () => {
@@ -35,5 +39,36 @@ describe("Asia/Tehran day bounds", () => {
     const due = new Date("2026-10-01T08:30:00.000Z");
     expect(hasDueTime(due, null)).toBe(false);
     expect(toDueDateKey(due, null)).toBe("2026-10-01");
+  });
+
+  it("stores a work-log day at Tehran noon and keeps that calendar day", () => {
+    const instant = workLogInstantFromKey("2026-10-01");
+    expect(instant.toISOString()).toBe("2026-10-01T08:30:00.000Z");
+    expect(zonedDateKey(instant)).toBe("2026-10-01");
+    expect(zonedDayStartFromKey("2026-10-01").toISOString()).toBe(
+      "2026-09-30T20:30:00.000Z",
+    );
+    expect(zonedDayEndFromKey("2026-10-01").toISOString()).toBe(
+      "2026-10-01T20:29:59.999Z",
+    );
+    expect(instant.getTime()).toBeGreaterThanOrEqual(
+      zonedDayStartFromKey("2026-10-01").getTime(),
+    );
+    expect(instant.getTime()).toBeLessThanOrEqual(
+      zonedDayEndFromKey("2026-10-01").getTime(),
+    );
+  });
+
+  it("lists inclusive Tehran days and swaps a reversed range", () => {
+    expect(zonedDateKeysBetween("2026-09-30", "2026-10-02")).toEqual([
+      "2026-09-30",
+      "2026-10-01",
+      "2026-10-02",
+    ]);
+    expect(zonedDateKeysBetween("2026-10-02", "2026-09-30")).toEqual([
+      "2026-09-30",
+      "2026-10-01",
+      "2026-10-02",
+    ]);
   });
 });

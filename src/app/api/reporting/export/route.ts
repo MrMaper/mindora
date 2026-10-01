@@ -3,6 +3,13 @@ import { auth } from "@/auth";
 import { prisma as db } from "@/lib/db";
 import ExcelJS from "exceljs";
 import { toJalaali } from "jalaali-js";
+import {
+  parseLocalDate,
+  zonedDateKey,
+  zonedDateKeysBetween,
+  zonedDayEndFromKey,
+  zonedDayStartFromKey,
+} from "@/lib/life";
 
 const PERSIAN_MONTHS = [
   "فروردین",
@@ -56,31 +63,14 @@ function formatHoursToString(hours: number): string {
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 }
 
-function getPersianDayOfWeek(date: Date): string {
-  const day = date.getDay();
-  return PERSIAN_DAYS[day];
+function jalaliDayLabel(dateKey: string): string {
+  const { jm, jd } = toJalaali(parseLocalDate(dateKey));
+  const month = PERSIAN_MONTHS[jm - 1] ?? "";
+  return `${toPersianDigits(jd)} ${month}`.trim();
 }
 
-function getPersianDayOfMonthInKhordad(date: Date): string {
-  const { jm, jd } = toJalaali(date);
-  if (jm !== 3) {
-    return `${toPersianDigits(jd)} ${PERSIAN_MONTHS[jm - 1]}`;
-  }
-  return toPersianDigits(jd);
-}
-
-function generateDateRange(startDate: Date, endDate: Date): Date[] {
-  const dates: Date[] = [];
-  const current = new Date(startDate);
-  current.setHours(0, 0, 0, 0);
-  const end = new Date(endDate);
-  end.setHours(0, 0, 0, 0);
-
-  while (current <= end) {
-    dates.push(new Date(current));
-    current.setDate(current.getDate() + 1);
-  }
-  return dates;
+function weekdayLabel(dateKey: string): string {
+  return PERSIAN_DAYS[parseLocalDate(dateKey).getDay()] ?? "";
 }
 
 export async function POST(request: NextRequest) {
@@ -104,17 +94,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const startDate = new Date(dateFrom);
-    startDate.setHours(0, 0, 0, 0);
-    const endDate = new Date(dateTo);
-    endDate.setHours(23, 59, 59, 999);
+    if (
+      !/^\d{4}-\d{2}-\d{2}$/.test(dateFrom) ||
+      !/^\d{4}-\d{2}-\d{2}$/.test(dateTo)
+    ) {
+      return NextResponse.json(
+        { error: "dateFrom and dateTo must be YYYY-MM-DD" },
+        { status: 400 },
+      );
+    }
+
+    const fromKey = dateFrom <= dateTo ? dateFrom : dateTo;
+    const toKey = dateFrom <= dateTo ? dateTo : dateFrom;
 
     const workLogs = await db.workLog.findMany({
       where: {
         userId,
         date: {
-          gte: startDate,
-          lte: endDate,
+          gte: zonedDayStartFromKey(fromKey),
+          lte: zonedDayEndFromKey(toKey),
         },
       },
       include: {
@@ -126,14 +124,14 @@ export async function POST(request: NextRequest) {
 
     const logsByDate = new Map<string, typeof workLogs>();
     for (const log of workLogs) {
-      const dateKey = log.date.toISOString().split("T")[0];
+      const dateKey = zonedDateKey(new Date(log.date));
       if (!logsByDate.has(dateKey)) {
         logsByDate.set(dateKey, []);
       }
       logsByDate.get(dateKey)!.push(log);
     }
 
-    const allDates = generateDateRange(startDate, endDate);
+    const allDates = zonedDateKeysBetween(fromKey, toKey);
 
     const workbook = new ExcelJS.Workbook();
     workbook.creator = "Mindora";
@@ -146,7 +144,6 @@ export async function POST(request: NextRequest) {
       "روز هفته",
       "تاریخ",
       "جمع ساعات کاری",
-      "جمع ساعات اضافه‌کاری",
       "گزارش کار",
     ]);
 
@@ -161,21 +158,18 @@ export async function POST(request: NextRequest) {
 
     worksheet.columns = [
       { width: 18 },
-      { width: 20 },
-      { width: 18 },
+      { width: 22 },
       { width: 18 },
       { width: 60 },
     ];
 
     let totalHoursSum = 0;
 
-    for (const date of allDates) {
-      const dateKey = date.toISOString().split("T")[0];
+    for (const dateKey of allDates) {
       const logs = logsByDate.get(dateKey) ?? [];
-      const dayOfWeek = getPersianDayOfWeek(date);
-      const persianDate = getPersianDayOfMonthInKhordad(date);
+      const dayOfWeek = weekdayLabel(dateKey);
+      const persianDate = jalaliDayLabel(dateKey);
       const totalHours = logs.reduce((sum, log) => sum + log.hours, 0);
-      const overtimeHours = 0;
       totalHoursSum += totalHours;
 
       let workReport = "";
@@ -192,7 +186,6 @@ export async function POST(request: NextRequest) {
         dayOfWeek,
         persianDate,
         formatHoursToString(totalHours),
-        formatHoursToString(overtimeHours),
         workReport,
       ]);
 
@@ -204,7 +197,7 @@ export async function POST(request: NextRequest) {
       };
       row.height = logs.length > 0 ? 40 + logs.length * 15 : 30;
 
-      for (let col = 1; col <= 4; col++) {
+      for (let col = 1; col <= 3; col++) {
         const cell = row.getCell(col);
         cell.alignment = {
           horizontal: "center",
@@ -214,7 +207,7 @@ export async function POST(request: NextRequest) {
         cell.font = { size: 11 };
       }
 
-      const reportCell = row.getCell(5);
+      const reportCell = row.getCell(4);
       reportCell.alignment = {
         horizontal: "right",
         vertical: "top",
@@ -228,7 +221,6 @@ export async function POST(request: NextRequest) {
       "مجموع",
       "",
       formatHoursToString(totalHoursSum),
-      formatHoursToString(0),
       "",
     ]);
 
@@ -245,7 +237,7 @@ export async function POST(request: NextRequest) {
     };
     totalRow.height = 30;
 
-    for (let col = 1; col <= 5; col++) {
+    for (let col = 1; col <= 4; col++) {
       const cell = totalRow.getCell(col);
       cell.border = {
         top: { style: "thin" },
@@ -258,7 +250,7 @@ export async function POST(request: NextRequest) {
       select: { name: true },
     });
 
-    const filename = `گزارش_ساعات_${user?.name || "کاربر"}_${dateFrom}_تا_${dateTo}.xlsx`;
+    const filename = `گزارش_ساعات_${user?.name || "کاربر"}_${fromKey}_تا_${toKey}.xlsx`;
 
     const buffer = await workbook.xlsx.writeBuffer();
 

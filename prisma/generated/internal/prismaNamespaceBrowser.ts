@@ -349,6 +349,7 @@ export const TaskScalarFieldEnum = {
   recurrenceEndsAt: 'recurrenceEndsAt',
   createdById: 'createdById',
   assignedToId: 'assignedToId',
+  completedAt: 'completedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

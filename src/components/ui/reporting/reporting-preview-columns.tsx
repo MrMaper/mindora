@@ -1,50 +1,59 @@
 "use client";
+
 import { useTranslation } from "@/i18n/provider";
-
-import * as React from "react";
 import { Card } from "@/components/ui/card";
-import type { Language } from "@/types/db";
 
-interface ReportingPreviewColumnsProps {
-  language: Language;
-}
-
-export function ReportingPreviewColumns({ language }: ReportingPreviewColumnsProps) {
+export function ReportingPreviewColumns() {
   const t = useTranslation();
+  const columns = [
+    t.reporting.columns.dayOfWeek,
+    t.reporting.columns.date,
+    t.reporting.columns.totalWorkingHours,
+    t.reporting.columns.workReport,
+  ];
+  const sampleCells = [
+    t.reporting.sampleDay,
+    t.reporting.sampleDate,
+    t.reporting.sampleHours,
+    t.reporting.sampleReport,
+  ];
 
   return (
     <Card className="p-4">
-      <h3 className="text-sm font-medium text-text-primary mb-3">ستون‌های گزارش</h3>
+      <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
+        <h3 className="text-sm font-semibold text-text-primary">
+          {t.reporting.columnsTitle}
+        </h3>
+        <p className="text-xs text-text-tertiary">{t.reporting.columnsHint}</p>
+      </div>
       <div className="overflow-x-auto">
-        <table className="w-full text-sm text-right">
+        <table className="w-full min-w-[28rem] text-sm">
           <thead>
             <tr className="border-b border-border">
-              {[
-                t.reporting.columns.dayOfWeek,
-                t.reporting.columns.date,
-                t.reporting.columns.totalWorkingHours,
-                t.reporting.columns.totalOvertimeHours,
-                t.reporting.columns.workReport,
-              ].map((col, i) => (
-                <th key={i} className="p-2 font-medium text-text-secondary">
+              {columns.map(col => (
+                <th
+                  key={col}
+                  className="px-2 py-2 text-start font-medium text-text-secondary"
+                >
                   {col}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            <tr className="border-b border-border/50">
-              <td className="p-2 text-center text-text-tertiary">شنبه</td>
-              <td className="p-2 text-center text-text-tertiary">۱۵ خرداد</td>
-              <td className="p-2 text-center text-text-tertiary">08:00</td>
-              <td className="p-2 text-center text-text-tertiary">00:00</td>
-              <td className="p-2 text-text-tertiary">
-                1. انجام کار فرانت‌اند (04:00)
-                <br />
-                2. کد ریویو (02:00)
-                <br />
-                3. میتینگ تیم (02:00)
-              </td>
+            <tr>
+              {sampleCells.map((cell, index) => (
+                <td
+                  key={columns[index]}
+                  className={
+                    index === 3
+                      ? "px-2 py-3 text-start text-text-secondary whitespace-pre-line"
+                      : "px-2 py-3 text-start text-text-tertiary tabular-nums"
+                  }
+                >
+                  {cell}
+                </td>
+              ))}
             </tr>
           </tbody>
         </table>

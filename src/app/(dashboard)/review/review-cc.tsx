@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { QuickCapture } from "@/components/life/quick-capture";
 import { LifeTaskList } from "@/components/life/life-task-list";
 import { usePersonalTaskEditor } from "@/components/life/use-personal-task-editor";
-import { formatJalaliShort } from "@/lib/life";
+import { formatJalaliShort, parseLocalDate, zonedDateKey } from "@/lib/life";
 import { formatNumber } from "@/lib/utils";
 import { useLanguage, useTranslation } from "@/i18n/provider";
 import { Button } from "@/components/ui-kit/forms/button";
@@ -127,8 +127,15 @@ export function ReviewCC({
               {t.life.reviewSubtitle}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              {formatJalaliShort(weekStart, language)} —{" "}
-              {formatJalaliShort(weekEnd, language)}
+              {formatJalaliShort(
+                parseLocalDate(zonedDateKey(new Date(weekStart))),
+                language,
+              )}{" "}
+              —{" "}
+              {formatJalaliShort(
+                parseLocalDate(zonedDateKey(new Date(weekEnd))),
+                language,
+              )}
             </p>
           </div>
           {weeklyDocId ? (

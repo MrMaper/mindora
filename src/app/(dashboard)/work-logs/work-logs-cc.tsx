@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useTranslation } from "@/i18n/provider";
 
@@ -10,6 +10,7 @@ import type { ProjectRow } from "@/features/projects/types";
 import type { Language } from "@/types/db";
 import type { WorkLogSummary } from "@/features/work-logs/types";
 import { AreaPathFilters } from "@/components/life/area-path-filters";
+import { formatJalaliShort, parseLocalDate, zonedDateKey } from "@/lib/life";
 import { Icon } from "@/components/ui-kit/foundation/icon";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui-kit/data-display/badge";
@@ -77,12 +78,41 @@ export function WorkLogsCC({
     writeFilters({ ...filters, [key]: value });
   };
 
-  const formatDate = (date: Date): string => {
-    return new Date(date).toLocaleDateString(dateLocale, {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
+  const [dateRange, setDateRange] = React.useState<{
+    from: Date | null;
+    to: Date | null;
+  } | null>(() =>
+    filters.dateFrom || filters.dateTo
+      ? {
+          from: filters.dateFrom ? parseLocalDate(filters.dateFrom) : null,
+          to: filters.dateTo ? parseLocalDate(filters.dateTo) : null,
+        }
+      : null,
+  );
+
+  const handleDateRange = (
+    next: { from: Date | null; to: Date | null } | null,
+  ) => {
+    setDateRange(next);
+    const from = next?.from ? zonedDateKey(next.from) : "";
+    const to = next?.to ? zonedDateKey(next.to) : "";
+    const complete = Boolean(from && to);
+    const cleared = !from && !to;
+    if (!complete && !cleared) return;
+    if (from === filters.dateFrom && to === filters.dateTo) return;
+    writeFilters({ ...filters, dateFrom: from, dateTo: to });
+  };
+
+  const formatDate = (dateKey: string): string => {
+    const day = parseLocalDate(dateKey);
+    if (language === "EN") {
+      return day.toLocaleDateString(dateLocale, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    }
+    return formatJalaliShort(day, "FA");
   };
 
   const formatLoggedHours = (hours: number): string => {
@@ -158,18 +188,17 @@ export function WorkLogsCC({
                 writeFilters({ ...filters, area: next.area, projectId: next.project })
               }
             />
-            <DatePicker
-              value={filters.dateFrom ? new Date(filters.dateFrom) : null}
-              onChange={date => handleFilterChange("dateFrom", date ? date.toISOString().split("T")[0] : "")}
-              mode="single"
-              label={t.workLogs.dateFrom}
-            />
-            <DatePicker
-              value={filters.dateTo ? new Date(filters.dateTo) : null}
-              onChange={date => handleFilterChange("dateTo", date ? date.toISOString().split("T")[0] : "")}
-              mode="single"
-              label={t.workLogs.dateTo}
-            />
+            <div className="w-full sm:w-72">
+              <DatePicker
+                mode="range"
+                value={dateRange}
+                onChange={handleDateRange}
+                label={t.workLogs.dateRange}
+                language={language}
+                numberOfMonths={2}
+                showOutsideDays={false}
+              />
+            </div>
             {hasActiveFilters && (
               <Button
                 variant="ghost"
@@ -222,8 +251,8 @@ export function WorkLogsCC({
             {Object.entries(summary.byTask)
               .sort(([, a], [, b]) => b.hours - a.hours)
               .slice(0, 20)
-              .map(([_, data]) => (
-                <div key={data.taskTitle} className="flex items-center justify-between p-3 rounded-lg bg-accent/50">
+              .map(([taskId, data]) => (
+                <div key={taskId} className="flex items-center justify-between p-3 rounded-lg bg-accent/50">
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-text-primary truncate">{data.taskTitle}</div>
                   </div>
@@ -280,7 +309,7 @@ export function WorkLogsCC({
                     <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
                       <Icon name="calendar" size={16} className="text-primary" />
                     </div>
-                    <span className="font-medium text-text-primary">{formatDate(new Date(date))}</span>
+                    <span className="font-medium text-text-primary">{formatDate(date)}</span>
                   </div>
                   <div className="text-right">
                     <div className="text-xl font-bold text-primary">

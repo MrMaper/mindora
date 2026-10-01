@@ -10,6 +10,7 @@ import { statusToDisplay, STATUS_OPTIONS } from "@/features/tasks/types";
 import { SortableKanbanCard } from "./sortable-kanban-card";
 import type { BoardStatus } from "@/features/kanban/types";
 import type { TaskRow } from "@/features/tasks/types";
+import { cn } from "@/lib/utils";
 
 export function BoardColumn({
   status,
@@ -19,6 +20,7 @@ export function BoardColumn({
   label: labelOverride,
   docsByTask = {},
   onDocsChange,
+  density = "default",
 }: {
   status: BoardStatus;
   tasks: TaskRow[];
@@ -30,6 +32,7 @@ export function BoardColumn({
     taskId: string,
     docs: { id: string; title: string }[],
   ) => void;
+  density?: "default" | "compact";
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: status });
   const t = useTranslation();
@@ -38,24 +41,41 @@ export function BoardColumn({
     STATUS_OPTIONS.find(o => o.value === status)?.labelKey ?? "backlog";
   const label =
     labelOverride ?? (t.tasks[labelKey as keyof typeof t.tasks] as string);
+  const compact = density === "compact";
 
   return (
-    <div className="w-[min(15rem,82vw)] sm:w-70 flex-none flex flex-col max-h-full">
-      <div className="flex items-center justify-center gap-2 px-1 py-2.5 flex-nowrap">
+    <div
+      className={cn(
+        "flex max-h-full flex-none flex-col",
+        compact
+          ? "w-[min(18rem,85vw)] sm:w-70"
+          : "w-[min(15rem,82vw)] sm:w-70",
+      )}
+    >
+      <div
+        className={cn(
+          "flex flex-nowrap items-center justify-center gap-2 px-1",
+          compact ? "py-1.5" : "py-2.5",
+        )}
+      >
         <span
-          className="size-2.5 rounded-full flex-none"
+          className="size-2.5 shrink-0 rounded-full"
           style={{ background: `var(--status-${display})` }}
         />
-        <span className="text-sm font-semibold whitespace-nowrap">{label}</span>
-        <span className="font-mono text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">
+        <span className="whitespace-nowrap text-sm font-semibold">{label}</span>
+        <span className="rounded-full bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
           {tasks.length}
         </span>
       </div>
       <div
         ref={setNodeRef}
-        className={`flex flex-col gap-2 overflow-y-auto py-0.5 min-h-[40px] rounded-md transition-colors max-h-[calc(100dvh-14rem)] sm:max-h-[calc(100vh-240px)] ${
-          isOver ? "bg-accent" : ""
-        }`}
+        className={cn(
+          "flex min-h-10 flex-col gap-2 overflow-y-auto rounded-md py-0.5 transition-colors",
+          compact
+            ? "max-h-[min(70dvh,calc(100dvh-11rem))] sm:max-h-[calc(100vh-220px)]"
+            : "max-h-[calc(100dvh-14rem)] sm:max-h-[calc(100vh-240px)]",
+          isOver && "bg-accent",
+        )}
       >
         <SortableContext
           items={tasks.map(task => task.id)}
@@ -73,7 +93,7 @@ export function BoardColumn({
           ))}
         </SortableContext>
         {tasks.length === 0 && (
-          <div className="flex items-center justify-center h-15 border-dashed border-border-muted text-muted-foreground text-[10px] rounded-md">
+          <div className="flex h-15 items-center justify-center rounded-md border-dashed border-border-muted text-[10px] text-muted-foreground">
             {t.board.noTasks}
           </div>
         )}

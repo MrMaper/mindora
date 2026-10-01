@@ -8,15 +8,15 @@ import { applyTaskStatusChange } from "@/features/tasks/apply-status";
 import {
   clientLocalNow,
   dueFromWallClock,
-  endOfWeek,
+  endOfZonedWeek,
   moveDueToDay,
   parseLocalDate,
   planningStatusFromDue,
   resolvePersonalTaskPlanningStatus,
   startOfZonedDay,
-  toDateKey,
   withDateOnly,
   zonedDateKey,
+  workLogInstantFromKey,
 } from "@/lib/life";
 import type { LifeArea, RecurrenceInterval } from "@/types/db";
 import { ensurePersonalWorkspace, projectIdForArea } from "./workspace";
@@ -218,10 +218,9 @@ export async function planTaskThisWeek(taskId: string): Promise<ActionResult> {
   }
 
   const area = existing.area ?? existing.project?.area ?? null;
-  const weekEnd = endOfWeek(new Date());
   const dueDate = moveDueToDay(
     existing.dueDate,
-    toDateKey(weekEnd),
+    zonedDateKey(endOfZonedWeek()),
     existing.durationMinutes,
   );
   const status = resolvePersonalTaskPlanningStatus(
@@ -474,7 +473,7 @@ export async function logFocusSession(input: {
       taskId: task.id,
       userId: session.user.id,
       hours,
-      date: parseLocalDate(zonedDateKey()),
+      date: workLogInstantFromKey(zonedDateKey()),
       description: "جلسه تمرکز",
     },
   });
@@ -752,7 +751,7 @@ export async function rescheduleTaskSchedule(input: {
  */
 export async function syncPlanningStatusesForUser(userId: string): Promise<void> {
   if (!userId) return;
-  const weekEnd = endOfWeek(new Date());
+  const weekEnd = endOfZonedWeek();
   const mine = {
     OR: [
       { assignedToId: userId },

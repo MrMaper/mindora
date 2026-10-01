@@ -209,16 +209,16 @@ export function ResearchTabBar({
     { id: "writing", label: t.life.researchTabWriting },
   ];
   return (
-    <div className="flex gap-1 rounded-xl border bg-muted/30 p-1 mb-4">
+    <div className="mb-2 flex gap-1 rounded-xl border bg-muted/30 p-0.5 sm:mb-3 sm:p-1">
       {items.map(item => (
         <button
           key={item.id}
           type="button"
           onClick={() => onChange(item.id)}
           className={cn(
-            "flex-1 rounded-lg px-2 py-2 text-sm font-medium transition-colors",
+            "flex-1 rounded-lg px-2 py-1.5 text-sm font-medium transition-colors sm:py-2",
             tab === item.id
-              ? "bg-card shadow-sm text-foreground"
+              ? "bg-card text-foreground shadow-sm"
               : "text-muted-foreground hover:text-foreground",
           )}
         >

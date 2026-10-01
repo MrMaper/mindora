@@ -24,6 +24,7 @@ import {
 import type { TaskDetail } from "./types";
 import { canAccessPersonalTask } from "@/lib/task-access";
 import { applyTaskStatusChange } from "@/features/tasks/apply-status";
+import { completedAtWrite } from "@/features/tasks/completed-at";
 
 function revalidateTasks(extra: string[] = []) {
   revalidatePath("/tasks");
@@ -354,6 +355,7 @@ export async function updateTask(
       dueDate: nextDueDate,
       durationMinutes: nextDurationMinutes,
       waitingOn: nextStatus === "DONE" ? false : waitingOn,
+      ...(completedAtWrite(existing.status, nextStatus) ?? {}),
       projectId,
       area: nextArea,
       labels: {

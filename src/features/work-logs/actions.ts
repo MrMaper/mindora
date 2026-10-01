@@ -8,6 +8,7 @@ import type { ActionResult } from "@/features/tasks/actions";
 import type { WorkLogRow, WorkLogDetail } from "./types";
 import { sendBaleTaskNotification } from "../external/bots/bale/notifications";
 import { canAccessPersonalTask } from "@/lib/task-access";
+import { workLogInstantFromKey } from "@/lib/life";
 
 async function logActivity(opts: {
   entityId: string;
@@ -67,7 +68,7 @@ export async function createWorkLog(formData: FormData): Promise<ActionResult> {
       taskId: parsed.data.taskId,
       userId: session.user.id,
       hours: parsed.data.hours,
-      date: new Date(parsed.data.date),
+      date: workLogInstantFromKey(parsed.data.date),
       description: parsed.data.description || null,
     },
   });
@@ -88,7 +89,7 @@ export async function createWorkLog(formData: FormData): Promise<ActionResult> {
     title: task.title,
     workLog: {
       hours: workLog.hours,
-      date: workLog.date.toISOString().split("T")[0],
+      date: parsed.data.date,
       assignee: task.assignedTo?.name,
       project: task.project?.name,
       description: workLog.description || undefined,
@@ -97,6 +98,9 @@ export async function createWorkLog(formData: FormData): Promise<ActionResult> {
 
   revalidatePath("/tasks");
   revalidatePath(`/tasks/${task.id}`);
+  revalidatePath("/work-logs");
+  revalidatePath("/review");
+  revalidatePath("/dashboard");
   return { success: true, data: { id: workLog.id } };
 }
 
@@ -135,7 +139,7 @@ export async function updateWorkLog(formData: FormData): Promise<ActionResult> {
   const updateData: Record<string, unknown> = {};
   if (parsed.data.hours !== undefined) updateData.hours = parsed.data.hours;
   if (parsed.data.date !== undefined)
-    updateData.date = new Date(parsed.data.date);
+    updateData.date = workLogInstantFromKey(parsed.data.date);
   if (parsed.data.description !== undefined)
     updateData.description = parsed.data.description || null;
 
@@ -162,6 +166,9 @@ export async function updateWorkLog(formData: FormData): Promise<ActionResult> {
 
   revalidatePath("/tasks");
   revalidatePath(`/tasks/${existing.taskId}`);
+  revalidatePath("/work-logs");
+  revalidatePath("/review");
+  revalidatePath("/dashboard");
   return { success: true };
 }
 
@@ -206,6 +213,9 @@ export async function deleteWorkLog(id: string): Promise<ActionResult> {
 
   revalidatePath("/tasks");
   revalidatePath(`/tasks/${existing.taskId}`);
+  revalidatePath("/work-logs");
+  revalidatePath("/review");
+  revalidatePath("/dashboard");
   return { success: true };
 }
 

@@ -18,7 +18,7 @@ export function BrandLogo({
       width={size}
       height={size}
       decoding="async"
-      className={cn("shrink-0 object-contain", className)}
+      className={cn("block shrink-0 object-contain", className)}
       style={{ width: size, height: size }}
     />
   );

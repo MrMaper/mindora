@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { ResolvedValidationText } from "@/components/ui-kit/forms/action-error";
 
@@ -58,6 +58,11 @@ interface KanbanCCProps {
   showProjectFilter?: boolean;
   /** Hide the whole filter bar (research hub). */
   showFilters?: boolean;
+  /**
+   * Research hub: hide the page title header, show a compact create strip,
+   * and use denser board columns for phone layouts.
+   */
+  embedded?: boolean;
   /** Form preset for create/edit drawers. */
   formPreset?: import("@/components/tasks/task-form-fields").TaskFormPreset;
 }
@@ -78,6 +83,7 @@ export function KanbanCC({
   createDefaults,
   showProjectFilter = true,
   showFilters = true,
+  embedded = false,
   formPreset = "life",
 }: KanbanCCProps) {
   const k = useKanban(initialColumns, filters, {
@@ -156,16 +162,29 @@ export function KanbanCC({
   }
 
   return (
-    <>
-      <PageHeaderBar
-        className="mb-4"
-        title={title ?? t.board.title}
-        actions={
-          <Button variant="primary" icon="plus" onClick={handleOpenCreate}>
+    <div className={embedded ? "flex min-h-0 flex-col" : undefined}>
+      {embedded ? (
+        <div className="mb-2 flex items-center justify-end">
+          <Button
+            variant="primary"
+            size="sm"
+            icon="plus"
+            onClick={handleOpenCreate}
+          >
             {t.tasks.createTaskButton}
           </Button>
-        }
-      />
+        </div>
+      ) : (
+        <PageHeaderBar
+          className="mb-4"
+          title={title ?? t.board.title}
+          actions={
+            <Button variant="primary" icon="plus" onClick={handleOpenCreate}>
+              {t.tasks.createTaskButton}
+            </Button>
+          }
+        />
+      )}
 
       {showFilters && (
         <KanbanFilters
@@ -222,7 +241,13 @@ export function KanbanCC({
         onDragEnd={k.onDragEnd}
         onDragCancel={k.onDragCancel}
       >
-        <div className="flex gap-3 py-4 h-full min-h-0 overflow-x-auto items-stretch snap-x snap-mandatory sm:snap-none -mx-1 px-1">
+        <div
+          className={
+            embedded
+              ? "flex min-h-0 items-stretch gap-2 overflow-x-auto scroll-px-1 px-0.5 py-2 snap-x snap-mandatory sm:gap-3 sm:snap-none sm:py-3 [-webkit-overflow-scrolling:touch]"
+              : "flex h-full min-h-0 items-stretch gap-3 overflow-x-auto snap-x snap-mandatory py-4 -mx-1 px-1 sm:snap-none"
+          }
+        >
           {statuses.map((status, index) => (
             <React.Fragment key={status}>
               <div className="snap-start shrink-0">
@@ -233,6 +258,7 @@ export function KanbanCC({
                   onCardClick={k.openTask}
                   label={columnLabels?.[status]}
                   docsByTask={docsByTask}
+                  density={embedded ? "compact" : "default"}
                   onDocsChange={(taskId, docs) => {
                     setDocsByTask(prev => ({ ...prev, [taskId]: docs }));
                   }}
@@ -316,6 +342,6 @@ export function KanbanCC({
         userOptions={userOptions}
         preset={formPreset}
       />
-    </>
+    </div>
   );
 }

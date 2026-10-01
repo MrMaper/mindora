@@ -6,6 +6,7 @@ import { getUserPreferences } from "@/features/settings/queries";
 import { getAssignableUsers } from "@/features/users/queries";
 import { getUserProjects } from "@/features/projects/queries";
 import { getWorkLogSummary } from "@/features/work-logs/queries";
+import { zonedDayEndFromKey, zonedDayStartFromKey } from "@/lib/life";
 import { WorkLogsCC } from "./work-logs-cc";
 import { SelectProvider } from "@/components/ui-kit/forms/common";
 import type { Language } from "@/types/db";
@@ -57,12 +58,19 @@ export default async function WorkLogsPage({
   const language = preferences?.language ?? "FA";
   const scope = scopeFromFilters(area, projectId, userProjects);
 
+  const isDateKey = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value);
+  let fromKey = isDateKey(dateFrom) ? dateFrom : "";
+  let toKey = isDateKey(dateTo) ? dateTo : "";
+  if (fromKey && toKey && fromKey > toKey) {
+    [fromKey, toKey] = [toKey, fromKey];
+  }
+
   const summary = await getWorkLogSummary({
     userId: effectiveUserId,
     projectId: scope.projectId || undefined,
     area: isLifeAreaValue(scope.area) ? scope.area : undefined,
-    dateFrom: dateFrom ? new Date(dateFrom) : undefined,
-    dateTo: dateTo ? new Date(dateTo) : undefined,
+    dateFrom: fromKey ? zonedDayStartFromKey(fromKey) : undefined,
+    dateTo: toKey ? zonedDayEndFromKey(toKey) : undefined,
     page: Math.max(1, Number(page)),
   });
 

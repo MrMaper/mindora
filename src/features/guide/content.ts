@@ -480,7 +480,7 @@ const fa: GuideCopy = {
           items: [
             "کار را از بورد یا جدول باز کن و ساعت ثبت کن.",
             "مدت را انتخاب کن (از ربع ساعت تا ۸ ساعت)، تاریخ را بگذار، و اگر لازم است شرح کار را بنویس.",
-            "بعد به «ساعت‌ها» برگرد. بازهٔ تاریخ و در صورت نیاز حوزه یا مسیر را فیلتر کن.",
+            "بعد به «ساعت‌ها» برگرد. بازهٔ تاریخ را با روز تهران فیلتر کن و در صورت نیاز حوزه یا مسیر را هم محدود کن.",
             "جمع ساعت، تعداد ورود، و تفکیک بر اساس کار، مسیر و تاریخ را ببین.",
           ],
         },
@@ -503,9 +503,9 @@ const fa: GuideCopy = {
           type: "steps",
           title: "فایل را بگیر",
           items: [
-            "بازه را با تاریخ شروع و پایان مشخص کن.",
-            "«تولید گزارش» را بزن و صبر کن تا فایل دانلود شود.",
-            "ستون‌ها روز هفته، تاریخ، جمع ساعات کاری، جمع ساعات اضافه‌کاری، و متن گزارش کار هر روز را دارند.",
+            "بازه را انتخاب کن و «دانلود اکسل» را بزن.",
+            "فایل همان‌جا دانلود می‌شود.",
+            "ستون‌ها روز هفته، تاریخ شمسی، جمع ساعات و شرح همان روز هستند. روز همان روز تهران است.",
           ],
         },
         {
@@ -1159,7 +1159,7 @@ const en: GuideCopy = {
       group: "Reflect",
       title: "Weekly review",
       summary:
-        "The end-of-week close: what finished, what is still open, what is still in the inbox, and how many hours you logged.",
+        "The end-of-week close for every area: what you finished this Saturday–Friday, what is still due, what is still unscheduled, and how many hours you logged.",
       href: "/review",
       module: "review",
       blocks: [
@@ -1167,11 +1167,11 @@ const en: GuideCopy = {
           type: "steps",
           title: "Close the week",
           items: [
-            "Read the four numbers in this order: done, open, inbox, hours.",
-            "Scan what you finished this week.",
-            "Look at leftovers. Commit each one to next week, or change its status on the board.",
-            "Empty the inbox: send unplanned work into this week, or leave it in the inbox if it does not belong yet.",
-            "Open the weekly review note in Docs if you want a written recap.",
+            "Read the four numbers: done this week, still due, inbox, hours.",
+            "Done this week is work marked done during this Saturday–Friday, in every area. Editing a task later does not move it.",
+            "Leftovers are still open and due this week or earlier, plus undated work already placed on this week. Waiting follow-ups stay in the inbox.",
+            "Inbox is undated work, plus anything parked as waiting. Send an undated card into this week, which lands on Friday.",
+            "The weekly note uses the same Tehran week and refreshes those lists. Notes under «یادگرفته‌ها» stay.",
           ],
         },
       ],
@@ -1191,7 +1191,7 @@ const en: GuideCopy = {
           items: [
             "Open a task from the board or the table and log time.",
             "Pick a duration (from a quarter hour up to 8 hours), set the date, and write a note if you need one.",
-            "Come back to Hours. Filter by date range and, if you want, by area or path.",
+            "Come back to Hours. Filter the range by Tehran days and, if you want, by area or path.",
             "Read total hours, entry count, and the split by task, path, and date.",
           ],
         },
@@ -1214,9 +1214,9 @@ const en: GuideCopy = {
           type: "steps",
           title: "Download the file",
           items: [
-            "Set a start and end date.",
-            "Generate the report and wait for the download.",
-            "Columns cover weekday, date, total work hours, overtime hours, and the written work note for each day.",
+            "Pick a date range and download the Excel file.",
+            "The file downloads right away.",
+            "Columns are weekday, Jalali date, total hours, and that day's notes. The day is the Tehran calendar day.",
           ],
         },
         {

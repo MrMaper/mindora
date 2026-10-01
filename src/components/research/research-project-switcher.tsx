@@ -85,13 +85,13 @@ export function ResearchProjectSwitcher({
   }
 
   return (
-    <div className="mb-3 flex flex-col gap-2">
-      <div className="flex flex-wrap items-center gap-2">
+    <div className="mb-2 flex flex-col gap-2 sm:mb-3">
+      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
         <label className="text-xs text-muted-foreground shrink-0">
           {t.life.researchProject}
         </label>
         <select
-          className="h-9 min-w-[10rem] rounded-lg border bg-background px-2 text-sm"
+          className="h-9 w-full rounded-lg border bg-background px-2 text-sm sm:w-auto sm:min-w-[10rem]"
           value={scope}
           onChange={e => navigate(e.target.value as ResearchProjectScope)}
           aria-label={t.life.researchProject}
@@ -107,6 +107,7 @@ export function ResearchProjectSwitcher({
         <Button
           size="sm"
           variant="subtle"
+          className="w-full sm:w-auto"
           onClick={() => setCreating(v => !v)}
         >
           {t.life.newResearchProject}

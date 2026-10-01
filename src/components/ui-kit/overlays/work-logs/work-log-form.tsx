@@ -3,12 +3,12 @@
 import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Button } from "@/components/ui-kit/forms/button";
-import { Input } from "@/components/ui-kit/forms/input";
 import { Textarea } from "@/components/ui-kit/forms/textarea";
 import { Select } from "@/components/ui-kit/forms/select";
 import { DatePicker } from "@/components/ui-kit/forms/date-picker";
 import { formatDurationLabel } from "@/components/ui-kit/forms/time-roller";
 import { HOURS_OPTIONS } from "@/features/work-logs/types";
+import { parseLocalDate, zonedDateKey } from "@/lib/life";
 import { useLanguage } from "@/i18n/provider";
 
 interface WorkLogFormProps {
@@ -20,7 +20,6 @@ interface WorkLogFormProps {
 export function WorkLogForm({ taskId, onSubmit, onClose }: WorkLogFormProps) {
   const language = useLanguage();
   const t = language === "FA" ? formTranslations.fa : formTranslations.en;
-  const dateLocale = language === "EN" ? "en-US" : "fa-IR";
 
   const form = useForm<{
     hours: string;
@@ -29,7 +28,7 @@ export function WorkLogForm({ taskId, onSubmit, onClose }: WorkLogFormProps) {
   }>({
     defaultValues: {
       hours: "1",
-      date: new Date().toISOString().split("T")[0],
+      date: zonedDateKey(),
       description: "",
     },
   });
@@ -93,12 +92,12 @@ export function WorkLogForm({ taskId, onSubmit, onClose }: WorkLogFormProps) {
         name="date"
         control={form.control}
         render={({ field, fieldState }) => {
-          const value = field.value ? new Date(field.value) : null;
+          const value = field.value ? parseLocalDate(field.value) : null;
           return (
             <DatePicker
               value={value}
               onChange={date => {
-                field.onChange(date ? date.toISOString().split("T")[0] : "");
+                field.onChange(date ? zonedDateKey(date) : "");
               }}
               mode="single"
               label={t.date}

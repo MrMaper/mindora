@@ -144,7 +144,7 @@ export function DashboardShell({
           >
             <Icon name="menu" size={18} />
           </Button>
-          <div className="min-w-0 flex-1">
+          <div className="flex min-w-0 flex-1 items-center">
             <BrandMark size="sm" showSlogan={false} />
           </div>
           {captureEnabled ? (

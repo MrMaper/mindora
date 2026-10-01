@@ -11,6 +11,7 @@ interface WorkLogButtonProps {
   taskId: string;
   taskTitle: string;
   assignedToId: string | null;
+  createdById?: string | null;
   currentUserId: string;
   currentUserRole: string;
   className?: string;
@@ -22,6 +23,7 @@ export function WorkLogButton({
   taskId,
   taskTitle,
   assignedToId,
+  createdById = null,
   currentUserId,
   currentUserRole,
   className = "",
@@ -43,8 +45,9 @@ export function WorkLogButton({
   const [isLoading, setIsLoading] = React.useState(false);
 
   const isAssignee = assignedToId === currentUserId;
+  const isCreator = assignedToId == null && createdById === currentUserId;
   const isAdmin = currentUserRole === "ADMIN";
-  const canLogWork = isAdmin || isAssignee;
+  const canLogWork = isAdmin || isAssignee || isCreator;
 
   const loadWorkLogs = React.useCallback(async () => {
     setIsLoading(true);

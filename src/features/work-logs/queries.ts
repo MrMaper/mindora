@@ -1,5 +1,6 @@
 import { prisma as db } from "@/lib/db";
 import type { GetWorkLogsParams, GetWorkLogsResult, WorkLogRow, WorkLogDetail, WorkLogSummary } from "./types";
+import { zonedDateKey } from "@/lib/life";
 
 const PAGE_SIZE = 20;
 
@@ -220,7 +221,7 @@ export async function getWorkLogSummary(params: GetWorkLogsParams): Promise<Work
       summary.byProject[projectKey].hours += wl.hours;
     }
 
-    const dateKey = wl.date.toISOString().split("T")[0];
+    const dateKey = zonedDateKey(new Date(wl.date));
     summary.byDate[dateKey] = (summary.byDate[dateKey] ?? 0) + wl.hours;
   }
 

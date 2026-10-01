@@ -423,38 +423,67 @@ export async function getCalendarTasks(userId: string, from: Date, to: Date) {
 export async function getWeeklyReview(userId: string) {
   const weekStart = startOfZonedWeek();
   const weekEnd = endOfZonedWeek();
-  const lifeOnly = personalLifeTaskWhere(userId);
+  const mine = personalTaskOwnership(userId);
 
   const [completed, leftover, inbox] = await Promise.all([
     db.task.findMany({
       where: {
         AND: [
-          lifeOnly,
+          mine,
           { status: "DONE" },
-          { updatedAt: { gte: weekStart, lte: weekEnd } },
+          { completedAt: { gte: weekStart, lte: weekEnd } },
         ],
       },
-      orderBy: { updatedAt: "desc" },
-      take: 40,
+      orderBy: { completedAt: "desc" },
+      take: 200,
       select: taskSelect,
     }),
+    // Open work due this week or earlier, plus undated cards already moved to This Week.
     db.task.findMany({
       where: {
         AND: [
-          lifeOnly,
-          { status: { in: ["TODO", "IN_PROGRESS"] } },
+          mine,
+          { status: { not: "DONE" } },
+          { waitingOn: false },
+          {
+            OR: [
+              { dueDate: { lte: weekEnd } },
+              {
+                AND: [
+                  { dueDate: null },
+                  { status: { in: ["TODO", "IN_PROGRESS"] } },
+                ],
+              },
+            ],
+          },
         ],
       },
       orderBy: [{ dueDate: "asc" }, { priority: "asc" }],
-      take: 40,
+      take: 200,
       select: taskSelect,
     }),
+    // Undated backlog, plus every parked follow-up so waiting work stays visible.
     db.task.findMany({
       where: {
-        AND: [lifeOnly, { status: "BACKLOG" }, { waitingOn: false }],
+        AND: [
+          mine,
+          { status: { not: "DONE" } },
+          {
+            OR: [
+              { waitingOn: true },
+              {
+                AND: [
+                  { waitingOn: false },
+                  { dueDate: null },
+                  { status: { notIn: ["TODO", "IN_PROGRESS"] } },
+                ],
+              },
+            ],
+          },
+        ],
       },
-      orderBy: { createdAt: "desc" },
-      take: 20,
+      orderBy: [{ waitingOn: "desc" }, { createdAt: "desc" }],
+      take: 200,
       select: taskSelect,
     }),
   ]);

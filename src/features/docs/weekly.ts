@@ -1,5 +1,10 @@
 import { prisma as db } from "@/lib/db";
-import { formatJalaliShort, startOfWeek } from "@/lib/life";
+import {
+  formatJalaliShort,
+  parseLocalDate,
+  startOfZonedWeek,
+  zonedDateKey,
+} from "@/lib/life";
 import { formatHours } from "@/lib/utils";
 import { getDocTemplate } from "./templates";
 import { ensureHeadingIds } from "./utils";
@@ -17,10 +22,14 @@ function htmlToText(html: string): string {
 }
 
 function weekSystemKey(weekStart: Date): string {
-  const y = weekStart.getFullYear();
-  const m = String(weekStart.getMonth() + 1).padStart(2, "0");
-  const d = String(weekStart.getDate()).padStart(2, "0");
-  return `weekly-review:${y}-${m}-${d}`;
+  return `weekly-review:${zonedDateKey(weekStart)}`;
+}
+
+function learningsHtml(content: string): string | null {
+  const match = content.match(
+    /<h3[^>]*>یادگرفته‌ها<\/h3>\s*(<ul[\s\S]*?<\/ul>)/i,
+  );
+  return match?.[1] ?? null;
 }
 
 function buildWeeklyContent(input: {
@@ -28,6 +37,7 @@ function buildWeeklyContent(input: {
   leftoverTitles: string[];
   inboxTitles: string[];
   hours: number;
+  learnings?: string;
 }): string {
   const done =
     input.completedTitles.length > 0
@@ -74,7 +84,7 @@ function buildWeeklyContent(input: {
     <h3>چه ماند</h3>
     <ul data-type="taskList">${left}</ul>
     <h3>یادگرفته‌ها</h3>
-    <ul><li></li></ul>
+    ${input.learnings ?? "<ul><li></li></ul>"}
     <h3>هفته بعد</h3>
     <ul data-type="taskList">${next}</ul>
   `);
@@ -99,28 +109,44 @@ export async function ensureWeeklyReviewDoc(
     language?: "FA" | "EN";
   },
 ): Promise<DocDetail | null> {
-  const weekStart = startOfWeek(new Date());
+  const weekStart = startOfZonedWeek();
   const systemKey = weekSystemKey(weekStart);
   const existing = await db.doc.findFirst({
     where: { userId, systemKey },
     select: { id: true },
   });
-  if (existing) return getDocById(userId, existing.id);
 
   const tpl = getDocTemplate("weeklyReview");
   const lang = opts?.language ?? "FA";
-  const dateLabel = formatJalaliShort(weekStart, lang);
+  const dateLabel = formatJalaliShort(
+    parseLocalDate(zonedDateKey(weekStart)),
+    lang,
+  );
   const title =
     lang === "EN"
       ? `Weekly review · ${dateLabel}`
       : `بازبینی هفته · ${dateLabel}`;
+
+  const previous = existing ? await getDocById(userId, existing.id) : null;
+  const keptLearnings = previous ? learningsHtml(previous.content) : null;
+  if (previous && keptLearnings == null) return previous;
 
   const content = buildWeeklyContent({
     completedTitles: opts?.completedTitles ?? [],
     leftoverTitles: opts?.leftoverTitles ?? [],
     inboxTitles: opts?.inboxTitles ?? [],
     hours: opts?.hours ?? 0,
+    learnings: keptLearnings ?? undefined,
   });
+
+  if (previous) {
+    if (previous.content === content) return previous;
+    await db.doc.update({
+      where: { id: previous.id },
+      data: { content, contentText: htmlToText(content) },
+    });
+    return getDocById(userId, previous.id);
+  }
 
   const doc = await db.doc.create({
     data: {

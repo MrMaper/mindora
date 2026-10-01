@@ -497,7 +497,6 @@ export function CalendarCC({
   const language = useLanguage();
   const edit = useLifeTaskEdit();
   const asideRef = React.useRef<HTMLElement>(null);
-  const mobileDefaultApplied = React.useRef(false);
 
   // Stable across SSR → hydrate; refresh to client-local midnight after mount.
   const [today, setToday] = React.useState(() =>
@@ -505,7 +504,6 @@ export function CalendarCC({
   );
   const todayJalali = jalaliOf(today);
 
-  // Always start as month so SSR and hydrate match (no matchMedia in useState).
   const [view, setView] = React.useState<CalendarView>("month");
   const [anchor, setAnchor] = React.useState(() =>
     startOfDay(parseLocalDate(initialTodayKey)),
@@ -559,14 +557,6 @@ export function CalendarCC({
       toDateKey(prev) === initialTodayKey ? localToday : prev,
     );
   }, [initialTodayKey]);
-
-  React.useEffect(() => {
-    if (mobileDefaultApplied.current) return;
-    mobileDefaultApplied.current = true;
-    if (window.matchMedia("(max-width: 767px)").matches) {
-      setView("day");
-    }
-  }, []);
 
   React.useEffect(() => {
     setTasks(prev =>

@@ -55,7 +55,10 @@ export function ResearchCC(props: ResearchCCProps) {
   return (
     <Suspense
       fallback={
-        <div className="h-40 animate-pulse rounded-xl border bg-muted/30" aria-hidden />
+        <div
+          className="h-40 animate-pulse rounded-xl border bg-muted/30"
+          aria-hidden
+        />
       }
     >
       <ResearchCCInner {...props} />
@@ -102,10 +105,12 @@ function ResearchCCInner({
     scope === "all" ? undefined : scope === "inbox" ? null : scope;
 
   return (
-    <div className="flex flex-col min-h-0">
-      <div className="mb-2">
-        <h1 className="text-xl font-semibold">{t.life.researchHubTitle}</h1>
-        <p className="text-xs text-muted-foreground mt-0.5">
+    <div className="flex min-h-0 flex-col">
+      <div className="mb-2 min-w-0">
+        <h1 className="text-xl font-semibold sm:text-2xl">
+          {t.life.researchHubTitle}
+        </h1>
+        <p className="mt-0.5 hidden text-xs text-muted-foreground sm:block">
           {t.life.researchHubHint}
         </p>
       </div>
@@ -115,10 +120,11 @@ function ResearchCCInner({
       <ResearchTabBar tab={tab} onChange={changeTab} />
 
       {tab === "pipeline" && (
-        <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_18rem]">
-          <div className="min-w-0 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="grid min-h-0 gap-3 xl:grid-cols-[minmax(0,1fr)_18rem]">
+          <div className="relative min-w-0">
             <KanbanCC
               key={`board-${scope}`}
+              embedded
               initialColumns={initialColumns}
               users={users}
               labels={labels}
@@ -128,7 +134,6 @@ function ResearchCCInner({
               currentUserRole={currentUserRole}
               statuses={statuses}
               columnLabels={columnLabels}
-              title={t.life.researchTitle}
               basePath="/research"
               urlProjectParam={scope === "all" ? "" : scope}
               showProjectFilter={false}
@@ -136,16 +141,19 @@ function ResearchCCInner({
               formPreset="research"
               createDefaults={{
                 projectId:
-                  scope === "all" || scope === "inbox"
-                    ? areaIds.PHD
-                    : scope,
+                  scope === "all" || scope === "inbox" ? areaIds.PHD : scope,
                 area: "PHD",
                 status: "BACKLOG",
               }}
             />
+            {/* Peek hint: next column is off-screen on phones */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-y-8 end-0 w-6 bg-linear-to-l from-background to-transparent sm:hidden"
+            />
           </div>
           <details className="rounded-xl border bg-card xl:hidden">
-            <summary className="cursor-pointer list-none px-3 py-2.5 text-sm font-medium marker:content-none [&::-webkit-details-marker]:hidden">
+            <summary className="cursor-pointer list-none px-3 py-2 text-sm font-medium marker:content-none [&::-webkit-details-marker]:hidden">
               {t.life.researchWrite} · {t.life.researchQuotes}
             </summary>
             <div className="border-t px-2 pb-2 pt-1">
