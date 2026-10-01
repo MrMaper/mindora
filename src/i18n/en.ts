@@ -162,6 +162,7 @@ export const en = {
     focusSlot: "Priority {n}",
     focusPick: "Choose a task",
     focusPickEmpty: "Nothing overdue, due today, or without a date. Capture one first.",
+    focusPickAlready: "These tasks are already in a priority slot.",
     focusPickOverdue: "Overdue",
     focusPickToday: "Today",
     focusPickUndated: "No date",

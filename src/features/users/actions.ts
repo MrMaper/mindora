@@ -73,43 +73,48 @@ export async function createUser(formData: FormData): Promise<ActionResult> {
     };
   }
 
-  const existing = await db.user.findUnique({
-    where: { email: parsed.data.email },
-  });
-  if (existing) return { success: false, error: "کاربری با این ایمیل قبلاً وجود دارد" };
-
-  const tempPassword = formData.get("password")?.toString().trim() || generateTempPassword();
-  if (tempPassword.length < 6) {
-    return { success: false, error: "رمز عبور باید حداقل ۶ کاراکتر باشد" };
-  }
-  const hashed = await bcrypt.hash(tempPassword, 12);
-  const enabledModules = modulesFromForm(formData);
-
-  const user = await db.user.create({
-    data: {
-      name: parsed.data.name,
-      email: parsed.data.email,
-      role: "MEMBER",
-      password: hashed,
-      status: "ACTIVE",
-      enabledModules,
-    },
-  });
-
-  await ensurePersonalWorkspace(user.id);
-
-  if (process.env.SMTP_HOST) {
-    await sendMail({
-      to: user.email,
-      subject: "حساب کاربری Mindora شما",
-      html: `<p>سلام ${user.name}،</p><p>رمز عبور موقت شما: <strong>${tempPassword}</strong></p><p>لطفاً وارد شوید و رمز عبور را تغییر دهید.</p>`,
+  try {
+    const existing = await db.user.findUnique({
+      where: { email: parsed.data.email },
     });
-  } else {
-    console.log(`[users] Temp password for ${user.email}: ${tempPassword}`);
-  }
+    if (existing) return { success: false, error: "کاربری با این ایمیل قبلاً وجود دارد" };
 
-  revalidatePath("/users");
-  return { success: true, data: { tempPassword, userId: user.id } };
+    const tempPassword = formData.get("password")?.toString().trim() || generateTempPassword();
+    if (tempPassword.length < 6) {
+      return { success: false, error: "رمز عبور باید حداقل ۶ کاراکتر باشد" };
+    }
+    const hashed = await bcrypt.hash(tempPassword, 12);
+    const enabledModules = modulesFromForm(formData);
+
+    const user = await db.user.create({
+      data: {
+        name: parsed.data.name,
+        email: parsed.data.email,
+        role: "MEMBER",
+        password: hashed,
+        status: "ACTIVE",
+        enabledModules,
+      },
+    });
+
+    await ensurePersonalWorkspace(user.id);
+
+    if (process.env.SMTP_HOST) {
+      await sendMail({
+        to: user.email,
+        subject: "حساب کاربری Mindora شما",
+        html: `<p>سلام ${user.name}،</p><p>رمز عبور موقت شما: <strong>${tempPassword}</strong></p><p>لطفاً وارد شوید و رمز عبور را تغییر دهید.</p>`,
+      });
+    } else {
+      console.log(`[users] Temp password for ${user.email}: ${tempPassword}`);
+    }
+
+    revalidatePath("/users");
+    return { success: true, data: { tempPassword, userId: user.id } };
+  } catch (err) {
+    console.error("[users] createUser failed", err);
+    return { success: false, error: "ساخت کاربر ممکن نشد" };
+  }
 }
 
 // ─── Admin: update user ───────────────────────────────────────────────────

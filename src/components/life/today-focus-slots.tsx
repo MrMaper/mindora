@@ -14,6 +14,7 @@ export function TodayFocusSlots({
   candidates,
   todayKey,
   disabled,
+  emptyPick,
   onPlace,
   onDone,
   onOpen,
@@ -22,6 +23,7 @@ export function TodayFocusSlots({
   candidates: TaskRow[];
   todayKey: string;
   disabled?: boolean;
+  emptyPick?: string;
   onPlace: (index: number, taskId: string | null) => void;
   onDone: (taskId: string) => void;
   onOpen: (task: TaskRow) => void;
@@ -48,7 +50,7 @@ export function TodayFocusSlots({
             candidates={candidates}
             todayKey={todayKey}
             pickLabel={t.dashboard.focusPick}
-            emptyPick={t.dashboard.focusPickEmpty}
+            emptyPick={emptyPick ?? t.dashboard.focusPickEmpty}
             overdueLabel={t.dashboard.focusPickOverdue}
             todayLabel={t.dashboard.focusPickToday}
             undatedLabel={t.dashboard.focusPickUndated}
@@ -122,12 +124,12 @@ function FocusSlot({
     <li
       ref={setNodeRef}
       className={cn(
-        "relative min-h-14 min-w-0 rounded-lg border px-2.5 py-2",
+        "relative flex min-h-16 min-w-0 items-center rounded-lg border px-2.5",
         isOver ? "border-primary bg-primary/5" : "border-border-default bg-bg-sunken/40",
         done && "border-emerald-600/30 bg-emerald-500/5",
       )}
     >
-      <div className="flex min-w-0 items-center gap-2">
+      <div className="flex w-full min-w-0 items-center gap-2">
         <span
           className={cn(
             "flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
@@ -209,7 +211,7 @@ function FilledSlot({
       <button
         type="button"
         ref={setNodeRef}
-        className="shrink-0 cursor-grab touch-none rounded-md p-1 text-muted-foreground hover:bg-accent disabled:cursor-default"
+        className="flex h-7 w-7 shrink-0 cursor-grab touch-none items-center justify-center rounded-md text-muted-foreground hover:bg-accent disabled:cursor-default"
         aria-label={task.title}
         disabled={disabled || done}
         {...listeners}
@@ -221,7 +223,7 @@ function FilledSlot({
         type="button"
         onClick={onOpen}
         className={cn(
-          "min-w-0 flex-1 text-start text-sm font-medium truncate hover:text-primary",
+          "flex h-7 min-w-0 flex-1 items-center text-start text-sm font-medium truncate hover:text-primary",
           done && "text-muted-foreground line-through",
         )}
       >
@@ -232,7 +234,7 @@ function FilledSlot({
           type="button"
           disabled={disabled}
           onClick={onDone}
-          className="shrink-0 rounded-md border px-2 py-1 text-xs hover:bg-accent disabled:opacity-50"
+        className="inline-flex h-7 shrink-0 items-center rounded-md border px-2 text-xs hover:bg-accent disabled:opacity-50"
         >
           {doneLabel}
         </button>

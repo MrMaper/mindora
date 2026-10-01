@@ -35,11 +35,15 @@ interface TasksTableProps {
   formatDate: (date: Date | null, durationMinutes?: number | null) => string;
 }
 
-/** title · place · status · priority · due · actions */
-const GRID =
-  "md:grid gap-x-3 px-3 items-center border-b border-border-subtle";
-const GRID_COLUMNS =
-  "minmax(0, 2fr) minmax(6.5rem, 1fr) max-content 2.5rem minmax(5.5rem, max-content) 2.5rem";
+/** Shared tracks so header and every row line up. title · path · status · priority · due · actions */
+const COL_CLASS = [
+  "w-[28%]",
+  "w-[14%]",
+  "w-[18%]",
+  "w-[10%]",
+  "w-[22%]",
+  "w-[8%]",
+] as const;
 
 function areaTitle(area: TaskRow["area"], t: TasksTableProps["t"]) {
   if (area === "PHD") return t.dashboard.areaPhd as string;
@@ -154,75 +158,118 @@ export function TasksTable({
     );
   }
 
+  const lineProps = {
+    t,
+    currentUserId,
+    currentUserRole,
+    onRowClick,
+    onEdit,
+    onDelete,
+    formatDate,
+  };
+
   return (
     <>
-      <div className="rounded-lg border border-border-default bg-bg-surface overflow-x-auto">
-        <div className="min-w-[40rem]">
-          <div
-            className={cn(GRID, "hidden md:grid h-9 bg-bg-sunken py-0")}
-            style={{ gridTemplateColumns: GRID_COLUMNS }}
-          >
-            {columns.map(col => {
-              if (!col.key) return <span key="actions" />;
-              const active = filters.sort === col.key;
-              return (
-                <button
-                  key={col.key}
-                  type="button"
-                  aria-sort={
-                    active ? (filters.order === "asc" ? "ascending" : "descending") : "none"
-                  }
-                  onClick={() => onSortChange(col.key)}
-                  className="flex h-full min-w-0 cursor-pointer items-center justify-center gap-1 justify-self-center whitespace-nowrap text-center text-2xs font-semibold uppercase tracking-caps text-text-tertiary hover:text-text-secondary"
-                >
-                  {col.label}
-                  {active && (
-                    <Icon
-                      name={filters.order === "asc" ? "chevron-up" : "chevron-down"}
-                      size={11}
-                    />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-
+      <div className="overflow-hidden rounded-lg border border-border-default bg-bg-surface">
+        <div className="md:hidden">
           {sections.map(section => {
             const hidden = Boolean(group) && collapsed.has(section.key);
             return (
               <React.Fragment key={section.key}>
                 {group ? (
-                  <button
-                    type="button"
-                    onClick={() => toggleGroup(section.key)}
-                    className="flex w-full items-center gap-2 border-b border-border-subtle bg-bg-sunken/70 px-3 py-1.5 text-start"
-                  >
-                    <Icon name={hidden ? "chevron-left" : "chevron-down"} size={14} />
-                    <span className="text-xs font-semibold text-text-primary">
-                      {groupLabel(section.key, section.tasks[0])}
-                    </span>
-                    <span className="text-xs text-text-tertiary">{section.tasks.length}</span>
-                  </button>
+                  <GroupHeading
+                    label={groupLabel(section.key, section.tasks[0])}
+                    count={section.tasks.length}
+                    collapsed={hidden}
+                    onToggle={() => toggleGroup(section.key)}
+                  />
                 ) : null}
                 {hidden
                   ? null
                   : section.tasks.map(task => (
-                      <TaskLine
+                      <TaskCard
                         key={task.id}
                         task={task}
-                        t={t}
-                        currentUserId={currentUserId}
-                        currentUserRole={currentUserRole}
-                        onRowClick={onRowClick}
-                        onEdit={onEdit}
-                        onDelete={onDelete}
                         onLogTime={() => setWorkLogOpenTaskId(task.id)}
-                        formatDate={formatDate}
+                        {...lineProps}
                       />
                     ))}
               </React.Fragment>
             );
           })}
+        </div>
+
+        <div className="hidden overflow-x-auto md:block">
+          <table className="w-full min-w-[48rem] table-fixed border-collapse">
+            <colgroup>
+              {COL_CLASS.map(className => (
+                <col key={className} className={className} />
+              ))}
+            </colgroup>
+            <thead>
+              <tr className="h-9 border-b border-border-subtle bg-bg-sunken">
+                {columns.map((col, index) => {
+                  if (!col.key) return <th key="actions" className={COL_CLASS[index]} />;
+                  const active = filters.sort === col.key;
+                  return (
+                    <th key={col.key} className={cn(COL_CLASS[index], "px-2 font-semibold")}>
+                      <button
+                        type="button"
+                        aria-sort={
+                          active
+                            ? filters.order === "asc"
+                              ? "ascending"
+                              : "descending"
+                            : "none"
+                        }
+                        onClick={() => onSortChange(col.key)}
+                        className="inline-flex w-full cursor-pointer items-center justify-center gap-1 whitespace-nowrap text-center text-2xs font-semibold uppercase tracking-caps text-text-tertiary hover:text-text-secondary"
+                      >
+                        {col.label}
+                        {active && (
+                          <Icon
+                            name={filters.order === "asc" ? "chevron-up" : "chevron-down"}
+                            size={11}
+                          />
+                        )}
+                      </button>
+                    </th>
+                  );
+                })}
+              </tr>
+            </thead>
+            <tbody>
+              {sections.map(section => {
+                const hidden = Boolean(group) && collapsed.has(section.key);
+                return (
+                  <React.Fragment key={section.key}>
+                    {group ? (
+                      <tr className="border-b border-border-subtle bg-bg-sunken/70">
+                        <td colSpan={6} className="p-0">
+                          <GroupHeading
+                            label={groupLabel(section.key, section.tasks[0])}
+                            count={section.tasks.length}
+                            collapsed={hidden}
+                            onToggle={() => toggleGroup(section.key)}
+                          />
+                        </td>
+                      </tr>
+                    ) : null}
+                    {hidden
+                      ? null
+                      : section.tasks.map(task => (
+                          <TaskRow
+                            key={task.id}
+                            task={task}
+                            onLogTime={() => setWorkLogOpenTaskId(task.id)}
+                            {...lineProps}
+                          />
+                        ))}
+                  </React.Fragment>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -245,17 +292,31 @@ export function TasksTable({
   );
 }
 
-function TaskLine({
-  task,
-  t,
-  currentUserId,
-  currentUserRole,
-  onRowClick,
-  onEdit,
-  onDelete,
-  onLogTime,
-  formatDate,
+function GroupHeading({
+  label,
+  count,
+  collapsed,
+  onToggle,
 }: {
+  label: string;
+  count: number;
+  collapsed: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      className="flex w-full items-center gap-2 border-b border-border-subtle px-3 py-1.5 text-start"
+    >
+      <Icon name={collapsed ? "chevron-left" : "chevron-down"} size={14} />
+      <span className="text-xs font-semibold text-text-primary">{label}</span>
+      <span className="text-xs text-text-tertiary">{count}</span>
+    </button>
+  );
+}
+
+type LineProps = {
   task: TaskRow;
   t: TasksTableProps["t"];
   currentUserId: string;
@@ -265,7 +326,10 @@ function TaskLine({
   onDelete: (task: TaskRow) => void;
   onLogTime: () => void;
   formatDate: (date: Date | null, durationMinutes?: number | null) => string;
-}) {
+};
+
+function taskMenu(props: LineProps): { canEdit: boolean; menuItems: MenuItem[] } {
+  const { task, t, currentUserId, currentUserRole, onEdit, onDelete, onLogTime } = props;
   const isAdmin = currentUserRole === "ADMIN";
   const isAssignee = task.assignedTo?.id === currentUserId;
   const canEdit = isAdmin || isAssignee;
@@ -293,101 +357,132 @@ function TaskLine({
       },
     );
   }
+  return { canEdit, menuItems };
+}
+
+function TaskActions({
+  t,
+  menuItems,
+}: {
+  t: TasksTableProps["t"];
+  menuItems: MenuItem[];
+}) {
+  return (
+    <span className="inline-flex" onClick={event => event.stopPropagation()}>
+      <Menu
+        trigger={
+          <IconButton icon="more-horizontal" aria-label={t.tasks.taskActionsLabel} size="sm" />
+        }
+        align="end"
+        items={menuItems}
+      />
+    </span>
+  );
+}
+
+function TaskCard(props: LineProps) {
+  const { task, t, onRowClick, formatDate } = props;
+  const { canEdit, menuItems } = taskMenu(props);
   const overdue = isOverdue(task);
   const dueLabel = formatDate(task.dueDate, task.durationMinutes);
 
   return (
-    <>
-      <div
-        role={canEdit ? "button" : undefined}
-        tabIndex={canEdit ? 0 : undefined}
-        onClick={canEdit ? () => onRowClick(task) : undefined}
-        onKeyDown={
-          canEdit
-            ? event => {
-                if (event.key === "Enter" || event.key === " ") {
-                  event.preventDefault();
-                  onRowClick(task);
-                }
+    <div
+      role={canEdit ? "button" : undefined}
+      tabIndex={canEdit ? 0 : undefined}
+      onClick={canEdit ? () => onRowClick(task) : undefined}
+      onKeyDown={
+        canEdit
+          ? event => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                onRowClick(task);
               }
-            : undefined
-        }
-        className="flex w-full items-center gap-3 border-b border-border-subtle px-3 py-2.5 text-start hover:bg-bg-sunken/50 md:hidden"
-      >
-        <div className="min-w-0 flex-1">
-          <div className="truncate text-sm font-medium text-text-primary">{task.title}</div>
-          <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-text-tertiary">
-            <StatusBadge
-              status={statusToDisplay(task.status)}
-              className="shrink-0 whitespace-nowrap"
-            />
-            <span
-              className={cn(
-                "shrink-0 whitespace-nowrap tabular-nums",
-                overdue && "font-medium text-destructive",
-              )}
-            >
-              {dueLabel}
-            </span>
-          </div>
-        </div>
-        <span onClick={event => event.stopPropagation()}>
-          <Menu
-            trigger={
-              <IconButton icon="more-horizontal" aria-label={t.tasks.taskActionsLabel} size="sm" />
             }
-            align="end"
-            items={menuItems}
+          : undefined
+      }
+      className="flex w-full items-center gap-3 border-b border-border-subtle px-3 py-2.5 text-start hover:bg-bg-sunken/50"
+    >
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-sm font-medium text-text-primary">{task.title}</div>
+        <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-text-tertiary">
+          <StatusBadge
+            status={statusToDisplay(task.status)}
+            className="shrink-0 whitespace-nowrap"
           />
-        </span>
+          <span
+            dir="ltr"
+            className={cn(
+              "shrink-0 whitespace-nowrap tabular-nums",
+              overdue && "font-medium text-destructive",
+            )}
+          >
+            {dueLabel}
+          </span>
+        </div>
       </div>
-      <div
-        onClick={canEdit ? () => onRowClick(task) : undefined}
-        className={cn(
-          GRID,
-          "hidden min-h-11 cursor-pointer py-2 hover:bg-bg-sunken/50 md:grid",
-        )}
-        style={{ gridTemplateColumns: GRID_COLUMNS }}
-      >
-        <div className="flex min-w-0 flex-col items-center justify-center gap-0.5 text-center">
-          <div className="w-full truncate text-sm font-medium leading-5 text-text-primary">
-            {task.title}
+      <TaskActions t={t} menuItems={menuItems} />
+    </div>
+  );
+}
+
+const cell = "overflow-hidden px-2 py-2 align-middle text-center";
+
+function TaskRow(props: LineProps) {
+  const { task, t, onRowClick, formatDate } = props;
+  const { canEdit, menuItems } = taskMenu(props);
+  const overdue = isOverdue(task);
+  const dueLabel = formatDate(task.dueDate, task.durationMinutes);
+
+  return (
+    <tr
+      onClick={canEdit ? () => onRowClick(task) : undefined}
+      className={cn(
+        "border-b border-border-subtle",
+        canEdit && "cursor-pointer hover:bg-bg-sunken/50",
+      )}
+    >
+      <td className={cell}>
+        <div className="truncate text-sm font-medium leading-5 text-text-primary">{task.title}</div>
+        {task.labels.length > 0 ? (
+          <div className="mt-0.5 flex min-w-0 flex-nowrap justify-center gap-1 overflow-hidden">
+            {task.labels.slice(0, 3).map(label => (
+              <Tag key={label.id} color={label.color} className="shrink-0">
+                {label.name}
+              </Tag>
+            ))}
           </div>
-          {task.labels.length > 0 ? (
-            <div className="flex min-w-0 flex-nowrap justify-center gap-1 overflow-hidden">
-              {task.labels.slice(0, 3).map(label => (
-                <Tag key={label.id} color={label.color} className="shrink-0">
-                  {label.name}
-                </Tag>
-              ))}
-            </div>
-          ) : null}
-        </div>
+        ) : null}
+      </td>
+      <td className={cell}>
         <TaskPlace task={task} t={t} />
-        <div className="flex items-center justify-center justify-self-center">
-          <StatusBadge status={statusToDisplay(task.status)} className="whitespace-nowrap" />
-        </div>
-        <div className="flex items-center justify-center justify-self-center">
+      </td>
+      <td className={cell}>
+        <StatusBadge
+          status={statusToDisplay(task.status)}
+          className="mx-auto whitespace-nowrap"
+        />
+      </td>
+      <td className={cell}>
+        <span className="inline-flex justify-center">
           <PriorityIcon priority={priorityToDisplay(task.priority)} />
-        </div>
+        </span>
+      </td>
+      <td className={cell}>
         <span
+          dir="ltr"
           className={cn(
-            "justify-self-center truncate text-center text-xs leading-5 tabular-nums text-text-tertiary",
+            "inline-block max-w-full truncate whitespace-nowrap text-xs leading-5 tabular-nums text-text-tertiary",
             overdue && "font-medium text-destructive",
           )}
+          title={dueLabel}
         >
           {dueLabel}
         </span>
-        <span className="flex items-center justify-center justify-self-center" onClick={event => event.stopPropagation()}>
-          <Menu
-            trigger={
-              <IconButton icon="more-horizontal" aria-label={t.tasks.taskActionsLabel} size="sm" />
-            }
-            align="end"
-            items={menuItems}
-          />
-        </span>
-      </div>
-    </>
+      </td>
+      <td className={cell}>
+        <TaskActions t={t} menuItems={menuItems} />
+      </td>
+    </tr>
   );
 }

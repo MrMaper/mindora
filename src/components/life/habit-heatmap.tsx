@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useLanguage, useTranslation } from "@/i18n/provider";
-import type { HabitHeatDay, HabitItem } from "@/features/habits/actions";
+import type { HabitHeatDay, HabitItem } from "@/features/habits/queries";
 import {
   formatJalaliShort,
   jalaliOf,
@@ -12,11 +12,14 @@ import {
 } from "@/lib/life";
 import { cn } from "@/lib/utils";
 
-import { HABIT_HEATMAP_WEEKS } from "@/features/habits/constants";
+import {
+  HABIT_HEATMAP_CELL_PX,
+  HABIT_HEATMAP_GAP_PX,
+  HABIT_HEATMAP_WEEKS,
+} from "@/features/habits/constants";
 
-const GAP = 3;
-const CELL_MIN = 10;
-const CELL_MAX = 18;
+const CELL = HABIT_HEATMAP_CELL_PX;
+const GAP = HABIT_HEATMAP_GAP_PX;
 
 const LEVEL_CLASS = [
   "bg-muted",
@@ -52,6 +55,12 @@ function monthLabel(date: Date, language: "FA" | "EN"): string {
   return PERSIAN_MONTHS[jm - 1] ?? "";
 }
 
+function weeksThatFit(width: number, labelColW: number): number {
+  const step = CELL + GAP;
+  if (width <= labelColW + step) return 1;
+  return Math.max(1, Math.floor((width - labelColW) / step));
+}
+
 export function HabitHeatmap({
   habits,
   days,
@@ -72,33 +81,39 @@ export function HabitHeatmap({
   const labelColW = isFa ? 16 : 22;
 
   const shellRef = React.useRef<HTMLDivElement>(null);
-  const [cell, setCell] = React.useState(CELL_MIN);
+  const [fitWeeks, setFitWeeks] = React.useState(16);
 
-  const columns: HabitHeatDay[][] = [];
-  for (let i = 0; i < days.length; i += 7) {
-    columns.push(days.slice(i, i + 7));
-  }
-
-  // FA + dir=rtl: newest week on the inline-start (right)
-  const displayColumns = isFa ? [...columns].reverse() : columns;
-  const weekCount = displayColumns.length;
+  const allColumns = React.useMemo(() => {
+    const cols: HabitHeatDay[][] = [];
+    for (let i = 0; i < days.length; i += 7) {
+      cols.push(days.slice(i, i + 7));
+    }
+    return cols;
+  }, [days]);
 
   React.useLayoutEffect(() => {
     const el = shellRef.current;
-    if (!el || weekCount === 0) return;
+    if (!el) return;
 
     const measure = () => {
       const width = el.clientWidth;
-      const available = width - labelColW - GAP * weekCount;
-      const next = Math.floor(available / weekCount);
-      setCell(Math.max(CELL_MIN, Math.min(CELL_MAX, next)));
+      const fit = weeksThatFit(width, labelColW);
+      const available = allColumns.length || HABIT_HEATMAP_WEEKS;
+      const next = Math.min(available, Math.max(1, fit));
+      setFitWeeks(prev => (prev === next ? prev : next));
     };
 
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [weekCount, labelColW]);
+  }, [allColumns.length, labelColW]);
+
+  // Keep the newest weeks; older history scrolls off when the viewport is narrow.
+  const columns = allColumns.slice(-fitWeeks);
+  // FA + dir=rtl: newest week on the inline-start (right)
+  const displayColumns = isFa ? [...columns].reverse() : columns;
+  const weekCount = displayColumns.length;
 
   const monthMarks: { col: number; label: string }[] = [];
   let prevMonth = "";
@@ -123,11 +138,11 @@ export function HabitHeatmap({
       .replace("{date}", dateLabel);
   }
 
-  if (weekCount === 0) return null;
+  if (allColumns.length === 0) return null;
 
-  const gridWidth = labelColW + weekCount * cell + GAP * weekCount;
-  const gridCols = `${labelColW}px repeat(${weekCount}, ${cell}px)`;
-  const step = cell + GAP;
+  const gridWidth = labelColW + weekCount * CELL + GAP * Math.max(0, weekCount);
+  const gridCols = `${labelColW}px repeat(${weekCount}, ${CELL}px)`;
+  const step = CELL + GAP;
 
   return (
     <div className="mb-3 w-full min-w-0">
@@ -153,11 +168,11 @@ export function HabitHeatmap({
       </div>
 
       <div ref={shellRef} className="w-full min-w-0" dir={isFa ? "rtl" : "ltr"}>
-        <div className="w-full" style={{ minHeight: 7 * cell + 6 * GAP + 28 }}>
+        <div className="w-full" style={{ minHeight: 7 * CELL + 6 * GAP + 28 }}>
           {/* Month captions — absolute so names are not clipped to one cell */}
           <div
             className="relative mb-1 h-3.5 w-full"
-            style={{ maxWidth: gridWidth }}
+            style={{ width: gridWidth, maxWidth: "100%" }}
           >
             {monthMarks.map(mark => (
               <span
@@ -184,7 +199,7 @@ export function HabitHeatmap({
               width: gridWidth,
               maxWidth: "100%",
               gridTemplateColumns: gridCols,
-              gridTemplateRows: `repeat(7, ${cell}px)`,
+              gridTemplateRows: `repeat(7, ${CELL}px)`,
               gap: GAP,
             }}
           >
@@ -219,8 +234,8 @@ export function HabitHeatmap({
                       style={{
                         gridColumn: ci + 2,
                         gridRow: row + 1,
-                        width: cell,
-                        height: cell,
+                        width: CELL,
+                        height: CELL,
                       }}
                     />
                   );
@@ -244,8 +259,8 @@ export function HabitHeatmap({
                 key={cls}
                 className={cn("inline-block rounded-[2px]", cls)}
                 style={{
-                  width: Math.max(8, cell - 2),
-                  height: Math.max(8, cell - 2),
+                  width: Math.max(8, CELL - 2),
+                  height: Math.max(8, CELL - 2),
                 }}
               />
             ))}

@@ -162,6 +162,7 @@ export const fa = {
     focusSlot: "اولویت {n}",
     focusPick: "انتخاب یک کار",
     focusPickEmpty: "کار عقب‌افتاده، امروز، یا بدون تاریخ نیست. با ثبت سریع یکی بساز.",
+    focusPickAlready: "این کارها قبلاً در اولویت‌ها نشسته‌اند.",
     focusPickOverdue: "عقب‌افتاده",
     focusPickToday: "امروز",
     focusPickUndated: "بدون زمان",

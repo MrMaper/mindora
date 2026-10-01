@@ -6,7 +6,10 @@ export const createUserSchema = z.object({
   email: z.string().email("invalidEmail"),
   /** Ignored by server — new users are always MEMBER. Kept for form compat. */
   role: z.enum(["ADMIN", "MEMBER"]),
-  password: z.string().min(6, "passwordTooShort6").max(100).optional(),
+  /** Empty string means the server generates a temporary password. */
+  password: z
+    .union([z.literal(""), z.string().min(6, "passwordTooShort6").max(100)])
+    .optional(),
 });
 
 export const updateUserSchema = z.object({

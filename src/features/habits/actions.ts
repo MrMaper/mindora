@@ -13,8 +13,6 @@ import {
   type HabitItem,
 } from "@/features/habits/queries";
 
-export type { HabitHeatDay, HabitItem };
-
 export interface ActionResult {
   success: boolean;
   error?: string;

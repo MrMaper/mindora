@@ -128,7 +128,11 @@ export function LifeTaskList({
       router.refresh();
     } catch (error) {
       console.error("markDone failed", error);
-      toast.error(t.common.error);
+      toast.error(
+        error instanceof Error && error.message
+          ? error.message
+          : t.common.error,
+      );
     } finally {
       setPendingId(null);
     }

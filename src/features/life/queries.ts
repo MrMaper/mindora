@@ -103,7 +103,6 @@ export async function getPersonalDashboard(
     prefs,
     focusPickRows,
     areaRows,
-    openTasksForBalance,
     vocabDue,
     langWeekAgg,
     langProfile,
@@ -113,7 +112,7 @@ export async function getPersonalDashboard(
     db.task.findMany({
       where: {
         AND: [
-          lifeOnly,
+          mine,
           { status: { not: "DONE" } },
           { waitingOn: false },
           { dueDate: { lt: todayStart } },
@@ -136,13 +135,14 @@ export async function getPersonalDashboard(
       take: 20,
       select: taskSelect,
     }),
+    // Same Sat–Fri window as the week strip, including earlier days of this week.
     db.task.findMany({
       where: {
         AND: [
-          lifeOnly,
+          mine,
           { status: { not: "DONE" } },
           { waitingOn: false },
-          { dueDate: { gte: todayStart, lte: weekEnd } },
+          { dueDate: { gte: weekStart, lte: weekEnd } },
         ],
       },
       orderBy: { dueDate: "asc" },
@@ -160,7 +160,7 @@ export async function getPersonalDashboard(
     db.task.findMany({
       where: {
         AND: [
-          lifeOnly,
+          mine,
           { waitingOn: true },
           { status: { not: "DONE" } },
         ],
@@ -195,7 +195,7 @@ export async function getPersonalDashboard(
         ],
       },
     }),
-    // Week-load bars: all personal areas including PhD + Language hubs.
+    // Week-load bars and area %: open tasks due this Sat–Fri, every area.
     db.task.findMany({
       where: {
         AND: [
@@ -204,13 +204,18 @@ export async function getPersonalDashboard(
           { dueDate: { gte: weekStart, lte: weekEnd } },
         ],
       },
-      select: { dueDate: true, durationMinutes: true },
+      select: {
+        dueDate: true,
+        durationMinutes: true,
+        area: true,
+        project: { select: { area: true } },
+      },
     }),
     db.userPreferences.findUnique({
       where: { userId },
       select: { todayFocusDate: true, todayFocusIds: true },
     }),
-    // Focus/priority picks include PhD + language hub tasks; Today lists stay life-only.
+    // Focus picks and the work queue include every owned area. Inbox and Today stay life-only.
     // CRITICAL: due-date OR must live under AND with ownership — never overwrite mine.OR
     // Split buckets so a long overdue list cannot starve today / undated picks.
     Promise.all([
@@ -262,17 +267,6 @@ export async function getPersonalDashboard(
         area: true,
       },
     }),
-    // Balance %: count open work by resolved area (bucket + named paths + hubs).
-    db.task.findMany({
-      where: {
-        AND: [mine, { status: { not: "DONE" } }],
-      },
-      select: {
-        area: true,
-        project: { select: { area: true } },
-      },
-      take: 3000,
-    }),
     wantLanguage
       ? db.langCard.count({
           where: { userId, nextReviewAt: { lte: new Date() } },
@@ -319,19 +313,16 @@ export async function getPersonalDashboard(
   ]);
 
   const countByDay = new Map<string, number>();
-  for (const task of weekOpenTasks) {
-    if (!task.dueDate) continue;
-    const key = toDueDateKey(new Date(task.dueDate), task.durationMinutes);
-    countByDay.set(key, (countByDay.get(key) ?? 0) + 1);
-  }
-
   const openByArea: Record<LifeArea, number> = {
     PHD: 0,
     WORK: 0,
     LIFE: 0,
     LANG: 0,
   };
-  for (const task of openTasksForBalance) {
+  for (const task of weekOpenTasks) {
+    if (!task.dueDate) continue;
+    const key = toDueDateKey(new Date(task.dueDate), task.durationMinutes);
+    countByDay.set(key, (countByDay.get(key) ?? 0) + 1);
     const area = (task.area ?? task.project?.area ?? null) as LifeArea | null;
     if (area && LIFE_AREAS.includes(area)) openByArea[area] += 1;
   }
@@ -379,14 +370,11 @@ export async function getPersonalDashboard(
   const weekRows = week.map(withArea);
 
   return {
-    overdue: overdueRows.filter(task => !focusIdSet.has(task.id)),
+    overdue: overdueRows,
     today: todayRows.filter(t => !focusIdSet.has(t.id)),
-    week: weekRows.filter(t => {
-      const key = t.dueDate ? toDueDateKey(new Date(t.dueDate)) : "";
-      return key !== todayKey && !focusIdSet.has(t.id);
-    }),
+    week: weekRows,
     inbox: inbox.map(withArea).filter(task => !focusIdSet.has(task.id)),
-    waiting: waiting.map(withArea).filter(task => !focusIdSet.has(task.id)),
+    waiting: waiting.map(withArea),
     yesterdayLeftover: yesterdayLeftover.map(withArea),
     focusIds: focusTasks.flatMap(task => (task ? [task.id] : [])),
     focusTasks,

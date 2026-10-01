@@ -74,7 +74,7 @@ export async function getHabitHeatmapForUser(
   input?: { habitId?: string | null; weeks?: number },
 ): Promise<HabitHeatDay[]> {
   const weeks = Math.min(
-    52,
+    HABIT_HEATMAP_WEEKS,
     Math.max(8, input?.weeks ?? HABIT_HEATMAP_WEEKS),
   );
   const today = startOfDay(new Date());

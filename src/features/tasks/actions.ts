@@ -583,13 +583,15 @@ export async function updateTaskStatus(
     if (!applied.ok) return { success: false, error: applied.error };
 
     if (applied.changed) {
-      try {
-        const { syncResearchLinksFromTaskStatus } = await import(
-          "@/features/research/sync-links"
-        );
-        await syncResearchLinksFromTaskStatus(id, applied.nextStatus);
-      } catch (error) {
-        console.error("syncResearchLinksFromTaskStatus failed", error);
+      if (applied.area === "PHD") {
+        try {
+          const { syncResearchLinksFromTaskStatus } = await import(
+            "@/features/research/sync-links"
+          );
+          await syncResearchLinksFromTaskStatus(id, applied.nextStatus);
+        } catch (error) {
+          console.error("syncResearchLinksFromTaskStatus failed", error);
+        }
       }
 
       if (
@@ -634,7 +636,11 @@ export async function updateTaskStatus(
       }
     }
 
-    revalidateTasks(["/calendar", "/research", "/review"]);
+    try {
+      revalidateTasks(["/calendar", "/research", "/review"]);
+    } catch (error) {
+      console.error("revalidateTasks after updateTaskStatus failed", error);
+    }
     return { success: true };
   } catch (error) {
     console.error("updateTaskStatus failed", error);

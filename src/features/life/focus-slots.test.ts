@@ -3,6 +3,7 @@ import {
   focusPickGroup,
   isTodayFocusCandidate,
   normalizeFocusSlots,
+  omitPinnedFocusTasks,
 } from "./focus-slots";
 
 const todayKey = "2026-09-27";
@@ -79,5 +80,16 @@ describe("focusPickGroup", () => {
 describe("normalizeFocusSlots", () => {
   it("keeps an empty hole between filled slots", () => {
     expect(normalizeFocusSlots(["", "task-b", ""])).toEqual([null, "task-b", null]);
+  });
+});
+
+describe("omitPinnedFocusTasks", () => {
+  it("hides a task that is already in a priority slot", () => {
+    const tasks = [{ id: "a" }, { id: "b" }];
+    expect(omitPinnedFocusTasks(tasks, [{ id: "a" }, null, null])).toEqual([{ id: "b" }]);
+  });
+
+  it("returns nothing when the only task is already pinned", () => {
+    expect(omitPinnedFocusTasks([{ id: "a" }], [{ id: "a" }, null, null])).toEqual([]);
   });
 });

@@ -76,3 +76,13 @@ export function serializeFocusSlots(slots: (string | null)[]): string[] {
   if (slots.every(id => !id)) return [];
   return slots.map(id => id ?? "");
 }
+
+/** A task already sitting in a priority slot is not offered in the other pickers. */
+export function omitPinnedFocusTasks<T extends { id: string }>(
+  tasks: T[],
+  pinned: readonly ({ id: string } | null | undefined)[],
+): T[] {
+  const taken = new Set(pinned.flatMap(task => (task?.id ? [task.id] : [])));
+  if (taken.size === 0) return tasks;
+  return tasks.filter(task => !taken.has(task.id));
+}

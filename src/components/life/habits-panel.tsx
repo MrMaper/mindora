@@ -18,9 +18,8 @@ import {
   restoreHabitAction,
   toggleHabitDoneAction,
   updateHabitAction,
-  type HabitHeatDay,
-  type HabitItem,
 } from "@/features/habits/actions";
+import type { HabitHeatDay, HabitItem } from "@/features/habits/queries";
 import { HABIT_HEATMAP_WEEKS } from "@/features/habits/constants";
 import { cn } from "@/lib/utils";
 import type { LifeArea, RecurrenceInterval } from "@/types/db";
@@ -69,7 +68,7 @@ function HeatmapWhenVisible({
   }, [visible]);
 
   return (
-    <div ref={ref} className="mb-3 min-h-[7.5rem] w-full min-w-0">
+    <div ref={ref} className="mb-3 min-h-[9rem] w-full min-w-0">
       {visible ? (
         <HabitHeatmap
           habits={habits}
@@ -78,7 +77,7 @@ function HeatmapWhenVisible({
           onFilterChange={onFilterChange}
         />
       ) : (
-        <div className="h-[7.5rem] w-full rounded-md bg-muted/30" aria-hidden />
+        <div className="h-[9rem] w-full rounded-md bg-muted/30" aria-hidden />
       )}
     </div>
   );
@@ -98,7 +97,7 @@ function CadenceChips({
   weeklyLabel: string;
 }) {
   return (
-    <div className="flex flex-wrap gap-1" role="group">
+    <div className="inline-flex rounded-md bg-muted/60 p-0.5" role="group">
       {(
         [
           ["DAILY", dailyLabel],
@@ -111,10 +110,10 @@ function CadenceChips({
           disabled={disabled}
           onClick={() => onChange(key)}
           className={cn(
-            "rounded-md border px-2 py-1 text-[11px] font-medium transition-colors",
+            "rounded-[5px] px-2 py-0.5 text-[11px] font-medium transition-colors",
             value === key
-              ? "border-primary/40 bg-primary/10 text-primary"
-              : "border-transparent bg-muted/60 text-muted-foreground hover:bg-muted",
+              ? "bg-background text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground",
           )}
         >
           {label}
@@ -153,6 +152,9 @@ export function HabitsPanel({
   const [editTitle, setEditTitle] = React.useState("");
   const [editCadence, setEditCadence] = React.useState<HabitCadence>("DAILY");
   const [editArea, setEditArea] = React.useState<LifeArea | "">("");
+  /** Empty archive is valid — don't re-fetch / lock tabs on every visit. */
+  const archivedLoadedRef = React.useRef(false);
+  const archiveLoadingRef = React.useRef(false);
 
   const areaOptions = React.useMemo(
     () => [
@@ -219,14 +221,27 @@ export function HabitsPanel({
     setArchivedHabits(rows);
   }
 
-  async function switchView(next: HabitsView) {
+  function showActive() {
     setEditingId(null);
-    setView(next);
-    if (next === "archived" && archivedHabits.length === 0) {
-      setPending(true);
-      await softReloadArchived();
-      setPending(false);
-    }
+    setView("active");
+  }
+
+  function showArchived() {
+    setEditingId(null);
+    setView("archived");
+    if (archivedLoadedRef.current || archiveLoadingRef.current) return;
+    archiveLoadingRef.current = true;
+    void softReloadArchived()
+      .then(() => {
+        archivedLoadedRef.current = true;
+      })
+      .catch(error => {
+        console.error("load archived habits failed", error);
+        toast.error(t.common.error);
+      })
+      .finally(() => {
+        archiveLoadingRef.current = false;
+      });
   }
 
   async function onAdd() {
@@ -307,6 +322,7 @@ export function HabitsPanel({
     if (heatFilter === id) setHeatFilter("all");
     if (editingId === id) setEditingId(null);
     setHabits(rows => rows.filter(h => h.id !== id));
+    archivedLoadedRef.current = false;
     toast.success(t.habits.archivedToast);
     void softReloadActive();
   }
@@ -322,6 +338,7 @@ export function HabitsPanel({
     if (editingId === id) setEditingId(null);
     setArchivedHabits(rows => rows.filter(h => h.id !== id));
     toast.success(t.habits.restoredToast);
+    void softReloadActive();
   }
 
   function startEdit(habit: HabitItem) {
@@ -403,90 +420,86 @@ export function HabitsPanel({
 
   const canAdd = title.trim().length > 0 && !pending;
   const list = view === "archived" ? archivedHabits : habits;
+  const showComposerMeta = title.trim().length > 0;
 
   return (
     <section className="rounded-xl border bg-card p-3">
-      <div className="mb-2 flex items-start justify-between gap-2">
-        <div>
-          <h2 className="text-sm font-semibold">{t.habits.title}</h2>
-          <p className="mt-0.5 text-xs text-muted-foreground">{t.habits.hint}</p>
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <h2 className="text-sm font-semibold">{t.habits.title}</h2>
+        <p className="sr-only">{t.habits.hint}</p>
+        <div
+          role="tablist"
+          className="inline-flex rounded-md bg-muted/60 p-0.5"
+        >
+          {(
+            [
+              ["active", t.habits.tabActive, showActive],
+              ["archived", t.habits.tabArchived, showArchived],
+            ] as const
+          ).map(([key, label, onClick]) => (
+            <button
+              key={key}
+              type="button"
+              role="tab"
+              aria-selected={view === key}
+              onClick={onClick}
+              className={cn(
+                "rounded-[5px] px-2.5 py-0.5 text-xs font-medium transition-colors",
+                view === key
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className="mb-3 space-y-2">
-        <div className="flex gap-2">
-          <Input
-            value={title}
-            onChange={e => setTitle(e.target.value)}
-            placeholder={t.habits.newPlaceholder}
-            onKeyDown={e => {
-              if (e.key === "Enter") void onAdd();
-            }}
-          />
-          <Button
-            size="sm"
-            variant="primary"
-            disabled={!canAdd}
-            onClick={() => void onAdd()}
-          >
-            {t.habits.add}
-          </Button>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <CadenceChips
-            value={cadence}
-            onChange={setCadence}
-            disabled={pending}
-            dailyLabel={t.habits.cadenceDaily}
-            weeklyLabel={t.habits.cadenceWeekly}
-          />
-          <div className="min-w-[8.5rem] flex-1 sm:max-w-[11rem]">
-            <Select
-              options={areaOptions}
-              value={area}
-              onChange={value => setArea((value as LifeArea | "") || "")}
-              placeholder={t.habits.areaLabel}
-              disabled={pending}
+      {view === "active" ? (
+        <div className="mb-3">
+          <div className="flex items-center gap-2">
+            <div className="min-w-0 flex-1">
+              <Input
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                placeholder={t.habits.newPlaceholder}
+                onKeyDown={e => {
+                  if (e.key === "Enter") void onAdd();
+                }}
+              />
+            </div>
+            <IconButton
+              icon="plus"
+              variant="solid"
+              size="md"
+              className="shrink-0"
+              aria-label={t.habits.add}
+              disabled={!canAdd}
+              onClick={() => void onAdd()}
             />
           </div>
+          {showComposerMeta ? (
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <CadenceChips
+                value={cadence}
+                onChange={setCadence}
+                disabled={pending}
+                dailyLabel={t.habits.cadenceDaily}
+                weeklyLabel={t.habits.cadenceWeekly}
+              />
+              <Select
+                options={areaOptions}
+                value={area}
+                onChange={value => setArea((value as LifeArea | "") || "")}
+                placeholder={t.habits.areaLabel}
+                disabled={pending}
+                wrapperClassName="w-[8.5rem] shrink-0"
+              />
+            </div>
+          ) : null}
         </div>
-      </div>
-
-      <div
-        role="tablist"
-        className="mb-3 flex flex-wrap gap-1 border-b border-border pb-2"
-      >
-        <button
-          type="button"
-          role="tab"
-          aria-selected={view === "active"}
-          disabled={pending}
-          onClick={() => void switchView("active")}
-          className={cn(
-            "rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
-            view === "active"
-              ? "bg-primary/10 text-primary"
-              : "text-muted-foreground hover:bg-accent hover:text-foreground",
-          )}
-        >
-          {t.habits.tabActive}
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={view === "archived"}
-          disabled={pending}
-          onClick={() => void switchView("archived")}
-          className={cn(
-            "rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
-            view === "archived"
-              ? "bg-primary/10 text-primary"
-              : "text-muted-foreground hover:bg-accent hover:text-foreground",
-          )}
-        >
-          {t.habits.tabArchived}
-        </button>
-      </div>
+      ) : null}
 
       {view === "active" ? (
         <HeatmapWhenVisible

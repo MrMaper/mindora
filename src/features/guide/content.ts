@@ -875,7 +875,7 @@ const en: GuideCopy = {
             },
             {
               name: "Week load & balance",
-              body: "Day bars for the week plus each area’s share of open work.",
+              body: "Day bars for this week, and each area’s share of the open tasks due this week.",
             },
             {
               name: "Habits",
@@ -883,7 +883,7 @@ const en: GuideCopy = {
             },
             {
               name: "Quick capture with N",
-              body: "Sentences are parsed by rules, not AI. Default kind is a task; default area is Life. Use /task, /note, /research, /habit or prefixes like “idea:”. Dates and times are understood. PhD and language tasks stay off Today; dated ones appear on the calendar, plus All tasks and the board.",
+              body: "Sentences are parsed by rules, not AI. Default kind is a task; default area is Life. Use /task, /note, /research, /habit or prefixes like “idea:”. Dates and times are understood. PhD and language tasks stay off the Today-due list and the inbox; overdue and this week in the work queue include them, and dated ones appear on the calendar, plus All tasks and the board.",
             },
           ],
         },

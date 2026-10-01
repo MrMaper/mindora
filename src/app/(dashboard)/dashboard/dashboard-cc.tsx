@@ -16,14 +16,14 @@ import {
 } from "@/components/life/focus-session";
 import { OnboardingTour } from "@/components/onboarding/onboarding-tour";
 import { usePersonalTaskEditor } from "@/components/life/use-personal-task-editor";
-import type { HabitHeatDay, HabitItem } from "@/features/habits/actions";
+import type { HabitHeatDay, HabitItem } from "@/features/habits/queries";
 import {
   moveYesterdayToToday,
   setTodayFocus,
   toggleTodayFocus,
   completePersonalTask,
 } from "@/features/life/actions";
-import { isTodayFocusCandidate } from "@/features/life/focus-slots";
+import { isTodayFocusCandidate, omitPinnedFocusTasks } from "@/features/life/focus-slots";
 import {
   DndContext,
   DragOverlay,
@@ -585,22 +585,28 @@ export function DashboardCC({
     });
   }
 
+  const queueFor = (tab: SideTab) => {
+    const rows =
+      tab === "inbox"
+        ? inbox
+        : tab === "waiting"
+          ? waiting
+          : tab === "overdue"
+            ? overdue
+            : week;
+    // This week matches the strip, including tasks that are also due today.
+    if (tab === "week") return rows;
+    return rows.filter(task => !today.some(item => item.id === task.id));
+  };
+
   const sideTabs: { id: SideTab; label: string; count: number }[] = [
-    { id: "inbox", label: t.dashboard.tabInbox, count: inbox.length },
-    { id: "waiting", label: t.dashboard.tabWaiting, count: waiting.length },
-    { id: "overdue", label: t.dashboard.tabOverdue, count: overdue.length },
-    { id: "week", label: t.dashboard.tabWeek, count: week.length },
+    { id: "inbox", label: t.dashboard.tabInbox, count: queueFor("inbox").length },
+    { id: "waiting", label: t.dashboard.tabWaiting, count: queueFor("waiting").length },
+    { id: "overdue", label: t.dashboard.tabOverdue, count: queueFor("overdue").length },
+    { id: "week", label: t.dashboard.tabWeek, count: queueFor("week").length },
   ];
 
-  const sideTasks = (
-    sideTab === "inbox"
-      ? inbox
-      : sideTab === "waiting"
-        ? waiting
-        : sideTab === "overdue"
-          ? overdue
-          : week
-  ).filter(task => !today.some(item => item.id === task.id));
+  const sideTasks = queueFor(sideTab);
 
   const sideEmpty =
     sideTab === "inbox" ? (
@@ -644,7 +650,10 @@ export function DashboardCC({
     return rows;
   }, [focusTasks, focusCandidates, today, overdue, inbox, todayKey]);
 
-  const pickCandidates = sessionTasks;
+  const pickCandidates = React.useMemo(
+    () => omitPinnedFocusTasks(sessionTasks, focusTasks),
+    [sessionTasks, focusTasks],
+  );
 
   function scrollTo(id: string) {
     document.getElementById(id)?.scrollIntoView({
@@ -792,6 +801,11 @@ export function DashboardCC({
                 candidates={pickCandidates}
                 todayKey={todayKey}
                 disabled={pending}
+                emptyPick={
+                  pickCandidates.length === 0 && sessionTasks.length > 0
+                    ? t.dashboard.focusPickAlready
+                    : undefined
+                }
                 onPlace={placeFocus}
                 onOpen={openTask}
                 onDone={taskId => {
@@ -863,14 +877,22 @@ export function DashboardCC({
                     type="button"
                     onClick={() => setSideTab(tab.id)}
                     className={cn(
-                      "px-2.5 py-1 text-xs font-medium rounded-md transition-colors",
+                      "inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md transition-colors",
                       sideTab === tab.id
                         ? "bg-primary text-primary-foreground"
                         : "text-muted-foreground hover:bg-accent",
                     )}
                   >
-                    {tab.label}
-                    <span className="ms-1 opacity-80">
+                    <span>{tab.label}</span>
+                    <span
+                      dir="ltr"
+                      className={cn(
+                        "inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-semibold tabular-nums leading-none",
+                        sideTab === tab.id
+                          ? "bg-primary-foreground/20 text-primary-foreground"
+                          : "bg-muted text-foreground",
+                      )}
+                    >
                       {formatNumber(tab.count, language)}
                     </span>
                   </button>

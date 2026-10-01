@@ -1,4 +1,6 @@
 import { redirect } from "next/navigation";
+import { signOut } from "@/auth";
+import { prisma as db } from "@/lib/db";
 import { getTranslationsAsync } from "@/i18n";
 import { getUnreadCount } from "@/features/notifications/queries";
 import { DirectionSync } from "@/components/DirectionSync";
@@ -29,6 +31,13 @@ export default async function DashboardLayout({
 }) {
   const session = await getSessionCached();
   if (!session?.user) redirect("/login");
+
+  const account = await db.user.findUnique({
+    where: { id: session.user.id },
+    select: { id: true },
+  });
+  // Stale JWT from another database still looks logged-in and then crashes.
+  if (!account) await signOut({ redirectTo: "/login" });
 
   const isAdmin = session.user.role === "ADMIN";
 

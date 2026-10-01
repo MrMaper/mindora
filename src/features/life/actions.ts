@@ -148,10 +148,10 @@ export async function quickCapture(input: {
 }
 
 export async function completePersonalTask(taskId: string): Promise<ActionResult> {
-  const session = await auth();
-  if (!session?.user) return { success: false, error: "غیرمجاز" };
-
   try {
+    const session = await auth();
+    if (!session?.user) return { success: false, error: "غیرمجاز" };
+
     // Shared writer — do not call another "use server" action from here (Next can
     // surface that as a bare client toast «خطا»).
     const result = await applyTaskStatusChange({
@@ -162,7 +162,8 @@ export async function completePersonalTask(taskId: string): Promise<ActionResult
     });
     if (!result.ok) return { success: false, error: result.error };
 
-    if (result.changed) {
+    // PhD pipeline only — skip import/call for Life/Work/Lang cards.
+    if (result.changed && result.area === "PHD") {
       try {
         const { syncResearchLinksFromTaskStatus } = await import(
           "@/features/research/sync-links"
@@ -173,11 +174,21 @@ export async function completePersonalTask(taskId: string): Promise<ActionResult
       }
     }
 
-    revalidateLife(["/research"]);
+    try {
+      revalidateLife(["/research"]);
+    } catch (error) {
+      console.error("revalidateLife after completePersonalTask failed", error);
+    }
     return { success: true };
   } catch (error) {
     console.error("completePersonalTask failed", error);
-    return { success: false, error: "تمام کردن کار نشد" };
+    return {
+      success: false,
+      error:
+        error instanceof Error && error.message
+          ? error.message
+          : "تمام کردن کار نشد",
+    };
   }
 }
 
