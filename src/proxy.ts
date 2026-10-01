@@ -26,7 +26,7 @@ export default auth(req => {
   if (isLoggedIn && isAuthPage) {
     const role = (req.auth as { user?: { role?: string } } | null)?.user?.role;
     return NextResponse.redirect(
-      new URL(role === "ADMIN" ? "/users" : "/dashboard", req.nextUrl),
+      new URL(role === "ADMIN" ? "/admin" : "/dashboard", req.nextUrl),
     );
   }
 

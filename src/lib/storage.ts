@@ -41,6 +41,18 @@ export async function uploadAvatar(file: File, userId: string): Promise<string |
     })
   );
 
+  try {
+    const { recordStorageUsage } = await import("@/features/admin/system");
+    await recordStorageUsage({
+      key: `avatar:${userId}`,
+      kind: "avatar",
+      bytes: buffer.byteLength,
+      userId,
+    });
+  } catch {
+    /* non-fatal */
+  }
+
   return `${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET}/${key}`;
 }
 
@@ -64,6 +76,17 @@ export async function uploadAttachment(file: File, taskId: string): Promise<stri
       ACL: "public-read",
     })
   );
+
+  try {
+    const { recordStorageUsage } = await import("@/features/admin/system");
+    await recordStorageUsage({
+      key,
+      kind: "attachment",
+      bytes: buffer.byteLength,
+    });
+  } catch {
+    /* non-fatal */
+  }
 
   return `${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET}/${key}`;
 }
@@ -91,6 +114,17 @@ export async function uploadDocSourceFile(
       ACL: "public-read",
     }),
   );
+
+  try {
+    const { recordStorageUsage } = await import("@/features/admin/system");
+    await recordStorageUsage({
+      key,
+      kind: "doc-source",
+      bytes: buffer.byteLength,
+    });
+  } catch {
+    /* non-fatal */
+  }
 
   return `${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET}/${key}`;
 }

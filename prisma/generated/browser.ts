@@ -23,6 +23,31 @@ export * from './enums';
  */
 export type User = Prisma.UserModel
 /**
+ * Model UserLoginEvent
+ * 
+ */
+export type UserLoginEvent = Prisma.UserLoginEventModel
+/**
+ * Model AdminAuditLog
+ * 
+ */
+export type AdminAuditLog = Prisma.AdminAuditLogModel
+/**
+ * Model CronHeartbeat
+ * 
+ */
+export type CronHeartbeat = Prisma.CronHeartbeatModel
+/**
+ * Model SystemSettings
+ * 
+ */
+export type SystemSettings = Prisma.SystemSettingsModel
+/**
+ * Model StorageLedgerEntry
+ * 
+ */
+export type StorageLedgerEntry = Prisma.StorageLedgerEntryModel
+/**
  * Model Account
  * 
  */

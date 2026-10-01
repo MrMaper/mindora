@@ -16,14 +16,14 @@ export function UsersHeader({ total = 0, openCreate }: UsersHeaderProps) {
   return (
     <PageHeaderBar
       title={t.users.title}
-      description={
+      meta={
         <>
-          {total} {total === 1 ? t.users.admin : t.users.totalUsers}
+          {total} {t.users.totalUsers}
         </>
       }
       actions={
         <Button variant="primary" icon="plus" onClick={openCreate}>
-          {t.common.add} {t.users.title.toLowerCase()}
+          {t.users.createUser}
         </Button>
       }
     />

@@ -3,6 +3,7 @@ import { prisma as db } from "@/lib/db";
 import { getTranslationsAsync } from "@/i18n";
 import { getUnreadCount } from "@/features/notifications/queries";
 import { DirectionSync } from "@/components/DirectionSync";
+import { PresenceBeacon } from "@/components/presence-beacon";
 import { CommandPaletteLazy } from "@/components/CommandPaletteLazy";
 import { DashboardShell } from "./dashboard-shell";
 import type { NavGroup, NavItem } from "./sidebar-nav";
@@ -33,11 +34,19 @@ export default async function DashboardLayout({
 
   const account = await db.user.findUnique({
     where: { id: session.user.id },
-    select: { id: true },
+    select: { id: true, status: true, sessionVersion: true },
   });
   // Stale JWT from another DB still looks logged-in; clear via route handler
   // (RSC render cannot mutate cookies — signOut here throws).
   if (!account) redirect("/api/auth/stale-session");
+  if (account.status !== "ACTIVE") redirect("/api/auth/stale-session");
+  const tokenSv =
+    typeof session.user.sessionVersion === "number"
+      ? session.user.sessionVersion
+      : 0;
+  if (account.sessionVersion !== tokenSv) {
+    redirect("/api/auth/stale-session");
+  }
 
   const isAdmin = session.user.role === "ADMIN";
 
@@ -64,8 +73,12 @@ export default async function DashboardLayout({
         id: "admin",
         label: language === "FA" ? "مدیریت" : "Admin",
         items: [
+          {
+            label: t.nav.overview,
+            href: "/admin",
+            icon: "layout-dashboard",
+          },
           { label: t.nav.users, href: "/users", icon: "users" },
-          { label: t.nav.settings, href: "/settings", icon: "settings" },
           { label: t.nav.botMessage, href: "/bale-bot", icon: "bot" },
         ],
       },
@@ -81,6 +94,7 @@ export default async function DashboardLayout({
         dir={language === "FA" ? "rtl" : "ltr"}
       >
         <DirectionSync language={language} />
+        <PresenceBeacon />
         <DashboardShell
           language={language}
           navGroups={adminNav}
@@ -195,6 +209,7 @@ export default async function DashboardLayout({
       dir={language === "FA" ? "rtl" : "ltr"}
     >
       <DirectionSync language={language} />
+      <PresenceBeacon />
       <AreaBucketsProvider ids={areaIds}>
         <CaptureProvider>
           <ReminderWatcher />

@@ -98,7 +98,8 @@ export const NotificationType = {
   SPRINT_ENDED: 'SPRINT_ENDED',
   DEADLINE_APPROACHING: 'DEADLINE_APPROACHING',
   STATUS_CHANGED: 'STATUS_CHANGED',
-  VOCAB_REVIEW_DUE: 'VOCAB_REVIEW_DUE'
+  VOCAB_REVIEW_DUE: 'VOCAB_REVIEW_DUE',
+  SYSTEM_BROADCAST: 'SYSTEM_BROADCAST'
 } as const
 
 export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]

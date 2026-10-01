@@ -9,9 +9,10 @@ import { Avatar } from "@/components/ui-kit/data-display/avatar";
 import { Drawer } from "@/components/ui-kit/overlays/drawer";
 import type { Translations } from "@/i18n";
 import type { UpdateUserInput } from "@/schemas/users";
-import type { UserRow } from "@/features/users/types";
+import type { UserLoginEventRow, UserRow } from "@/features/users/types";
 import type { UseFormReturn } from "react-hook-form";
 import type { ModuleFlags } from "@/lib/modules";
+import { formatPresenceInstant } from "@/lib/presence";
 import { ModuleToggles } from "./module-toggles";
 
 interface EditUserDrawerProps {
@@ -26,8 +27,10 @@ interface EditUserDrawerProps {
   actionError: string | null;
   isPending: boolean;
   resetPassword: string | null;
+  loginEvents: UserLoginEventRow[];
   onEditSubmit: () => void;
   onResetPassword: () => void;
+  onForceLogout: () => void;
 }
 
 export function EditUserDrawer({
@@ -42,8 +45,10 @@ export function EditUserDrawer({
   actionError,
   isPending,
   resetPassword,
+  loginEvents,
   onEditSubmit,
   onResetPassword,
+  onForceLogout,
 }: EditUserDrawerProps) {
   const isAdmin = editingUser?.role === "ADMIN";
 
@@ -87,7 +92,7 @@ export function EditUserDrawer({
               <div className="text-sm font-medium text-foreground">
                 {editingUser.name}
               </div>
-              <div className="text-xs text-muted-foreground">
+              <div className="text-xs text-muted-foreground" dir="ltr">
                 {editingUser.email}
               </div>
               <div className="text-xs text-muted-foreground mt-0.5">
@@ -133,14 +138,25 @@ export function EditUserDrawer({
         )}
         {!isAdmin && (
           <div className="rounded-lg border px-3 py-2 flex flex-col gap-2">
-            <Button
-              variant="secondary"
-              loading={isPending}
-              onClick={onResetPassword}
-              type="button"
-            >
-              {language === "FA" ? "بازنشانی رمز عبور" : "Reset password"}
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant="secondary"
+                loading={isPending}
+                onClick={onResetPassword}
+                type="button"
+              >
+                {language === "FA" ? "بازنشانی رمز عبور" : "Reset password"}
+              </Button>
+              <Button
+                variant="subtle"
+                loading={isPending}
+                onClick={onForceLogout}
+                type="button"
+                icon="log-out"
+              >
+                {t.users.forceLogout}
+              </Button>
+            </div>
             {resetPassword && (
               <div className="rounded-md bg-muted/50 px-2 py-1.5">
                 <p className="text-[11px] text-muted-foreground">
@@ -153,6 +169,44 @@ export function EditUserDrawer({
             )}
           </div>
         )}
+
+        <div className="rounded-lg border px-3 py-2">
+          <h3 className="mb-2 text-xs font-semibold text-foreground">
+            {t.users.loginHistory}
+          </h3>
+          {loginEvents.length === 0 ? (
+            <p className="py-2 text-xs text-muted-foreground">
+              {t.users.loginHistoryEmpty}
+            </p>
+          ) : (
+            <ul className="flex max-h-48 flex-col gap-1.5 overflow-y-auto">
+              {loginEvents.map(ev => (
+                <li
+                  key={ev.id}
+                  className="rounded-md bg-muted/40 px-2 py-1.5 text-[11px]"
+                >
+                  <div className="font-medium text-foreground">
+                    {formatPresenceInstant(ev.createdAt, language)}
+                  </div>
+                  {ev.ip ? (
+                    <div className="text-muted-foreground" dir="ltr">
+                      {t.users.loginIp}: {ev.ip}
+                    </div>
+                  ) : null}
+                  {ev.userAgent ? (
+                    <div
+                      className="truncate text-muted-foreground"
+                      dir="ltr"
+                      title={ev.userAgent}
+                    >
+                      {t.users.loginDevice}: {ev.userAgent}
+                    </div>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </Drawer>
   );

@@ -20,7 +20,7 @@ export default async function Home({
   if (preview !== "1") {
     const session = await auth();
     if (session?.user) {
-      redirect(session.user.role === "ADMIN" ? "/users" : "/dashboard");
+      redirect(session.user.role === "ADMIN" ? "/admin" : "/dashboard");
     }
   }
 

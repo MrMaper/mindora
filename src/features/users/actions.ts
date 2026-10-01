@@ -20,6 +20,9 @@ import {
   PRIMARY_MODULES,
 } from "@/lib/modules";
 import { ensurePersonalWorkspace } from "@/features/life/workspace";
+import { revokeUserSessions } from "@/features/users/presence";
+import { writeAdminAudit } from "@/features/admin/audit";
+import { getSystemSettings } from "@/features/admin/system";
 
 export interface ActionResult {
   success: boolean;
@@ -86,6 +89,17 @@ export async function createUser(formData: FormData): Promise<ActionResult> {
     const hashed = await bcrypt.hash(tempPassword, 12);
     const enabledModules = modulesFromForm(formData);
 
+    const settings = await getSystemSettings();
+    const activeMembers = await db.user.count({
+      where: { status: "ACTIVE", role: "MEMBER" },
+    });
+    if (activeMembers >= settings.maxActiveMembers) {
+      return {
+        success: false,
+        error: `سقف اعضای فعال پلن (${settings.maxActiveMembers}) پر شده است`,
+      };
+    }
+
     const user = await db.user.create({
       data: {
         name: parsed.data.name,
@@ -98,6 +112,13 @@ export async function createUser(formData: FormData): Promise<ActionResult> {
     });
 
     await ensurePersonalWorkspace(user.id);
+    await writeAdminAudit({
+      actorId: session.user.id,
+      action: "USER_CREATED",
+      summary: `کاربر ${user.name} ساخته شد`,
+      targetUserId: user.id,
+      meta: { email: user.email },
+    });
 
     if (process.env.SMTP_HOST) {
       await sendMail({
@@ -110,6 +131,7 @@ export async function createUser(formData: FormData): Promise<ActionResult> {
     }
 
     revalidatePath("/users");
+  revalidatePath("/admin");
     return { success: true, data: { tempPassword, userId: user.id } };
   } catch (err) {
     console.error("[users] createUser failed", err);
@@ -146,7 +168,14 @@ export async function updateUser(
       where: { id },
       data: { name: parsed.data.name },
     });
+    await writeAdminAudit({
+      actorId: session.user.id,
+      action: "USER_UPDATED",
+      summary: "نام مدیر سیستم به‌روز شد",
+      targetUserId: id,
+    });
     revalidatePath("/users");
+    revalidatePath("/admin");
     return { success: true };
   }
 
@@ -166,7 +195,16 @@ export async function updateUser(
       enabledModules,
     },
   });
+  await writeAdminAudit({
+    actorId: session.user.id,
+    action: formData.has("module_tasks") ? "MODULES_UPDATED" : "USER_UPDATED",
+    summary: formData.has("module_tasks")
+      ? "پروفایل و ماژول‌های کاربر به‌روز شد"
+      : "پروفایل کاربر به‌روز شد",
+    targetUserId: id,
+  });
   revalidatePath("/users");
+  revalidatePath("/admin");
   return { success: true };
 }
 
@@ -190,7 +228,15 @@ export async function updateUserModules(
     where: { id },
     data: { enabledModules: normalizeModuleFlags(flags) },
   });
+  await writeAdminAudit({
+    actorId: session.user.id,
+    action: "MODULES_UPDATED",
+    summary: "ماژول‌های کاربر تغییر کرد",
+    targetUserId: id,
+    meta: flags as unknown as Record<string, unknown>,
+  });
   revalidatePath("/users");
+  revalidatePath("/admin");
   return { success: true };
 }
 
@@ -212,12 +258,88 @@ export async function toggleUserStatus(id: string): Promise<ActionResult> {
     return { success: false, error: "نمی‌توان مدیر سیستم را غیرفعال کرد" };
   }
 
+  const nextStatus = user.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
   await db.user.update({
     where: { id },
-    data: { status: user.status === "ACTIVE" ? "INACTIVE" : "ACTIVE" },
+    data: {
+      status: nextStatus,
+      ...(nextStatus === "INACTIVE"
+        ? { sessionVersion: { increment: 1 } }
+        : {}),
+    },
+  });
+  await writeAdminAudit({
+    actorId: session.user.id,
+    action: nextStatus === "INACTIVE" ? "USER_DEACTIVATED" : "USER_ACTIVATED",
+    summary:
+      nextStatus === "INACTIVE" ? "کاربر غیرفعال شد" : "کاربر فعال شد",
+    targetUserId: id,
   });
   revalidatePath("/users");
+  revalidatePath("/admin");
   return { success: true };
+}
+
+export async function forceLogoutUser(id: string): Promise<ActionResult> {
+  const session = await requireAdminSession();
+  if (!session) return { success: false, error: "غیرمجاز" };
+
+  if (id === session.user.id) {
+    return {
+      success: false,
+      error: "نمی‌توانید نشست خودتان را از اینجا قطع کنید؛ از خروج استفاده کنید",
+    };
+  }
+
+  const user = await db.user.findUnique({
+    where: { id },
+    select: { id: true, role: true },
+  });
+  if (!user) return { success: false, error: "کاربر یافت نشد" };
+  if (user.role === "ADMIN") {
+    return { success: false, error: "نمی‌توان نشست مدیر سیستم را قطع کرد" };
+  }
+
+  await revokeUserSessions(id);
+  await writeAdminAudit({
+    actorId: session.user.id,
+    action: "FORCE_LOGOUT",
+    summary: "نشست کاربر قطع شد",
+    targetUserId: id,
+  });
+  revalidatePath("/users");
+  revalidatePath("/admin");
+  return { success: true };
+}
+
+export async function listUserLoginEventsAction(userId: string): Promise<{
+  success: boolean;
+  events: Array<{
+    id: string;
+    userId: string;
+    userName: string;
+    userEmail: string;
+    createdAt: string;
+    ip: string | null;
+    userAgent: string | null;
+  }>;
+  error?: string;
+}> {
+  const session = await requireAdminSession();
+  if (!session) return { success: false, events: [], error: "غیرمجاز" };
+
+  const { getUserLoginEvents } = await import("@/features/users/queries");
+  const rows = await getUserLoginEvents(userId, 20);
+  return {
+    success: true,
+    events: rows.map(r => ({
+      ...r,
+      createdAt:
+        r.createdAt instanceof Date
+          ? r.createdAt.toISOString()
+          : String(r.createdAt),
+    })),
+  };
 }
 
 export async function deleteUser(id: string): Promise<ActionResult> {
@@ -228,7 +350,10 @@ export async function deleteUser(id: string): Promise<ActionResult> {
     return { success: false, error: "شما نمی‌توانید حساب کاربری خود را حذف کنید" };
   }
 
-  const user = await db.user.findUnique({ where: { id }, select: { role: true } });
+  const user = await db.user.findUnique({
+    where: { id },
+    select: { role: true, name: true, email: true },
+  });
   if (!user) return { success: false, error: "کاربر یافت نشد" };
 
   if (user.role === "ADMIN") {
@@ -238,6 +363,13 @@ export async function deleteUser(id: string): Promise<ActionResult> {
   const personalTeamId = `personal-${id}`;
 
   try {
+    await writeAdminAudit({
+      actorId: session.user.id,
+      action: "USER_DELETED",
+      summary: `کاربر ${user.name} حذف شد`,
+      targetUserId: null,
+      meta: { deletedUserId: id, email: user.email },
+    });
     await db.$transaction(async tx => {
       await tx.task.updateMany({
         where: { assignedToId: id },
@@ -262,6 +394,7 @@ export async function deleteUser(id: string): Promise<ActionResult> {
   }
 
   revalidatePath("/users");
+  revalidatePath("/admin");
   return { success: true };
 }
 
@@ -285,9 +418,19 @@ export async function resetUserPassword(id: string): Promise<ActionResult> {
 
   const tempPassword = generateTempPassword();
   const hashed = await bcrypt.hash(tempPassword, 12);
-  await db.user.update({ where: { id }, data: { password: hashed } });
+  await db.user.update({
+    where: { id },
+    data: { password: hashed, sessionVersion: { increment: 1 } },
+  });
+  await writeAdminAudit({
+    actorId: session.user.id,
+    action: "PASSWORD_RESET",
+    summary: `رمز عبور ${user.name} بازنشانی شد`,
+    targetUserId: id,
+  });
 
   revalidatePath("/users");
+  revalidatePath("/admin");
   return { success: true, data: { tempPassword } };
 }
 
@@ -319,6 +462,7 @@ export async function uploadUserAvatar(
 
   await db.user.update({ where: { id }, data: { avatar: url } });
   revalidatePath("/users");
+  revalidatePath("/admin");
   revalidatePath("/settings");
   return { success: true, data: { url } };
 }

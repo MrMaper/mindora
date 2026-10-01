@@ -848,18 +848,6 @@ export type EnumThemeFieldUpdateOperationsInput = {
   set?: $Enums.Theme
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type UserPreferencesUpdatetodayFocusIdsInput = {
   set?: string[]
   push?: string | string[]

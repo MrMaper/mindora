@@ -26,6 +26,7 @@ const TYPE_ICON: Record<NotificationType, IconName> = {
   DEADLINE_APPROACHING: "clock",
   STATUS_CHANGED: "circle-dot",
   VOCAB_REVIEW_DUE: "language",
+  SYSTEM_BROADCAST: "bell",
 };
 
 function formatTimestamp(date: Date, language: Language): string {

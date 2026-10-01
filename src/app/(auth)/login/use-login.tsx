@@ -35,7 +35,16 @@ export function useLogin() {
       });
 
       if (result?.error) {
-        setError(t.errors.invalidEmailOrPassword);
+        const code = (result as { code?: string }).code;
+        const message = String(result.error);
+        if (
+          code === "account_locked" ||
+          message.toLowerCase().includes("account_locked")
+        ) {
+          setError(t.errors.accountLocked);
+        } else {
+          setError(t.errors.invalidEmailOrPassword);
+        }
         return;
       }
 

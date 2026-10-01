@@ -24,12 +24,27 @@ model User {
   baleLinkExpires     DateTime?
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
+  /// Bumped to invalidate all JWTs for this user (force logout / deactivate).
+  sessionVersion     Int                  @default(0)
+  /// Last successful sign-in (credentials).
+  lastLoginAt         DateTime?
+  /// Last presence heartbeat while the dashboard is open.
+  lastSeenAt          DateTime?
+  /// Accumulated active seconds from heartbeats (gaps ≤ online window).
+  totalOnlineSeconds  Int                  @default(0)
+  /// Consecutive failed password attempts (reset on success).
+  failedLoginCount    Int                  @default(0)
+  /// Temporary lock after too many failed logins.
+  lockedUntil         DateTime?
   accounts            Account[]
   activityLogs        ActivityLog[]
   comments            Comment[]
   notifications       Notification[]
   passwordResetTokens PasswordResetToken[]
   sessions            Session[]
+  loginEvents         UserLoginEvent[]
+  adminAuditsAsActor  AdminAuditLog[]      @relation("AdminAuditActor")
+  adminAuditsAsTarget AdminAuditLog[]      @relation("AdminAuditTarget")
   assignedTasks       Task[]               @relation("TaskAssignedTo")
   createdTasks        Task[]               @relation("TaskCreatedBy")
   teamMembers         TeamMember[]
@@ -49,7 +64,74 @@ model User {
   habits              Habit[]
   areaPreferences     UserAreaPreference[]
 
+  @@index([lastSeenAt])
+  @@index([lastLoginAt])
+  @@index([lockedUntil])
   @@map("users")
+}
+
+model UserLoginEvent {
+  id        String   @id @default(cuid())
+  userId    String
+  createdAt DateTime @default(now())
+  ip        String?
+  userAgent String?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([createdAt])
+  @@map("user_login_events")
+}
+
+model AdminAuditLog {
+  id           String   @id @default(cuid())
+  actorId      String
+  action       String
+  targetUserId String?
+  summary      String
+  meta         Json?
+  createdAt    DateTime @default(now())
+  actor        User     @relation("AdminAuditActor", fields: [actorId], references: [id], onDelete: Cascade)
+  targetUser   User?    @relation("AdminAuditTarget", fields: [targetUserId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([actorId, createdAt])
+  @@index([action])
+  @@map("admin_audit_logs")
+}
+
+model CronHeartbeat {
+  id        String   @id
+  lastRunAt DateTime
+  ok        Boolean  @default(true)
+  detail    Json?
+  updatedAt DateTime @updatedAt
+
+  @@map("cron_heartbeats")
+}
+
+model SystemSettings {
+  id                String   @id @default("default")
+  planCode          String   @default("personal")
+  planLabel         String   @default("Personal")
+  storageQuotaBytes BigInt   @default(5368709120)
+  maxActiveMembers  Int      @default(25)
+  updatedAt         DateTime @updatedAt
+
+  @@map("system_settings")
+}
+
+model StorageLedgerEntry {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  kind      String
+  userId    String?
+  bytes     Int
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([kind])
+  @@map("storage_ledger")
 }
 
 model Account {
@@ -500,6 +582,7 @@ enum NotificationType {
   DEADLINE_APPROACHING
   STATUS_CHANGED
   VOCAB_REVIEW_DUE
+  SYSTEM_BROADCAST
 }
 
 enum Language {

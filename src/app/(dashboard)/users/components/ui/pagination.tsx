@@ -15,7 +15,7 @@ export function Pagination({ page, totalPages, t, search }: PaginationProps) {
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex items-center justify-between mt-4">
+    <div className="mt-3 flex items-center justify-between px-0.5">
       <span className="text-xs text-muted-foreground">
         {t.users.page} {page} {t.users.of} {totalPages}
       </span>

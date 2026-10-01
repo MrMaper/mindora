@@ -27,7 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function DashboardPage() {
   const session = await getSessionCached();
   if (!session?.user) redirect("/login");
-  if (session.user.role === "ADMIN") redirect("/users");
+  if (session.user.role === "ADMIN") redirect("/admin");
 
   const { flags } = await requireModule("dashboard");
 

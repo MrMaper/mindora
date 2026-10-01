@@ -52,6 +52,11 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
+  UserLoginEvent: 'UserLoginEvent',
+  AdminAuditLog: 'AdminAuditLog',
+  CronHeartbeat: 'CronHeartbeat',
+  SystemSettings: 'SystemSettings',
+  StorageLedgerEntry: 'StorageLedgerEntry',
   Account: 'Account',
   Session: 'Session',
   VerificationToken: 'VerificationToken',
@@ -129,10 +134,75 @@ export const UserScalarFieldEnum = {
   baleLinkChatId: 'baleLinkChatId',
   baleLinkExpires: 'baleLinkExpires',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  sessionVersion: 'sessionVersion',
+  lastLoginAt: 'lastLoginAt',
+  lastSeenAt: 'lastSeenAt',
+  totalOnlineSeconds: 'totalOnlineSeconds',
+  failedLoginCount: 'failedLoginCount',
+  lockedUntil: 'lockedUntil'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const UserLoginEventScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  createdAt: 'createdAt',
+  ip: 'ip',
+  userAgent: 'userAgent'
+} as const
+
+export type UserLoginEventScalarFieldEnum = (typeof UserLoginEventScalarFieldEnum)[keyof typeof UserLoginEventScalarFieldEnum]
+
+
+export const AdminAuditLogScalarFieldEnum = {
+  id: 'id',
+  actorId: 'actorId',
+  action: 'action',
+  targetUserId: 'targetUserId',
+  summary: 'summary',
+  meta: 'meta',
+  createdAt: 'createdAt'
+} as const
+
+export type AdminAuditLogScalarFieldEnum = (typeof AdminAuditLogScalarFieldEnum)[keyof typeof AdminAuditLogScalarFieldEnum]
+
+
+export const CronHeartbeatScalarFieldEnum = {
+  id: 'id',
+  lastRunAt: 'lastRunAt',
+  ok: 'ok',
+  detail: 'detail',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CronHeartbeatScalarFieldEnum = (typeof CronHeartbeatScalarFieldEnum)[keyof typeof CronHeartbeatScalarFieldEnum]
+
+
+export const SystemSettingsScalarFieldEnum = {
+  id: 'id',
+  planCode: 'planCode',
+  planLabel: 'planLabel',
+  storageQuotaBytes: 'storageQuotaBytes',
+  maxActiveMembers: 'maxActiveMembers',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SystemSettingsScalarFieldEnum = (typeof SystemSettingsScalarFieldEnum)[keyof typeof SystemSettingsScalarFieldEnum]
+
+
+export const StorageLedgerEntryScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  kind: 'kind',
+  userId: 'userId',
+  bytes: 'bytes',
+  createdAt: 'createdAt'
+} as const
+
+export type StorageLedgerEntryScalarFieldEnum = (typeof StorageLedgerEntryScalarFieldEnum)[keyof typeof StorageLedgerEntryScalarFieldEnum]
 
 
 export const AccountScalarFieldEnum = {

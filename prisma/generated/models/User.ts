@@ -20,8 +20,22 @@ export type UserModel = runtime.Types.Result.DefaultSelection<Prisma.$UserPayloa
 
 export type AggregateUser = {
   _count: UserCountAggregateOutputType | null
+  _avg: UserAvgAggregateOutputType | null
+  _sum: UserSumAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
+}
+
+export type UserAvgAggregateOutputType = {
+  sessionVersion: number | null
+  totalOnlineSeconds: number | null
+  failedLoginCount: number | null
+}
+
+export type UserSumAggregateOutputType = {
+  sessionVersion: number | null
+  totalOnlineSeconds: number | null
+  failedLoginCount: number | null
 }
 
 export type UserMinAggregateOutputType = {
@@ -38,6 +52,12 @@ export type UserMinAggregateOutputType = {
   baleLinkExpires: Date | null
   createdAt: Date | null
   updatedAt: Date | null
+  sessionVersion: number | null
+  lastLoginAt: Date | null
+  lastSeenAt: Date | null
+  totalOnlineSeconds: number | null
+  failedLoginCount: number | null
+  lockedUntil: Date | null
 }
 
 export type UserMaxAggregateOutputType = {
@@ -54,6 +74,12 @@ export type UserMaxAggregateOutputType = {
   baleLinkExpires: Date | null
   createdAt: Date | null
   updatedAt: Date | null
+  sessionVersion: number | null
+  lastLoginAt: Date | null
+  lastSeenAt: Date | null
+  totalOnlineSeconds: number | null
+  failedLoginCount: number | null
+  lockedUntil: Date | null
 }
 
 export type UserCountAggregateOutputType = {
@@ -71,9 +97,27 @@ export type UserCountAggregateOutputType = {
   baleLinkExpires: number
   createdAt: number
   updatedAt: number
+  sessionVersion: number
+  lastLoginAt: number
+  lastSeenAt: number
+  totalOnlineSeconds: number
+  failedLoginCount: number
+  lockedUntil: number
   _all: number
 }
 
+
+export type UserAvgAggregateInputType = {
+  sessionVersion?: true
+  totalOnlineSeconds?: true
+  failedLoginCount?: true
+}
+
+export type UserSumAggregateInputType = {
+  sessionVersion?: true
+  totalOnlineSeconds?: true
+  failedLoginCount?: true
+}
 
 export type UserMinAggregateInputType = {
   id?: true
@@ -89,6 +133,12 @@ export type UserMinAggregateInputType = {
   baleLinkExpires?: true
   createdAt?: true
   updatedAt?: true
+  sessionVersion?: true
+  lastLoginAt?: true
+  lastSeenAt?: true
+  totalOnlineSeconds?: true
+  failedLoginCount?: true
+  lockedUntil?: true
 }
 
 export type UserMaxAggregateInputType = {
@@ -105,6 +155,12 @@ export type UserMaxAggregateInputType = {
   baleLinkExpires?: true
   createdAt?: true
   updatedAt?: true
+  sessionVersion?: true
+  lastLoginAt?: true
+  lastSeenAt?: true
+  totalOnlineSeconds?: true
+  failedLoginCount?: true
+  lockedUntil?: true
 }
 
 export type UserCountAggregateInputType = {
@@ -122,6 +178,12 @@ export type UserCountAggregateInputType = {
   baleLinkExpires?: true
   createdAt?: true
   updatedAt?: true
+  sessionVersion?: true
+  lastLoginAt?: true
+  lastSeenAt?: true
+  totalOnlineSeconds?: true
+  failedLoginCount?: true
+  lockedUntil?: true
   _all?: true
 }
 
@@ -163,6 +225,18 @@ export type UserAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: UserAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: UserSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: UserMinAggregateInputType
@@ -193,6 +267,8 @@ export type UserGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   _count?: UserCountAggregateInputType | true
+  _avg?: UserAvgAggregateInputType
+  _sum?: UserSumAggregateInputType
   _min?: UserMinAggregateInputType
   _max?: UserMaxAggregateInputType
 }
@@ -212,7 +288,15 @@ export type UserGroupByOutputType = {
   baleLinkExpires: Date | null
   createdAt: Date
   updatedAt: Date
+  sessionVersion: number
+  lastLoginAt: Date | null
+  lastSeenAt: Date | null
+  totalOnlineSeconds: number
+  failedLoginCount: number
+  lockedUntil: Date | null
   _count: UserCountAggregateOutputType | null
+  _avg: UserAvgAggregateOutputType | null
+  _sum: UserSumAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
 }
@@ -250,12 +334,21 @@ export type UserWhereInput = {
   baleLinkExpires?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  sessionVersion?: Prisma.IntFilter<"User"> | number
+  lastLoginAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  lastSeenAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFilter<"User"> | number
+  failedLoginCount?: Prisma.IntFilter<"User"> | number
+  lockedUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   accounts?: Prisma.AccountListRelationFilter
   activityLogs?: Prisma.ActivityLogListRelationFilter
   comments?: Prisma.CommentListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
   passwordResetTokens?: Prisma.PasswordResetTokenListRelationFilter
   sessions?: Prisma.SessionListRelationFilter
+  loginEvents?: Prisma.UserLoginEventListRelationFilter
+  adminAuditsAsActor?: Prisma.AdminAuditLogListRelationFilter
+  adminAuditsAsTarget?: Prisma.AdminAuditLogListRelationFilter
   assignedTasks?: Prisma.TaskListRelationFilter
   createdTasks?: Prisma.TaskListRelationFilter
   teamMembers?: Prisma.TeamMemberListRelationFilter
@@ -291,12 +384,21 @@ export type UserOrderByWithRelationInput = {
   baleLinkExpires?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  sessionVersion?: Prisma.SortOrder
+  lastLoginAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastSeenAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  totalOnlineSeconds?: Prisma.SortOrder
+  failedLoginCount?: Prisma.SortOrder
+  lockedUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   accounts?: Prisma.AccountOrderByRelationAggregateInput
   activityLogs?: Prisma.ActivityLogOrderByRelationAggregateInput
   comments?: Prisma.CommentOrderByRelationAggregateInput
   notifications?: Prisma.NotificationOrderByRelationAggregateInput
   passwordResetTokens?: Prisma.PasswordResetTokenOrderByRelationAggregateInput
   sessions?: Prisma.SessionOrderByRelationAggregateInput
+  loginEvents?: Prisma.UserLoginEventOrderByRelationAggregateInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogOrderByRelationAggregateInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogOrderByRelationAggregateInput
   assignedTasks?: Prisma.TaskOrderByRelationAggregateInput
   createdTasks?: Prisma.TaskOrderByRelationAggregateInput
   teamMembers?: Prisma.TeamMemberOrderByRelationAggregateInput
@@ -335,12 +437,21 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   baleLinkExpires?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  sessionVersion?: Prisma.IntFilter<"User"> | number
+  lastLoginAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  lastSeenAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFilter<"User"> | number
+  failedLoginCount?: Prisma.IntFilter<"User"> | number
+  lockedUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   accounts?: Prisma.AccountListRelationFilter
   activityLogs?: Prisma.ActivityLogListRelationFilter
   comments?: Prisma.CommentListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
   passwordResetTokens?: Prisma.PasswordResetTokenListRelationFilter
   sessions?: Prisma.SessionListRelationFilter
+  loginEvents?: Prisma.UserLoginEventListRelationFilter
+  adminAuditsAsActor?: Prisma.AdminAuditLogListRelationFilter
+  adminAuditsAsTarget?: Prisma.AdminAuditLogListRelationFilter
   assignedTasks?: Prisma.TaskListRelationFilter
   createdTasks?: Prisma.TaskListRelationFilter
   teamMembers?: Prisma.TeamMemberListRelationFilter
@@ -376,9 +487,17 @@ export type UserOrderByWithAggregationInput = {
   baleLinkExpires?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  sessionVersion?: Prisma.SortOrder
+  lastLoginAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastSeenAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  totalOnlineSeconds?: Prisma.SortOrder
+  failedLoginCount?: Prisma.SortOrder
+  lockedUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
+  _avg?: Prisma.UserAvgOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
   _min?: Prisma.UserMinOrderByAggregateInput
+  _sum?: Prisma.UserSumOrderByAggregateInput
 }
 
 export type UserScalarWhereWithAggregatesInput = {
@@ -399,6 +518,12 @@ export type UserScalarWhereWithAggregatesInput = {
   baleLinkExpires?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
+  sessionVersion?: Prisma.IntWithAggregatesFilter<"User"> | number
+  lastLoginAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  lastSeenAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  totalOnlineSeconds?: Prisma.IntWithAggregatesFilter<"User"> | number
+  failedLoginCount?: Prisma.IntWithAggregatesFilter<"User"> | number
+  lockedUntil?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
 }
 
 export type UserCreateInput = {
@@ -416,12 +541,21 @@ export type UserCreateInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
@@ -457,12 +591,21 @@ export type UserUncheckedCreateInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventUncheckedCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
@@ -498,12 +641,21 @@ export type UserUpdateInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
@@ -539,12 +691,21 @@ export type UserUncheckedUpdateInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUncheckedUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -580,6 +741,12 @@ export type UserCreateManyInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
 }
 
 export type UserUpdateManyMutationInput = {
@@ -597,6 +764,12 @@ export type UserUpdateManyMutationInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type UserUncheckedUpdateManyInput = {
@@ -614,6 +787,12 @@ export type UserUncheckedUpdateManyInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type UserCountOrderByAggregateInput = {
@@ -631,6 +810,18 @@ export type UserCountOrderByAggregateInput = {
   baleLinkExpires?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  sessionVersion?: Prisma.SortOrder
+  lastLoginAt?: Prisma.SortOrder
+  lastSeenAt?: Prisma.SortOrder
+  totalOnlineSeconds?: Prisma.SortOrder
+  failedLoginCount?: Prisma.SortOrder
+  lockedUntil?: Prisma.SortOrder
+}
+
+export type UserAvgOrderByAggregateInput = {
+  sessionVersion?: Prisma.SortOrder
+  totalOnlineSeconds?: Prisma.SortOrder
+  failedLoginCount?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -647,6 +838,12 @@ export type UserMaxOrderByAggregateInput = {
   baleLinkExpires?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  sessionVersion?: Prisma.SortOrder
+  lastLoginAt?: Prisma.SortOrder
+  lastSeenAt?: Prisma.SortOrder
+  totalOnlineSeconds?: Prisma.SortOrder
+  failedLoginCount?: Prisma.SortOrder
+  lockedUntil?: Prisma.SortOrder
 }
 
 export type UserMinOrderByAggregateInput = {
@@ -663,6 +860,18 @@ export type UserMinOrderByAggregateInput = {
   baleLinkExpires?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  sessionVersion?: Prisma.SortOrder
+  lastLoginAt?: Prisma.SortOrder
+  lastSeenAt?: Prisma.SortOrder
+  totalOnlineSeconds?: Prisma.SortOrder
+  failedLoginCount?: Prisma.SortOrder
+  lockedUntil?: Prisma.SortOrder
+}
+
+export type UserSumOrderByAggregateInput = {
+  sessionVersion?: Prisma.SortOrder
+  totalOnlineSeconds?: Prisma.SortOrder
+  failedLoginCount?: Prisma.SortOrder
 }
 
 export type UserScalarRelationFilter = {
@@ -697,6 +906,58 @@ export type NullableDateTimeFieldUpdateOperationsInput = {
 
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
+}
+
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
+export type UserCreateNestedOneWithoutLoginEventsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutLoginEventsInput, Prisma.UserUncheckedCreateWithoutLoginEventsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLoginEventsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutLoginEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutLoginEventsInput, Prisma.UserUncheckedCreateWithoutLoginEventsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLoginEventsInput
+  upsert?: Prisma.UserUpsertWithoutLoginEventsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutLoginEventsInput, Prisma.UserUpdateWithoutLoginEventsInput>, Prisma.UserUncheckedUpdateWithoutLoginEventsInput>
+}
+
+export type UserCreateNestedOneWithoutAdminAuditsAsActorInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAdminAuditsAsActorInput, Prisma.UserUncheckedCreateWithoutAdminAuditsAsActorInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAdminAuditsAsActorInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutAdminAuditsAsTargetInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAdminAuditsAsTargetInput, Prisma.UserUncheckedCreateWithoutAdminAuditsAsTargetInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAdminAuditsAsTargetInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutAdminAuditsAsActorNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAdminAuditsAsActorInput, Prisma.UserUncheckedCreateWithoutAdminAuditsAsActorInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAdminAuditsAsActorInput
+  upsert?: Prisma.UserUpsertWithoutAdminAuditsAsActorInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAdminAuditsAsActorInput, Prisma.UserUpdateWithoutAdminAuditsAsActorInput>, Prisma.UserUncheckedUpdateWithoutAdminAuditsAsActorInput>
+}
+
+export type UserUpdateOneWithoutAdminAuditsAsTargetNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAdminAuditsAsTargetInput, Prisma.UserUncheckedCreateWithoutAdminAuditsAsTargetInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAdminAuditsAsTargetInput
+  upsert?: Prisma.UserUpsertWithoutAdminAuditsAsTargetInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAdminAuditsAsTargetInput, Prisma.UserUpdateWithoutAdminAuditsAsTargetInput>, Prisma.UserUncheckedUpdateWithoutAdminAuditsAsTargetInput>
 }
 
 export type UserCreateNestedOneWithoutAccountsInput = {
@@ -1037,6 +1298,642 @@ export type UserUpdateOneRequiredWithoutMockAttemptsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMockAttemptsInput, Prisma.UserUpdateWithoutMockAttemptsInput>, Prisma.UserUncheckedUpdateWithoutMockAttemptsInput>
 }
 
+export type UserCreateWithoutLoginEventsInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  avatar?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
+  comments?: Prisma.CommentCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogCreateNestedManyWithoutTargetUserInput
+  assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
+  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
+  workLogs?: Prisma.WorkLogCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitCreateNestedManyWithoutUserInput
+  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutLoginEventsInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  avatar?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutTargetUserInput
+  assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
+  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
+  workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderUncheckedCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagUncheckedCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileUncheckedCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
+  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutLoginEventsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutLoginEventsInput, Prisma.UserUncheckedCreateWithoutLoginEventsInput>
+}
+
+export type UserUpsertWithoutLoginEventsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutLoginEventsInput, Prisma.UserUncheckedUpdateWithoutLoginEventsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutLoginEventsInput, Prisma.UserUncheckedCreateWithoutLoginEventsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutLoginEventsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutLoginEventsInput, Prisma.UserUncheckedUpdateWithoutLoginEventsInput>
+}
+
+export type UserUpdateWithoutLoginEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
+  comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUpdateManyWithoutTargetUserNestedInput
+  assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
+  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
+  workLogs?: Prisma.WorkLogUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
+  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutLoginEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
+  assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
+  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
+  workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUncheckedUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUncheckedUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUncheckedUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
+  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutAdminAuditsAsActorInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  avatar?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
+  comments?: Prisma.CommentCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventCreateNestedManyWithoutUserInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogCreateNestedManyWithoutTargetUserInput
+  assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
+  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
+  workLogs?: Prisma.WorkLogCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitCreateNestedManyWithoutUserInput
+  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutAdminAuditsAsActorInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  avatar?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventUncheckedCreateNestedManyWithoutUserInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutTargetUserInput
+  assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
+  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
+  workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderUncheckedCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagUncheckedCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileUncheckedCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
+  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutAdminAuditsAsActorInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAdminAuditsAsActorInput, Prisma.UserUncheckedCreateWithoutAdminAuditsAsActorInput>
+}
+
+export type UserCreateWithoutAdminAuditsAsTargetInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  avatar?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
+  comments?: Prisma.CommentCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogCreateNestedManyWithoutActorInput
+  assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
+  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
+  workLogs?: Prisma.WorkLogCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitCreateNestedManyWithoutUserInput
+  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutAdminAuditsAsTargetInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  avatar?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventUncheckedCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
+  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
+  workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderUncheckedCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagUncheckedCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileUncheckedCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
+  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutAdminAuditsAsTargetInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAdminAuditsAsTargetInput, Prisma.UserUncheckedCreateWithoutAdminAuditsAsTargetInput>
+}
+
+export type UserUpsertWithoutAdminAuditsAsActorInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAdminAuditsAsActorInput, Prisma.UserUncheckedUpdateWithoutAdminAuditsAsActorInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAdminAuditsAsActorInput, Prisma.UserUncheckedCreateWithoutAdminAuditsAsActorInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAdminAuditsAsActorInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAdminAuditsAsActorInput, Prisma.UserUncheckedUpdateWithoutAdminAuditsAsActorInput>
+}
+
+export type UserUpdateWithoutAdminAuditsAsActorInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
+  comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUpdateManyWithoutUserNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUpdateManyWithoutTargetUserNestedInput
+  assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
+  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
+  workLogs?: Prisma.WorkLogUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
+  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAdminAuditsAsActorInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUncheckedUpdateManyWithoutUserNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
+  assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
+  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
+  workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUncheckedUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUncheckedUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUncheckedUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
+  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserUpsertWithoutAdminAuditsAsTargetInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAdminAuditsAsTargetInput, Prisma.UserUncheckedUpdateWithoutAdminAuditsAsTargetInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAdminAuditsAsTargetInput, Prisma.UserUncheckedCreateWithoutAdminAuditsAsTargetInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAdminAuditsAsTargetInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAdminAuditsAsTargetInput, Prisma.UserUncheckedUpdateWithoutAdminAuditsAsTargetInput>
+}
+
+export type UserUpdateWithoutAdminAuditsAsTargetInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
+  comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUpdateManyWithoutActorNestedInput
+  assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
+  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
+  workLogs?: Prisma.WorkLogUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
+  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAdminAuditsAsTargetInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUncheckedUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
+  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
+  workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUncheckedUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUncheckedUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUncheckedUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
+  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
+}
+
 export type UserCreateWithoutAccountsInput = {
   id?: string
   name: string
@@ -1052,11 +1949,20 @@ export type UserCreateWithoutAccountsInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
@@ -1092,11 +1998,20 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventUncheckedCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
@@ -1148,11 +2063,20 @@ export type UserUpdateWithoutAccountsInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
@@ -1188,11 +2112,20 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUncheckedUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -1228,11 +2161,20 @@ export type UserCreateWithoutSessionsInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
@@ -1268,11 +2210,20 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventUncheckedCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
@@ -1324,11 +2275,20 @@ export type UserUpdateWithoutSessionsInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
@@ -1364,11 +2324,20 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUncheckedUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -1404,11 +2373,20 @@ export type UserCreateWithoutPasswordResetTokensInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
@@ -1444,11 +2422,20 @@ export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventUncheckedCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
@@ -1500,11 +2487,20 @@ export type UserUpdateWithoutPasswordResetTokensInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
@@ -1540,11 +2536,20 @@ export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUncheckedUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -1580,12 +2585,21 @@ export type UserCreateWithoutPreferencesInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
@@ -1620,12 +2634,21 @@ export type UserUncheckedCreateWithoutPreferencesInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventUncheckedCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
@@ -1676,12 +2699,21 @@ export type UserUpdateWithoutPreferencesInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
@@ -1716,12 +2748,21 @@ export type UserUncheckedUpdateWithoutPreferencesInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUncheckedUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -1756,12 +2797,21 @@ export type UserCreateWithoutTeamMembersInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
   projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
@@ -1796,12 +2846,21 @@ export type UserUncheckedCreateWithoutTeamMembersInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventUncheckedCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
   projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
@@ -1852,12 +2911,21 @@ export type UserUpdateWithoutTeamMembersInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
   projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
@@ -1892,12 +2960,21 @@ export type UserUncheckedUpdateWithoutTeamMembersInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUncheckedUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
   projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -1932,12 +3009,21 @@ export type UserCreateWithoutAreaPreferencesInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
@@ -1972,12 +3058,21 @@ export type UserUncheckedCreateWithoutAreaPreferencesInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventUncheckedCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
@@ -2028,12 +3123,21 @@ export type UserUpdateWithoutAreaPreferencesInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
@@ -2068,12 +3172,21 @@ export type UserUncheckedUpdateWithoutAreaPreferencesInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUncheckedUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -2108,12 +3221,21 @@ export type UserCreateWithoutProjectMembersInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
@@ -2148,12 +3270,21 @@ export type UserUncheckedCreateWithoutProjectMembersInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventUncheckedCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
@@ -2204,12 +3335,21 @@ export type UserUpdateWithoutProjectMembersInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
@@ -2244,12 +3384,21 @@ export type UserUncheckedUpdateWithoutProjectMembersInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUncheckedUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -2284,12 +3433,21 @@ export type UserCreateWithoutAssignedTasksInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogCreateNestedManyWithoutTargetUserInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
   projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
@@ -2324,12 +3482,21 @@ export type UserUncheckedCreateWithoutAssignedTasksInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventUncheckedCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutTargetUserInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
   projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
@@ -2369,12 +3536,21 @@ export type UserCreateWithoutCreatedTasksInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
   teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
   projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
@@ -2409,12 +3585,21 @@ export type UserUncheckedCreateWithoutCreatedTasksInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventUncheckedCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
   teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
   projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
@@ -2465,12 +3650,21 @@ export type UserUpdateWithoutAssignedTasksInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUpdateManyWithoutTargetUserNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
   projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
@@ -2505,12 +3699,21 @@ export type UserUncheckedUpdateWithoutAssignedTasksInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUncheckedUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
   projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -2556,12 +3759,21 @@ export type UserUpdateWithoutCreatedTasksInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
   teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
   projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
@@ -2596,12 +3808,21 @@ export type UserUncheckedUpdateWithoutCreatedTasksInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUncheckedUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
   teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
   projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -2636,11 +3857,20 @@ export type UserCreateWithoutCommentsInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
@@ -2676,11 +3906,20 @@ export type UserUncheckedCreateWithoutCommentsInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventUncheckedCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
@@ -2732,11 +3971,20 @@ export type UserUpdateWithoutCommentsInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
@@ -2772,11 +4020,20 @@ export type UserUncheckedUpdateWithoutCommentsInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUncheckedUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -2812,11 +4069,20 @@ export type UserCreateWithoutNotificationsInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
@@ -2852,11 +4118,20 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventUncheckedCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
@@ -2908,11 +4183,20 @@ export type UserUpdateWithoutNotificationsInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
@@ -2948,11 +4232,20 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUncheckedUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -2988,11 +4281,20 @@ export type UserCreateWithoutActivityLogsInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
@@ -3028,11 +4330,20 @@ export type UserUncheckedCreateWithoutActivityLogsInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventUncheckedCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
@@ -3084,11 +4395,20 @@ export type UserUpdateWithoutActivityLogsInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
@@ -3124,11 +4444,20 @@ export type UserUncheckedUpdateWithoutActivityLogsInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUncheckedUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -3164,12 +4493,21 @@ export type UserCreateWithoutWorkLogsInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
@@ -3204,12 +4542,21 @@ export type UserUncheckedCreateWithoutWorkLogsInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventUncheckedCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
@@ -3260,12 +4607,21 @@ export type UserUpdateWithoutWorkLogsInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
@@ -3300,12 +4656,21 @@ export type UserUncheckedUpdateWithoutWorkLogsInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUncheckedUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -3340,12 +4705,21 @@ export type UserCreateWithoutHabitsInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
@@ -3380,12 +4754,21 @@ export type UserUncheckedCreateWithoutHabitsInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventUncheckedCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
@@ -3436,12 +4819,21 @@ export type UserUpdateWithoutHabitsInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
@@ -3476,12 +4868,21 @@ export type UserUncheckedUpdateWithoutHabitsInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUncheckedUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -3516,12 +4917,21 @@ export type UserCreateWithoutDocsInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
@@ -3556,12 +4966,21 @@ export type UserUncheckedCreateWithoutDocsInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventUncheckedCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
@@ -3612,12 +5031,21 @@ export type UserUpdateWithoutDocsInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
@@ -3652,12 +5080,21 @@ export type UserUncheckedUpdateWithoutDocsInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUncheckedUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -3692,12 +5129,21 @@ export type UserCreateWithoutDocFoldersInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
@@ -3732,12 +5178,21 @@ export type UserUncheckedCreateWithoutDocFoldersInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventUncheckedCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
@@ -3788,12 +5243,21 @@ export type UserUpdateWithoutDocFoldersInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
@@ -3828,12 +5292,21 @@ export type UserUncheckedUpdateWithoutDocFoldersInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUncheckedUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -3868,12 +5341,21 @@ export type UserCreateWithoutDocTagsInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
@@ -3908,12 +5390,21 @@ export type UserUncheckedCreateWithoutDocTagsInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventUncheckedCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
@@ -3964,12 +5455,21 @@ export type UserUpdateWithoutDocTagsInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
@@ -4004,12 +5504,21 @@ export type UserUncheckedUpdateWithoutDocTagsInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUncheckedUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -4044,12 +5553,21 @@ export type UserCreateWithoutLangProfileInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
@@ -4084,12 +5602,21 @@ export type UserUncheckedCreateWithoutLangProfileInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventUncheckedCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
@@ -4140,12 +5667,21 @@ export type UserUpdateWithoutLangProfileInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
@@ -4180,12 +5716,21 @@ export type UserUncheckedUpdateWithoutLangProfileInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUncheckedUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -4220,12 +5765,21 @@ export type UserCreateWithoutLangSessionsInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
@@ -4260,12 +5814,21 @@ export type UserUncheckedCreateWithoutLangSessionsInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventUncheckedCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
@@ -4316,12 +5879,21 @@ export type UserUpdateWithoutLangSessionsInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
@@ -4356,12 +5928,21 @@ export type UserUncheckedUpdateWithoutLangSessionsInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUncheckedUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -4396,12 +5977,21 @@ export type UserCreateWithoutLangListeningClipsInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
@@ -4436,12 +6026,21 @@ export type UserUncheckedCreateWithoutLangListeningClipsInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventUncheckedCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
@@ -4492,12 +6091,21 @@ export type UserUpdateWithoutLangListeningClipsInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
@@ -4532,12 +6140,21 @@ export type UserUncheckedUpdateWithoutLangListeningClipsInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUncheckedUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -4572,12 +6189,21 @@ export type UserCreateWithoutLangCardsInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
@@ -4612,12 +6238,21 @@ export type UserUncheckedCreateWithoutLangCardsInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventUncheckedCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
@@ -4668,12 +6303,21 @@ export type UserUpdateWithoutLangCardsInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
@@ -4708,12 +6352,21 @@ export type UserUncheckedUpdateWithoutLangCardsInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUncheckedUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -4748,12 +6401,21 @@ export type UserCreateWithoutLangVocabDaysInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
@@ -4788,12 +6450,21 @@ export type UserUncheckedCreateWithoutLangVocabDaysInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventUncheckedCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
@@ -4844,12 +6515,21 @@ export type UserUpdateWithoutLangVocabDaysInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
@@ -4884,12 +6564,21 @@ export type UserUncheckedUpdateWithoutLangVocabDaysInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUncheckedUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -4924,12 +6613,21 @@ export type UserCreateWithoutExamTracksInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
@@ -4964,12 +6662,21 @@ export type UserUncheckedCreateWithoutExamTracksInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventUncheckedCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
@@ -5020,12 +6727,21 @@ export type UserUpdateWithoutExamTracksInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
@@ -5060,12 +6776,21 @@ export type UserUncheckedUpdateWithoutExamTracksInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUncheckedUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -5100,12 +6825,21 @@ export type UserCreateWithoutMockAttemptsInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
@@ -5140,12 +6874,21 @@ export type UserUncheckedCreateWithoutMockAttemptsInput = {
   baleLinkExpires?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventUncheckedCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutTargetUserInput
   assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
   teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
@@ -5196,12 +6939,21 @@ export type UserUpdateWithoutMockAttemptsInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
@@ -5236,12 +6988,21 @@ export type UserUncheckedUpdateWithoutMockAttemptsInput = {
   baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUncheckedUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
   teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -5273,6 +7034,9 @@ export type UserCountOutputType = {
   notifications: number
   passwordResetTokens: number
   sessions: number
+  loginEvents: number
+  adminAuditsAsActor: number
+  adminAuditsAsTarget: number
   assignedTasks: number
   createdTasks: number
   teamMembers: number
@@ -5298,6 +7062,9 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
   passwordResetTokens?: boolean | UserCountOutputTypeCountPasswordResetTokensArgs
   sessions?: boolean | UserCountOutputTypeCountSessionsArgs
+  loginEvents?: boolean | UserCountOutputTypeCountLoginEventsArgs
+  adminAuditsAsActor?: boolean | UserCountOutputTypeCountAdminAuditsAsActorArgs
+  adminAuditsAsTarget?: boolean | UserCountOutputTypeCountAdminAuditsAsTargetArgs
   assignedTasks?: boolean | UserCountOutputTypeCountAssignedTasksArgs
   createdTasks?: boolean | UserCountOutputTypeCountCreatedTasksArgs
   teamMembers?: boolean | UserCountOutputTypeCountTeamMembersArgs
@@ -5366,6 +7133,27 @@ export type UserCountOutputTypeCountPasswordResetTokensArgs<ExtArgs extends runt
  */
 export type UserCountOutputTypeCountSessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.SessionWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountLoginEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserLoginEventWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountAdminAuditsAsActorArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AdminAuditLogWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountAdminAuditsAsTargetArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AdminAuditLogWhereInput
 }
 
 /**
@@ -5496,12 +7284,21 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   baleLinkExpires?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  sessionVersion?: boolean
+  lastLoginAt?: boolean
+  lastSeenAt?: boolean
+  totalOnlineSeconds?: boolean
+  failedLoginCount?: boolean
+  lockedUntil?: boolean
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   activityLogs?: boolean | Prisma.User$activityLogsArgs<ExtArgs>
   comments?: boolean | Prisma.User$commentsArgs<ExtArgs>
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
   passwordResetTokens?: boolean | Prisma.User$passwordResetTokensArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
+  loginEvents?: boolean | Prisma.User$loginEventsArgs<ExtArgs>
+  adminAuditsAsActor?: boolean | Prisma.User$adminAuditsAsActorArgs<ExtArgs>
+  adminAuditsAsTarget?: boolean | Prisma.User$adminAuditsAsTargetArgs<ExtArgs>
   assignedTasks?: boolean | Prisma.User$assignedTasksArgs<ExtArgs>
   createdTasks?: boolean | Prisma.User$createdTasksArgs<ExtArgs>
   teamMembers?: boolean | Prisma.User$teamMembersArgs<ExtArgs>
@@ -5538,6 +7335,12 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   baleLinkExpires?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  sessionVersion?: boolean
+  lastLoginAt?: boolean
+  lastSeenAt?: boolean
+  totalOnlineSeconds?: boolean
+  failedLoginCount?: boolean
+  lockedUntil?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -5555,6 +7358,12 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   baleLinkExpires?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  sessionVersion?: boolean
+  lastLoginAt?: boolean
+  lastSeenAt?: boolean
+  totalOnlineSeconds?: boolean
+  failedLoginCount?: boolean
+  lockedUntil?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectScalar = {
@@ -5572,9 +7381,15 @@ export type UserSelectScalar = {
   baleLinkExpires?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  sessionVersion?: boolean
+  lastLoginAt?: boolean
+  lastSeenAt?: boolean
+  totalOnlineSeconds?: boolean
+  failedLoginCount?: boolean
+  lockedUntil?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "password" | "avatar" | "role" | "status" | "enabledModules" | "baleUserId" | "baleLinkCode" | "baleLinkChatId" | "baleLinkExpires" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "password" | "avatar" | "role" | "status" | "enabledModules" | "baleUserId" | "baleLinkCode" | "baleLinkChatId" | "baleLinkExpires" | "createdAt" | "updatedAt" | "sessionVersion" | "lastLoginAt" | "lastSeenAt" | "totalOnlineSeconds" | "failedLoginCount" | "lockedUntil", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   activityLogs?: boolean | Prisma.User$activityLogsArgs<ExtArgs>
@@ -5582,6 +7397,9 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
   passwordResetTokens?: boolean | Prisma.User$passwordResetTokensArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
+  loginEvents?: boolean | Prisma.User$loginEventsArgs<ExtArgs>
+  adminAuditsAsActor?: boolean | Prisma.User$adminAuditsAsActorArgs<ExtArgs>
+  adminAuditsAsTarget?: boolean | Prisma.User$adminAuditsAsTargetArgs<ExtArgs>
   assignedTasks?: boolean | Prisma.User$assignedTasksArgs<ExtArgs>
   createdTasks?: boolean | Prisma.User$createdTasksArgs<ExtArgs>
   teamMembers?: boolean | Prisma.User$teamMembersArgs<ExtArgs>
@@ -5614,6 +7432,9 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     notifications: Prisma.$NotificationPayload<ExtArgs>[]
     passwordResetTokens: Prisma.$PasswordResetTokenPayload<ExtArgs>[]
     sessions: Prisma.$SessionPayload<ExtArgs>[]
+    loginEvents: Prisma.$UserLoginEventPayload<ExtArgs>[]
+    adminAuditsAsActor: Prisma.$AdminAuditLogPayload<ExtArgs>[]
+    adminAuditsAsTarget: Prisma.$AdminAuditLogPayload<ExtArgs>[]
     assignedTasks: Prisma.$TaskPayload<ExtArgs>[]
     createdTasks: Prisma.$TaskPayload<ExtArgs>[]
     teamMembers: Prisma.$TeamMemberPayload<ExtArgs>[]
@@ -5652,6 +7473,30 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     baleLinkExpires: Date | null
     createdAt: Date
     updatedAt: Date
+    /**
+     * Bumped to invalidate all JWTs for this user (force logout / deactivate).
+     */
+    sessionVersion: number
+    /**
+     * Last successful sign-in (credentials).
+     */
+    lastLoginAt: Date | null
+    /**
+     * Last presence heartbeat while the dashboard is open.
+     */
+    lastSeenAt: Date | null
+    /**
+     * Accumulated active seconds from heartbeats (gaps ≤ online window).
+     */
+    totalOnlineSeconds: number
+    /**
+     * Consecutive failed password attempts (reset on success).
+     */
+    failedLoginCount: number
+    /**
+     * Temporary lock after too many failed logins.
+     */
+    lockedUntil: Date | null
   }, ExtArgs["result"]["user"]>
   composites: {}
 }
@@ -6052,6 +7897,9 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   notifications<T extends Prisma.User$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   passwordResetTokens<T extends Prisma.User$passwordResetTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$passwordResetTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PasswordResetTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sessions<T extends Prisma.User$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  loginEvents<T extends Prisma.User$loginEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$loginEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserLoginEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  adminAuditsAsActor<T extends Prisma.User$adminAuditsAsActorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$adminAuditsAsActorArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AdminAuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  adminAuditsAsTarget<T extends Prisma.User$adminAuditsAsTargetArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$adminAuditsAsTargetArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AdminAuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assignedTasks<T extends Prisma.User$assignedTasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$assignedTasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   createdTasks<T extends Prisma.User$createdTasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdTasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   teamMembers<T extends Prisma.User$teamMembersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$teamMembersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TeamMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -6113,6 +7961,12 @@ export interface UserFieldRefs {
   readonly baleLinkExpires: Prisma.FieldRef<"User", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly sessionVersion: Prisma.FieldRef<"User", 'Int'>
+  readonly lastLoginAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly lastSeenAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly totalOnlineSeconds: Prisma.FieldRef<"User", 'Int'>
+  readonly failedLoginCount: Prisma.FieldRef<"User", 'Int'>
+  readonly lockedUntil: Prisma.FieldRef<"User", 'DateTime'>
 }
     
 
@@ -6647,6 +8501,78 @@ export type User$sessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.SessionScalarFieldEnum | Prisma.SessionScalarFieldEnum[]
+}
+
+/**
+ * User.loginEvents
+ */
+export type User$loginEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserLoginEvent
+   */
+  select?: Prisma.UserLoginEventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserLoginEvent
+   */
+  omit?: Prisma.UserLoginEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserLoginEventInclude<ExtArgs> | null
+  where?: Prisma.UserLoginEventWhereInput
+  orderBy?: Prisma.UserLoginEventOrderByWithRelationInput | Prisma.UserLoginEventOrderByWithRelationInput[]
+  cursor?: Prisma.UserLoginEventWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserLoginEventScalarFieldEnum | Prisma.UserLoginEventScalarFieldEnum[]
+}
+
+/**
+ * User.adminAuditsAsActor
+ */
+export type User$adminAuditsAsActorArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AdminAuditLog
+   */
+  select?: Prisma.AdminAuditLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AdminAuditLog
+   */
+  omit?: Prisma.AdminAuditLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AdminAuditLogInclude<ExtArgs> | null
+  where?: Prisma.AdminAuditLogWhereInput
+  orderBy?: Prisma.AdminAuditLogOrderByWithRelationInput | Prisma.AdminAuditLogOrderByWithRelationInput[]
+  cursor?: Prisma.AdminAuditLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AdminAuditLogScalarFieldEnum | Prisma.AdminAuditLogScalarFieldEnum[]
+}
+
+/**
+ * User.adminAuditsAsTarget
+ */
+export type User$adminAuditsAsTargetArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AdminAuditLog
+   */
+  select?: Prisma.AdminAuditLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AdminAuditLog
+   */
+  omit?: Prisma.AdminAuditLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AdminAuditLogInclude<ExtArgs> | null
+  where?: Prisma.AdminAuditLogWhereInput
+  orderBy?: Prisma.AdminAuditLogOrderByWithRelationInput | Prisma.AdminAuditLogOrderByWithRelationInput[]
+  cursor?: Prisma.AdminAuditLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AdminAuditLogScalarFieldEnum | Prisma.AdminAuditLogScalarFieldEnum[]
 }
 
 /**

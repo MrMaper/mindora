@@ -5,6 +5,7 @@ import { Button } from "@/components/ui-kit/forms/button";
 import { Input } from "@/components/ui-kit/forms/input";
 import { Select } from "@/components/ui-kit/forms/select";
 import { useTranslation } from "@/i18n/provider";
+import { cn } from "@/lib/utils";
 
 export interface UserFilters {
   search: string;
@@ -22,6 +23,7 @@ interface SearchFiltersProps {
   onFiltersChange: (filter: Partial<UserFilters>) => void;
   onClearFilters: () => void;
   hasActiveFilters: boolean;
+  className?: string;
 }
 
 export function SearchFilters({
@@ -34,57 +36,52 @@ export function SearchFilters({
   onFiltersChange,
   onClearFilters,
   hasActiveFilters,
+  className,
 }: SearchFiltersProps) {
   const t = useTranslation();
 
   return (
-    <div className="mb-4 flex flex-wrap gap-2 justify-between items-end">
-      <div className="flex gap-2 items-center w-fit flex-wrap">
-        <form
-          onSubmit={onSearchSubmit}
-          className="flex gap-1 w-full max-w-60 items-end"
-        >
-          <Input
-            label={t.users.searchButton}
-            placeholder={t.users.search}
-            icon="search"
-            value={search}
-            onChange={e => onSearchChange(e.target.value)}
-            className="w-full bg-bg-surface"
-            button={
-              <Button
-                variant="primary"
-                size="sm"
-                iconRight="search"
-                onClick={onSearchSubmit}
-              />
-            }
-          />
-        </form>
+    <div
+      className={cn(
+        "flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center",
+        className,
+      )}
+    >
+      <form onSubmit={onSearchSubmit} className="min-w-0 flex-1 sm:min-w-[14rem]">
+        <Input
+          aria-label={t.users.searchButton}
+          placeholder={t.users.search}
+          icon="search"
+          value={search}
+          onChange={e => onSearchChange(e.target.value)}
+          className="w-full bg-bg-surface"
+        />
+      </form>
 
-        <div className="w-40">
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="w-[8.5rem] sm:w-36">
           <Select
-            label={t.users.role}
             value={filters.role}
             onChange={value => onFiltersChange({ role: value })}
             options={roleOptions}
+            placeholder={t.users.allRoles}
           />
         </div>
 
-        <div className="w-40">
+        <div className="w-[8.5rem] sm:w-36">
           <Select
-            label={t.users.status}
             value={filters.status}
             onChange={value => onFiltersChange({ status: value })}
             options={statusOptions}
+            placeholder={t.users.allStatuses}
           />
         </div>
 
-        {hasActiveFilters && (
+        {hasActiveFilters ? (
           <Button variant="ghost" size="sm" onClick={onClearFilters}>
             {t.users.clearFilters}
           </Button>
-        )}
+        ) : null}
       </div>
     </div>
   );

@@ -88,7 +88,18 @@ Goal: every member surface is usable one-handed on a phone — no clipped filter
 
 ### Still to do (polish)
 1. Pass each page in a real phone viewport and fix leftover horizontal scroll
-2. Users admin table card rows (if admins use phones)
+2. ~~Users admin table card rows (if admins use phones)~~ — shipped (card list under `md`)
+
+### Admin panel (shipped)
+- `/admin` overview: online/login stats, Bale health, recent logins
+- Login history (`UserLoginEvent`) + presence fields
+- Force logout / deactivate bumps `sessionVersion` (JWT invalidation)
+- Users table: desktop grid + mobile cards; presence columns
+- Admin audit log (create/deactivate/modules/password/broadcast/plan)
+- System broadcast (in-app + email) with audience filters
+- System health: migrations, disk, S3/SMTP, cron heartbeat, storage ledger usage
+- Login lock after 5 failed attempts (15 min) + admin unlock
+- Plan/quota (`SystemSettings`: personal/team/custom) with member cap on create
 
 ### Shipped later in mobile polish
 - Docs editor: secondary toolbar tools behind a ⋯ menu on xs

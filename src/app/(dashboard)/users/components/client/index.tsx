@@ -12,6 +12,7 @@ import {
 import type { GetUsersResult } from "@/features/users/types";
 import type { Language } from "@/types/db";
 import { UsersHeader } from "../ui/users-header";
+import { UsersActivityStatsBar } from "../ui/users-activity-stats";
 import { UserTable } from "../ui/user-table";
 import { CreateUserDrawer } from "../ui/create-user-drawer";
 import { EditUserDrawer } from "../ui/edit-user-drawer";
@@ -35,7 +36,7 @@ export function UsersCC({
   const t = useTranslation();
   const u = useUsers(filters.search ?? "");
 
-  const { users, total, totalPages } = initialData;
+  const { users, total, totalPages, stats } = initialData;
 
   const roleOptions = withEmptyOption(
     getAllOptionsWithLabels(t, "userRole"),
@@ -53,21 +54,11 @@ export function UsersCC({
     <>
       <UsersHeader total={total} openCreate={u.openCreate} />
 
-      <SearchFilters
-        search={u.search}
-        filters={filters}
-        statusOptions={statusOptions}
-        roleOptions={roleOptions}
-        onSearchChange={u.setSearch}
-        onSearchSubmit={u.onSearchSubmit}
-        onFiltersChange={u.onFiltersChange}
-        onClearFilters={u.onClearFilters}
-        hasActiveFilters={hasActiveFilters}
-      />
+      <UsersActivityStatsBar stats={stats} />
 
       {u.actionError && !u.drawerMode && (
         <div
-          className="mb-4 flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg"
+          className="mb-4 flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive"
           role="alert"
         >
           <ResolvedValidationText text={u.actionError} />
@@ -79,8 +70,22 @@ export function UsersCC({
         t={t}
         onEdit={u.openEdit}
         onToggleStatus={u.onToggleStatus}
+        onForceLogout={u.onForceLogout}
         onDelete={u.setDeleteTarget}
         emptyMessage={t.users.noResults}
+        toolbar={
+          <SearchFilters
+            search={u.search}
+            filters={filters}
+            statusOptions={statusOptions}
+            roleOptions={roleOptions}
+            onSearchChange={u.setSearch}
+            onSearchSubmit={u.onSearchSubmit}
+            onFiltersChange={u.onFiltersChange}
+            onClearFilters={u.onClearFilters}
+            hasActiveFilters={hasActiveFilters}
+          />
+        }
       />
 
       <Pagination page={page} totalPages={totalPages} t={t} search={u.search} />
@@ -111,8 +116,12 @@ export function UsersCC({
         actionError={u.actionError}
         isPending={u.isPending}
         resetPassword={u.resetPassword}
+        loginEvents={u.loginEvents}
         onEditSubmit={u.onEditSubmit}
         onResetPassword={u.onResetPassword}
+        onForceLogout={() => {
+          if (u.editingUser) u.onForceLogout(u.editingUser);
+        }}
       />
 
       <DeleteUserDialog

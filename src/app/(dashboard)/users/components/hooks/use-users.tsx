@@ -11,9 +11,11 @@ import {
   toggleUserStatus,
   deleteUser,
   resetUserPassword,
+  forceLogoutUser,
+  listUserLoginEventsAction,
 } from "@/features/users/actions";
 import type { CreateUserInput, UpdateUserInput } from "@/schemas/users";
-import type { UserRow } from "@/features/users/types";
+import type { UserLoginEventRow, UserRow } from "@/features/users/types";
 import {
   DEFAULT_MODULE_FLAGS,
   type ModuleFlags,
@@ -40,6 +42,9 @@ export function useUsers(initialSearch: string) {
     null,
   );
   const [resetPassword, setResetPassword] = React.useState<string | null>(null);
+  const [loginEvents, setLoginEvents] = React.useState<UserLoginEventRow[]>(
+    [],
+  );
   const [isPending, startTransition] = React.useTransition();
   const [createModules, setCreateModules] = React.useState<ModuleFlags>({
     ...DEFAULT_MODULE_FLAGS,
@@ -82,7 +87,12 @@ export function useUsers(initialSearch: string) {
     setEditingUser(user);
     setActionError(null);
     setResetPassword(null);
+    setLoginEvents([]);
     setDrawerMode("edit");
+    startTransition(async () => {
+      const result = await listUserLoginEventsAction(user.id);
+      if (result.success) setLoginEvents(result.events);
+    });
   }
 
   function closeDrawer() {
@@ -91,6 +101,7 @@ export function useUsers(initialSearch: string) {
     setActionError(null);
     setCreatedPassword(null);
     setResetPassword(null);
+    setLoginEvents([]);
   }
 
   function appendModules(fd: FormData, flags: ModuleFlags) {
@@ -141,6 +152,15 @@ export function useUsers(initialSearch: string) {
       const result = await toggleUserStatus(user.id);
       if (!result.success)
         setActionError(result.error ?? "Failed to update status.");
+      else router.refresh();
+    });
+  }
+
+  function onForceLogout(user: UserRow) {
+    startTransition(async () => {
+      const result = await forceLogoutUser(user.id);
+      if (!result.success)
+        setActionError(result.error ?? "Failed to revoke session.");
       else router.refresh();
     });
   }
@@ -217,6 +237,7 @@ export function useUsers(initialSearch: string) {
     setActionError,
     createdPassword,
     resetPassword,
+    loginEvents,
     isPending,
     search,
     setSearch,
@@ -233,6 +254,7 @@ export function useUsers(initialSearch: string) {
     onCreateSubmit,
     onEditSubmit,
     onToggleStatus,
+    onForceLogout,
     onResetPassword,
     onDeleteConfirm,
     onSearchSubmit,

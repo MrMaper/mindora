@@ -41,7 +41,7 @@ export const getUserModuleFlags = cache(
 export async function requireModule(module: AppModule) {
   const session = await requireAuth();
   if (session.user.role === "ADMIN") {
-    redirect("/users");
+    redirect("/admin");
   }
   const flags = await getUserModuleFlags(session.user.id);
   if (!hasModule(flags, module)) {
@@ -54,14 +54,17 @@ export async function requireMemberPath(pathname: string) {
   const session = await requireAuth();
   if (session.user.role === "ADMIN") {
     if (
+      pathname.startsWith("/admin") ||
       pathname.startsWith("/users") ||
+      pathname.startsWith("/bale-bot") ||
+      pathname.startsWith("/guide") ||
       pathname.startsWith("/settings") ||
       pathname.startsWith("/profile") ||
       pathname.startsWith("/notifications")
     ) {
       return { session, flags: parseModuleFlags({}) };
     }
-    redirect("/users");
+    redirect("/admin");
   }
   const flags = await getUserModuleFlags(session.user.id);
   if (!isPathAllowed(flags, pathname)) {
