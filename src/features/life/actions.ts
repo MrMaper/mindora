@@ -6,6 +6,7 @@ import { prisma as db } from "@/lib/db";
 import { skipRecurrenceOccurrence, stopRecurrenceSeries, updateRecurrenceSeries, newRecurrenceSeriesId } from "@/features/life/recurrence";
 import { applyTaskStatusChange } from "@/features/tasks/apply-status";
 import {
+  clientLocalNow,
   dueFromWallClock,
   endOfWeek,
   moveDueToDay,
@@ -615,11 +616,16 @@ export async function rescheduleTaskDueDate(input: {
         status: resolvePersonalTaskPlanningStatus(existing.status, nextDue, {
           area,
           waitingOn: existing.waitingOn,
+          now: clientLocalNow(tz),
         }),
       },
     });
 
-    revalidateLife();
+    try {
+      revalidateLife();
+    } catch (error) {
+      console.error("revalidateLife after rescheduleTaskDueDate", error);
+    }
     return { success: true };
   } catch (error) {
     console.error("rescheduleTaskDueDate", error);
@@ -631,25 +637,24 @@ export async function rescheduleTaskDueDate(input: {
 }
 
 /** Set exact clock and/or duration (week/day grid drag + resize). */
-export async function rescheduleTaskSchedule(
-  taskId: string,
-  input: {
-    dueDateKey: string;
-    time: string;
-    /** Client-local instant (ISO). Preferred so UTC servers keep the wall clock. */
-    dueAtIso?: string;
-    durationMinutes?: number | null;
-    timezoneOffsetMinutes?: number;
-  },
-): Promise<ActionResult> {
+export async function rescheduleTaskSchedule(input: {
+  taskId: string;
+  dueDateKey: string;
+  time: string;
+  /** Client-local instant (ISO). Preferred so UTC servers keep the wall clock. */
+  dueAtIso?: string;
+  durationMinutes?: number | null;
+  timezoneOffsetMinutes?: number;
+}): Promise<ActionResult> {
   try {
     const session = await auth();
     if (!session?.user) return { success: false, error: "غیرمجاز" };
 
-    if (!taskId || !/^\d{4}-\d{2}-\d{2}$/.test(input.dueDateKey)) {
+    const { taskId, dueDateKey, time } = input;
+    if (!taskId || !/^\d{4}-\d{2}-\d{2}$/.test(dueDateKey)) {
       return { success: false, error: "تاریخ نامعتبر است" };
     }
-    if (!/^(\d{2}):(\d{2})$/.test(input.time)) {
+    if (!/^(\d{2}):(\d{2})$/.test(time)) {
       return { success: false, error: "ساعت نامعتبر است" };
     }
 
@@ -682,11 +687,11 @@ export async function rescheduleTaskSchedule(
         return { success: false, error: "تاریخ نامعتبر است" };
       }
     } else {
-      const [hours, minutes] = input.time.split(":").map(Number);
+      const [hours, minutes] = time.split(":").map(Number);
       nextDue = hasOffset
-        ? dueFromWallClock(input.dueDateKey, hours!, minutes!, tz!)
+        ? dueFromWallClock(dueDateKey, hours!, minutes!, tz!)
         : (() => {
-            const d = parseLocalDate(input.dueDateKey);
+            const d = parseLocalDate(dueDateKey);
             d.setHours(hours!, minutes!, 0, 0);
             return d;
           })();
@@ -707,11 +712,16 @@ export async function rescheduleTaskSchedule(
         status: resolvePersonalTaskPlanningStatus(existing.status, nextDue, {
           area,
           waitingOn: existing.waitingOn,
+          now: clientLocalNow(tz),
         }),
       },
     });
 
-    revalidateLife();
+    try {
+      revalidateLife();
+    } catch (error) {
+      console.error("revalidateLife after rescheduleTaskSchedule", error);
+    }
     return { success: true };
   } catch (error) {
     console.error("rescheduleTaskSchedule", error);

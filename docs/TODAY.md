@@ -13,7 +13,13 @@ The Today page always shows three slots (اولویت ۱–۳), stacked in one c
 
 ## Calendar drag persistence
 
-Dragging a task on `/calendar` writes via `rescheduleTaskDueDate` / `rescheduleTaskSchedule` (client `dueAtIso`). Soft RSC refresh after `revalidatePath("/calendar")` must **merge** by `updatedAt` and skip in-flight ids — never `setTasks(initialTasks)` wholesale, or the optimistic move looks saved then snaps back when leaving and returning.
+Dragging a task on `/calendar` writes via `rescheduleTaskDueDate` / `rescheduleTaskSchedule` (single object args + client `dueAtIso`). After a successful DB write, `revalidateLife()` is best-effort and must not flip the action to failure. Soft RSC refresh merges by `updatedAt`, skips in-flight ids, and keeps those ids locked ~2s after the action returns — never `setTasks(initialTasks)` wholesale.
+
+Week/day timed blocks are draggable from the whole block body (not a corner grip). The overdue alert icon is visual only.
+
+## Kanban drag persistence
+
+Board moves write via `moveTask` (primary card update, sibling positions best-effort). Escape / drop-outside restores the pre-drag column snapshot. Soft refresh from `initialColumns` is ignored while a card is dragging or a move save is in flight. Research link sync after a status change is a plain server module (not a nested `"use server"` action).
 
 ## Focus session
 

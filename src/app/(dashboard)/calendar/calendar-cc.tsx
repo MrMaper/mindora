@@ -826,6 +826,14 @@ export function CalendarCC({
     lastPointer.current = null;
   }
 
+  function releasePendingReschedule(taskId: string) {
+    // Keep the id locked briefly so soft RSC after revalidatePath cannot
+    // clobber the optimistic due before the write is visible in props.
+    window.setTimeout(() => {
+      pendingReschedules.current.delete(taskId);
+    }, 2000);
+  }
+
   async function applySchedule(
     taskId: string,
     dueDateKey: string,
@@ -864,7 +872,8 @@ export function CalendarCC({
     pendingReschedules.current.add(taskId);
 
     try {
-      const result = await rescheduleTaskSchedule(taskId, {
+      const result = await rescheduleTaskSchedule({
+        taskId,
         dueDateKey,
         time,
         dueAtIso: nextDue.toISOString(),
@@ -902,9 +911,13 @@ export function CalendarCC({
         ),
       );
       edit.syncDueFromCalendar(taskId, new Date(previousDue), previousDuration);
-      toast.error(t.common.error);
+      toast.error(
+        error instanceof Error && error.message
+          ? error.message
+          : t.common.error,
+      );
     } finally {
-      pendingReschedules.current.delete(taskId);
+      releasePendingReschedule(taskId);
     }
   }
 
@@ -937,7 +950,8 @@ export function CalendarCC({
     pendingReschedules.current.add(taskId);
 
     try {
-      const result = await rescheduleTaskSchedule(taskId, {
+      const result = await rescheduleTaskSchedule({
+        taskId,
         dueDateKey,
         time,
         dueAtIso: due.toISOString(),
@@ -973,9 +987,13 @@ export function CalendarCC({
         ),
       );
       edit.syncDueFromCalendar(taskId, due, previousDuration);
-      toast.error(t.common.error);
+      toast.error(
+        error instanceof Error && error.message
+          ? error.message
+          : t.common.error,
+      );
     } finally {
-      pendingReschedules.current.delete(taskId);
+      releasePendingReschedule(taskId);
     }
   }
 
@@ -999,12 +1017,18 @@ export function CalendarCC({
       return;
     }
 
-    const duration = Math.max(
+    // Geometry block height: treat missing duration as 60m. Persist path
+    // below keeps the previous duration unless converting all-day → timed.
+    const durationForGeometry = Math.max(
       SNAP_MINUTES,
       task.durationMinutes && task.durationMinutes > 0
         ? task.durationMinutes
         : 60,
     );
+    const durationToPersist =
+      task.durationMinutes && task.durationMinutes > 0
+        ? task.durationMinutes
+        : undefined;
 
     const overId = over ? String(over.id) : "";
     const overData = over?.data.current as
@@ -1027,67 +1051,67 @@ export function CalendarCC({
       return;
     }
 
-  // 2) Hour grid — only in week/day views (month has no hour columns; a
-  //    stale preview must not steal the drop and invent a timed schedule).
-  if (preview && view !== "month") {
-    const schedulePromise = applySchedule(
-      taskId,
-      preview.dateKey,
-      formatMinutesClock(preview.startMin),
-      duration,
-    );
-    clearHourDragTracking();
-    setActiveDrag(null);
-    lastPointer.current = null;
-    await schedulePromise;
-    return;
-  }
+    // 2) Hour grid — only in week/day views (month has no hour columns; a
+    //    stale preview must not steal the drop and invent a timed schedule).
+    if (preview && view !== "month") {
+      const schedulePromise = applySchedule(
+        taskId,
+        preview.dateKey,
+        formatMinutesClock(preview.startMin),
+        durationToPersist ?? 60,
+      );
+      clearHourDragTracking();
+      setActiveDrag(null);
+      lastPointer.current = null;
+      await schedulePromise;
+      return;
+    }
 
-  if (!over) {
-    clearHourDragTracking();
-    setActiveDrag(null);
-    lastPointer.current = null;
-    return;
-  }
-
-  const hoursKey = parseHoursDropId(overId);
-
-  if (hoursKey || overData?.type === "hours") {
-    const dueDateKey = hoursKey ?? overData?.dateKey;
-    if (!dueDateKey) {
+    if (!over) {
       clearHourDragTracking();
       setActiveDrag(null);
       lastPointer.current = null;
       return;
     }
-    const el = document.querySelector(
-      `[data-day-hours="${dueDateKey}"]`,
-    ) as HTMLElement | null;
-    const rect = el?.getBoundingClientRect();
-    let startMin =
-      new Date(task.dueDate).getHours() * 60 +
-      new Date(task.dueDate).getMinutes();
-    if (rect && pointer) {
-      startMin = startMinutesFromPointer(
-        pointer.y,
-        rect.top,
-        COLUMN_HEIGHT,
-        grab,
-        duration,
+
+    const hoursKey = parseHoursDropId(overId);
+
+    if (hoursKey || overData?.type === "hours") {
+      const dueDateKey = hoursKey ?? overData?.dateKey;
+      if (!dueDateKey) {
+        clearHourDragTracking();
+        setActiveDrag(null);
+        lastPointer.current = null;
+        return;
+      }
+      const el = document.querySelector(
+        `[data-day-hours="${dueDateKey}"]`,
+      ) as HTMLElement | null;
+      const rect = el?.getBoundingClientRect();
+      let startMin =
+        new Date(task.dueDate).getHours() * 60 +
+        new Date(task.dueDate).getMinutes();
+      if (rect && pointer) {
+        startMin = startMinutesFromPointer(
+          pointer.y,
+          rect.top,
+          COLUMN_HEIGHT,
+          grab,
+          durationForGeometry,
+        );
+      }
+      const schedulePromise = applySchedule(
+        taskId,
+        dueDateKey,
+        formatMinutesClock(startMin),
+        durationToPersist ?? 60,
       );
+      clearHourDragTracking();
+      setActiveDrag(null);
+      lastPointer.current = null;
+      await schedulePromise;
+      return;
     }
-    const schedulePromise = applySchedule(
-      taskId,
-      dueDateKey,
-      formatMinutesClock(startMin),
-      duration,
-    );
-    clearHourDragTracking();
-    setActiveDrag(null);
-    lastPointer.current = null;
-    await schedulePromise;
-    return;
-  }
 
     // 3) Month cell / plain day drop — keep clock when moving days.
     let dueDateKey: string | null = null;
@@ -1121,11 +1145,21 @@ export function CalendarCC({
 
     let nextDue: Date;
     let nextDuration = previousDuration;
-    if (time === "") {
-      nextDue = withDateOnly(parseLocalDate(dueDateKey));
-      nextDuration = null;
-    } else {
-      nextDue = moveDueToDay(task.dueDate, dueDateKey, task.durationMinutes);
+    try {
+      if (time === "") {
+        nextDue = withDateOnly(parseLocalDate(dueDateKey));
+        nextDuration = null;
+      } else {
+        nextDue = moveDueToDay(task.dueDate, dueDateKey, task.durationMinutes);
+      }
+    } catch (error) {
+      console.error("commitDayMove date math failed", error);
+      toast.error(
+        error instanceof Error && error.message
+          ? error.message
+          : t.common.error,
+      );
+      return;
     }
 
     if (
@@ -1191,7 +1225,7 @@ export function CalendarCC({
           : t.common.error,
       );
     } finally {
-      pendingReschedules.current.delete(taskId);
+      releasePendingReschedule(taskId);
     }
   }
 

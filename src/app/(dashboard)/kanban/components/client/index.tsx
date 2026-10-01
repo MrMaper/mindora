@@ -220,6 +220,7 @@ export function KanbanCC({
         onDragStart={k.onDragStart}
         onDragOver={k.onDragOver}
         onDragEnd={k.onDragEnd}
+        onDragCancel={k.onDragCancel}
       >
         <div className="flex gap-3 py-4 h-full min-h-0 overflow-x-auto items-stretch snap-x snap-mandatory sm:snap-none -mx-1 px-1">
           {statuses.map((status, index) => (

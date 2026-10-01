@@ -404,8 +404,18 @@ export function moveDueToDay(
   durationMinutes?: number | null,
 ): Date {
   const next = parseLocalDate(dayKey);
-  if (existing && hasDueTime(existing, durationMinutes)) {
-    next.setHours(existing.getHours(), existing.getMinutes(), 0, 0);
+  const prev =
+    existing == null
+      ? null
+      : existing instanceof Date
+        ? existing
+        : new Date(existing);
+  if (
+    prev &&
+    !Number.isNaN(prev.getTime()) &&
+    hasDueTime(prev, durationMinutes)
+  ) {
+    next.setHours(prev.getHours(), prev.getMinutes(), 0, 0);
     return next;
   }
   return withDateOnly(next);

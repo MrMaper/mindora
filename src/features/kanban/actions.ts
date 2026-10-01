@@ -12,6 +12,7 @@ import { canAccessPersonalTask } from "@/lib/task-access";
 export interface ActionResult {
   success: boolean;
   error?: string;
+  status?: BoardStatus;
 }
 
 async function logActivity(opts: {
@@ -149,11 +150,15 @@ export async function moveTask(params: {
       }
     }
 
-    revalidatePath("/kanban");
-    revalidatePath("/tasks");
-    revalidatePath("/dashboard");
-    revalidatePath("/research");
-    return { success: true };
+    try {
+      revalidatePath("/kanban");
+      revalidatePath("/tasks");
+      revalidatePath("/dashboard");
+      revalidatePath("/research");
+    } catch (error) {
+      console.error("revalidate after moveTask failed", error);
+    }
+    return { success: true, status: toStatus };
   } catch (error) {
     console.error("moveTask failed", error);
     return {

@@ -50,6 +50,14 @@ function toDateOnlyValue(date: Date | null): string {
   return new Date(date).toISOString().slice(0, 10);
 }
 
+function cloneBoardColumns(cols: BoardColumns): BoardColumns {
+  const next = {} as BoardColumns;
+  for (const [status, tasks] of Object.entries(cols)) {
+    next[status as BoardStatus] = (tasks ?? []).map(task => ({ ...task }));
+  }
+  return next;
+}
+
 export function useKanban(
   initialColumns: BoardColumns,
   initialFilters: KanbanFilters,
@@ -69,9 +77,14 @@ export function useKanban(
   const [prevInitialColumns, setPrevInitialColumns] =
     React.useState(initialColumns);
   const [columns, setColumns] = React.useState<BoardColumns>(initialColumns);
+  const pendingMoveRef = React.useRef(false);
+  const activeDragIdRef = React.useRef<string | null>(null);
   if (initialColumns !== prevInitialColumns) {
     setPrevInitialColumns(initialColumns);
-    setColumns(initialColumns);
+    // Don't wipe optimistic board state mid-drag or while a move is saving.
+    if (!activeDragIdRef.current && !pendingMoveRef.current) {
+      setColumns(initialColumns);
+    }
   }
 
   const [activeTaskCard, setActiveTaskCard] = React.useState<TaskRow | null>(
@@ -148,6 +161,8 @@ export function useKanban(
     id: string;
     status: BoardStatus;
   } | null>(null);
+  /** Full board snapshot at drag start — restore on cancel / drop-outside. */
+  const dragSnapshotRef = React.useRef<BoardColumns | null>(null);
 
   function findContainerIn(
     cols: BoardColumns,
@@ -164,14 +179,31 @@ export function useKanban(
     return findContainerIn(columnsRef.current, id);
   }
 
+  function restoreDragSnapshot() {
+    const snapshot = dragSnapshotRef.current;
+    dragSnapshotRef.current = null;
+    dragOriginRef.current = null;
+    activeDragIdRef.current = null;
+    setActiveTaskCard(null);
+    if (!snapshot) return;
+    setColumns(snapshot);
+    columnsRef.current = snapshot;
+  }
+
   function onDragStart(event: DragStartEvent) {
     const id = String(event.active.id);
     const status = findContainer(id);
     if (!status) return;
     dragOriginRef.current = { id, status };
+    dragSnapshotRef.current = cloneBoardColumns(columnsRef.current);
+    activeDragIdRef.current = id;
     setActiveTaskCard(
       (columnsRef.current[status] ?? []).find(t => t.id === id) ?? null,
     );
+  }
+
+  function onDragCancel() {
+    restoreDragSnapshot();
   }
 
   function onDragOver(event: DragOverEvent) {
@@ -208,8 +240,13 @@ export function useKanban(
     const { active, over } = event;
     const origin = dragOriginRef.current;
     dragOriginRef.current = null;
+    activeDragIdRef.current = null;
     setActiveTaskCard(null);
-    if (!over) return;
+    if (!over) {
+      restoreDragSnapshot();
+      return;
+    }
+    dragSnapshotRef.current = null;
 
     const activeId = String(active.id);
     const overId = String(over.id);
@@ -275,6 +312,7 @@ export function useKanban(
       prevIds.some((id, i) => id !== orderedIds[i]);
     if (!statusChanged && !orderChanged) return;
 
+    pendingMoveRef.current = true;
     startTransition(async () => {
       try {
         const result = await moveTask({
@@ -285,6 +323,11 @@ export function useKanban(
         if (!result?.success) {
           toast.error(result?.error || "جابجایی ذخیره نشد");
           router.refresh();
+          return;
+        }
+        // waitingOn remap (or other server remap) can land on a different column.
+        if (result.status && result.status !== overStatus) {
+          router.refresh();
         }
       } catch (error) {
         console.error("moveTask failed", error);
@@ -294,6 +337,8 @@ export function useKanban(
             : "جابجایی ذخیره نشد",
         );
         router.refresh();
+      } finally {
+        pendingMoveRef.current = false;
       }
     });
   }
@@ -493,6 +538,7 @@ export function useKanban(
     onDragStart,
     onDragOver,
     onDragEnd,
+    onDragCancel,
     search,
     setSearch,
     project,
