@@ -35,7 +35,7 @@ export async function getOnboardingNeededAction(): Promise<boolean> {
   return !prefs?.onboardingCompletedAt;
 }
 
-/** «امکانات بیشتر نشان بده» / back to Starter. The layout never changes on its own. */
+/** «قابلیت‌های بیشتر نشان بده» / back to Starter. The layout never changes on its own. */
 export async function setUiProfileAction(profile: string): Promise<ActionResult> {
   const session = await auth();
   if (!session?.user) return { success: false, error: "غیرمجاز" };

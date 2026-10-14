@@ -12,7 +12,7 @@ import {
 } from "@/features/onboarding/actions";
 import type { TaskRow } from "@/features/tasks/types";
 import { useLanguage } from "@/i18n/provider";
-import { formatJalaliDate, formatJalaliShort } from "@/lib/life";
+import { formatClock, formatJalaliDate, formatJalaliShort } from "@/lib/life";
 import { shouldSuggestFull } from "@/lib/ui-profile";
 import { cn } from "@/lib/utils";
 
@@ -26,6 +26,19 @@ interface StarterTodayProps {
   doneCount: number;
   firstCaptureAt: Date | null;
   suggestionDismissedAt: Date | null;
+}
+
+/** Day (when asked) plus clock, so «فردا ساعت ۱۰ دکتر» keeps its 10:00. */
+function dueCaption(
+  task: TaskRow,
+  language: "FA" | "EN",
+  withDay: boolean,
+): string | null {
+  if (!task.dueDate) return null;
+  const due = new Date(task.dueDate);
+  const clock = formatClock(due, language, task.durationMinutes);
+  const day = withDay ? formatJalaliShort(due, language) : null;
+  return [day, clock].filter(Boolean).join(" · ") || null;
 }
 
 function TaskLine({
@@ -176,11 +189,7 @@ export function StarterToday({
               task={task}
               pending={pending}
               onDone={onDone}
-              caption={
-                task.dueDate
-                  ? formatJalaliShort(new Date(task.dueDate), language === "EN" ? "EN" : "FA")
-                  : null
-              }
+              caption={dueCaption(task, language === "EN" ? "EN" : "FA", true)}
             />
           ))}
         </Section>
@@ -189,7 +198,13 @@ export function StarterToday({
       {listNow.length > 0 ? (
         <Section title={fa ? "امروز" : "Today"}>
           {listNow.map(task => (
-            <TaskLine key={task.id} task={task} pending={pending} onDone={onDone} />
+            <TaskLine
+              key={task.id}
+              task={task}
+              pending={pending}
+              onDone={onDone}
+              caption={dueCaption(task, language === "EN" ? "EN" : "FA", false)}
+            />
           ))}
         </Section>
       ) : null}
@@ -202,11 +217,7 @@ export function StarterToday({
               task={task}
               pending={pending}
               onDone={onDone}
-              caption={
-                task.dueDate
-                  ? formatJalaliShort(new Date(task.dueDate), language === "EN" ? "EN" : "FA")
-                  : null
-              }
+              caption={dueCaption(task, language === "EN" ? "EN" : "FA", true)}
             />
           ))}
         </Section>
@@ -219,7 +230,7 @@ export function StarterToday({
         >
           <p className="min-w-0 text-sm">
             {fa
-              ? "چند کار انجام دادی. می‌خواهی امکانات بیشتری ببینی؟"
+              ? "چند کار انجام دادی. می‌خواهی قابلیت‌های بیشتری ببینی؟"
               : "You've finished a few tasks. Want to see more features?"}
           </p>
           <div className="flex items-center gap-2">
@@ -240,7 +251,7 @@ export function StarterToday({
           onClick={switchToFull}
           className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline disabled:opacity-60"
         >
-          {fa ? "امکانات بیشتر نشان بده" : "Show more features"}
+          {fa ? "قابلیت‌های بیشتر نشان بده" : "Show more features"}
         </button>
       </footer>
     </div>

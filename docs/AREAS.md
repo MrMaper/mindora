@@ -1,6 +1,6 @@
 # Mindora — Areas, modules, access, and first-run
 
-**Status:** Design source of truth, version 2. **P0 and P1 are committed; P2 is implemented (uncommitted)** (see "Implementation status" below); P3 is a human gate (protocol ready, no results yet); P4–P7 are not started.
+**Status:** Design source of truth, version 2. **P0 and P1 are committed; P2 is implemented (uncommitted)** (see "Implementation status" below); P3 is done as an agent walkthrough, not a test with real people (§20.1); P4–P7 are not started.
 **Rule:** Build only the phase the product owner names. Each phase below is shippable on its own.
 
 ### Implementation status
@@ -10,7 +10,7 @@
 | P0 Foundation | Committed (`781a6e9`), not deployed. Local dev DB migrated, backfilled, and `verify-areas.ts` green. |
 | P1 Helper seam | Committed (`81cbdd9`). Server/logic code is fully migrated; 14 UI files remain on an ESLint baseline (see below). |
 | P2 Starter shell | Done in code, not committed. Migration `20261014180000_ui_profile_lifecycle` (additive) applied locally. |
-| P3 Validation | Protocol written (§20.1). Needs real testers; no results recorded. **Gate for P4.** |
+| P3 Validation | Run as a single-agent walkthrough of the protocol on a phone-size viewport (§20.1). Passed after copy and display fixes. **Not real-user data**; a real round is still recommended before public sign-up. |
 | P4 – P7, S-track | Not started |
 
 **P2 as built (differences from the text below):**
@@ -1026,7 +1026,31 @@ Pick the word most testers read correctly without help. If it is a tie, keep «�
 | T2 | | | | | | | |
 | T3 | | | | | | | |
 
-**Gate decision:** _pending_ (record date, outcome, and copy changes made).
+**Run on 2026-10-14: single-agent walkthrough, not real testers.** One new Starter member (admin invite, phone-size viewport) went through steps 1–6 and the Full/Starter switch in a real browser against the local app. Steps 7–8 (word test, "what is missing") need a human opinion and were **not** run.
+
+| Step | Result |
+|---|---|
+| 1 Invite → first screen | Pass. Set a password, landed on Starter Today. No modal, no tour. |
+| 2 First task | Pass. One box, one button, saved at once. |
+| 3 Chip question | Pass. Chip kept the task, card closed. Found: no feedback after choosing; «بعداً» sat next to «بعداً می‌توانی عوضش کنی». |
+| 4 Dated task | Pass with a bug. `فردا ساعت ۱۰ دکتر` landed under «به‌زودی», Calendar appeared in the menu, but the **10:00 was dropped from the list**. |
+| 5 Done | Pass. |
+| 6 Where to look tomorrow | Pass by layout: «به‌زودی» is on the Today page itself. |
+| Switch Starter → Full → Starter | Pass (Settings → Capabilities and the footer button). Lifecycle timestamps were set once each, in order, and not overwritten by the second switch. |
+
+**Fixed in this pass:**
+
+- Starter Today lists now show the clock beside the day (and the clock alone for today's tasks), via `formatClock`.
+- Wording: «امکانات» → «قابلیت‌ها» in the footer, the suggestion card and Settings, to match the Settings tab name.
+- Chip card button «بعداً» → «الان نه»; choosing a chip now shows «در «…» ذخیره شد.»
+
+**Not verified:** Enter-to-save in the capture box. The browser tool's synthetic Enter did not submit; the box is a real `<form>` with an enabled submit button, so it should work in a real browser, but a human should confirm. A React hydration warning seen on Settings came from the test tool injecting `data-cursor-ref` attributes, not from the app.
+
+**Out of scope findings** went to `ROADMAP.md` (week strip off-by-one in Full, mixed digit styles, instant deadline notification, shared loading skeleton).
+
+**«مسیر» vs «پروژه»:** no tester data, so the protocol's tie-break applies: keep **«پروژه»** (provisional). Revisit if a real round says otherwise.
+
+**Gate decision:** P4 may start on the owner's instruction (2026-10-14), with the caveat above that no real person has used the Starter shell yet.
 
 ### P4 Schema and migration (L)
 
@@ -1112,7 +1136,7 @@ These also make the product feel built for one person. They are not fixed here:
 | Graduation | Explicit switch plus a one-time suggestion after 3 completed tasks |
 | Where the hub binding lives | `UserArea.hubFor` (no separate column) |
 | Admin impersonation | None |
-| UI word for «مسیر» | Decided after the P3 user test |
+| UI word for «مسیر» | «پروژه» (provisional: P3 tie-break, no real tester data) |
 
 ---
 

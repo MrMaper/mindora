@@ -105,7 +105,12 @@ export function StarterCaptureBox({
     if (!taskId) return;
     startTransition(async () => {
       const res = await chooseLifePartAction({ taskId, chip });
-      if (!res.success) toast.error(res.error ?? (fa ? "انجام نشد" : "Failed"));
+      if (!res.success) {
+        toast.error(res.error ?? (fa ? "انجام نشد" : "Failed"));
+      } else {
+        const label = fa ? LIFE_PART_LABEL[chip].fa : LIFE_PART_LABEL[chip].en;
+        toast.success(fa ? `در «${label}» ذخیره شد.` : `Saved under "${label}".`);
+      }
       finish();
     });
   }
@@ -137,7 +142,7 @@ export function StarterCaptureBox({
             {fa ? "بعداً می‌توانی عوضش کنی." : "You can change this later."}
           </p>
           <Button type="button" variant="ghost" size="sm" onClick={finish}>
-            {fa ? "بعداً" : "Later"}
+            {fa ? "الان نه" : "Not now"}
           </Button>
         </div>
       </div>

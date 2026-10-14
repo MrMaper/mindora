@@ -123,7 +123,7 @@ export function CapabilitiesSection({
         >
           {isFull
             ? fa ? "ساده‌تر کن" : "Make it simpler"
-            : fa ? "امکانات بیشتر نشان بده" : "Show more features"}
+            : fa ? "قابلیت‌های بیشتر نشان بده" : "Show more features"}
         </button>
       </div>
       <h2 className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">

@@ -131,6 +131,12 @@ Goal: every member surface is usable one-handed on a phone — no clipped filter
   - `ensurePersonalWorkspace` makes the first user owner of `default-org`; two simultaneous first sign-ups would race.
 - **Public sign-up** (after AREAS phase P0): sign-up page, email verification, rate limits, terms and privacy, data export and deletion, waitlist beyond `maxActiveMembers`, and a decision on the sign-in channel (email, phone/OTP, or Bale). See `AREAS.md` §17.
 
+- **Found during the P3 walkthrough (not fixed, outside P3 scope):**
+  - Full-view Today week strip highlights Wednesday as «21» while the header says Wednesday 22 مهر (looks like a one-day offset; check the strip's day computation).
+  - Digit styles mix in one caption («23 مهر · ۱۰:۰۰»: day in Latin digits, clock in Persian digits).
+  - Adding a dated task instantly creates a «مهلت …» deadline notification, which looks odd for a brand-new Starter member.
+  - The shared `(dashboard)/loading.tsx` skeleton is a Full-style card grid, shown while Starter Today loads.
+  - Unguarded kanban/projects/calendar actions and server-action-level forced password change (from P0) are still open.
 - Stronger citations (CSL / BibTeX pack / Zotero) — R2
 - External calendar ICS sync — LF2
 - Orphan admin routes cleanup (users / teams / reporting)
