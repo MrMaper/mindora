@@ -14,6 +14,69 @@ import type { UseFormReturn } from "react-hook-form";
 import type { ModulePolicy } from "@/lib/modules";
 import { formatPresenceInstant } from "@/lib/presence";
 import { ModulePolicyEditor } from "./module-toggles";
+import { setUserUiProfile } from "@/features/users/actions";
+import type { UiProfile } from "@/lib/ui-profile";
+
+function UiProfileControl({
+  userId,
+  initial,
+  fa,
+}: {
+  userId: string;
+  initial: UiProfile;
+  fa: boolean;
+}) {
+  const [value, setValue] = React.useState<UiProfile>(initial);
+  const [error, setError] = React.useState<string | null>(null);
+  const [pending, startTransition] = React.useTransition();
+  React.useEffect(() => setValue(initial), [initial, userId]);
+
+  function onChange(next: UiProfile) {
+    const previous = value;
+    setValue(next);
+    setError(null);
+    startTransition(async () => {
+      const res = await setUserUiProfile(userId, next);
+      if (!res.success) {
+        setValue(previous);
+        setError(res.error ?? (fa ? "ذخیره نشد" : "Could not save"));
+      }
+    });
+  }
+
+  return (
+    <div className="rounded-lg border px-3 py-2">
+      <p className="mb-1.5 text-xs font-semibold text-foreground">
+        {fa ? "نمای رابط" : "Interface view"}
+      </p>
+      <div className="flex gap-2" role="radiogroup">
+        {(["starter", "full"] as const).map(p => (
+          <button
+            key={p}
+            type="button"
+            role="radio"
+            aria-checked={value === p}
+            disabled={pending}
+            onClick={() => value !== p && onChange(p)}
+            className={
+              value === p
+                ? "rounded-md border border-primary bg-primary px-3 py-1.5 text-xs text-primary-foreground"
+                : "rounded-md border px-3 py-1.5 text-xs text-muted-foreground hover:bg-accent"
+            }
+          >
+            {p === "starter" ? (fa ? "ساده" : "Starter") : fa ? "کامل" : "Full"}
+          </button>
+        ))}
+      </div>
+      <p className="mt-1.5 text-[11px] text-muted-foreground">
+        {fa
+          ? "فقط ظاهر منو و صفحهٔ امروز را عوض می‌کند، نه دسترسی ماژول‌ها را."
+          : "Changes the menu and Today layout only, never module access."}
+      </p>
+      {error ? <p className="mt-1 text-[11px] text-destructive">{error}</p> : null}
+    </div>
+  );
+}
 
 interface EditUserDrawerProps {
   open: boolean;
@@ -116,6 +179,13 @@ export function EditUserDrawer({
             />
           )}
         />
+        {!isAdmin && editingUser && (
+          <UiProfileControl
+            userId={editingUser.id}
+            initial={editingUser.uiProfile}
+            fa={language === "FA"}
+          />
+        )}
         {!isAdmin && (
           <ModulePolicyEditor
             value={modules}

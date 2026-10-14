@@ -30,6 +30,8 @@ import {
 import { revokeUserSessions } from "@/features/users/presence";
 import { writeAdminAudit } from "@/features/admin/audit";
 import { getSystemSettings } from "@/features/admin/system";
+import { isUiProfile } from "@/lib/ui-profile";
+import { markLifecycleOnce } from "@/features/onboarding/lifecycle";
 
 export interface ActionResult {
   success: boolean;
@@ -293,6 +295,41 @@ export async function updateUserModules(
   await applyPolicyChange(session.user.id, id, next, target);
   revalidatePath("/users");
   revalidatePath("/admin");
+  return { success: true };
+}
+
+/** Admin sets a member's UI profile (docs/AREAS.md §6.5). Never touches module access. */
+export async function setUserUiProfile(
+  id: string,
+  profile: string,
+): Promise<ActionResult> {
+  const session = await requireAdminSession();
+  if (!session) return { success: false, error: "غیرمجاز" };
+  if (!isUiProfile(profile)) return { success: false, error: "نمایه نامعتبر" };
+
+  const target = await db.user.findUnique({
+    where: { id },
+    select: { role: true, name: true },
+  });
+  if (!target) return { success: false, error: "کاربر یافت نشد" };
+  if (target.role === "ADMIN") {
+    return { success: false, error: "نمایه رابط برای مدیر سیستم معنا ندارد" };
+  }
+
+  await db.userPreferences.upsert({
+    where: { userId: id },
+    create: { userId: id, uiProfile: profile },
+    update: { uiProfile: profile },
+  });
+  await markLifecycleOnce(id, "uiProfileChangedAt");
+  await writeAdminAudit({
+    actorId: session.user.id,
+    action: "USER_UPDATED",
+    summary: `UI profile of ${target.name} set to ${profile}`,
+    targetUserId: id,
+    meta: { uiProfile: profile },
+  });
+  revalidatePath("/users");
   return { success: true };
 }
 

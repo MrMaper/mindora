@@ -45,6 +45,8 @@ export type SystemSettingsMinAggregateOutputType = {
   defaultModulePresetAdmin: string | null
   defaultModulePresetSignup: string | null
   signupEnabled: boolean | null
+  defaultUiProfileAdmin: string | null
+  defaultUiProfileSignup: string | null
   updatedAt: Date | null
 }
 
@@ -57,6 +59,8 @@ export type SystemSettingsMaxAggregateOutputType = {
   defaultModulePresetAdmin: string | null
   defaultModulePresetSignup: string | null
   signupEnabled: boolean | null
+  defaultUiProfileAdmin: string | null
+  defaultUiProfileSignup: string | null
   updatedAt: Date | null
 }
 
@@ -69,6 +73,8 @@ export type SystemSettingsCountAggregateOutputType = {
   defaultModulePresetAdmin: number
   defaultModulePresetSignup: number
   signupEnabled: number
+  defaultUiProfileAdmin: number
+  defaultUiProfileSignup: number
   updatedAt: number
   _all: number
 }
@@ -93,6 +99,8 @@ export type SystemSettingsMinAggregateInputType = {
   defaultModulePresetAdmin?: true
   defaultModulePresetSignup?: true
   signupEnabled?: true
+  defaultUiProfileAdmin?: true
+  defaultUiProfileSignup?: true
   updatedAt?: true
 }
 
@@ -105,6 +113,8 @@ export type SystemSettingsMaxAggregateInputType = {
   defaultModulePresetAdmin?: true
   defaultModulePresetSignup?: true
   signupEnabled?: true
+  defaultUiProfileAdmin?: true
+  defaultUiProfileSignup?: true
   updatedAt?: true
 }
 
@@ -117,6 +127,8 @@ export type SystemSettingsCountAggregateInputType = {
   defaultModulePresetAdmin?: true
   defaultModulePresetSignup?: true
   signupEnabled?: true
+  defaultUiProfileAdmin?: true
+  defaultUiProfileSignup?: true
   updatedAt?: true
   _all?: true
 }
@@ -216,6 +228,8 @@ export type SystemSettingsGroupByOutputType = {
   defaultModulePresetAdmin: string
   defaultModulePresetSignup: string
   signupEnabled: boolean
+  defaultUiProfileAdmin: string
+  defaultUiProfileSignup: string
   updatedAt: Date
   _count: SystemSettingsCountAggregateOutputType | null
   _avg: SystemSettingsAvgAggregateOutputType | null
@@ -251,6 +265,8 @@ export type SystemSettingsWhereInput = {
   defaultModulePresetAdmin?: Prisma.StringFilter<"SystemSettings"> | string
   defaultModulePresetSignup?: Prisma.StringFilter<"SystemSettings"> | string
   signupEnabled?: Prisma.BoolFilter<"SystemSettings"> | boolean
+  defaultUiProfileAdmin?: Prisma.StringFilter<"SystemSettings"> | string
+  defaultUiProfileSignup?: Prisma.StringFilter<"SystemSettings"> | string
   updatedAt?: Prisma.DateTimeFilter<"SystemSettings"> | Date | string
 }
 
@@ -263,6 +279,8 @@ export type SystemSettingsOrderByWithRelationInput = {
   defaultModulePresetAdmin?: Prisma.SortOrder
   defaultModulePresetSignup?: Prisma.SortOrder
   signupEnabled?: Prisma.SortOrder
+  defaultUiProfileAdmin?: Prisma.SortOrder
+  defaultUiProfileSignup?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -278,6 +296,8 @@ export type SystemSettingsWhereUniqueInput = Prisma.AtLeast<{
   defaultModulePresetAdmin?: Prisma.StringFilter<"SystemSettings"> | string
   defaultModulePresetSignup?: Prisma.StringFilter<"SystemSettings"> | string
   signupEnabled?: Prisma.BoolFilter<"SystemSettings"> | boolean
+  defaultUiProfileAdmin?: Prisma.StringFilter<"SystemSettings"> | string
+  defaultUiProfileSignup?: Prisma.StringFilter<"SystemSettings"> | string
   updatedAt?: Prisma.DateTimeFilter<"SystemSettings"> | Date | string
 }, "id">
 
@@ -290,6 +310,8 @@ export type SystemSettingsOrderByWithAggregationInput = {
   defaultModulePresetAdmin?: Prisma.SortOrder
   defaultModulePresetSignup?: Prisma.SortOrder
   signupEnabled?: Prisma.SortOrder
+  defaultUiProfileAdmin?: Prisma.SortOrder
+  defaultUiProfileSignup?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.SystemSettingsCountOrderByAggregateInput
   _avg?: Prisma.SystemSettingsAvgOrderByAggregateInput
@@ -310,6 +332,8 @@ export type SystemSettingsScalarWhereWithAggregatesInput = {
   defaultModulePresetAdmin?: Prisma.StringWithAggregatesFilter<"SystemSettings"> | string
   defaultModulePresetSignup?: Prisma.StringWithAggregatesFilter<"SystemSettings"> | string
   signupEnabled?: Prisma.BoolWithAggregatesFilter<"SystemSettings"> | boolean
+  defaultUiProfileAdmin?: Prisma.StringWithAggregatesFilter<"SystemSettings"> | string
+  defaultUiProfileSignup?: Prisma.StringWithAggregatesFilter<"SystemSettings"> | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SystemSettings"> | Date | string
 }
 
@@ -322,6 +346,8 @@ export type SystemSettingsCreateInput = {
   defaultModulePresetAdmin?: string
   defaultModulePresetSignup?: string
   signupEnabled?: boolean
+  defaultUiProfileAdmin?: string
+  defaultUiProfileSignup?: string
   updatedAt?: Date | string
 }
 
@@ -334,6 +360,8 @@ export type SystemSettingsUncheckedCreateInput = {
   defaultModulePresetAdmin?: string
   defaultModulePresetSignup?: string
   signupEnabled?: boolean
+  defaultUiProfileAdmin?: string
+  defaultUiProfileSignup?: string
   updatedAt?: Date | string
 }
 
@@ -346,6 +374,8 @@ export type SystemSettingsUpdateInput = {
   defaultModulePresetAdmin?: Prisma.StringFieldUpdateOperationsInput | string
   defaultModulePresetSignup?: Prisma.StringFieldUpdateOperationsInput | string
   signupEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  defaultUiProfileAdmin?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultUiProfileSignup?: Prisma.StringFieldUpdateOperationsInput | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -358,6 +388,8 @@ export type SystemSettingsUncheckedUpdateInput = {
   defaultModulePresetAdmin?: Prisma.StringFieldUpdateOperationsInput | string
   defaultModulePresetSignup?: Prisma.StringFieldUpdateOperationsInput | string
   signupEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  defaultUiProfileAdmin?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultUiProfileSignup?: Prisma.StringFieldUpdateOperationsInput | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -370,6 +402,8 @@ export type SystemSettingsCreateManyInput = {
   defaultModulePresetAdmin?: string
   defaultModulePresetSignup?: string
   signupEnabled?: boolean
+  defaultUiProfileAdmin?: string
+  defaultUiProfileSignup?: string
   updatedAt?: Date | string
 }
 
@@ -382,6 +416,8 @@ export type SystemSettingsUpdateManyMutationInput = {
   defaultModulePresetAdmin?: Prisma.StringFieldUpdateOperationsInput | string
   defaultModulePresetSignup?: Prisma.StringFieldUpdateOperationsInput | string
   signupEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  defaultUiProfileAdmin?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultUiProfileSignup?: Prisma.StringFieldUpdateOperationsInput | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -394,6 +430,8 @@ export type SystemSettingsUncheckedUpdateManyInput = {
   defaultModulePresetAdmin?: Prisma.StringFieldUpdateOperationsInput | string
   defaultModulePresetSignup?: Prisma.StringFieldUpdateOperationsInput | string
   signupEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  defaultUiProfileAdmin?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultUiProfileSignup?: Prisma.StringFieldUpdateOperationsInput | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -406,6 +444,8 @@ export type SystemSettingsCountOrderByAggregateInput = {
   defaultModulePresetAdmin?: Prisma.SortOrder
   defaultModulePresetSignup?: Prisma.SortOrder
   signupEnabled?: Prisma.SortOrder
+  defaultUiProfileAdmin?: Prisma.SortOrder
+  defaultUiProfileSignup?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -423,6 +463,8 @@ export type SystemSettingsMaxOrderByAggregateInput = {
   defaultModulePresetAdmin?: Prisma.SortOrder
   defaultModulePresetSignup?: Prisma.SortOrder
   signupEnabled?: Prisma.SortOrder
+  defaultUiProfileAdmin?: Prisma.SortOrder
+  defaultUiProfileSignup?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -435,6 +477,8 @@ export type SystemSettingsMinOrderByAggregateInput = {
   defaultModulePresetAdmin?: Prisma.SortOrder
   defaultModulePresetSignup?: Prisma.SortOrder
   signupEnabled?: Prisma.SortOrder
+  defaultUiProfileAdmin?: Prisma.SortOrder
+  defaultUiProfileSignup?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -462,6 +506,8 @@ export type SystemSettingsSelect<ExtArgs extends runtime.Types.Extensions.Intern
   defaultModulePresetAdmin?: boolean
   defaultModulePresetSignup?: boolean
   signupEnabled?: boolean
+  defaultUiProfileAdmin?: boolean
+  defaultUiProfileSignup?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["systemSettings"]>
 
@@ -474,6 +520,8 @@ export type SystemSettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   defaultModulePresetAdmin?: boolean
   defaultModulePresetSignup?: boolean
   signupEnabled?: boolean
+  defaultUiProfileAdmin?: boolean
+  defaultUiProfileSignup?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["systemSettings"]>
 
@@ -486,6 +534,8 @@ export type SystemSettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   defaultModulePresetAdmin?: boolean
   defaultModulePresetSignup?: boolean
   signupEnabled?: boolean
+  defaultUiProfileAdmin?: boolean
+  defaultUiProfileSignup?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["systemSettings"]>
 
@@ -498,10 +548,12 @@ export type SystemSettingsSelectScalar = {
   defaultModulePresetAdmin?: boolean
   defaultModulePresetSignup?: boolean
   signupEnabled?: boolean
+  defaultUiProfileAdmin?: boolean
+  defaultUiProfileSignup?: boolean
   updatedAt?: boolean
 }
 
-export type SystemSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "planCode" | "planLabel" | "storageQuotaBytes" | "maxActiveMembers" | "defaultModulePresetAdmin" | "defaultModulePresetSignup" | "signupEnabled" | "updatedAt", ExtArgs["result"]["systemSettings"]>
+export type SystemSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "planCode" | "planLabel" | "storageQuotaBytes" | "maxActiveMembers" | "defaultModulePresetAdmin" | "defaultModulePresetSignup" | "signupEnabled" | "defaultUiProfileAdmin" | "defaultUiProfileSignup" | "updatedAt", ExtArgs["result"]["systemSettings"]>
 
 export type $SystemSettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "SystemSettings"
@@ -521,6 +573,11 @@ export type $SystemSettingsPayload<ExtArgs extends runtime.Types.Extensions.Inte
      * Reserved for the public sign-up track; no sign-up page exists yet.
      */
     signupEnabled: boolean
+    /**
+     * UI profile applied to new members: starter | full
+     */
+    defaultUiProfileAdmin: string
+    defaultUiProfileSignup: string
     updatedAt: Date
   }, ExtArgs["result"]["systemSettings"]>
   composites: {}
@@ -953,6 +1010,8 @@ export interface SystemSettingsFieldRefs {
   readonly defaultModulePresetAdmin: Prisma.FieldRef<"SystemSettings", 'String'>
   readonly defaultModulePresetSignup: Prisma.FieldRef<"SystemSettings", 'String'>
   readonly signupEnabled: Prisma.FieldRef<"SystemSettings", 'Boolean'>
+  readonly defaultUiProfileAdmin: Prisma.FieldRef<"SystemSettings", 'String'>
+  readonly defaultUiProfileSignup: Prisma.FieldRef<"SystemSettings", 'String'>
   readonly updatedAt: Prisma.FieldRef<"SystemSettings", 'DateTime'>
 }
     

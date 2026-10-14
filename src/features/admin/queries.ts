@@ -12,9 +12,11 @@ import { formatBytes } from "@/lib/format-bytes";
 import { prisma as db } from "@/lib/db";
 import { getAdminOverview } from "@/features/users/queries";
 import type { AdminOverview } from "@/features/users/types";
+import { computeOnboardingFunnel, type OnboardingFunnel } from "@/features/admin/funnel";
 
 export type AdminOpsPayload = {
   overview: AdminOverview;
+  funnel: OnboardingFunnel;
   audits: Array<{
     id: string;
     action: string;
@@ -60,7 +62,7 @@ export type AdminOpsPayload = {
 export async function getAdminOpsPayload(
   language: "FA" | "EN" = "FA",
 ): Promise<AdminOpsPayload> {
-  const [overview, audits, settings, migration, disk, storageUsed, cron, lockedUsers, activeMembers] =
+  const [overview, audits, settings, migration, disk, storageUsed, cron, lockedUsers, activeMembers, funnelRows] =
     await Promise.all([
       getAdminOverview(),
       listAdminAuditLogs(30),
@@ -82,6 +84,22 @@ export async function getAdminOpsPayload(
         take: 20,
       }),
       db.user.count({ where: { status: "ACTIVE", role: "MEMBER" } }),
+      db.user.findMany({
+        where: { role: "MEMBER" },
+        select: {
+          createdVia: true,
+          createdAt: true,
+          lastLoginAt: true,
+          lastSeenAt: true,
+          preferences: {
+            select: {
+              firstCaptureAt: true,
+              uiProfileChangedAt: true,
+              uiProfile: true,
+            },
+          },
+        },
+      }),
     ]);
 
   const quota = Number(settings.storageQuotaBytes);
@@ -89,8 +107,21 @@ export async function getAdminOpsPayload(
     ? Math.floor((Date.now() - cron.lastRunAt.getTime()) / 60_000)
     : null;
 
+  const funnel = computeOnboardingFunnel(
+    funnelRows.map(u => ({
+      createdVia: u.createdVia,
+      createdAt: u.createdAt,
+      lastLoginAt: u.lastLoginAt,
+      lastSeenAt: u.lastSeenAt,
+      firstCaptureAt: u.preferences?.firstCaptureAt ?? null,
+      uiProfileChangedAt: u.preferences?.uiProfileChangedAt ?? null,
+      uiProfile: u.preferences?.uiProfile ?? null,
+    })),
+  );
+
   return {
     overview,
+    funnel,
     audits: audits.map(a => ({
       id: a.id,
       action: a.action,

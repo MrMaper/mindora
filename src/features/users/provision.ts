@@ -10,6 +10,7 @@ import {
   type ModulePresetId,
 } from "@/lib/modules";
 import { ensurePersonalWorkspace } from "@/features/life/workspace";
+import { parseUiProfile } from "@/lib/ui-profile";
 import { getSystemSettings } from "@/features/admin/system";
 
 /**
@@ -107,6 +108,18 @@ export async function provisionMember(
       enabledModules: policyToLegacyFlags(policy),
       mustChangePassword: !!input.tempPassword,
     },
+  });
+
+  const uiProfile = parseUiProfile(
+    input.createdVia === "SELF_SIGNUP"
+      ? settings.defaultUiProfileSignup
+      : settings.defaultUiProfileAdmin,
+    "starter",
+  );
+  await db.userPreferences.upsert({
+    where: { userId: user.id },
+    create: { userId: user.id, uiProfile },
+    update: { uiProfile },
   });
 
   await ensurePersonalWorkspace(user.id);

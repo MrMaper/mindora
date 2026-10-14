@@ -1,5 +1,6 @@
 import { prisma as db } from "@/lib/db";
 import { parseModulePolicy, policyToLegacyFlags } from "@/lib/modules";
+import { parseUiProfile } from "@/lib/ui-profile";
 import { startOfZonedDay } from "@/lib/life";
 import { ONLINE_WINDOW_MS, isUserOnline } from "@/lib/presence";
 import type {
@@ -23,6 +24,7 @@ function mapUser(u: {
   createdAt: Date;
   enabledModules: unknown;
   modulePolicy: unknown;
+  preferences?: { uiProfile: string } | null;
   lastLoginAt: Date | null;
   lastSeenAt: Date | null;
   totalOnlineSeconds: number;
@@ -37,6 +39,7 @@ function mapUser(u: {
     status: u.status,
     createdAt: u.createdAt,
     modulePolicy,
+    uiProfile: parseUiProfile(u.preferences?.uiProfile),
     /** Modules the admin allows (policy != off). */
     enabledModules: policyToLegacyFlags(modulePolicy),
     lastLoginAt: u.lastLoginAt,
@@ -56,6 +59,7 @@ const userSelect = {
   createdAt: true,
   enabledModules: true,
   modulePolicy: true,
+  preferences: { select: { uiProfile: true } },
   lastLoginAt: true,
   lastSeenAt: true,
   totalOnlineSeconds: true,

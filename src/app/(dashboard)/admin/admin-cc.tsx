@@ -23,6 +23,66 @@ import type { AdminOpsPayload } from "@/features/admin/queries";
 import type { Language } from "@/types/db";
 import { cn } from "@/lib/utils";
 
+function FunnelCard({
+  funnel,
+  fa,
+}: {
+  funnel: AdminOpsPayload["funnel"];
+  fa: boolean;
+}) {
+  const columns = [
+    { key: "ALL", label: fa ? "همه" : "All" },
+    { key: "ADMIN_INVITE", label: fa ? "دعوت مدیر" : "Admin invite" },
+    { key: "SELF_SIGNUP", label: fa ? "ثبت‌نام" : "Self sign-up" },
+  ] as const;
+  const rows = [
+    { key: "invited", label: fa ? "دعوت‌شده" : "Invited" },
+    { key: "loggedIn", label: fa ? "اولین ورود" : "First login" },
+    { key: "capturedWithin24h", label: fa ? "اولین نوشته (۲۴ ساعت)" : "First capture (24 h)" },
+    { key: "captured", label: fa ? "اولین نوشته (هر زمان)" : "First capture (ever)" },
+    { key: "returned", label: fa ? "روز بعد برگشت" : "Returned on a later day" },
+    { key: "switchedToFull", label: fa ? "رفت به نمای کامل" : "Switched to full" },
+  ] as const;
+  return (
+    <section className="rounded-xl border border-border bg-card p-4">
+      <h2 className="mb-1 text-sm font-semibold">
+        {fa ? "قیف شروع کار" : "Onboarding funnel"}
+      </h2>
+      <p className="mb-3 text-xs text-muted-foreground">
+        {fa
+          ? "فقط شمارش کلی؛ جزئیات رفتار هر عضو ثبت نمی‌شود. «۲۴ ساعت» از ساخت حساب حساب می‌شود."
+          : "Aggregate counts only. \"24 h\" is measured from account creation."}
+      </p>
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[420px] text-sm">
+          <thead>
+            <tr className="text-xs text-muted-foreground">
+              <th className="py-1 text-start font-medium" />
+              {columns.map(c => (
+                <th key={c.key} className="py-1 text-end font-medium">
+                  {c.label}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(r => (
+              <tr key={r.key} className="border-t border-border/60">
+                <td className="py-1.5 text-start">{r.label}</td>
+                {columns.map(c => (
+                  <td key={c.key} className="py-1.5 text-end tabular-nums">
+                    {funnel[c.key][r.key]}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
 export function AdminOverviewCC({
   ops,
   language,
@@ -175,6 +235,8 @@ export function AdminOverviewCC({
           </div>
         ))}
       </div>
+
+      <FunnelCard funnel={ops.funnel} fa={lang === "FA"} />
 
       {/* Health + Plan */}
       <div className="grid gap-4 lg:grid-cols-2">

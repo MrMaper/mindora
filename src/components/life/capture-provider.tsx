@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { CaptureDialog } from "@/components/life/capture-dialog";
+import { StarterCaptureDialog } from "@/components/life/starter-capture";
 import {
   openCapture,
   type CaptureOpenDetail,
@@ -14,7 +15,17 @@ function isTypingTarget(target: EventTarget | null): boolean {
   );
 }
 
-export function CaptureProvider({ children }: { children: React.ReactNode }) {
+export function CaptureProvider({
+  children,
+  plain = false,
+  askLifePart = false,
+}: {
+  children: React.ReactNode;
+  /** Starter profile: one plain box instead of the full dialog. */
+  plain?: boolean;
+  /** Ask «کدوم قسمت زندگی؟» after the member's first-ever capture. */
+  askLifePart?: boolean;
+}) {
   const pageDate = React.useRef<string | undefined>(undefined);
   const openRef = React.useRef(false);
   const [open, setOpen] = React.useState(false);
@@ -58,14 +69,26 @@ export function CaptureProvider({ children }: { children: React.ReactNode }) {
     <>
       {children}
       {open ? (
-        <CaptureDialog
-          key={tick}
-          fallbackDate={fallbackDate}
-          onClose={() => {
-            openRef.current = false;
-            setOpen(false);
-          }}
-        />
+        plain ? (
+          <StarterCaptureDialog
+            key={tick}
+            fallbackDate={fallbackDate}
+            askLifePart={askLifePart}
+            onClose={() => {
+              openRef.current = false;
+              setOpen(false);
+            }}
+          />
+        ) : (
+          <CaptureDialog
+            key={tick}
+            fallbackDate={fallbackDate}
+            onClose={() => {
+              openRef.current = false;
+              setOpen(false);
+            }}
+          />
+        )
       ) : null}
     </>
   );

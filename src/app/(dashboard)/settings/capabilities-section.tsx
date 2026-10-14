@@ -3,6 +3,8 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { setMemberModulePreference } from "@/features/modules/actions";
+import { setUiProfileAction } from "@/features/onboarding/actions";
+import type { UiProfile } from "@/lib/ui-profile";
 import {
   MODULE_META,
   PRIMARY_MODULES,
@@ -16,6 +18,7 @@ import { cn } from "@/lib/utils";
 export interface CapabilitiesData {
   policy: ModulePolicy;
   flags: ModuleFlags;
+  uiProfile: UiProfile;
 }
 
 const DESC: Record<PrimaryModule, { fa: string; en: string }> = {
@@ -79,8 +82,50 @@ export function CapabilitiesSection({
     });
   }
 
+  function onProfile(next: UiProfile) {
+    setError(null);
+    startTransition(async () => {
+      const res = await setUiProfileAction(next);
+      if (!res.success) {
+        setError(res.error ?? (fa ? "ذخیره نشد" : "Could not save"));
+        return;
+      }
+      router.refresh();
+    });
+  }
+
+  const isFull = data.uiProfile === "full";
+
   return (
     <section>
+      <div className="mb-6 flex max-w-xl items-center justify-between gap-3 rounded-lg border border-border bg-card px-3 py-2.5">
+        <span className="min-w-0">
+          <span className="block text-sm font-medium text-foreground">
+            {isFull
+              ? fa ? "نمای کامل" : "Full view"
+              : fa ? "نمای ساده" : "Simple view"}
+          </span>
+          <span className="mt-0.5 block text-xs text-muted-foreground">
+            {isFull
+              ? fa
+                ? "همهٔ بخش‌های فعال در منو و صفحهٔ امروز دیده می‌شوند."
+                : "Every enabled section shows in the menu and on Today."
+              : fa
+                ? "منو و صفحهٔ امروز ساده مانده‌اند. هر زمان خواستی بیشتر نشان بده."
+                : "Menu and Today stay simple. Show more whenever you like."}
+          </span>
+        </span>
+        <button
+          type="button"
+          disabled={pending}
+          onClick={() => onProfile(isFull ? "starter" : "full")}
+          className="shrink-0 rounded-md border border-border px-3 py-1.5 text-sm hover:bg-accent disabled:opacity-60"
+        >
+          {isFull
+            ? fa ? "ساده‌تر کن" : "Make it simpler"
+            : fa ? "امکانات بیشتر نشان بده" : "Show more features"}
+        </button>
+      </div>
       <h2 className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
         {fa ? "قابلیت‌ها" : "Capabilities"}
       </h2>

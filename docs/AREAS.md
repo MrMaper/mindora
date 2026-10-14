@@ -1,6 +1,6 @@
 # Mindora — Areas, modules, access, and first-run
 
-**Status:** Design source of truth, version 2. **P0 is implemented and committed; P1 is implemented (uncommitted)** (see "Implementation status" below); P2–P7 are not started.
+**Status:** Design source of truth, version 2. **P0 and P1 are committed; P2 is implemented (uncommitted)** (see "Implementation status" below); P3 is a human gate (protocol ready, no results yet); P4–P7 are not started.
 **Rule:** Build only the phase the product owner names. Each phase below is shippable on its own.
 
 ### Implementation status
@@ -8,8 +8,21 @@
 | Phase | State |
 |---|---|
 | P0 Foundation | Committed (`781a6e9`), not deployed. Local dev DB migrated, backfilled, and `verify-areas.ts` green. |
-| P1 Helper seam | Done in code, not committed. Server/logic code is fully migrated; 14 UI files remain on an ESLint baseline (see below). |
-| P2 – P7, S-track | Not started |
+| P1 Helper seam | Committed (`81cbdd9`). Server/logic code is fully migrated; 14 UI files remain on an ESLint baseline (see below). |
+| P2 Starter shell | Done in code, not committed. Migration `20261014180000_ui_profile_lifecycle` (additive) applied locally. |
+| P3 Validation | Protocol written (§20.1). Needs real testers; no results recorded. **Gate for P4.** |
+| P4 – P7, S-track | Not started |
+
+**P2 as built (differences from the text below):**
+
+- Schema (additive): `UserPreferences.uiProfile` (default `full`, so existing members stay Full), `uiProfileChangedAt`, `uiSuggestionDismissedAt`, `firstAreaChosenAt`, `firstCaptureAt`, `firstDoneAt`; `SystemSettings.defaultUiProfileAdmin` / `defaultUiProfileSignup` (default `starter`). `provisionMember` writes the profile for new members. Timestamps are set once (`features/onboarding/lifecycle.ts`), best effort.
+- Pure logic in `src/lib/ui-profile.ts` (unit-tested): `navVisibility`, `shouldSuggestFull` (after 3 done tasks, dismissible, never auto-switches), `explicitNavModules`, life-part chips and `areaForLifePart`.
+- Starter: nav is Today, Tasks, Calendar (only after the first dated task), Settings, plus modules the member explicitly enabled. Guide link hidden. Today is a separate component (`starter-today.tsx`) with its own cheap query `getStarterToday`. Capture is one plain box (`universalCapture({plain: true})`: always a task in the default area). First capture only: asks "which part of life" with chips; closing keeps the default area.
+- **Chips map onto the four enum areas** (P4 replaces this). Study and Language land in the hub area only when that module is effectively on; otherwise the task goes to the default area, because a hub task would vanish from Today. Choosing a chip never enables a module.
+- The old onboarding tour is deleted (its i18n strings are dead). The Guide content rewrite is not done.
+- Switching: Settings → Capabilities has "simplify / show more features" (`setUiProfileAction`). The admin can set a member's profile in the user edit drawer (`setUserUiProfile`, audited as `USER_UPDATED`). Neither touches module access.
+- Funnel (S-11): admin Ops card, counts by `createdVia` (`features/admin/funnel.ts`, tested). The 24 h window is measured from `createdAt`; "returned" = `lastSeenAt` on a later UTC day. Legacy members have no timestamps.
+- Not built: admin UI for the system UI-profile defaults (only schema and `provisionMember` use them); a task editor inside Starter Today.
 
 **P1 as built (differences from the text below):**
 
@@ -956,6 +969,64 @@ Exit: a new member completes the Day-1 loop without a modal; Skip is safe.
 
 Scope: put the Starter shell in front of 3–5 target users; record where they stall; decide «مسیر» vs «پروژه»; adjust copy.
 Gate: proceed to P4 only on an acceptable result.
+
+#### 20.1 P3 test protocol
+
+P3 is not code. It needs 3–5 real people. The protocol below is the working plan; the pass bars are proposals until the owner confirms them.
+
+**Before the first session**
+
+- Commit P2 and run a build the testers can reach (production or a tunnel to local). P0 and P2 migrations are additive but the P0 deploy sequence (`DEPLOY.md`) has not been run on production yet.
+- Create each tester in Admin → Users with a **blank password**. This produces a one-time invite link and a Starter member (the system default). Do not enable any module beforehand.
+- Turn on nothing else. Testers see exactly what a sign-up would see.
+
+**Testers**
+
+- 3–5 people who have never seen Mindora. At least 1 who is not a student or researcher, at least 1 student or researcher, at least 2 on a phone. None from the owner's PhD workflow.
+
+**Session (about 15 minutes, observer silent)**
+
+Hand over only the link and this sentence: «این یه برنامهٔ برنامه‌ریزیه. هر چیزی که امروز دارید توش بنویسید.» Do not explain the UI. Answer questions with «چی فکر می‌کنید؟».
+
+| Step | Prompt (FA) | What to watch |
+|---|---|---|
+| 1 | Open the link and set a password | Reaches Today without help? Time. |
+| 2 | «یه کار که امروز باید انجام بدید بنویسید.» | Finds the box? Time to first capture. |
+| 3 | After saving: the chip question appears | Understood or skipped? Reads «بعداً می‌توانی عوضش کنی»? |
+| 4 | «یه کار برای فردا ساعت ۱۰ بنویسید.» (e.g. «فردا ساعت ۱۰ دکتر») | Does it land under «به‌زودی»? Notices Calendar appearing? |
+| 5 | «یکی از کارها رو انجام‌شده کنید.» | Finds «انجام شد»? |
+| 6 | «اگه فردا بخواید ببینید چی در پیش داره، کجا می‌رید؟» | Today, Tasks or Calendar? |
+| 7 | Word test: show two labels for the optional grouping, «مسیر» and «پروژه», each with a one-line description. «هر کدوم یعنی چی؟ کدوم برای گروه‌بندی کارهای مرتبط طبیعی‌تره؟» | Misreadings; preferred word; own word offered. |
+| 8 | «از این برنامه چی کم دارید؟» | Asks for hidden features (Board, Docs)? Wants more or less? |
+
+**Record per tester** (one row each, in the results table below): time to first capture; steps needing a hint; hesitation over 10 s (where); wrong clicks; confusing words (quote); word preferred in step 7; verbal quotes; day-2 return (from the Ops funnel card: `returned`, `capturedWithin24h`).
+
+**Proposed pass bars (owner to confirm)**
+
+- Every tester completes steps 1–2 unaided; median time to first capture under 2 minutes.
+- At least 80% complete steps 4–5 unaided.
+- The chip question is understood or safely ignored by all (nobody gets stuck or loses a task).
+- No tester says they are missing a hidden feature before step 8.
+- At least half return on a later day (funnel `returned`). With 3–5 people this is a signal, not a statistic.
+- Anything that stalls 2 or more testers is fixed in copy or layout and re-run with one new tester before P4.
+
+**Deciding «مسیر» vs «پروژه»**
+
+Pick the word most testers read correctly without help. If it is a tie, keep «پروژه» (it already exists in the app and avoids a rename). Record the decision in §23.
+
+**Copy review (all Starter strings)**
+
+`starter-today.tsx`, `starter-capture.tsx`, the profile card in `capabilities-section.tsx`, the Starter nav labels, the module-disabled pages, and the invite/accept-invite screens. Change copy only; do not add features during P3.
+
+**Results (fill in)**
+
+| Tester | Context | Phone? | 1st capture | Hints needed | Stall points | Word | Returned d2 |
+|---|---|---|---|---|---|---|---|
+| T1 | | | | | | | |
+| T2 | | | | | | | |
+| T3 | | | | | | | |
+
+**Gate decision:** _pending_ (record date, outcome, and copy changes made).
 
 ### P4 Schema and migration (L)
 

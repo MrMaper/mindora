@@ -504,3 +504,60 @@ export async function getWeeklyReview(userId: string) {
 }
 
 export { isOpenStatus };
+
+/**
+ * Starter Today (docs/AREAS.md §15.1): one list, a "soon" section, yesterday's
+ * leftovers. Deliberately separate from `getPersonalDashboard` so Starter pays
+ * for none of the focus / attention / language / research queries.
+ */
+export async function getStarterToday(userId: string) {
+  const todayStart = startOfZonedDay();
+  const todayEnd = endOfZonedDay();
+  const todayKey = zonedDateKey();
+  const mine = personalTaskOwnership(userId);
+  const lifeOnly = personalLifeTaskWhere(userId);
+  const open = [{ status: { not: "DONE" as const } }, { waitingOn: false }];
+
+  const [leftover, today, undated, upcoming, doneCount, prefs] = await Promise.all([
+    db.task.findMany({
+      where: { AND: [lifeOnly, ...open, { dueDate: { lt: todayStart } }] },
+      orderBy: { dueDate: "asc" },
+      take: 20,
+      select: taskSelect,
+    }),
+    db.task.findMany({
+      where: { AND: [lifeOnly, ...open, { dueDate: { gte: todayStart, lte: todayEnd } }] },
+      orderBy: [{ dueDate: "asc" }, { createdAt: "desc" }],
+      take: 30,
+      select: taskSelect,
+    }),
+    db.task.findMany({
+      where: { AND: [lifeOnly, ...open, { dueDate: null }] },
+      orderBy: { createdAt: "desc" },
+      take: 30,
+      select: taskSelect,
+    }),
+    db.task.findMany({
+      where: { AND: [lifeOnly, ...open, { dueDate: { gt: todayEnd } }] },
+      orderBy: { dueDate: "asc" },
+      take: 15,
+      select: taskSelect,
+    }),
+    db.task.count({ where: { AND: [mine, { status: "DONE" }] } }),
+    db.userPreferences.findUnique({
+      where: { userId },
+      select: { firstCaptureAt: true, uiSuggestionDismissedAt: true },
+    }),
+  ]);
+
+  return {
+    todayKey,
+    leftover: leftover.map(withArea),
+    today: today.map(withArea),
+    undated: undated.map(withArea),
+    upcoming: upcoming.map(withArea),
+    doneCount,
+    firstCaptureAt: prefs?.firstCaptureAt ?? null,
+    suggestionDismissedAt: prefs?.uiSuggestionDismissedAt ?? null,
+  };
+}

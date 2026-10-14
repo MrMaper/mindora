@@ -30,6 +30,7 @@ import {
 } from "@/features/life/focus-slots";
 import { personalTaskOwnership, canAccessPersonalTask } from "@/lib/task-access";
 import { RESEARCH_AREA, DEFAULT_AREA } from "@/lib/areas";
+import { markFirstCapture } from "@/features/onboarding/lifecycle";
 
 export interface ActionResult {
   success: boolean;
@@ -143,6 +144,8 @@ export async function quickCapture(input: {
     },
     select: { id: true },
   });
+
+  await markFirstCapture(session.user.id);
 
   revalidateLife();
   return { success: true, data: { id: task.id } };

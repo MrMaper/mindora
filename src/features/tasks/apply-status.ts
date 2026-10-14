@@ -3,6 +3,7 @@ import { spawnNextIfRecurring } from "@/features/life/recurrence";
 import { canAccessPersonalTask } from "@/lib/task-access";
 import type { TaskStatus } from "@/types/db";
 import { completedAtWrite } from "@/features/tasks/completed-at";
+import { markLifecycleOnce } from "@/features/onboarding/lifecycle";
 
 export type ApplyStatusResult =
   | {
@@ -93,6 +94,7 @@ export async function applyTaskStatusChange(input: {
   }
 
   if (nextStatus === "DONE") {
+    await markLifecycleOnce(input.userId, "firstDoneAt");
     try {
       await spawnNextIfRecurring(input.taskId, input.userId);
     } catch (error) {

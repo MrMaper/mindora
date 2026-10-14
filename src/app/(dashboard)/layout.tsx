@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { prisma as db } from "@/lib/db";
 import { getTranslationsAsync } from "@/i18n";
 import { getUnreadCount } from "@/features/notifications/queries";
@@ -19,7 +20,14 @@ import {
   getUserPreferencesCached,
 } from "@/lib/request-cache";
 import { getUserModuleFlags } from "@/lib/require-role";
-import { hasModule } from "@/lib/modules";
+import { getModuleAccess } from "@/lib/module-guard";
+import { personalTaskOwnership } from "@/lib/task-access";
+import {
+  explicitNavModules,
+  navVisibility,
+  parseUiProfile,
+} from "@/lib/ui-profile";
+import { ensureUserPreferencesRow } from "@/features/onboarding/lifecycle";
 import { areaProjectIdsForUser } from "@/lib/area-projects";
 import { AreaBucketsProvider } from "@/components/area-buckets-provider";
 import { CaptureProvider } from "@/components/life/capture-provider";
@@ -131,6 +139,24 @@ export default async function DashboardLayout({
 
   // Member: personal workspace already warmed in Promise.all above
   const moduleFlags = flags!;
+  if (!preferences) after(() => ensureUserPreferencesRow(session.user.id));
+  const uiProfile = parseUiProfile(preferences?.uiProfile);
+  const access = await getModuleAccess(session.user.id);
+  const explicit = explicitNavModules(access?.prefs ?? {}, moduleFlags);
+  // Starter: Calendar shows up with the member's first dated task (§6.6).
+  const hasDatedTask =
+    uiProfile === "starter" && moduleFlags.tasks
+      ? !!(await db.task.findFirst({
+          where: { AND: [personalTaskOwnership(session.user.id), { dueDate: { not: null } }] },
+          select: { id: true },
+        }))
+      : true;
+  const show = navVisibility({
+    profile: uiProfile,
+    flags: moduleFlags,
+    explicit,
+    hasDatedTask,
+  });
   const rawResearchScope = cookieStore.get(RESEARCH_SCOPE_COOKIE)?.value;
   let researchScope: string | undefined;
   try {
@@ -146,13 +172,13 @@ export default async function DashboardLayout({
   const dailyItems: NavItem[] = [
     { label: t.nav.dashboard, href: "/dashboard", icon: "layout-dashboard" },
   ];
-  if (hasModule(moduleFlags, "kanban")) {
+  if (show.kanban) {
     dailyItems.push({ label: t.nav.board, href: "/kanban", icon: "columns" });
   }
-  if (hasModule(moduleFlags, "tasks")) {
+  if (show.tasks) {
     dailyItems.push({ label: t.nav.tasks, href: "/tasks", icon: "list" });
   }
-  if (hasModule(moduleFlags, "calendar")) {
+  if (show.calendar) {
     dailyItems.push({
       label: t.nav.calendar,
       href: "/calendar",
@@ -161,24 +187,24 @@ export default async function DashboardLayout({
   }
 
   const spacesItems: NavItem[] = [];
-  if (hasModule(moduleFlags, "projects")) {
+  if (show.projects) {
     spacesItems.push({
       label: t.nav.projects,
       href: "/projects",
       icon: "folder",
     });
   }
-  if (hasModule(moduleFlags, "docs")) {
+  if (show.docs) {
     spacesItems.push({ label: t.nav.docs, href: "/docs", icon: "file-text" });
   }
-  if (hasModule(moduleFlags, "research")) {
+  if (show.research) {
     spacesItems.push({
       label: t.nav.research,
       href: researchHref,
       icon: "git-branch",
     });
   }
-  if (hasModule(moduleFlags, "language")) {
+  if (show.language) {
     spacesItems.push({
       label: t.nav.language,
       href: "/language",
@@ -187,21 +213,21 @@ export default async function DashboardLayout({
   }
 
   const reflectItems: NavItem[] = [];
-  if (hasModule(moduleFlags, "review")) {
+  if (show.review) {
     reflectItems.push({
       label: t.nav.review,
       href: "/review",
       icon: "rotate-ccw",
     });
   }
-  if (hasModule(moduleFlags, "workLogs")) {
+  if (show.workLogs) {
     reflectItems.push({
       label: t.nav.workLogs,
       href: "/work-logs",
       icon: "clock",
     });
   }
-  if (hasModule(moduleFlags, "reporting")) {
+  if (show.reporting) {
     reflectItems.push({
       label: t.nav.reporting,
       href: "/reporting",
@@ -215,7 +241,11 @@ export default async function DashboardLayout({
     { id: "reflect", label: t.nav.groupReflect, items: reflectItems },
     {
       id: "guide",
-      items: [{ label: t.nav.guide, href: "/guide", icon: "info" as const }],
+      // Starter keeps the sidebar to what it needs (§15.2); the guide returns with Full.
+      items:
+        uiProfile === "full"
+          ? [{ label: t.nav.guide, href: "/guide", icon: "info" as const }]
+          : [],
     },
   ].filter(g => g.items.length > 0);
   return (
@@ -226,7 +256,10 @@ export default async function DashboardLayout({
       <DirectionSync language={language} />
       <PresenceBeacon />
       <AreaBucketsProvider ids={areaIds}>
-        <CaptureProvider>
+        <CaptureProvider
+          plain={uiProfile === "starter"}
+          askLifePart={uiProfile === "starter" && !preferences?.firstCaptureAt}
+        >
           <ReminderWatcher />
           <DashboardShell
             captureEnabled

@@ -193,6 +193,8 @@ export const SystemSettingsScalarFieldEnum = {
   defaultModulePresetAdmin: 'defaultModulePresetAdmin',
   defaultModulePresetSignup: 'defaultModulePresetSignup',
   signupEnabled: 'signupEnabled',
+  defaultUiProfileAdmin: 'defaultUiProfileAdmin',
+  defaultUiProfileSignup: 'defaultUiProfileSignup',
   updatedAt: 'updatedAt'
 } as const
 
@@ -284,6 +286,12 @@ export const UserPreferencesScalarFieldEnum = {
   todayFocusIds: 'todayFocusIds',
   onboardingCompletedAt: 'onboardingCompletedAt',
   moduleMemberPrefs: 'moduleMemberPrefs',
+  uiProfile: 'uiProfile',
+  uiProfileChangedAt: 'uiProfileChangedAt',
+  uiSuggestionDismissedAt: 'uiSuggestionDismissedAt',
+  firstAreaChosenAt: 'firstAreaChosenAt',
+  firstCaptureAt: 'firstCaptureAt',
+  firstDoneAt: 'firstDoneAt',
   batchDeadlineReminders: 'batchDeadlineReminders',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

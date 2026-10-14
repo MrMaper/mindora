@@ -14,7 +14,6 @@ import {
   FocusSessionLauncher,
   FocusSessionProvider,
 } from "@/components/life/focus-session";
-import { OnboardingTour } from "@/components/onboarding/onboarding-tour";
 import { usePersonalTaskEditor } from "@/components/life/use-personal-task-editor";
 import type { HabitHeatDay, HabitItem } from "@/features/habits/queries";
 import {
@@ -123,7 +122,6 @@ interface DashboardCCProps {
   };
   habits?: HabitItem[];
   habitHeatDays?: HabitHeatDay[];
-  showOnboarding?: boolean;
   users: UserRow[];
   labels: LabelRow[];
   userProjects: ProjectRow[];
@@ -454,7 +452,6 @@ export function DashboardCC({
   attentionModules,
   habits = [],
   habitHeatDays = [],
-  showOnboarding = false,
   users,
   labels,
   userProjects,
@@ -935,7 +932,6 @@ export function DashboardCC({
         </div>
       </div>
       {drawer}
-      <OnboardingTour open={showOnboarding} />
     </>
     </FocusSessionProvider>
   );

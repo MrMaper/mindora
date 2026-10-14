@@ -4,6 +4,7 @@ import { requireAuth } from "@/lib/require-role";
 import { getUserPreferences } from "@/features/settings/queries";
 import { getUserById } from "@/features/users/queries";
 import { getModuleAccess } from "@/lib/module-guard";
+import { parseUiProfile } from "@/lib/ui-profile";
 import { SettingsCC } from "./settings-cc";
 import type { CapabilitiesData } from "./capabilities-section";
 import { parseSettingsTab } from "./settings-tabs";
@@ -39,7 +40,11 @@ export default async function SettingsPage({
       ? null
       : await getModuleAccess(session.user.id);
   const capabilities: CapabilitiesData | null = access
-    ? { policy: access.policy, flags: access.flags }
+    ? {
+        policy: access.policy,
+        flags: access.flags,
+        uiProfile: parseUiProfile(preferences?.uiProfile),
+      }
     : null;
 
   return (

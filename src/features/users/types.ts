@@ -1,5 +1,6 @@
 import type { UserRole, UserStatus } from "@/types/db";
 import type { ModuleFlags, ModulePolicy } from "@/lib/modules";
+import type { UiProfile } from "@/lib/ui-profile";
 
 export interface UserRow {
   id: string;
@@ -12,6 +13,8 @@ export interface UserRow {
   /** Modules the admin allows (policy != off). */
   enabledModules: ModuleFlags;
   modulePolicy: ModulePolicy;
+  /** "starter" | "full" (UserPreferences.uiProfile). */
+  uiProfile: UiProfile;
   lastLoginAt: Date | null;
   lastSeenAt: Date | null;
   totalOnlineSeconds: number;

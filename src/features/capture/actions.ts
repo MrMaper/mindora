@@ -22,7 +22,8 @@ import {
   parseCapture,
   type CaptureKind,
 } from "./parse";
-import { RESEARCH_AREA, LANGUAGE_AREA, LIFE_AREAS } from "@/lib/areas";
+import { RESEARCH_AREA, DEFAULT_AREA, LIFE_AREAS } from "@/lib/areas";
+import { markFirstCapture } from "@/features/onboarding/lifecycle";
 
 const AREAS = new Set<LifeArea>(LIFE_AREAS);
 
@@ -60,11 +61,26 @@ async function resolveCaptureResearchProjectId(
 
 export async function universalCapture(input: {
   text: string;
+  /**
+   * Starter profile: one plain box. Slash commands and area guessing are off;
+   * everything becomes a task in the default area (docs/AREAS.md §6.6).
+   */
+  plain?: boolean;
   areaOverride?: LifeArea | null;
   dueDateFallback?: string | null;
   /** Client `Date#getTimezoneOffset()` so date-only noon stays noon on UTC servers. */
   timezoneOffsetMinutes?: number;
 }): Promise<CaptureResult> {
+  const result = await universalCaptureImpl(input);
+  // Tasks mark the funnel inside quickCapture; notes/habits/sources do it here.
+  if (result.success && result.data && result.data.product !== "task") {
+    const session = await auth();
+    if (session?.user) await markFirstCapture(session.user.id);
+  }
+  return result;
+}
+
+async function universalCaptureImpl(input: Parameters<typeof universalCapture>[0]): Promise<CaptureResult> {
   const session = await auth();
   if (!session?.user) return { success: false, error: "غیرمجاز" };
   if (session.user.role === "ADMIN") {
@@ -76,14 +92,17 @@ export async function universalCapture(input: {
   const title = parsed.title.trim();
   if (!title) return { success: false, error: "عنوان خالی است" };
 
-  const area =
-    input.areaOverride && AREAS.has(input.areaOverride)
+  const plain = input.plain === true;
+  const area = plain
+    ? DEFAULT_AREA
+    : input.areaOverride && AREAS.has(input.areaOverride)
       ? input.areaOverride
       : parsed.area;
   const flags = await getUserModuleFlags(session.user.id);
-  const product = captureProduct(parsed);
+  const product = plain ? "task" : captureProduct(parsed);
+  const kind = plain ? "task" : parsed.kind;
 
-  if (parsed.kind === "note") {
+  if (kind === "note") {
     if (!hasModule(flags, "docs")) {
       return { success: false, error: "نوشته‌ها برای این حساب خاموش است" };
     }
@@ -104,7 +123,7 @@ export async function universalCapture(input: {
     };
   }
 
-  if (parsed.kind === "habit") {
+  if (kind === "habit") {
     if (!hasModule(flags, "habits")) {
       return { success: false, error: "عادت‌ها برای این حساب خاموش است" };
     }

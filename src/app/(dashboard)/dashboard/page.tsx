@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { after } from "next/server";
 import { redirect } from "next/navigation";
-import { getPersonalDashboard } from "@/features/life/queries";
+import { getPersonalDashboard, getStarterToday } from "@/features/life/queries";
+import { parseUiProfile } from "@/lib/ui-profile";
+import { StarterToday } from "./starter-today";
 import { getAssignableUsers } from "@/features/users/queries";
 import { getLabels } from "@/features/labels/queries";
 import { getUserProjects } from "@/features/projects/queries";
@@ -36,6 +38,12 @@ export default async function DashboardPage() {
   after(() => {
     void ensureDailyRemindersCached(session.user.id);
   });
+  const profilePrefs = await getUserPreferencesCached(session.user.id);
+  if (parseUiProfile(profilePrefs?.uiProfile) === "starter") {
+    const starter = await getStarterToday(session.user.id);
+    return <StarterToday userName={session.user.name ?? ""} {...starter} />;
+  }
+
   await syncPlanningStatusesCached(session.user.id);
 
   const habitsPromise = flags.habits
@@ -83,7 +91,6 @@ export default async function DashboardPage() {
       }}
       habits={flags.habits ? habits : []}
       habitHeatDays={flags.habits ? heatDays : []}
-      showOnboarding={!prefs?.onboardingCompletedAt}
       users={users}
       labels={labels}
       userProjects={userProjects}

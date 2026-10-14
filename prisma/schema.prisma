@@ -128,6 +128,9 @@ model SystemSettings {
   defaultModulePresetSignup String @default("starter")
   /// Reserved for the public sign-up track; no sign-up page exists yet.
   signupEnabled     Boolean  @default(false)
+  /// UI profile applied to new members: starter | full
+  defaultUiProfileAdmin  String @default("starter")
+  defaultUiProfileSignup String @default("starter")
   updatedAt         DateTime @updatedAt
 
   @@map("system_settings")
@@ -225,6 +228,15 @@ model UserPreferences {
   onboardingCompletedAt     DateTime?
   /// Member choices for modules whose admin policy is "member_choice": { [module]: boolean }
   moduleMemberPrefs         Json     @default("{}")
+  /// "starter" | "full". Column default is full (existing members); provisionMember sets starter.
+  uiProfile                 String   @default("full")
+  uiProfileChangedAt        DateTime?
+  /// One-time "show more features" suggestion was dismissed.
+  uiSuggestionDismissedAt   DateTime?
+  /// Lifecycle funnel timestamps: set once, never overwritten (docs/AREAS.md §6.7).
+  firstAreaChosenAt         DateTime?
+  firstCaptureAt            DateTime?
+  firstDoneAt               DateTime?
   /// Merge same-day deadline reminders into one notification (optional)
   batchDeadlineReminders    Boolean  @default(false)
   createdAt                 DateTime @default(now())

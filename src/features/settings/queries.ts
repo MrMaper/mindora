@@ -21,6 +21,10 @@ export interface UserPreferencesData {
   baleDigestHour: number;
   baleHabitHour: number;
   onboardingCompletedAt: Date | null;
+  /** "starter" | "full"; parse with parseUiProfile. */
+  uiProfile: string;
+  uiSuggestionDismissedAt: Date | null;
+  firstCaptureAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -51,6 +55,9 @@ export async function getUserPreferences(
       baleDigestHour: true,
       baleHabitHour: true,
       onboardingCompletedAt: true,
+      uiProfile: true,
+      uiSuggestionDismissedAt: true,
+      firstCaptureAt: true,
       createdAt: true,
       updatedAt: true,
     },
