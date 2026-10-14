@@ -2,6 +2,7 @@ import type { TaskPriority, TaskStatus } from "@/types/db";
 import type { TaskRow } from "./types";
 import { isAreaBucketId } from "@/lib/area-projects";
 import { toDateKey } from "@/lib/life";
+import { AREA_ORDER } from "@/lib/areas";
 
 export const TASK_SORT_FIELDS = [
   "title",
@@ -39,12 +40,7 @@ const PRIORITY_RANK: Record<TaskPriority, number> = {
   NONE: 4,
 };
 
-const AREA_RANK: Record<string, number> = {
-  PHD: 0,
-  WORK: 1,
-  LIFE: 2,
-  LANG: 3,
-};
+const AREA_RANK: Record<string, number> = AREA_ORDER;
 
 export function parseTaskSort(value: string | undefined): TaskSortField {
   if (value && (TASK_SORT_FIELDS as readonly string[]).includes(value)) {

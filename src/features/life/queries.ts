@@ -19,6 +19,7 @@ import {
 import { normalizeFocusSlots } from "@/features/life/focus-slots";
 import type { TaskRow } from "@/features/tasks/types";
 import type { LifeArea } from "@/types/db";
+import { RESEARCH_AREA, emptyAreaCounts, isLifeAreaValue } from "@/lib/areas";
 
 const userRefSelect = { id: true, name: true, avatar: true } as const;
 
@@ -294,7 +295,7 @@ export async function getPersonalDashboard(
     wantResearch
       ? db.docSource.count({
           where: {
-            doc: { userId, area: "PHD", deletedAt: null },
+            doc: { userId, area: RESEARCH_AREA, deletedAt: null },
             readingStatus: { in: ["TO_READ", "READING"] },
           },
         })
@@ -303,7 +304,7 @@ export async function getPersonalDashboard(
       ? db.doc.count({
           where: {
             userId,
-            area: "PHD",
+            area: RESEARCH_AREA,
             deletedAt: null,
             archived: false,
             status: { in: ["IDEA", "DRAFTING", "REVIEW"] },
@@ -317,18 +318,13 @@ export async function getPersonalDashboard(
   ]);
 
   const countByDay = new Map<string, number>();
-  const openByArea: Record<LifeArea, number> = {
-    PHD: 0,
-    WORK: 0,
-    LIFE: 0,
-    LANG: 0,
-  };
+  const openByArea: Record<LifeArea, number> = emptyAreaCounts();
   for (const task of weekOpenTasks) {
     if (!task.dueDate) continue;
     const key = toDueDateKey(new Date(task.dueDate), task.durationMinutes);
     countByDay.set(key, (countByDay.get(key) ?? 0) + 1);
     const area = (task.area ?? task.project?.area ?? null) as LifeArea | null;
-    if (area && LIFE_AREAS.includes(area)) openByArea[area] += 1;
+    if (area && isLifeAreaValue(area)) openByArea[area] += 1;
   }
 
   const weekDays: WeekDayStripItem[] = zonedWeekCells().map(date => {

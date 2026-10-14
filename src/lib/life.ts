@@ -1,6 +1,7 @@
-import type { LifeArea, RecurrenceInterval } from "@/types/db";
+import type { RecurrenceInterval } from "@/types/db";
 import { toJalaali, toGregorian, jalaaliMonthLength } from "jalaali-js";
 import { formatNumber } from "@/lib/utils";
+import { isHubArea } from "@/lib/areas";
 
 export {
   AREA_PROJECT_IDS,
@@ -11,46 +12,10 @@ export {
   isUserAreaBucket,
   areaBucketIdsToExclude,
   lifeAreaFromBucketId,
-} from "@/lib/area-projects";
-
-export const LIFE_AREAS: LifeArea[] = ["PHD", "WORK", "LIFE", "LANG"];
-
-export function coerceLifeArea(area: string | null | undefined): LifeArea {
-  if (area === "PHD" || area === "WORK" || area === "LANG" || area === "LIFE") {
-    return area;
-  }
-  return "LIFE";
-}
-
-export const AREA_META: Record<
-  LifeArea,
-  { nameFa: string; nameEn: string; descriptionFa: string; descriptionEn: string }
-> = {
-  PHD: {
-    nameFa: "دکتری",
-    nameEn: "PhD",
-    descriptionFa: "تحصیل، پژوهش و نوشتن",
-    descriptionEn: "Study, research and writing",
-  },
-  WORK: {
-    nameFa: "کار",
-    nameEn: "Work",
-    descriptionFa: "شغل و کارهای حرفه‌ای",
-    descriptionEn: "Job and professional projects",
-  },
-  LIFE: {
-    nameFa: "زندگی",
-    nameEn: "Life",
-    descriptionFa: "خانه، سلامت و امور شخصی",
-    descriptionEn: "Home, health and personal matters",
-  },
-  LANG: {
-    nameFa: "زبان",
-    nameEn: "Language",
-    descriptionFa: "مهارت‌ها، واژگان و آمادگی آزمون",
-    descriptionEn: "Skills, vocab and exam prep",
-  },
-};
+  LIFE_AREAS,
+  coerceLifeArea,
+  AREA_META,
+} from "@/lib/areas";
 
 const PERSIAN_WEEKDAYS = [
   "یکشنبه",
@@ -235,7 +200,7 @@ export function resolvePersonalTaskPlanningStatus<S extends string>(
   ) {
     return "BACKLOG";
   }
-  if (opts?.area === "PHD" || opts?.area === "LANG") {
+  if (isHubArea(opts?.area)) {
     return requested;
   }
   return resolveBoardPlanningStatus(requested, due, opts?.now);

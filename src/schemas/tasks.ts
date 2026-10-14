@@ -1,4 +1,6 @@
+import type { LifeArea } from "@/types/db";
 import { z } from "zod";
+import { LIFE_AREAS } from "@/lib/areas";
 
 export const createTaskSchema = z.object({
   title: z.string().min(1, "titleRequired").max(255, "titleTooLong"),
@@ -12,7 +14,7 @@ export const createTaskSchema = z.object({
   durationMinutes: z.string().optional().or(z.literal("")),
   waitingOn: z.string().optional().or(z.literal("")),
   labelIds: z.string().optional(),
-  area: z.enum(["PHD", "WORK", "LIFE", "LANG"]).optional().or(z.literal("")),
+  area: z.enum(LIFE_AREAS as [LifeArea, ...LifeArea[]]).optional().or(z.literal("")),
   recurrence: z
     .enum(["NONE", "DAILY", "WEEKLY", "MONTHLY"])
     .optional()

@@ -1,11 +1,20 @@
 import type { LifeArea } from "@/types/db";
-import { AREA_META, LIFE_AREAS } from "@/lib/life";
 import {
+  AREA_META,
+  DEFAULT_AREA,
+  HUB_AREAS,
+  LANGUAGE_AREA,
+  LIFE_AREAS,
+  RESEARCH_AREA,
+  WORKSPACE_AREAS,
   isAreaBucketId,
+  isHubArea,
+  isLifeAreaValue,
   allLegacyBucketIds,
   personalAreaProjectId,
   lifeAreaFromBucketId,
-} from "@/lib/area-projects";
+  hubTaskExclusion,
+} from "@/lib/areas";
 
 export type ProjectKind = "bucket" | "path" | "workspace";
 
@@ -17,23 +26,24 @@ export type ProjectListScope =
   | "assignable"
   | "all";
 
-export const HUB_AREAS: LifeArea[] = ["PHD", "LANG"];
-export const WORKSPACE_AREAS: LifeArea[] = ["WORK", "LIFE"];
-
-export { isAreaBucketId, personalAreaProjectId, lifeAreaFromBucketId };
+export {
+  HUB_AREAS,
+  WORKSPACE_AREAS,
+  isHubArea,
+  isLifeAreaValue,
+  isAreaBucketId,
+  personalAreaProjectId,
+  lifeAreaFromBucketId,
+};
 
 export function projectKind(project: {
   id: string;
   area: LifeArea | string | null | undefined;
 }): ProjectKind {
   if (isAreaBucketId(project.id)) return "bucket";
-  const area = project.area ?? "LIFE";
-  if (area === "PHD" || area === "LANG") return "path";
+  const area = project.area ?? DEFAULT_AREA;
+  if (isHubArea(area)) return "path";
   return "workspace";
-}
-
-export function isHubArea(area: LifeArea | string | null | undefined): boolean {
-  return area === "PHD" || area === "LANG";
 }
 
 export function projectPickerLabel(
@@ -43,7 +53,7 @@ export function projectPickerLabel(
   if (isAreaBucketId(project.id)) {
     const trimmed = project.name?.trim();
     if (trimmed) return trimmed;
-    const area = (project.area ?? "LIFE") as LifeArea;
+    const area = (project.area ?? DEFAULT_AREA) as LifeArea;
     const meta = AREA_META[area];
     return language === "EN" ? meta.nameEn : meta.nameFa;
   }
@@ -57,11 +67,11 @@ export function projectWhereForScope(
   if (scope === "all") return {};
 
   if (scope === "research") {
-    return { area: "PHD" };
+    return { area: RESEARCH_AREA };
   }
 
   if (scope === "language") {
-    return { area: "LANG" };
+    return { area: LANGUAGE_AREA };
   }
 
   const legacy = allLegacyBucketIds();
@@ -97,18 +107,7 @@ export function projectWhereForScope(
 }
 
 export function taskWhereExcludeHub(): Record<string, unknown> {
-  return {
-    NOT: {
-      OR: [
-        { area: { in: HUB_AREAS } },
-        { project: { area: { in: HUB_AREAS } } },
-      ],
-    },
-  };
-}
-
-export function isLifeAreaValue(value: string | null | undefined): value is LifeArea {
-  return !!value && (LIFE_AREAS as string[]).includes(value);
+  return hubTaskExclusion();
 }
 
 /** Turn `?area=` and `?project=` into a real area plus a named path. Area buckets are not paths. */
@@ -180,8 +179,8 @@ export function pathFilterOptions(
   return [...visible]
     .sort((a, b) => {
       const areaOrder =
-        LIFE_AREAS.indexOf(isLifeAreaValue(a.area) ? a.area : "LIFE") -
-        LIFE_AREAS.indexOf(isLifeAreaValue(b.area) ? b.area : "LIFE");
+        LIFE_AREAS.indexOf(isLifeAreaValue(a.area) ? a.area : DEFAULT_AREA) -
+        LIFE_AREAS.indexOf(isLifeAreaValue(b.area) ? b.area : DEFAULT_AREA);
       if (!area && areaOrder !== 0) return areaOrder;
       return a.name.localeCompare(b.name, language === "EN" ? "en" : "fa");
     })

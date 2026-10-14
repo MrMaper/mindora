@@ -27,6 +27,7 @@ import {
 import { VOCAB_DECK_KEYS, VOCAB_DECK_META } from "./decks/catalog-meta";
 import type { LanguageTab } from "./types";
 import { daysAgoApp, startOfAppDay, startOfAppDayInstant } from "./day";
+import { LANGUAGE_AREA } from "@/lib/areas";
 
 function startOfLocalDay(d = new Date()): Date {
   return startOfAppDay(d);
@@ -59,9 +60,9 @@ export async function listLangProjects(
     where: {
       userId,
       project: {
-        area: "LANG",
+        area: LANGUAGE_AREA,
         status: { not: "ARCHIVED" },
-        id: { notIn: areaBucketIdsToExclude(userId, "LANG") },
+        id: { notIn: areaBucketIdsToExclude(userId, LANGUAGE_AREA) },
       },
     },
     orderBy: { project: { updatedAt: "desc" } },
@@ -503,7 +504,7 @@ export async function getLanguageHubData(
             userId,
             deletedAt: null,
             archived: false,
-            area: "LANG",
+            area: LANGUAGE_AREA,
             ...(pf.projectId !== undefined
               ? pf.projectId === null
                 ? { projectId: null }

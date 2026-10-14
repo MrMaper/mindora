@@ -7,6 +7,7 @@ import {
 } from "@/lib/life";
 import type { RecurrenceInterval } from "@/types/db";
 import { randomUUID } from "crypto";
+import { isHubArea } from "@/lib/areas";
 
 export function newRecurrenceSeriesId(): string {
   return randomUUID();
@@ -66,7 +67,7 @@ export async function spawnNextIfRecurring(taskId: string, userId: string) {
 
   // Hub pipeline stages must not be derived from due (Idea stays BACKLOG).
   const status = resolvePersonalTaskPlanningStatus(
-    task.area === "PHD" || task.area === "LANG"
+    isHubArea(task.area)
       ? "BACKLOG"
       : planningStatusFromDue(nextDue),
     nextDue,

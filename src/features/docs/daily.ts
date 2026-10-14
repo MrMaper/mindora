@@ -4,6 +4,7 @@ import { getDocTemplate } from "./templates";
 import { ensureHeadingIds } from "./utils";
 import { getDocById } from "./queries";
 import type { DocDetail } from "./types";
+import { DEFAULT_AREA } from "@/lib/areas";
 
 function htmlToText(html: string): string {
   return html
@@ -48,7 +49,7 @@ export async function ensureDailyNote(
       title,
       content,
       contentText: htmlToText(content),
-      area: "LIFE",
+      area: DEFAULT_AREA,
       status: "DRAFTING",
       templateKey: tpl.key,
       systemKey,

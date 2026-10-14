@@ -30,6 +30,7 @@ import { Icon } from "@/components/ui-kit/foundation/icon";
 import { cn } from "@/lib/utils";
 import { useDraggable } from "@dnd-kit/core";
 import { toast } from "sonner";
+import { RESEARCH_AREA } from "@/lib/areas";
 
 function TaskDragHandle({ taskId, label }: { taskId: string; label: string }) {
   const [mounted, setMounted] = React.useState(false);
@@ -191,7 +192,7 @@ export function LifeTaskList({
         const primaryDoc = linked[0];
         const busy = pendingId === task.id;
         const showDoc =
-          !!primaryDoc && (task.area === "PHD" || linked.length > 0);
+          !!primaryDoc && (task.area === RESEARCH_AREA || linked.length > 0);
         const overdue = isOverdueTask(task);
 
         const menuItems: MenuItem[] = [];

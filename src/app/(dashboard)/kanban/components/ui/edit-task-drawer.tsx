@@ -23,6 +23,7 @@ import type { ProjectRow } from "@/features/projects/types";
 import { activityLabel } from "@/features/tasks/types";
 import { getStatusLabel } from "@/components/ui-kit/forms/select-utils";
 import type { SelectOption } from "@/components/ui-kit/forms/select";
+import { RESEARCH_AREA } from "@/lib/areas";
 
 interface EditTaskDrawerProps {
   open: boolean;
@@ -252,7 +253,7 @@ export function EditTaskDrawer({
               hasRecurrenceSeries={Boolean(activeTask?.recurrenceSeriesId)}
             />
 
-            {activeTask && activeTask.area === "PHD" ? (
+            {activeTask && activeTask.area === RESEARCH_AREA ? (
               <TaskLinkedDocs taskId={activeTask.id} />
             ) : null}
 

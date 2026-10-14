@@ -20,6 +20,7 @@ import { isAreaBucketId } from "@/lib/project-namespace";
 import { ensurePersonalWorkspace } from "@/features/life/workspace";
 import { LIFE_AREAS } from "@/lib/life";
 import type { LifeArea } from "@/types/db";
+import { RESEARCH_AREA, LANGUAGE_AREA } from "@/lib/areas";
 
 export interface ActionResult {
   success: boolean;
@@ -106,8 +107,8 @@ export async function createProject(formData: FormData): Promise<ActionResult> {
 
   revalidatePath("/projects");
   revalidatePath(`/projects/areas/${area}`);
-  if (area === "PHD") revalidatePath("/research");
-  if (area === "LANG") revalidatePath("/language");
+  if (area === RESEARCH_AREA) revalidatePath("/research");
+  if (area === LANGUAGE_AREA) revalidatePath("/language");
   return { success: true, data: { projectId: project.id } };
 }
 
@@ -154,8 +155,8 @@ function revalidateAreaSurfaces(area?: LifeArea) {
   revalidatePath("/dashboard");
   if (area) {
     revalidatePath(`/projects/areas/${area}`);
-    if (area === "PHD") revalidatePath("/research");
-    if (area === "LANG") revalidatePath("/language");
+    if (area === RESEARCH_AREA) revalidatePath("/research");
+    if (area === LANGUAGE_AREA) revalidatePath("/language");
   }
 }
 

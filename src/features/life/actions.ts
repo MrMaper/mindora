@@ -29,6 +29,7 @@ import {
   serializeFocusSlots,
 } from "@/features/life/focus-slots";
 import { personalTaskOwnership, canAccessPersonalTask } from "@/lib/task-access";
+import { RESEARCH_AREA, DEFAULT_AREA } from "@/lib/areas";
 
 export interface ActionResult {
   success: boolean;
@@ -97,7 +98,7 @@ export async function quickCapture(input: {
   if (!title) return { success: false, error: "عنوان خالی است" };
 
   const { teamId } = await ensurePersonalWorkspace(session.user.id);
-  const area = input.area ?? "LIFE";
+  const area = input.area ?? DEFAULT_AREA;
   let projectId = input.projectId ?? projectIdForArea(session.user.id, area);
   if (input.projectId) {
     const member = await db.projectMember.findFirst({
@@ -163,7 +164,7 @@ export async function completePersonalTask(taskId: string): Promise<ActionResult
     if (!result.ok) return { success: false, error: result.error };
 
     // PhD pipeline only — skip import/call for Life/Work/Lang cards.
-    if (result.changed && result.area === "PHD") {
+    if (result.changed && result.area === RESEARCH_AREA) {
       try {
         const { syncResearchLinksFromTaskStatus } = await import(
           "@/features/research/sync-links"

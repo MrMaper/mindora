@@ -1,6 +1,8 @@
+import type { LifeArea } from "@/types/db";
 import { z } from "zod";
+import { LIFE_AREAS } from "@/lib/areas";
 
-export const lifeAreaSchema = z.enum(["PHD", "WORK", "LIFE", "LANG"]);
+export const lifeAreaSchema = z.enum(LIFE_AREAS as [LifeArea, ...LifeArea[]]);
 export const projectStatusSchema = z.enum([
   "ACTIVE",
   "ARCHIVED",

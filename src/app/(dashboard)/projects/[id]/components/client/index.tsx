@@ -36,6 +36,7 @@ import { MembersTab } from "../ui/members-tab";
 import { InviteMemberDrawer } from "../ui/invite-member-drawer";
 import { RemoveMemberDialog } from "../ui/remove-member-dialog";
 import { ChangeRoleDialog } from "../ui/change-role-dialog";
+import { RESEARCH_AREA, LANGUAGE_AREA } from "@/lib/areas";
 
 interface InviteUser {
   id: string;
@@ -122,11 +123,11 @@ export function ProjectDetailCC({
   }
 
   function openBoardForEdit(task?: ProjectTaskRow) {
-    if (project.area === "PHD") {
+    if (project.area === RESEARCH_AREA) {
       router.push(`/research?project=${project.id}`);
       return;
     }
-    if (project.area === "LANG") {
+    if (project.area === LANGUAGE_AREA) {
       router.push(`/language?project=${project.id}`);
       return;
     }

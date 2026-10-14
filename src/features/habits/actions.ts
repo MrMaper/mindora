@@ -12,6 +12,7 @@ import {
   type HabitHeatDay,
   type HabitItem,
 } from "@/features/habits/queries";
+import { RESEARCH_AREA, LANGUAGE_AREA, isLifeAreaValue } from "@/lib/areas";
 
 export interface ActionResult {
   success: boolean;
@@ -126,13 +127,7 @@ export async function updateHabitAction(input: {
       : undefined;
   let area: LifeArea | null | undefined = undefined;
   if (input.area !== undefined) {
-    area =
-      input.area === "PHD" ||
-      input.area === "WORK" ||
-      input.area === "LIFE" ||
-      input.area === "LANG"
-        ? input.area
-        : null;
+    area = isLifeAreaValue(input.area) ? input.area : null;
   }
 
   const data: {

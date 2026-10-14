@@ -17,6 +17,7 @@ import type { ResearchQuoteItem } from "@/features/research/types";
 import { DOC_STATUS_HINT } from "@/features/research/types";
 import type { DocTemplateKey } from "@/features/docs/templates";
 import { projectIdForCreate } from "@/features/research/active-project";
+import { RESEARCH_AREA } from "@/lib/areas";
 
 export function ResearchPipelineAside({
   phdDocs,
@@ -56,7 +57,7 @@ export function ResearchPipelineAside({
     setPending(key);
     const result = await createDoc({
       templateKey: key,
-      area: "PHD",
+      area: RESEARCH_AREA,
       projectId: pid,
     });
     setPending(null);

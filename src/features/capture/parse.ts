@@ -1,5 +1,6 @@
 import { addDays, startOfDay, toDateKey } from "@/lib/life";
 import type { LifeArea, RecurrenceInterval } from "@/types/db";
+import { RESEARCH_AREA, LANGUAGE_AREA, WORK_AREA, DEFAULT_AREA } from "@/lib/areas";
 
 export type CaptureKind = "task" | "note" | "habit";
 export type CaptureCommand = "task" | "note" | "research" | "source" | "habit";
@@ -343,12 +344,12 @@ function detectArea(scan: string): LifeArea {
       scan,
     )
   ) {
-    return "PHD";
+    return RESEARCH_AREA;
   }
-  if (/زبان|واژه|لغت|\blanguage\b|\bvocab(?:ulary)?\b/i.test(scan)) return "LANG";
-  if (/(?:^|\s)(?:شغل|اداره|دفتر)(?=\s|$)|\bwork\b|\bjob\b/i.test(scan)) return "WORK";
-  if (/زندگی|\blife\b/i.test(scan)) return "LIFE";
-  return "LIFE";
+  if (/زبان|واژه|لغت|\blanguage\b|\bvocab(?:ulary)?\b/i.test(scan)) return LANGUAGE_AREA;
+  if (/(?:^|\s)(?:شغل|اداره|دفتر)(?=\s|$)|\bwork\b|\bjob\b/i.test(scan)) return WORK_AREA;
+  if (/زندگی|\blife\b/i.test(scan)) return DEFAULT_AREA;
+  return DEFAULT_AREA;
 }
 
 function takeCommand(pair: Pair): { pair: Pair; command: CaptureCommand | null } {
@@ -434,7 +435,7 @@ export function parseCapture(input: string, now = new Date()): ParsedCapture {
 
   const area =
     command === "research" || command === "source"
-      ? "PHD"
+      ? RESEARCH_AREA
       : detectArea(pair.scan);
 
   const doiMatch = pair.scan.match(

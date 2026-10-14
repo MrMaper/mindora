@@ -1,14 +1,24 @@
 # Mindora — Areas, modules, access, and first-run
 
-**Status:** Design source of truth, version 2. **P0 is implemented** (see "Implementation status" below); P1–P7 are not started.
+**Status:** Design source of truth, version 2. **P0 is implemented and committed; P1 is implemented (uncommitted)** (see "Implementation status" below); P2–P7 are not started.
 **Rule:** Build only the phase the product owner names. Each phase below is shippable on its own.
 
 ### Implementation status
 
 | Phase | State |
 |---|---|
-| P0 Foundation | Done in code, not committed or deployed. Local dev DB migrated, backfilled, and `verify-areas.ts` green. |
-| P1 – P7, S-track | Not started |
+| P0 Foundation | Committed (`781a6e9`), not deployed. Local dev DB migrated, backfilled, and `verify-areas.ts` green. |
+| P1 Helper seam | Done in code, not committed. Server/logic code is fully migrated; 14 UI files remain on an ESLint baseline (see below). |
+| P2 – P7, S-track | Not started |
+
+**P1 as built (differences from the text below):**
+
+- `src/lib/areas/` is the seam. `legacy.ts` is the only non-test file that holds the `PHD|WORK|LIFE|LANG` literals (`LIFE_AREAS`, `DEFAULT_AREA`, `RESEARCH_AREA`, `LANGUAGE_AREA`, `WORK_AREA`, `HUB_AREAS`, `WORKSPACE_AREAS`, `AREA_META`, `AREA_ORDER`, `emptyAreaCounts`, `coerceLifeArea`, `isLifeAreaValue`). `buckets.ts` holds the bucket-id helpers, `hub.ts` the predicates and Prisma fragments (`isHubArea`, `isResearchArea`, `isLanguageArea`, `isHubTask`, `resolveTaskArea`, `taskAreaOrNull`, `hubTaskExclusion`, `areaWhere`, `researchTaskWhere`, `languageTaskWhere`). `member-context.ts` holds the pure `buildMemberContext` / `buildAreaRefs`.
+- Two entry points: `@/lib/areas` is pure and safe for client components. `@/lib/areas/server` adds `getMemberContext` (React.cache'd), `listUserAreas`, `ensureDefaultArea` (today an alias of `ensurePersonalWorkspace`), and `getEffectiveFlagsForUser`.
+- `src/lib/life.ts`, `project-namespace.ts`, `area-projects.ts` and `features/life/workspace.ts` re-export from the seam, so old imports still work. Nothing moved behavior: `hubTaskExclusion()` is byte-for-byte the old `taskWhereExcludeHub()` fragment (a test checks `isHubTask` against it).
+- Hub identity is still static (`RESEARCH_AREA = "PHD"`, `LANGUAGE_AREA = "LANG"`) and does not look at module flags. The `ctx`-aware versions (`MemberContext.hubAreas`, flags) arrive in P6. `AreaRef.id` is the enum value today and must be treated as opaque; it becomes a `UserArea` id in P4.
+- Lint: `eslint.config.mjs` forbids the four literals (as strings, object keys, and `X.PHD` members) in `src/**`, except `src/lib/areas/**` and tests. The 14 UI files that still switch on literals (label chains, visual maps, calendar/habits/focus components) are listed in `eslint.area-baseline.mjs`. P5 removes them; the list may only shrink.
+- `ensurePersonalWorkspace` and the request-cache wrapper still create four bucket projects per member. Reshaping that into "one default area" is P4.
 
 **P0 as built (differences from the text below):**
 
@@ -621,7 +631,7 @@ Wrapped in `React.cache` like `getUserModuleFlags`. The dashboard layout already
 
 ### 13.4 Lint guard
 
-After P1, an ESLint `no-restricted-syntax` rule fails the build for new uses of `LIFE_AREAS` and the string literals `"PHD"`, `"WORK"`, `"LIFE"`, `"LANG"` outside `src/lib/areas/**` and migration/backfill scripts.
+An ESLint `no-restricted-syntax` rule (live since P1) fails the build for new uses of the string literals `"PHD"`, `"WORK"`, `"LIFE"`, `"LANG"` outside `src/lib/areas/**`, tests, scripts and the shrinking baseline in `eslint.area-baseline.mjs`. Importing `LIFE_AREAS` from `@/lib/areas` stays allowed; the rule targets the literals, not the helper names.
 
 ---
 

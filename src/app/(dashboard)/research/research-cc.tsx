@@ -25,6 +25,7 @@ import type { UserRow } from "@/features/users/types";
 import type { LabelRow } from "@/features/labels/types";
 import type { ProjectRow } from "@/features/projects/types";
 import { useTranslation } from "@/i18n/provider";
+import { RESEARCH_AREA } from "@/lib/areas";
 
 interface ResearchCCProps {
   hub: ResearchHubData;
@@ -156,8 +157,8 @@ function ResearchCCInner({
               formPreset="research"
               createDefaults={{
                 projectId:
-                  scope === "all" || scope === "inbox" ? areaIds.PHD : scope,
-                area: "PHD",
+                  scope === "all" || scope === "inbox" ? areaIds[RESEARCH_AREA] : scope,
+                area: RESEARCH_AREA,
                 status: "BACKLOG",
               }}
             />

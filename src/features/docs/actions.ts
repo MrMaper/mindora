@@ -27,6 +27,7 @@ import type {
 import { countWords, ensureHeadingIds } from "./utils";
 import { extractTaskCandidatesFromHtml } from "./checklist";
 import { ensureDailyNote } from "./daily";
+import { RESEARCH_AREA, LANGUAGE_AREA, LIFE_AREAS, DEFAULT_AREA } from "@/lib/areas";
 export interface ActionResult {
   success: boolean;
   error?: string;
@@ -57,7 +58,7 @@ async function assertProjectMember(
       projectId,
       userId,
       project: {
-        area: { in: ["PHD", "LANG", "WORK", "LIFE"] },
+        area: { in: LIFE_AREAS },
         status: { not: "ARCHIVED" },
       },
     },
@@ -169,12 +170,12 @@ export async function createDoc(input?: {
       : "بدون عنوان");
   const rawContent = input?.content ?? template?.content ?? "<p></p>";
   const content = ensureHeadingIds(rawContent);
-  const area = input?.area ?? template?.area ?? "LIFE";
+  const area = input?.area ?? template?.area ?? DEFAULT_AREA;
 
   // Research templates / PHD docs need Research; any doc needs Docs.
   const blocked = await moduleGuardError(
     session.user.id,
-    area === "PHD" ? "research" : "docs",
+    area === RESEARCH_AREA ? "research" : "docs",
   );
   if (blocked) return { success: false, error: blocked };
 
@@ -199,8 +200,8 @@ export async function createDoc(input?: {
   });
 
   revalidateDocs(doc.id, {
-    research: area === "PHD",
-    language: area === "LANG",
+    research: area === RESEARCH_AREA,
+    language: area === LANGUAGE_AREA,
   });
   return { success: true, data: { id: doc.id } };
 }
@@ -391,7 +392,7 @@ export async function linkDocTask(
   }
 
   const area = task.area ?? task.project?.area ?? null;
-  if (area === "PHD" && doc.templateKey === "sourceNote") {
+  if (area === RESEARCH_AREA && doc.templateKey === "sourceNote") {
     const { replacePhdDocTaskLinks } = await import(
       "@/features/research/doc-task-links"
     );
@@ -471,12 +472,12 @@ export async function createTaskFromDoc(input: {
   const area = input.area ?? doc.area;
 
   // Reuse the single PhD reading card when linking from a source note.
-  if (area === "PHD" && doc.templateKey === "sourceNote") {
+  if (area === RESEARCH_AREA && doc.templateKey === "sourceNote") {
     const existingLink = await db.docTask.findFirst({
       where: {
         docId: doc.id,
         task: {
-          OR: [{ area: "PHD" }, { project: { area: "PHD" } }],
+          OR: [{ area: RESEARCH_AREA }, { project: { area: RESEARCH_AREA } }],
         },
       },
       orderBy: { taskId: "asc" },
@@ -509,7 +510,7 @@ export async function createTaskFromDoc(input: {
     select: { id: true },
   });
 
-  if (area === "PHD" && doc.templateKey === "sourceNote") {
+  if (area === RESEARCH_AREA && doc.templateKey === "sourceNote") {
     const { replacePhdDocTaskLinks } = await import(
       "@/features/research/doc-task-links"
     );

@@ -1,4 +1,5 @@
 import { prisma as db } from "@/lib/db";
+import { RESEARCH_AREA } from "@/lib/areas";
 
 /**
  * Enforce one PhD pipeline card per source note, and at most one source-note
@@ -12,7 +13,7 @@ export async function replacePhdDocTaskLinks(
     where: {
       docId: noteDocId,
       task: {
-        OR: [{ area: "PHD" }, { project: { area: "PHD" } }],
+        OR: [{ area: RESEARCH_AREA }, { project: { area: RESEARCH_AREA } }],
       },
     },
     select: { taskId: true },

@@ -29,6 +29,7 @@ import { toFormStatus } from "@/features/tasks/types";
 import type { LifeArea } from "@/types/db";
 import { coerceLifeArea, dueDateToFormValue } from "@/lib/life";
 import { useAreaBuckets } from "@/components/area-buckets-provider";
+import { DEFAULT_AREA } from "@/lib/areas";
 
 interface KanbanFilters {
   search: string;
@@ -118,7 +119,7 @@ export function useKanban(
       dueDate: "",
       durationMinutes: "",
       waitingOn: "",
-      area: "LIFE",
+      area: DEFAULT_AREA,
       recurrence: "NONE",
       recurrenceEndsAt: "",
       applyRecurrenceToSeries: "",
@@ -138,7 +139,7 @@ export function useKanban(
       dueDate: "",
       durationMinutes: "",
       waitingOn: "",
-      area: "LIFE",
+      area: DEFAULT_AREA,
       recurrence: "NONE",
       recurrenceEndsAt: "",
       applyRecurrenceToSeries: "",
@@ -384,7 +385,7 @@ export function useKanban(
 
   function openCreate(defaults: KanbanCreateDefaults = {}) {
     const area = coerceLifeArea(
-      defaults.area ?? createDefaults.area ?? "LIFE",
+      defaults.area ?? createDefaults.area ?? DEFAULT_AREA,
     );
     const projectId =
       defaults.projectId ??
@@ -453,7 +454,7 @@ export function useKanban(
         "waitingOn",
         data.waitingOn === "1" || data.waitingOn === "true" ? "1" : "",
       );
-      fd.append("area", data.area || "LIFE");
+      fd.append("area", data.area || DEFAULT_AREA);
       fd.append("recurrence", data.recurrence ?? "NONE");
       if (data.recurrenceEndsAt) fd.append("recurrenceEndsAt", data.recurrenceEndsAt);
       if (data.applyRecurrenceToSeries) {
@@ -488,7 +489,7 @@ export function useKanban(
         "waitingOn",
         data.waitingOn === "1" || data.waitingOn === "true" ? "1" : "",
       );
-      fd.append("area", data.area ?? "LIFE");
+      fd.append("area", data.area ?? DEFAULT_AREA);
       fd.append("recurrence", data.recurrence ?? "NONE");
       if (data.recurrenceEndsAt) fd.append("recurrenceEndsAt", data.recurrenceEndsAt);
       if (data.applyRecurrenceToSeries) {

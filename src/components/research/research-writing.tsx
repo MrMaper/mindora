@@ -11,6 +11,7 @@ import { ensurePhdFolderTreeAction } from "@/features/research/actions";
 import { DOC_STATUS_HINT } from "@/features/research/types";
 import type { DocListItem, WritingPulseItem } from "@/features/docs/types";
 import { projectIdForCreate } from "@/features/research/active-project";
+import { RESEARCH_AREA } from "@/lib/areas";
 
 export function ResearchWritingPanel({
   phdDocs,
@@ -42,7 +43,7 @@ export function ResearchWritingPanel({
     setPending(pendingKey);
     const result = await createDoc({
       templateKey: key,
-      area: "PHD",
+      area: RESEARCH_AREA,
       projectId: pid,
     });
     setPending(null);

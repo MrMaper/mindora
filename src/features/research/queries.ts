@@ -13,6 +13,7 @@ import type {
 } from "./types";
 import type { SourceReadingStatus } from "@/types/db";
 import { isLibraryBinderSystemKey } from "./status-sync";
+import { RESEARCH_AREA } from "@/lib/areas";
 
 function docProjectFilter(scope: ResearchProjectScope): {
   projectId?: string | null | "NONE";
@@ -27,7 +28,7 @@ export async function resolveResearchTaskProjectIds(
   userId: string,
   scope: ResearchProjectScope,
 ): Promise<string[]> {
-  const phdInbox = personalAreaProjectId(userId, "PHD");
+  const phdInbox = personalAreaProjectId(userId, RESEARCH_AREA);
   if (scope === "inbox") return [phdInbox];
   if (scope !== "all") return [scope];
 
@@ -44,9 +45,9 @@ export async function listPhdResearchProjects(
     where: {
       userId,
       project: {
-        area: "PHD",
+        area: RESEARCH_AREA,
         status: { not: "ARCHIVED" },
-        id: { notIn: areaBucketIdsToExclude(userId, "PHD") },
+        id: { notIn: areaBucketIdsToExclude(userId, RESEARCH_AREA) },
       },
     },
     orderBy: { project: { updatedAt: "desc" } },
@@ -65,10 +66,10 @@ export async function getResearchHubData(
 ): Promise<ResearchHubData> {
   const projectFilter = docProjectFilter(scope);
   const [phdDocs, quotes, sources, pulse] = await Promise.all([
-    getRecentDocs(userId, { limit: 12, area: "PHD", ...projectFilter }),
+    getRecentDocs(userId, { limit: 12, area: RESEARCH_AREA, ...projectFilter }),
     getRecentPhdQuotes(userId, 12, scope),
     getAggregatedPhdSources(userId, { ...projectFilter }),
-    getWritingPulse(userId, { limit: 8, area: "PHD", ...projectFilter }),
+    getWritingPulse(userId, { limit: 8, area: RESEARCH_AREA, ...projectFilter }),
   ]);
 
   return { phdDocs, quotes, sources, pulse };
@@ -86,7 +87,7 @@ export async function getRecentPhdQuotes(
       NOT: { note: "citation" },
       doc: {
         userId,
-        area: "PHD",
+        area: RESEARCH_AREA,
         deletedAt: null,
         archived: false,
         OR: [
@@ -147,7 +148,7 @@ export async function getAggregatedPhdSources(
     where: {
       doc: {
         userId,
-        area: "PHD",
+        area: RESEARCH_AREA,
         deletedAt: null,
         archived: false,
         ...(opts?.projectId === "NONE" ? { projectId: null } : {}),
@@ -203,7 +204,7 @@ export async function getAggregatedPhdSources(
           systemKey: true,
           templateKey: true,
           tasks: {
-            where: { task: { area: "PHD" } },
+            where: { task: { area: RESEARCH_AREA } },
             take: 1,
             select: {
               task: { select: { id: true, title: true } },

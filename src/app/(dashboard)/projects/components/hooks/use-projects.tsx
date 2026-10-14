@@ -25,6 +25,7 @@ import type {
 import type { ProjectRow } from "@/features/projects/types";
 import type { LifeArea } from "@/types/db";
 import { DrawerMode } from "@/components/ui-kit/global/error";
+import { DEFAULT_AREA } from "@/lib/areas";
 
 export type ProjectsDrawerMode = DrawerMode | "edit-area";
 
@@ -55,13 +56,13 @@ export function useProjects(initialSearch: string) {
       name: "",
       description: "",
       teamId: "",
-      area: "LIFE",
+      area: DEFAULT_AREA,
     },
   });
 
   const areaForm = useForm<UpdateAreaBucketInput>({
     resolver: localizedZodResolver(updateAreaBucketSchema),
-    defaultValues: { area: "LIFE", name: "", description: "" },
+    defaultValues: { area: DEFAULT_AREA, name: "", description: "" },
   });
 
   function openCreate(area?: LifeArea) {
@@ -69,7 +70,7 @@ export function useProjects(initialSearch: string) {
       name: "",
       description: "",
       teamId: "",
-      area: area ?? "LIFE",
+      area: area ?? DEFAULT_AREA,
     });
     setActionError(null);
     setDrawerMode("create");

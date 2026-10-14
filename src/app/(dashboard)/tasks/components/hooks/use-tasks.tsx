@@ -25,6 +25,7 @@ import type { TaskRow, TaskDetail } from "@/features/tasks/types";
 import { toFormStatus } from "@/features/tasks/types";
 import { coerceLifeArea, dueDateToFormValue } from "@/lib/life";
 import { useAreaBuckets } from "@/components/area-buckets-provider";
+import { DEFAULT_AREA } from "@/lib/areas";
 
 type DrawerMode = "none" | "create" | "edit";
 
@@ -85,7 +86,7 @@ export function useTasks(initialFilters: TaskFilters) {
       assignedToId: "",
       dueDate: "",
       durationMinutes: "",
-      area: "LIFE",
+      area: DEFAULT_AREA,
       recurrence: "NONE",
     },
   });
@@ -106,12 +107,12 @@ export function useTasks(initialFilters: TaskFilters) {
       assignedToId: "",
       dueDate: "",
       durationMinutes: "",
-      area: "LIFE",
+      area: DEFAULT_AREA,
       recurrence: "NONE",
     });
     // Default to life bucket after reset — set explicitly via AREA id in submit if empty
-    createForm.setValue("projectId", areaIds.LIFE);
-    createForm.setValue("area", "LIFE");
+    createForm.setValue("projectId", areaIds[DEFAULT_AREA]);
+    createForm.setValue("area", DEFAULT_AREA);
     setSelectedLabelIds([]);
     setActionError(null);
     setDrawerMode("create");
@@ -177,11 +178,11 @@ export function useTasks(initialFilters: TaskFilters) {
       fd.append("status", data.status);
       fd.append("priority", data.priority);
       fd.append("type", "TASK");
-      fd.append("projectId", data.projectId || areaIds.LIFE);
+      fd.append("projectId", data.projectId || areaIds[DEFAULT_AREA]);
       fd.append("assignedToId", data.assignedToId ?? "");
       fd.append("dueDate", data.dueDate ?? "");
       fd.append("durationMinutes", data.durationMinutes ?? "");
-      fd.append("area", data.area || "LIFE");
+      fd.append("area", data.area || DEFAULT_AREA);
       fd.append("recurrence", data.recurrence ?? "NONE");
       fd.append("labelIds", JSON.stringify(selectedLabelIds));
       const result = await createTask(fd);
@@ -208,7 +209,7 @@ export function useTasks(initialFilters: TaskFilters) {
       fd.append("assignedToId", data.assignedToId ?? "");
       fd.append("dueDate", data.dueDate ?? "");
       fd.append("durationMinutes", data.durationMinutes ?? "");
-      fd.append("area", data.area ?? "LIFE");
+      fd.append("area", data.area ?? DEFAULT_AREA);
       fd.append("recurrence", data.recurrence ?? "NONE");
       fd.append("labelIds", JSON.stringify(selectedLabelIds));
       const result = await updateTask(editingTaskId, fd);

@@ -1,6 +1,6 @@
 import { prisma as db } from "@/lib/db";
 import type { LifeArea } from "@/types/db";
-import { LIFE_AREAS, startOfDay, startOfWeek, endOfWeek } from "@/lib/life";
+import { startOfDay, startOfWeek, endOfWeek } from "@/lib/life";
 import { personalAreaProjectId } from "@/lib/area-projects";
 import {
   isAreaBucketId,
@@ -21,6 +21,7 @@ import type {
   AreaPrefRow,
   AreaDashboardData,
 } from "./types";
+import { LIFE_AREAS, WORKSPACE_AREAS, AREA_ORDER } from "@/lib/areas";
 
 const PAGE_SIZE = 15;
 
@@ -398,7 +399,7 @@ export async function getProjects(
 ): Promise<GetProjectsResult> {
   const skip = (page - 1) * PAGE_SIZE;
   const where: Record<string, unknown> = {
-    area: { in: ["WORK", "LIFE"] },
+    area: { in: WORKSPACE_AREAS },
     id: {
       notIn: ["area-phd", "area-work", "area-life", "area-lang"],
     },
@@ -453,12 +454,7 @@ export async function getUserProjects(
   });
 
   const rows = memberships.map(m => toProjectRow(m.project));
-  const areaOrder: Record<string, number> = {
-    PHD: 0,
-    WORK: 1,
-    LIFE: 2,
-    LANG: 3,
-  };
+  const areaOrder: Record<string, number> = AREA_ORDER;
 
   rows.sort((a, b) => {
     const aIsBucket = isAreaBucketId(a.id);

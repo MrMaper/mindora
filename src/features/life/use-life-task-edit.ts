@@ -12,6 +12,7 @@ import type { UpdateTaskInput } from "@/schemas/tasks";
 import type { TaskRow, TaskDetail } from "@/features/tasks/types";
 import { toFormStatus } from "@/features/tasks/types";
 import type { LifeArea } from "@/types/db";
+import { DEFAULT_AREA } from "@/lib/areas";
 
 function resolveArea(task: TaskRow | TaskDetail): LifeArea {
   return coerceLifeArea(task.area);
@@ -41,7 +42,7 @@ export function useLifeTaskEdit() {
       dueDate: "",
       durationMinutes: "",
       waitingOn: "",
-      area: "LIFE",
+      area: DEFAULT_AREA,
       recurrence: "NONE",
     },
   }) as import("react-hook-form").UseFormReturn<UpdateTaskInput>;
@@ -100,7 +101,7 @@ export function useLifeTaskEdit() {
     if (!editingTaskId) return;
     setActionError(null);
     startTransition(async () => {
-      const area = (data.area ?? "LIFE") as LifeArea;
+      const area = (data.area ?? DEFAULT_AREA) as LifeArea;
       const fd = new FormData();
       fd.append("title", data.title);
       fd.append("description", data.description ?? "");

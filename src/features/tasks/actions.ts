@@ -25,6 +25,7 @@ import type { TaskDetail } from "./types";
 import { canAccessPersonalTask } from "@/lib/task-access";
 import { applyTaskStatusChange } from "@/features/tasks/apply-status";
 import { completedAtWrite } from "@/features/tasks/completed-at";
+import { RESEARCH_AREA, LANGUAGE_AREA, isLifeAreaValue } from "@/lib/areas";
 
 function revalidateTasks(extra: string[] = []) {
   revalidatePath("/tasks");
@@ -87,13 +88,7 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
 
   let projectId = parsed.data.projectId || null;
   const rawArea = parsed.data.area;
-  let area: LifeArea | null =
-    rawArea === "PHD" ||
-    rawArea === "WORK" ||
-    rawArea === "LIFE" ||
-    rawArea === "LANG"
-      ? rawArea
-      : null;
+  let area: LifeArea | null = isLifeAreaValue(rawArea) ? rawArea : null;
   if (area && (!projectId || isAreaBucketId(projectId))) {
     projectId = projectIdForArea(session.user.id, area);
   }
@@ -585,7 +580,7 @@ export async function updateTaskStatus(
     if (!applied.ok) return { success: false, error: applied.error };
 
     if (applied.changed) {
-      if (applied.area === "PHD") {
+      if (applied.area === RESEARCH_AREA) {
         try {
           const { syncResearchLinksFromTaskStatus } = await import(
             "@/features/research/sync-links"

@@ -37,6 +37,7 @@ import {
 } from "@/features/projects/actions";
 import type { LifeArea } from "@/types/db";
 import Link from "next/link";
+import { isLifeAreaValue, DEFAULT_AREA } from "@/lib/areas";
 
 interface ProjectsCCProps {
   initialData: ProjectsHubData;
@@ -85,7 +86,7 @@ export function ProjectsCC({
 
   React.useEffect(() => {
     if (!initialCreateArea) return;
-    if (["PHD", "WORK", "LIFE", "LANG"].includes(initialCreateArea)) {
+    if (isLifeAreaValue(initialCreateArea)) {
       u.openCreate(initialCreateArea as LifeArea);
     }
     // deep-link from area dashboard
@@ -403,10 +404,10 @@ export function ProjectsCC({
           isPending: u.isPending,
         }}
         areaName={u.editingProject?.name ?? null}
-        area={u.editingArea ?? "LIFE"}
+        area={u.editingArea ?? DEFAULT_AREA}
         pref={
           sections.find(s => s.area === u.editingArea)?.pref ?? {
-            area: u.editingArea ?? "LIFE",
+            area: u.editingArea ?? DEFAULT_AREA,
             color: null,
             icon: null,
             sortOrder: 0,

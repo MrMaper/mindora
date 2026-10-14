@@ -36,6 +36,7 @@ import {
   SOURCE_READING_TO_TASK,
 } from "./status-sync";
 import { replacePhdDocTaskLinks } from "./doc-task-links";
+import { RESEARCH_AREA } from "@/lib/areas";
 
 export interface ActionResult {
   success: boolean;
@@ -85,7 +86,7 @@ export async function createResearchProjectAction(input: {
       name,
       description: input.description?.trim() || null,
       status: "ACTIVE",
-      area: "PHD",
+      area: RESEARCH_AREA,
       members: {
         create: {
           userId: session.user.id,
@@ -139,7 +140,7 @@ export async function createDocLinkedToTask(input: {
     return { success: false, error: "کار پیدا نشد" };
   }
   const taskArea = task.area ?? task.project?.area ?? null;
-  if (taskArea !== "PHD") {
+  if (taskArea !== RESEARCH_AREA) {
     return { success: false, error: "فقط کارت‌های پژوهش" };
   }
 
@@ -153,13 +154,13 @@ export async function createDocLinkedToTask(input: {
   if (
     !projectId &&
     task.projectId &&
-    !isUserAreaBucket(task.projectId, session.user.id, "PHD")
+    !isUserAreaBucket(task.projectId, session.user.id, RESEARCH_AREA)
   ) {
     const member = await db.projectMember.findFirst({
       where: {
         userId: session.user.id,
         projectId: task.projectId,
-        project: { area: "PHD" },
+        project: { area: RESEARCH_AREA },
       },
       select: { id: true },
     });
@@ -174,7 +175,7 @@ export async function createDocLinkedToTask(input: {
       title,
       content,
       contentText: htmlToPlainText(content),
-      area: "PHD",
+      area: RESEARCH_AREA,
       status: docStatus,
       templateKey: template.key,
       projectId,
@@ -224,7 +225,7 @@ export async function ensurePhdFolderTreeAction(opts?: {
         userId: session!.user!.id,
         parentId,
         name,
-        area: "PHD",
+        area: RESEARCH_AREA,
       },
       select: { id: true },
     });
@@ -232,7 +233,7 @@ export async function ensurePhdFolderTreeAction(opts?: {
     const created = await db.docFolder.create({
       data: {
         name,
-        area: "PHD",
+        area: RESEARCH_AREA,
         parentId,
         userId: session!.user!.id,
         description:
@@ -324,7 +325,7 @@ async function createPerPaperSourceNoteDoc(
       title: `${template.titleFa}: ${source.title}`.slice(0, 120),
       content,
       contentText: htmlToPlainText(content),
-      area: "PHD" satisfies LifeArea,
+      area: RESEARCH_AREA,
       status: SOURCE_READING_TO_DOC[readingStatus] ?? "IDEA",
       templateKey: "sourceNote",
       projectId,
@@ -347,15 +348,15 @@ async function ensureReadingTaskForSourceNote(input: {
 }): Promise<{ taskId: string; created: boolean }> {
   const { teamId } = await ensurePersonalWorkspace(input.userId);
   const taskProjectId =
-    input.researchProjectId ?? personalAreaProjectId(input.userId, "PHD");
+    input.researchProjectId ?? personalAreaProjectId(input.userId, RESEARCH_AREA);
 
   const existing = await db.docTask.findFirst({
     where: {
       docId: input.noteDocId,
       task: {
         OR: [
-          { area: "PHD" },
-          { project: { area: "PHD" } },
+          { area: RESEARCH_AREA },
+          { project: { area: RESEARCH_AREA } },
         ],
         AND: [
           {
@@ -406,7 +407,7 @@ async function ensureReadingTaskForSourceNote(input: {
       status,
       priority: "NONE",
       type: "TASK",
-      area: "PHD",
+      area: RESEARCH_AREA,
       projectId: taskProjectId,
       teamId,
       createdById: input.userId,
@@ -660,13 +661,13 @@ export async function addPhdSourceAction(input: {
   }
   const projectId = input.projectId;
   if (projectId !== null) {
-    const okBucket = isUserAreaBucket(projectId, session.user.id, "PHD");
+    const okBucket = isUserAreaBucket(projectId, session.user.id, RESEARCH_AREA);
     if (!okBucket) {
       const member = await db.projectMember.findFirst({
         where: {
           projectId,
           userId: session.user.id,
-          project: { area: "PHD", status: { not: "ARCHIVED" } },
+          project: { area: RESEARCH_AREA, status: { not: "ARCHIVED" } },
         },
         select: { id: true },
       });
@@ -768,7 +769,7 @@ export async function addPhdSourceAction(input: {
         title: `${template.titleFa}: ${title}`.slice(0, 120),
         content: "<p></p>",
         contentText: "",
-        area: "PHD",
+        area: RESEARCH_AREA,
         status: SOURCE_READING_TO_DOC[readingStatus] ?? "IDEA",
         templateKey: "sourceNote",
         projectId,
@@ -882,7 +883,7 @@ export async function linkSourceToTaskAction(input: {
   ) {
     return { success: false, error: "کار پیدا نشد" };
   }
-  if ((task.area ?? task.project?.area ?? null) !== "PHD") {
+  if ((task.area ?? task.project?.area ?? null) !== RESEARCH_AREA) {
     return { success: false, error: "فقط کارت‌های پژوهش" };
   }
 
@@ -948,7 +949,7 @@ export async function searchPhdTasksForLinkAction(
 
   return db.task.findMany({
     where: {
-      area: "PHD",
+      area: RESEARCH_AREA,
       status: { not: "DONE" },
       title: { contains: q, mode: "insensitive" },
       OR: [

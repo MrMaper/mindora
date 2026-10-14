@@ -1,4 +1,5 @@
 import type { LifeArea } from "@/types/db";
+import { RESEARCH_AREA, LANGUAGE_AREA, DEFAULT_AREA, WORK_AREA } from "@/lib/areas";
 
 export type DocTemplateKey =
   | "blank"
@@ -26,7 +27,7 @@ export interface DocTemplate {
 export const DOC_TEMPLATES: DocTemplate[] = [
   {
     key: "blank",
-    area: "LIFE",
+    area: DEFAULT_AREA,
     titleFa: "خالی",
     titleEn: "Blank",
     descriptionFa: "صفحه خالی برای شروع آزاد",
@@ -35,7 +36,7 @@ export const DOC_TEMPLATES: DocTemplate[] = [
   },
   {
     key: "daily",
-    area: "LIFE",
+    area: DEFAULT_AREA,
     titleFa: "یادداشت روزانه",
     titleEn: "Daily note",
     descriptionFa: "خلاصه روز، اولویت‌ها و حال",
@@ -44,7 +45,7 @@ export const DOC_TEMPLATES: DocTemplate[] = [
   },
   {
     key: "meeting",
-    area: "WORK",
+    area: WORK_AREA,
     titleFa: "صورت‌جلسه",
     titleEn: "Meeting notes",
     descriptionFa: "تصمیم‌ها و اقدام‌ها",
@@ -53,7 +54,7 @@ export const DOC_TEMPLATES: DocTemplate[] = [
   },
   {
     key: "researchIdea",
-    area: "PHD",
+    area: RESEARCH_AREA,
     titleFa: "ایده پژوهش",
     titleEn: "Research idea",
     descriptionFa: "مسئله، سوال و مسیر اولیه",
@@ -62,7 +63,7 @@ export const DOC_TEMPLATES: DocTemplate[] = [
   },
   {
     key: "chapterDraft",
-    area: "PHD",
+    area: RESEARCH_AREA,
     titleFa: "پیش‌نویس فصل",
     titleEn: "Chapter draft",
     descriptionFa: "ساختار فصل رساله یا مقاله",
@@ -71,7 +72,7 @@ export const DOC_TEMPLATES: DocTemplate[] = [
   },
   {
     key: "sourceNote",
-    area: "PHD",
+    area: RESEARCH_AREA,
     titleFa: "یادداشت منبع",
     titleEn: "Source note",
     descriptionFa: "خلاصه مقاله و نقل‌قول‌ها",
@@ -80,7 +81,7 @@ export const DOC_TEMPLATES: DocTemplate[] = [
   },
   {
     key: "litReview",
-    area: "PHD",
+    area: RESEARCH_AREA,
     titleFa: "مرور ادبیات",
     titleEn: "Literature review",
     descriptionFa: "تم‌ها، شکاف‌ها و نقل‌قول‌های ساخت‌یافته",
@@ -89,7 +90,7 @@ export const DOC_TEMPLATES: DocTemplate[] = [
   },
   {
     key: "weeklyReview",
-    area: "LIFE",
+    area: DEFAULT_AREA,
     titleFa: "بازبینی هفته",
     titleEn: "Weekly review",
     descriptionFa: "جمع‌بندی هفته و برنامه بعد",
@@ -98,7 +99,7 @@ export const DOC_TEMPLATES: DocTemplate[] = [
   },
   {
     key: "langSession",
-    area: "LANG",
+    area: LANGUAGE_AREA,
     titleFa: "جلسه زبان",
     titleEn: "Language session",
     descriptionFa: "هدف جلسه، منبع و خلاصه",
@@ -107,7 +108,7 @@ export const DOC_TEMPLATES: DocTemplate[] = [
   },
   {
     key: "langErrorLog",
-    area: "LANG",
+    area: LANGUAGE_AREA,
     titleFa: "دفتر خطا",
     titleEn: "Error log",
     descriptionFa: "اشتباهات تکراری و اصلاح",
@@ -116,7 +117,7 @@ export const DOC_TEMPLATES: DocTemplate[] = [
   },
   {
     key: "langEssay",
-    area: "LANG",
+    area: LANGUAGE_AREA,
     titleFa: "پیش‌نویس Writing",
     titleEn: "Writing draft",
     descriptionFa: "طرح، بدنه و بازبینی",

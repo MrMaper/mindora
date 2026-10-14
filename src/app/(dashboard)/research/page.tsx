@@ -23,6 +23,7 @@ import {
 import { RESEARCH_SCOPE_COOKIE } from "@/features/research/scope-cookie";
 import { ResearchCC } from "./research-cc";
 import { localizedTitle } from "@/lib/page-title";
+import { RESEARCH_AREA } from "@/lib/areas";
 
 export function generateMetadata(): Promise<Metadata> {
   return localizedTitle("پژوهش", "Research");
@@ -95,7 +96,7 @@ export default async function ResearchPage({
     safeScope,
   );
 
-  const phdInbox = personalAreaProjectId(session.user.id, "PHD");
+  const phdInbox = personalAreaProjectId(session.user.id, RESEARCH_AREA);
 
   await syncPlanningStatusesCached(session.user.id);
 
@@ -126,7 +127,7 @@ export default async function ResearchPage({
       name: t.life.researchProjectInbox,
       description: null,
       status: "ACTIVE" as const,
-      area: "PHD" as const,
+      area: RESEARCH_AREA,
       teamId: null,
       teamName: null,
       memberCount: 1,
@@ -139,7 +140,7 @@ export default async function ResearchPage({
       name: p.name,
       description: p.description,
       status: "ACTIVE" as const,
-      area: "PHD" as const,
+      area: RESEARCH_AREA,
       teamId: null,
       teamName: null,
       memberCount: 1,

@@ -27,6 +27,7 @@ import type {
   LanguageProjectItem,
   LanguageProjectScope,
 } from "./types";
+import { LANGUAGE_AREA } from "@/lib/areas";
 
 export interface ActionResult {
   success: boolean;
@@ -44,12 +45,12 @@ async function assertLangProjectMember(
   projectId: string,
   userId: string,
 ): Promise<boolean> {
-  if (isUserAreaBucket(projectId, userId, "LANG")) return true;
+  if (isUserAreaBucket(projectId, userId, LANGUAGE_AREA)) return true;
   const row = await db.projectMember.findFirst({
     where: {
       projectId,
       userId,
-      project: { area: "LANG", status: { not: "ARCHIVED" } },
+      project: { area: LANGUAGE_AREA, status: { not: "ARCHIVED" } },
     },
     select: { id: true },
   });
@@ -77,7 +78,7 @@ export async function createLangProjectAction(input: {
       name,
       description: input.description?.trim() || null,
       status: "ACTIVE",
-      area: "LANG",
+      area: LANGUAGE_AREA,
       members: {
         create: {
           userId: session.user.id,
@@ -118,7 +119,7 @@ export async function logLangSessionAction(input: {
       session.user.id,
     );
     if (!ok) return { success: false, error: "مسیر زبان پیدا نشد" };
-    projectId = isUserAreaBucket(input.projectId, session.user.id, "LANG")
+    projectId = isUserAreaBucket(input.projectId, session.user.id, LANGUAGE_AREA)
       ? null
       : input.projectId;
   }
@@ -241,13 +242,13 @@ export async function createLangDocAction(input?: {
   if (projectId) {
     const ok = await assertLangProjectMember(projectId, session.user.id);
     if (!ok) return { success: false, error: "مسیر زبان پیدا نشد" };
-    if (isUserAreaBucket(projectId, session.user.id, "LANG")) projectId = null;
+    if (isUserAreaBucket(projectId, session.user.id, LANGUAGE_AREA)) projectId = null;
   }
 
   const result = await createDoc({
     templateKey: input?.templateKey ?? "langSession",
     title: input?.title,
-    area: "LANG",
+    area: LANGUAGE_AREA,
     ...(projectId !== undefined ? { projectId } : {}),
   });
 
@@ -262,7 +263,7 @@ async function resolveLangProjectId(
   userId: string,
 ): Promise<{ ok: true; projectId: string | null | undefined } | { ok: false; error: string }> {
   if (projectId === undefined) return { ok: true, projectId: undefined };
-  if (projectId === null || isUserAreaBucket(projectId, userId, "LANG")) {
+  if (projectId === null || isUserAreaBucket(projectId, userId, LANGUAGE_AREA)) {
     return { ok: true, projectId: null };
   }
   const ok = await assertLangProjectMember(projectId, userId);
@@ -998,7 +999,7 @@ export async function createListeningClipAction(input: {
       session.user.id,
     );
     if (!ok) return { success: false, error: "مسیر زبان پیدا نشد" };
-    projectId = isUserAreaBucket(input.projectId, session.user.id, "LANG")
+    projectId = isUserAreaBucket(input.projectId, session.user.id, LANGUAGE_AREA)
       ? null
       : input.projectId;
   }
@@ -1034,7 +1035,7 @@ export async function installListeningStartersAction(input?: {
       session.user.id,
     );
     if (!ok) return { success: false, error: "مسیر زبان پیدا نشد" };
-    projectId = isUserAreaBucket(input.projectId, session.user.id, "LANG")
+    projectId = isUserAreaBucket(input.projectId, session.user.id, LANGUAGE_AREA)
       ? null
       : input.projectId;
   }

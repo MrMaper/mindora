@@ -22,8 +22,9 @@ import {
   parseCapture,
   type CaptureKind,
 } from "./parse";
+import { RESEARCH_AREA, LANGUAGE_AREA, LIFE_AREAS } from "@/lib/areas";
 
-const AREAS = new Set<LifeArea>(["PHD", "WORK", "LIFE", "LANG"]);
+const AREAS = new Set<LifeArea>(LIFE_AREAS);
 
 export interface CaptureResult {
   success: boolean;
@@ -50,7 +51,7 @@ async function resolveCaptureResearchProjectId(
     where: {
       userId,
       projectId: scope,
-      project: { area: "PHD", status: { not: "ARCHIVED" } },
+      project: { area: RESEARCH_AREA, status: { not: "ARCHIVED" } },
     },
     select: { id: true },
   });
@@ -207,9 +208,9 @@ export async function universalCapture(input: {
     );
     const created = await quickCapture({
       title,
-      area: "PHD",
+      area: RESEARCH_AREA,
       projectId:
-        researchProjectId ?? projectIdForArea(session.user.id, "PHD"),
+        researchProjectId ?? projectIdForArea(session.user.id, RESEARCH_AREA),
       recurrence: parsed.recurrence,
       dueDate,
       time: parsed.time,

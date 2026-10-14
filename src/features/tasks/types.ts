@@ -31,7 +31,7 @@ export interface TaskRow {
   labels: TaskLabelRef[];
   projectId: string | null;
   projectName: string | null;
-  area?: "PHD" | "WORK" | "LIFE" | "LANG" | null;
+  area?: LifeArea | null;
   recurrence?: "NONE" | "DAILY" | "WEEKLY" | "MONTHLY";
   recurrenceSeriesId?: string | null;
   recurrenceEndsAt?: Date | null;

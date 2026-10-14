@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui-kit/data-display/badge";
 import { useTranslation } from "@/i18n/provider";
 import { isAreaBucketId } from "@/lib/project-namespace";
 import type { ProjectDetail } from "@/features/projects/types";
+import { RESEARCH_AREA, LANGUAGE_AREA } from "@/lib/areas";
 
 interface ProjectHeaderProps {
   project: ProjectDetail;
@@ -16,8 +17,8 @@ interface ProjectHeaderProps {
 }
 
 function boardHref(project: ProjectDetail): string {
-  if (project.area === "PHD") return `/research?project=${project.id}`;
-  if (project.area === "LANG") return `/language?project=${project.id}`;
+  if (project.area === RESEARCH_AREA) return `/research?project=${project.id}`;
+  if (project.area === LANGUAGE_AREA) return `/language?project=${project.id}`;
   return `/kanban?project=${project.id}`;
 }
 
@@ -25,8 +26,8 @@ function boardLabel(
   project: ProjectDetail,
   t: ReturnType<typeof useTranslation>,
 ): string {
-  if (project.area === "PHD") return t.projects.openResearch;
-  if (project.area === "LANG") return t.projects.openLanguage;
+  if (project.area === RESEARCH_AREA) return t.projects.openResearch;
+  if (project.area === LANGUAGE_AREA) return t.projects.openLanguage;
   return t.projects.openBoard;
 }
 

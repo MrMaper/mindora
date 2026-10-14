@@ -1,3 +1,4 @@
+import type { LifeArea } from "@/types/db";
 export type ProjectStatus =
   | "ACTIVE"
   | "ARCHIVED"
@@ -10,7 +11,7 @@ export interface ProjectRow {
   name: string;
   description: string | null;
   status: ProjectStatus;
-  area: "PHD" | "WORK" | "LIFE" | "LANG";
+  area: LifeArea;
   teamId: string | null;
   teamName: string | null;
   memberCount: number;
@@ -89,7 +90,7 @@ export interface ProjectDetail {
   name: string;
   description: string | null;
   status: ProjectStatus;
-  area: "PHD" | "WORK" | "LIFE" | "LANG";
+  area: LifeArea;
   teamId: string | null;
   teamName: string | null;
   createdAt: Date;

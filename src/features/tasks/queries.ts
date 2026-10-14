@@ -1,3 +1,4 @@
+import type { LifeArea } from "@/types/db";
 import { prisma as db } from "@/lib/db";
 import { taskWhereExcludeHub } from "@/lib/project-namespace";
 import { personalTaskOwnership } from "@/lib/task-access";
@@ -30,8 +31,8 @@ export function toTaskRow(task: {
   assignedTo: { id: string; name: string; avatar: string | null } | null;
   labels: { label: { id: string; name: string; color: string } }[];
   projectId: string | null;
-  project: { name: string; area?: "PHD" | "WORK" | "LIFE" | "LANG" } | null;
-  area?: "PHD" | "WORK" | "LIFE" | "LANG" | null;
+  project: { name: string; area?: LifeArea } | null;
+  area?: LifeArea | null;
   recurrence?: "NONE" | "DAILY" | "WEEKLY" | "MONTHLY";
   recurrenceSeriesId?: string | null;
   recurrenceEndsAt?: Date | null;

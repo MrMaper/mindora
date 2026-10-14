@@ -1,4 +1,4 @@
-import { taskWhereExcludeHub } from "@/lib/project-namespace";
+import { hubTaskExclusion } from "@/lib/areas";
 
 /**
  * Personal ownership for Life OS reads/writes.
@@ -16,7 +16,7 @@ export function personalTaskOwnership(userId: string) {
 /** Ownership + hide PhD/Language hub tasks from Today / life surfaces. */
 export function personalLifeTaskWhere(userId: string) {
   return {
-    AND: [personalTaskOwnership(userId), taskWhereExcludeHub()],
+    AND: [personalTaskOwnership(userId), hubTaskExclusion()],
   };
 }
 
