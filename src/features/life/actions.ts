@@ -99,8 +99,9 @@ export async function quickCapture(input: {
   if (!title) return { success: false, error: "عنوان خالی است" };
 
   const { teamId } = await ensurePersonalWorkspace(session.user.id);
-  const area = input.area ?? DEFAULT_AREA;
+  let area = input.area ?? DEFAULT_AREA;
   let projectId = input.projectId ?? projectIdForArea(session.user.id, area);
+  let areaId: string | null = null;
   if (input.projectId) {
     const member = await db.projectMember.findFirst({
       where: {
@@ -114,6 +115,12 @@ export async function quickCapture(input: {
       return { success: false, error: "به این مسیر دسترسی ندارید" };
     }
     projectId = input.projectId;
+    const project = await db.project.findUnique({
+      where: { id: projectId },
+      select: { area: true, areaId: true },
+    });
+    if (project?.area) area = project.area as typeof area;
+    areaId = project?.areaId ?? null;
   }
 
   const recurrence = input.recurrence ?? "NONE";
@@ -132,6 +139,7 @@ export async function quickCapture(input: {
       priority: "NONE",
       type: "TASK",
       area,
+      areaId,
       recurrence,
       recurrenceSeriesId:
         recurrence !== "NONE" ? newRecurrenceSeriesId() : null,

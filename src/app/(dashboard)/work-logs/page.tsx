@@ -10,7 +10,7 @@ import { zonedDayEndFromKey, zonedDayStartFromKey } from "@/lib/life";
 import { WorkLogsCC } from "./work-logs-cc";
 import { SelectProvider } from "@/components/ui-kit/forms/common";
 import type { Language } from "@/types/db";
-import { isLifeAreaValue, scopeFromFilters } from "@/lib/project-namespace";
+import { scopeFromFilters } from "@/lib/project-namespace";
 import { localizedTitle } from "@/lib/page-title";
 
 export function generateMetadata(): Promise<Metadata> {
@@ -68,7 +68,7 @@ export default async function WorkLogsPage({
   const summary = await getWorkLogSummary({
     userId: effectiveUserId,
     projectId: scope.projectId || undefined,
-    area: isLifeAreaValue(scope.area) ? scope.area : undefined,
+    area: scope.area || undefined,
     dateFrom: fromKey ? zonedDayStartFromKey(fromKey) : undefined,
     dateTo: toKey ? zonedDayEndFromKey(toKey) : undefined,
     page: Math.max(1, Number(page)),

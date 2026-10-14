@@ -9,6 +9,7 @@ export const AREA_PROJECT_IDS = LEGACY_AREA_PROJECT_IDS;
 const LEGACY_SET = new Set<string>(Object.values(LEGACY_AREA_PROJECT_IDS));
 
 const BUCKET_RE = /^area-(phd|work|life|lang)-(.+)$/i;
+const CUSTOM_BUCKET_RE = /^area-inbox-(.+)$/;
 
 export function personalAreaProjectId(userId: string, area: LifeArea): string {
   return `area-${area.toLowerCase()}-${userId}`;
@@ -25,7 +26,7 @@ export function areaProjectIdsForUser(
 export function isAreaBucketId(id: string | null | undefined): boolean {
   if (!id) return false;
   if (LEGACY_SET.has(id)) return true;
-  return BUCKET_RE.test(id);
+  return BUCKET_RE.test(id) || CUSTOM_BUCKET_RE.test(id);
 }
 
 export function lifeAreaFromBucketId(id: string): LifeArea | null {

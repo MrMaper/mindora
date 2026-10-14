@@ -1,6 +1,6 @@
 # Mindora — Areas, modules, access, and first-run
 
-**Status:** Design source of truth, version 2. **P0–P3 are committed; P4 is implemented (uncommitted)** (see "Implementation status" below); P5–P7 are not started.
+**Status:** Design source of truth, version 2. **P0–P3 committed; P4–P5 implemented (uncommitted)** (see "Implementation status" below); P6–P7 and S-track are not started.
 **Rule:** Build only the phase the product owner names. Each phase below is shippable on its own.
 
 ### Implementation status
@@ -8,11 +8,12 @@
 | Phase | State |
 |---|---|
 | P0 Foundation | Committed (`781a6e9`), not deployed. Local dev DB migrated, backfilled, and `verify-areas.ts` green. |
-| P1 Helper seam | Committed (`81cbdd9`). Server/logic code is fully migrated; 14 UI files remain on an ESLint baseline (see below). |
+| P1 Helper seam | Committed (`81cbdd9`). Server/logic code is fully migrated; remaining UI literals sit on a shrinking ESLint baseline. |
 | P2 Starter shell | Committed (`a859b6f`). Migration `20261014180000_ui_profile_lifecycle` (additive) applied locally. |
 | P3 Validation | Committed (`9cb8556` + `5a22973` fixes). Agent walkthrough only — not real-user data; a real round is still recommended before public sign-up. |
 | P4 Schema and migration | Done in code, not committed. Migration `20261014200000_user_areas` applied locally; `backfill-areas.ts` run; `verify-areas` green. |
-| P5 – P7, S-track | Not started |
+| P5 Dynamic UI | Done in code, not committed. Routes/filters/calendar/task form/capture use `AreaRef.id`; S-2/S-3/S-10 wired on `/projects`. |
+| P6 – P7, S-track | Not started |
 
 **P4 as built (differences from the text below):**
 
@@ -22,6 +23,16 @@
 - Reads: `getMemberContext` prefers `user_areas` rows; pre-backfill falls back to the enum + `UserAreaPreference`. `AreaRef.id` is the UserArea id after backfill (enum string before). `AreaRef.legacyEnum` carries the old value for redirects and hub predicates.
 - Hub predicates (`isHubArea`, `hubTaskExclusion`, …) still use the legacy enum columns — P6 moves them to `hubFor`.
 - UI that still routes on enum slugs (`/projects/areas/life`) is unchanged until P5.
+
+**P5 as built (differences from the text below):**
+
+- `MemberAreasProvider` in the member dashboard layout; client pickers/filters/calendar chips/capture area lock read `useActiveMemberAreas()`.
+- Area dashboards: `/projects/areas/[areaId]` with permanent redirect from legacy enum slugs via `legacyEnum`.
+- Filters (`AreaPathFilters`, tasks/kanban/work-logs) use UserArea ids; `areaScopeWhere` / `scopeFromFilters` accept enum or opaque id.
+- Task form and create-path drawer select by `areaId`; custom areas write `Project.areaId` / `Task.areaId` (legacy enum falls back to default when null).
+- S-2 create/rename/reorder/archive; S-3 move-all / merge / delete via area menu (prompt-based confirm); S-10 shared group on `/projects`.
+- Custom bucket ids `area-inbox-*` count as area buckets in `isAreaBucketId`.
+- Baseline shrunk (calendar, task form, capture, area-section removed). Docs/habits/focus surfaces that still switch on literals stay listed until a later pass or P6/P7.
 
 **P2 as built (differences from the text below):**
 

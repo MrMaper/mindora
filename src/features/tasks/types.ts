@@ -32,6 +32,7 @@ export interface TaskRow {
   projectId: string | null;
   projectName: string | null;
   area?: LifeArea | null;
+  areaId?: string | null;
   recurrence?: "NONE" | "DAILY" | "WEEKLY" | "MONTHLY";
   recurrenceSeriesId?: string | null;
   recurrenceEndsAt?: Date | null;
@@ -63,7 +64,8 @@ export interface GetTasksParams {
    */
   ownerId?: string;
   projectIds?: string[];
-  area?: LifeArea;
+  /** Legacy enum or UserArea id. */
+  area?: string;
   labelId?: string;
   /** Default true: hide research/language hub tasks on /tasks. */
   excludeHub?: boolean;

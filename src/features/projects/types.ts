@@ -12,6 +12,8 @@ export interface ProjectRow {
   description: string | null;
   status: ProjectStatus;
   area: LifeArea;
+  /** UserArea id when dual-written (P4+). */
+  areaId?: string | null;
   teamId: string | null;
   teamName: string | null;
   memberCount: number;
@@ -33,7 +35,9 @@ export interface GetProjectsResult {
 }
 
 export interface AreaPrefRow {
-  area: ProjectRow["area"];
+  areaId: string;
+  /** Legacy enum when seeded from the four; null for custom areas. */
+  area: LifeArea | null;
   color: string | null;
   icon: string | null;
   sortOrder: number;
@@ -41,7 +45,13 @@ export interface AreaPrefRow {
 }
 
 export interface AreaHubSection {
-  area: ProjectRow["area"];
+  areaId: string;
+  /** Dual-write / visual fallback: legacyEnum or LIFE. */
+  area: LifeArea;
+  legacyEnum: LifeArea | null;
+  displayName: string;
+  hubFor: "research" | "language" | null;
+  isDefault: boolean;
   bucket: ProjectRow;
   paths: ProjectRow[];
   /** Open (non-DONE) tasks across bucket + paths in this area. */
@@ -52,13 +62,20 @@ export interface AreaHubSection {
 
 export interface ProjectsHubData {
   sections: AreaHubSection[];
+  /** Paths where the member is a guest (S-10). */
+  sharedPaths: ProjectRow[];
   search: string;
   /** Pinned paths across all areas (for shortcuts). */
   pinnedPaths: ProjectRow[];
 }
 
 export interface AreaDashboardData {
-  area: ProjectRow["area"];
+  areaId: string;
+  area: LifeArea;
+  legacyEnum: LifeArea | null;
+  displayName: string;
+  hubFor: "research" | "language" | null;
+  isDefault: boolean;
   bucket: ProjectRow;
   pref: AreaPrefRow;
   paths: ProjectRow[];
@@ -91,6 +108,7 @@ export interface ProjectDetail {
   description: string | null;
   status: ProjectStatus;
   area: LifeArea;
+  areaId?: string | null;
   teamId: string | null;
   teamName: string | null;
   createdAt: Date;

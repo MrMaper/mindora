@@ -8,7 +8,6 @@ import {
   type ProjectListScope,
 } from "@/lib/project-namespace";
 import { ensurePersonalWorkspace } from "@/features/life/workspace";
-import { defaultAreaPref } from "@/lib/area-visual";
 import type {
   GetProjectsResult,
   ProjectRow,
@@ -18,10 +17,16 @@ import type {
   ProjectActivityRow,
   ProjectsHubData,
   AreaHubSection,
-  AreaPrefRow,
   AreaDashboardData,
 } from "./types";
-import { LIFE_AREAS, WORKSPACE_AREAS, AREA_ORDER } from "@/lib/areas";
+import {
+  DEFAULT_AREA,
+  LIFE_AREAS,
+  WORKSPACE_AREAS,
+  AREA_ORDER,
+  areaDisplayName,
+} from "@/lib/areas";
+import { getMemberContext } from "@/lib/areas/server";
 
 const PAGE_SIZE = 15;
 
@@ -31,6 +36,7 @@ const projectListSelect = {
   description: true,
   status: true,
   area: true,
+  areaId: true,
   pinned: true,
   sortOrder: true,
   teamId: true,
@@ -45,6 +51,7 @@ function toProjectRow(p: {
   description: string | null;
   status: ProjectRow["status"];
   area: LifeArea;
+  areaId?: string | null;
   pinned?: boolean;
   sortOrder?: number;
   teamId: string | null;
@@ -58,6 +65,7 @@ function toProjectRow(p: {
     description: p.description,
     status: p.status,
     area: p.area,
+    areaId: p.areaId ?? null,
     teamId: p.teamId,
     teamName: p.team?.name ?? null,
     memberCount: p._count.members,
@@ -75,26 +83,6 @@ function sortPaths(a: ProjectRow, b: ProjectRow): number {
 
 function isActivePathStatus(status: ProjectRow["status"]): boolean {
   return status === "ACTIVE" || status === "PLANNED";
-}
-
-async function loadAreaPrefs(userId: string): Promise<Map<LifeArea, AreaPrefRow>> {
-  const rows = await db.userAreaPreference.findMany({
-    where: { userId },
-  });
-  const map = new Map<LifeArea, AreaPrefRow>();
-  for (const area of LIFE_AREAS) {
-    map.set(area, defaultAreaPref(area, LIFE_AREAS.indexOf(area)));
-  }
-  for (const row of rows) {
-    map.set(row.area, {
-      area: row.area,
-      color: row.color,
-      icon: row.icon,
-      sortOrder: row.sortOrder,
-      archived: row.archived,
-    });
-  }
-  return map;
 }
 
 async function attachTaskStats(rows: ProjectRow[]): Promise<ProjectRow[]> {
@@ -203,44 +191,61 @@ async function attachTaskStats(rows: ProjectRow[]): Promise<ProjectRow[]> {
   });
 }
 
-/** /projects hub: all areas with buckets + named paths for the user. */
+/** /projects hub: member UserAreas + own paths + guest Shared (S-10). */
 export async function getProjectsHub(
   userId: string,
   search = "",
   opts?: { includeArchivedAreas?: boolean },
 ): Promise<ProjectsHubData> {
   await ensurePersonalWorkspace(userId);
+  const ctx = await getMemberContext(userId);
 
-  const [projects, prefMap] = await Promise.all([
-    db.project.findMany({
-      where: {
-        status: { not: "ARCHIVED" },
-        members: { some: { userId } },
-      },
-      select: projectListSelect,
-      orderBy: [{ pinned: "desc" }, { sortOrder: "asc" }, { name: "asc" }],
-    }),
-    loadAreaPrefs(userId),
+  const memberships = await db.projectMember.findMany({
+    where: {
+      userId,
+      project: { status: { not: "ARCHIVED" } },
+    },
+    select: {
+      role: true,
+      project: { select: projectListSelect },
+    },
+  });
+
+  const owned = memberships
+    .filter(m => m.role === "OWNER")
+    .map(m => toProjectRow(m.project));
+  const guest = memberships
+    .filter(m => m.role !== "OWNER")
+    .map(m => toProjectRow(m.project));
+
+  const [ownedRows, guestRows] = await Promise.all([
+    attachTaskStats(owned),
+    attachTaskStats(guest.filter(p => !isAreaBucketId(p.id))),
   ]);
-
-  const rows = await attachTaskStats(projects.map(toProjectRow));
   const q = search.trim().toLowerCase();
 
-  const sectionsRaw: AreaHubSection[] = LIFE_AREAS.map(area => {
-    const pref = prefMap.get(area) ?? defaultAreaPref(area, LIFE_AREAS.indexOf(area));
-    const list = rows.filter(p => p.area === area);
-    const bucketId = personalAreaProjectId(userId, area);
+  const areas = opts?.includeArchivedAreas
+    ? ctx.areas
+    : ctx.areas; // archived stay in the list; UI collapses them
+
+  const sectionsRaw: AreaHubSection[] = areas.map(ref => {
+    const legacy = ref.legacyEnum;
+    const areaKey = legacy ?? DEFAULT_AREA;
+    const list = ownedRows.filter(
+      p =>
+        p.areaId === ref.id ||
+        (!p.areaId && legacy != null && p.area === legacy) ||
+        p.id === ref.bucketProjectId,
+    );
     const bucket =
-      list.find(
-        p =>
-          p.id === bucketId || (isAreaBucketId(p.id) && p.area === area),
-      ) ??
+      list.find(p => p.id === ref.bucketProjectId || isAreaBucketId(p.id)) ??
       ({
-        id: bucketId,
-        name: area,
+        id: ref.bucketProjectId,
+        name: areaDisplayName(ref, "FA"),
         description: null,
         status: "ACTIVE" as const,
-        area,
+        area: areaKey,
+        areaId: ref.id,
         teamId: null,
         teamName: null,
         memberCount: 1,
@@ -253,12 +258,15 @@ export async function getProjectsHub(
         nextActionTitle: null,
       } satisfies ProjectRow);
 
-    let paths = list.filter(p => !isAreaBucketId(p.id)).sort(sortPaths);
+    let paths = list
+      .filter(p => !isAreaBucketId(p.id) && p.id !== ref.bucketProjectId)
+      .sort(sortPaths);
 
     if (q) {
       const bucketHit =
         bucket.name.toLowerCase().includes(q) ||
-        (bucket.description ?? "").toLowerCase().includes(q);
+        areaDisplayName(ref, "FA").toLowerCase().includes(q) ||
+        areaDisplayName(ref, "EN").toLowerCase().includes(q);
       if (!bucketHit) {
         paths = paths.filter(
           p =>
@@ -272,16 +280,36 @@ export async function getProjectsHub(
       (bucket.openTaskCount ?? 0) +
       paths.reduce((n, p) => n + (p.openTaskCount ?? 0), 0);
     const activePathCount = paths.filter(p => isActivePathStatus(p.status)).length;
+    const displayName = areaDisplayName(ref, "FA");
 
-    return { area, bucket, paths, openTaskCount, activePathCount, pref };
+    return {
+      areaId: ref.id,
+      area: areaKey,
+      legacyEnum: legacy,
+      displayName,
+      hubFor: ref.hubFor,
+      isDefault: ref.isDefault,
+      bucket: { ...bucket, areaId: ref.id, name: bucket.name || displayName },
+      paths,
+      openTaskCount,
+      activePathCount,
+      pref: {
+        areaId: ref.id,
+        area: legacy,
+        color: ref.color,
+        icon: ref.icon,
+        sortOrder: ref.sortOrder,
+        archived: ref.archived,
+      },
+    };
   });
 
   const sections = sectionsRaw
     .filter(section => {
       if (!q) return true;
       const bucketHit =
-        section.bucket.name.toLowerCase().includes(q) ||
-        (section.bucket.description ?? "").toLowerCase().includes(q);
+        section.displayName.toLowerCase().includes(q) ||
+        section.bucket.name.toLowerCase().includes(q);
       return bucketHit || section.paths.length > 0;
     })
     .sort((a, b) => {
@@ -291,32 +319,37 @@ export async function getProjectsHub(
       return a.pref.sortOrder - b.pref.sortOrder;
     });
 
-  // opts retained for callers that want to force-include (dashboard already does)
-  void opts;
+  let sharedPaths = guestRows.sort(sortPaths);
+  if (q) {
+    sharedPaths = sharedPaths.filter(
+      p =>
+        p.name.toLowerCase().includes(q) ||
+        (p.description ?? "").toLowerCase().includes(q),
+    );
+  }
 
-  const pinnedPaths = rows
+  const pinnedPaths = [...ownedRows, ...guestRows]
     .filter(p => p.pinned && !isAreaBucketId(p.id))
     .sort(sortPaths);
 
-  return { sections, search, pinnedPaths };
+  return { sections, sharedPaths, search, pinnedPaths };
 }
 
-/** Area context dashboard: `/projects/areas/[area]`. */
+/** Area context dashboard: `/projects/areas/[areaId]` (or legacy slug). */
 export async function getAreaDashboard(
   userId: string,
-  area: LifeArea,
+  areaKey: string,
 ): Promise<AreaDashboardData | null> {
-  if (!LIFE_AREAS.includes(area)) return null;
   await ensurePersonalWorkspace(userId);
-
   const hub = await getProjectsHub(userId, "", { includeArchivedAreas: true });
-  const section = hub.sections.find(s => s.area === area);
+  const upper = areaKey.toUpperCase();
+  const section =
+    hub.sections.find(s => s.areaId === areaKey) ??
+    hub.sections.find(s => s.legacyEnum === upper) ??
+    null;
   if (!section) return null;
 
-  const pathIds = [
-    section.bucket.id,
-    ...section.paths.map(p => p.id),
-  ];
+  const pathIds = [section.bucket.id, ...section.paths.map(p => p.id)];
 
   const weekStart = startOfWeek(startOfDay());
   const weekEnd = endOfWeek(startOfDay());
@@ -356,13 +389,17 @@ export async function getAreaDashboard(
       title: p.nextActionTitle!,
     }));
 
-  const doneTaskCount = section.paths.reduce(
-    (n, p) => n + (p.doneTaskCount ?? 0),
-    0,
-  ) + (section.bucket.doneTaskCount ?? 0);
+  const doneTaskCount =
+    section.paths.reduce((n, p) => n + (p.doneTaskCount ?? 0), 0) +
+    (section.bucket.doneTaskCount ?? 0);
 
   return {
-    area,
+    areaId: section.areaId,
+    area: section.area,
+    legacyEnum: section.legacyEnum,
+    displayName: section.displayName,
+    hubFor: section.hubFor,
+    isDefault: section.isDefault,
     bucket: section.bucket,
     pref: section.pref,
     paths: section.paths,

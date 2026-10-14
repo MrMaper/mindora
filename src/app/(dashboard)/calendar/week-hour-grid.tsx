@@ -10,7 +10,6 @@ import {
   isOverdueTask,
   jalaliOf,
   toDateKey,
-  coerceLifeArea,
 } from "@/lib/life";
 import {
   DAY_MINUTES,
@@ -27,10 +26,10 @@ import {
   taskSpan,
   yToMinutes,
 } from "@/lib/calendar-schedule";
-import { AREA_VISUAL } from "@/lib/area-visual";
+import { useActiveMemberAreas } from "@/components/member-areas-provider";
+import { visualForTask } from "@/lib/area-ui";
 import { Icon } from "@/components/ui-kit/foundation/icon";
 import type { TaskRow } from "@/features/tasks/types";
-import type { LifeArea } from "@/types/db";
 
 export type HourDragPreview = {
   dateKey: string;
@@ -43,20 +42,6 @@ const HOURS = Array.from({ length: 24 }, (_, i) => i);
 const SLOTS_PER_DAY = DAY_MINUTES / SNAP_MINUTES;
 const COLUMN_HEIGHT = HOUR_HEIGHT_PX * 24;
 
-const AREA_CHIP: Record<LifeArea, string> = {
-  PHD: AREA_VISUAL.PHD.chip,
-  WORK: AREA_VISUAL.WORK.chip,
-  LIFE: AREA_VISUAL.LIFE.chip,
-  LANG: AREA_VISUAL.LANG.chip,
-};
-
-const AREA_DOT: Record<LifeArea, string> = {
-  PHD: "bg-[var(--status-review)]",
-  WORK: "bg-[var(--status-in-progress)]",
-  LIFE: "bg-[var(--status-todo)]",
-  LANG: "bg-emerald-600",
-};
-
 export function hoursDropId(dateKey: string) {
   return `hours:${dateKey}`;
 }
@@ -64,10 +49,6 @@ export function hoursDropId(dateKey: string) {
 export function parseHoursDropId(id: string): string | null {
   const m = id.match(/^hours:(\d{4}-\d{2}-\d{2})$/);
   return m?.[1] ?? null;
-}
-
-function taskArea(task: TaskRow): LifeArea {
-  return coerceLifeArea(task.area);
 }
 
 function splitDayTasks(tasks: TaskRow[]) {
@@ -107,11 +88,12 @@ function TimedBlock({
   onResizeCommit: (taskId: string, durationMinutes: number) => void;
 }) {
   const language = useLanguage();
+  const areas = useActiveMemberAreas();
+  const visual = visualForTask(task, areas);
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: task.id,
     data: { task },
   });
-  const area = taskArea(task);
   const start = new Date(task.dueDate!);
   if (Number.isNaN(start.getTime())) return null;
   const duration = Math.max(
@@ -172,10 +154,16 @@ function TimedBlock({
   return (
     <div
       ref={setNodeRef}
-      style={{ top, height }}
+      style={{
+        top,
+        height,
+        ...(visual.chip === "text-white"
+          ? { backgroundColor: visual.cssVar, color: "#fff" }
+          : undefined),
+      }}
       className={cn(
         "absolute inset-x-0.5 z-[2] flex flex-col overflow-hidden rounded-md text-[11px] font-medium leading-tight shadow-sm",
-        AREA_CHIP[area],
+        visual.chip,
         overdue &&
           "ring-2 ring-[var(--status-blocked)] shadow-[inset_3px_0_0_0_var(--status-blocked)]",
         conflict && "ring-2 ring-amber-400",
@@ -227,7 +215,8 @@ function AllDayChip({
   overdue: boolean;
   onOpen: () => void;
 }) {
-  const area = taskArea(task);
+  const areas = useActiveMemberAreas();
+  const visual = visualForTask(task, areas);
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: task.id,
     data: { task },
@@ -243,9 +232,14 @@ function AllDayChip({
         e.stopPropagation();
         if (!isDragging) onOpen();
       }}
+      style={
+        visual.chip === "text-white"
+          ? { backgroundColor: visual.cssVar, color: "#fff" }
+          : undefined
+      }
       className={cn(
         "flex w-full min-w-0 items-center gap-1.5 truncate rounded-md border px-2 py-1 text-start text-[11px] font-medium leading-4 shadow-sm",
-        AREA_CHIP[area],
+        visual.chip,
         overdue
           ? "border-[var(--status-blocked-border)] ring-2 ring-[var(--status-blocked)]"
           : "border-black/10",
@@ -261,9 +255,7 @@ function AllDayChip({
           className="shrink-0 text-[var(--status-blocked)]"
         />
       ) : (
-        <span
-          className={cn("size-1.5 shrink-0 rounded-full bg-white/80", AREA_DOT[area])}
-        />
+        <span className="size-1.5 shrink-0 rounded-full bg-white/80" />
       )}
       <span className="min-w-0 truncate">{task.title}</span>
     </button>

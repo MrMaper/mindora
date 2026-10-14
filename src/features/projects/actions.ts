@@ -20,7 +20,11 @@ import { isAreaBucketId } from "@/lib/project-namespace";
 import { ensurePersonalWorkspace } from "@/features/life/workspace";
 import { LIFE_AREAS } from "@/lib/life";
 import type { LifeArea } from "@/types/db";
-import { RESEARCH_AREA, LANGUAGE_AREA } from "@/lib/areas";
+import { DEFAULT_AREA, RESEARCH_AREA, LANGUAGE_AREA } from "@/lib/areas";
+import {
+  reorderUserAreasAction,
+  updateUserAreaAction,
+} from "@/features/projects/area-actions";
 
 export interface ActionResult {
   success: boolean;
@@ -67,7 +71,9 @@ export async function createProject(formData: FormData): Promise<ActionResult> {
     return { success: false, error: parsed.error.issues[0]?.message };
   }
 
-  const { name, description, teamId, area } = parsed.data;
+  const { name, description, teamId } = parsed.data;
+  let area = parsed.data.area as LifeArea | undefined;
+  let areaId = parsed.data.areaId || null;
 
   // Never create a project with a reserved area-bucket id
   if (isAreaBucketId(name)) {
@@ -76,9 +82,27 @@ export async function createProject(formData: FormData): Promise<ActionResult> {
 
   await ensurePersonalWorkspace(session.user.id);
 
+  if (areaId) {
+    const ua = await db.userArea.findFirst({
+      where: { id: areaId, userId: session.user.id, archived: false },
+      select: { id: true, legacyEnum: true },
+    });
+    if (!ua) return { success: false, error: "حوزه پیدا نشد" };
+    areaId = ua.id;
+    area = (ua.legacyEnum as LifeArea | null) ?? DEFAULT_AREA;
+  } else if (area) {
+    const ua = await db.userArea.findFirst({
+      where: { userId: session.user.id, legacyEnum: area },
+      select: { id: true },
+    });
+    areaId = ua?.id ?? null;
+  } else {
+    return { success: false, error: "حوزه لازم است" };
+  }
+
   const maxSort = await db.project.aggregate({
     where: {
-      area,
+      ...(areaId ? { areaId } : { area }),
       members: { some: { userId: session.user.id } },
       id: { not: { startsWith: "area-" } },
     },
@@ -93,7 +117,8 @@ export async function createProject(formData: FormData): Promise<ActionResult> {
       name: name.trim(),
       description: description?.trim() || null,
       status: "ACTIVE",
-      area,
+      area: area!,
+      areaId,
       sortOrder: (maxSort._max.sortOrder ?? -1) + 1,
       members: {
         create: {
@@ -106,7 +131,7 @@ export async function createProject(formData: FormData): Promise<ActionResult> {
   });
 
   revalidatePath("/projects");
-  revalidatePath(`/projects/areas/${area}`);
+  revalidatePath(`/projects/areas/${areaId ?? area}`);
   if (area === RESEARCH_AREA) revalidatePath("/research");
   if (area === LANGUAGE_AREA) revalidatePath("/language");
   return { success: true, data: { projectId: project.id } };
@@ -173,8 +198,13 @@ export async function updateAreaPreference(
     return { success: false, error: parsed.error.issues[0]?.message };
   }
 
-  const { area, color, icon, sortOrder, archived } = parsed.data;
+  const { area, areaId, color, icon, sortOrder, archived } = parsed.data;
   await ensurePersonalWorkspace(session.user.id);
+
+  if (areaId) {
+    return updateUserAreaAction({ areaId, color, icon, archived });
+  }
+  if (!area) return { success: false, error: "areaId required" };
 
   await db.userAreaPreference.upsert({
     where: {
@@ -196,28 +226,42 @@ export async function updateAreaPreference(
     },
   });
 
+  // Mirror onto UserArea when present.
+  await db.userArea.updateMany({
+    where: { userId: session.user.id, legacyEnum: area },
+    data: {
+      ...(color !== undefined ? { color } : {}),
+      ...(icon !== undefined ? { icon } : {}),
+      ...(sortOrder !== undefined ? { sortOrder } : {}),
+      ...(archived !== undefined ? { archived } : {}),
+    },
+  });
+
   revalidateAreaSurfaces(area);
   return { success: true };
 }
 
-export async function reorderAreas(orderedAreas: LifeArea[]): Promise<ActionResult> {
+export async function reorderAreas(
+  ordered: LifeArea[] | string[],
+): Promise<ActionResult> {
   const session = await requireAuth();
   if (!session?.user) return { success: false, error: "Unauthorized" };
 
+  // UserArea ids (P5) — prefer this path.
+  if (ordered.length > 0 && typeof ordered[0] === "string" && !LIFE_AREAS.includes(ordered[0] as LifeArea)) {
+    return reorderUserAreasAction(ordered as string[]);
+  }
+
+  const orderedAreas = ordered as LifeArea[];
   const parsed = reorderAreasSchema.safeParse({ orderedAreas });
   if (!parsed.success) {
     return { success: false, error: "ترتیب حوزه‌ها نامعتبر است" };
   }
 
-  const unique = new Set(parsed.data.orderedAreas);
-  if (unique.size !== 4 || !LIFE_AREAS.every(a => unique.has(a))) {
-    return { success: false, error: "ترتیب حوزه‌ها نامعتبر است" };
-  }
-
   await ensurePersonalWorkspace(session.user.id);
-
+  const list = parsed.data.orderedAreas ?? [];
   await db.$transaction(
-    parsed.data.orderedAreas.map((area, index) =>
+    list.map((area, index) =>
       db.userAreaPreference.upsert({
         where: {
           userId_area: { userId: session.user.id, area },
@@ -228,6 +272,14 @@ export async function reorderAreas(orderedAreas: LifeArea[]): Promise<ActionResu
           sortOrder: index,
         },
         update: { sortOrder: index },
+      }),
+    ),
+  );
+  await db.$transaction(
+    list.map((area, index) =>
+      db.userArea.updateMany({
+        where: { userId: session.user.id, legacyEnum: area },
+        data: { sortOrder: index },
       }),
     ),
   );
@@ -279,7 +331,8 @@ export async function reorderPathsInArea(
 
 export async function movePathToArea(input: {
   pathId: string;
-  toArea: LifeArea;
+  toArea?: LifeArea;
+  toAreaId?: string;
   toIndex?: number;
 }): Promise<ActionResult> {
   const session = await requireAuth();
@@ -290,17 +343,36 @@ export async function movePathToArea(input: {
     return { success: false, error: parsed.error.issues[0]?.message };
   }
 
-  const { pathId, toArea, toIndex } = parsed.data;
+  const { pathId, toIndex } = parsed.data;
   if (isAreaBucketId(pathId)) {
     return { success: false, error: "Cannot move area buckets" };
   }
+
+  let toAreaId = parsed.data.toAreaId ?? null;
+  let toArea: LifeArea | null = parsed.data.toArea ?? null;
+  if (toAreaId) {
+    const ua = await db.userArea.findFirst({
+      where: { id: toAreaId, userId: session.user.id },
+      select: { id: true, legacyEnum: true },
+    });
+    if (!ua) return { success: false, error: "حوزه پیدا نشد" };
+    toArea = ua.legacyEnum ?? DEFAULT_AREA;
+    toAreaId = ua.id;
+  } else if (toArea) {
+    const ua = await db.userArea.findFirst({
+      where: { userId: session.user.id, legacyEnum: toArea },
+      select: { id: true },
+    });
+    toAreaId = ua?.id ?? null;
+  }
+  if (!toArea) return { success: false, error: "حوزه پیدا نشد" };
 
   const isAdmin = await requireProjectAdmin(pathId, session.user.id);
   if (!isAdmin) return { success: false, error: "اجازه جابه‌جایی ندارید" };
 
   const existing = await db.project.findUnique({
     where: { id: pathId },
-    select: { area: true },
+    select: { area: true, areaId: true },
   });
   if (!existing) return { success: false, error: "مسیر پیدا نشد" };
 
@@ -310,7 +382,7 @@ export async function movePathToArea(input: {
   if (sortOrder === undefined) {
     const maxSort = await db.project.aggregate({
       where: {
-        area: toArea,
+        ...(toAreaId ? { areaId: toAreaId } : { area: toArea }),
         members: { some: { userId: session.user.id } },
         id: { not: { startsWith: "area-" } },
       },
@@ -322,15 +394,15 @@ export async function movePathToArea(input: {
   await db.$transaction([
     db.project.update({
       where: { id: pathId },
-      data: { area: toArea, sortOrder },
+      data: { area: toArea, areaId: toAreaId, sortOrder },
     }),
     db.task.updateMany({
       where: { projectId: pathId },
-      data: { area: toArea },
+      data: { area: toArea, areaId: toAreaId },
     }),
     db.doc.updateMany({
       where: { projectId: pathId, deletedAt: null },
-      data: { area: toArea },
+      data: { area: toArea, areaId: toAreaId },
     }),
   ]);
 

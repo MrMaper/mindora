@@ -1,6 +1,6 @@
 import { prisma as db } from "@/lib/db";
 import { toTaskRow } from "@/features/tasks/queries";
-import { taskWhereExcludeHub } from "@/lib/project-namespace";
+import { areaScopeWhere, taskWhereExcludeHub } from "@/lib/project-namespace";
 import { personalTaskOwnership } from "@/lib/task-access";
 import { BOARD_STATUSES } from "./types";
 import type { BoardColumns, BoardFilters, BoardStatus } from "./types";
@@ -39,16 +39,7 @@ export async function getBoardColumns(
       ...(filters.projectIds && filters.projectIds.length > 0
         ? [{ projectId: { in: filters.projectIds } }]
         : []),
-      ...(filters.area
-        ? [
-            {
-              OR: [
-                { area: filters.area },
-                { project: { area: filters.area } },
-              ],
-            },
-          ]
-        : []),
+      ...(filters.area ? [areaScopeWhere(filters.area)] : []),
     ],
   };
 
@@ -70,8 +61,9 @@ export async function getBoardColumns(
       updatedAt: true,
       projectId: true,
       area: true,
+      areaId: true,
       recurrence: true,
-      project: { select: { name: true, area: true } },
+      project: { select: { name: true, area: true, areaId: true } },
       createdBy: { select: userRefSelect },
       assignedTo: { select: userRefSelect },
       labels: {

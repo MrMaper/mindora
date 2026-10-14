@@ -110,24 +110,48 @@ export function taskWhereExcludeHub(): Record<string, unknown> {
   return hubTaskExclusion();
 }
 
-/** Turn `?area=` and `?project=` into a real area plus a named path. Area buckets are not paths. */
+/** Prisma fragment: filter by legacy enum or UserArea id. */
+export function areaScopeWhere(area: string): Record<string, unknown> {
+  if (isLifeAreaValue(area)) {
+    return {
+      OR: [{ area }, { project: { area } }],
+    };
+  }
+  return {
+    OR: [{ areaId: area }, { project: { areaId: area } }],
+  };
+}
+
+/** Turn `?area=` and `?project=` into area key (enum or areaId) plus named path. */
 export function scopeFromFilters(
   areaParam: string,
   projectParam: string,
-  projects: { id: string; area?: string | null }[] = [],
-): { area: LifeArea | ""; projectId: string } {
+  projects: { id: string; area?: string | null; areaId?: string | null }[] = [],
+): { area: string; projectId: string } {
   const ids = projectParam.split(",").map(id => id.trim()).filter(Boolean);
   const pathId = ids.find(id => !isAreaBucketId(id)) ?? "";
   const bucketId = ids.find(id => isAreaBucketId(id));
-  let area: LifeArea | "" = isLifeAreaValue(areaParam) ? areaParam : "";
+  let area = areaParam.trim();
   if (!area && !pathId && bucketId) {
-    area = lifeAreaFromBucketId(bucketId) ?? "";
+    const fromLegacy = lifeAreaFromBucketId(bucketId);
+    if (fromLegacy) area = fromLegacy;
+    else {
+      const bucket = projects.find(p => p.id === bucketId);
+      area = bucket?.areaId ?? "";
+    }
   }
   if (pathId) {
     const path = projects.find(item => item.id === pathId);
-    const pathArea = isLifeAreaValue(path?.area) ? path.area : "";
-    if (area && pathArea && pathArea !== area) return { area, projectId: "" };
-    if (!area && pathArea) area = pathArea;
+    if (area) {
+      if (isLifeAreaValue(area)) {
+        const pathArea = isLifeAreaValue(path?.area) ? path.area : "";
+        if (pathArea && pathArea !== area) return { area, projectId: "" };
+      } else if (path?.areaId && path.areaId !== area) {
+        return { area, projectId: "" };
+      }
+    } else {
+      area = path?.areaId ?? (isLifeAreaValue(path?.area) ? path.area : "") ?? "";
+    }
   }
   return { area, projectId: pathId };
 }
@@ -169,6 +193,23 @@ export function areaFilterOptions(
   ];
 }
 
+/** P5: filter options from the member's UserAreas (value = areaId). */
+export function areaFilterOptionsFromAreas(
+  areas: { id: string; nameFa: string; nameEn: string; archived?: boolean }[],
+  language: "FA" | "EN",
+  allLabel: string,
+): { value: string; label: string }[] {
+  return [
+    { value: "", label: allLabel },
+    ...areas
+      .filter(a => !a.archived)
+      .map(a => ({
+        value: a.id,
+        label: language === "EN" ? a.nameEn || a.nameFa : a.nameFa || a.nameEn,
+      })),
+  ];
+}
+
 export function pathFilterOptions(
   projects: { id: string; name: string; area?: LifeArea | string | null }[],
   language: "FA" | "EN",
@@ -191,6 +232,28 @@ export function pathFilterOptions(
           ? item.name
           : `${areaOptionLabel(projects, item.area, language)} · ${item.name}`,
     }));
+}
+
+export function pathFilterOptionsForAreaId(
+  projects: {
+    id: string;
+    name: string;
+    area?: LifeArea | string | null;
+    areaId?: string | null;
+  }[],
+  language: "FA" | "EN",
+  areaId: string,
+  legacyEnum?: LifeArea | null,
+): { value: string; label: string }[] {
+  const paths = projects.filter(item => !isAreaBucketId(item.id));
+  const visible = paths.filter(
+    item =>
+      item.areaId === areaId ||
+      (!item.areaId && legacyEnum != null && item.area === legacyEnum),
+  );
+  return [...visible]
+    .sort((a, b) => a.name.localeCompare(b.name, language === "EN" ? "en" : "fa"))
+    .map(item => ({ value: item.id, label: item.name }));
 }
 
 export function withCurrentProjectOption(

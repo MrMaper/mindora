@@ -35,9 +35,15 @@ import {
   togglePathPin,
   updateAreaPreference,
 } from "@/features/projects/actions";
+import {
+  createUserAreaAction,
+  moveAllAreaContentAction,
+  previewAreaMoveAction,
+} from "@/features/projects/area-actions";
 import type { LifeArea } from "@/types/db";
 import Link from "next/link";
-import { isLifeAreaValue, DEFAULT_AREA } from "@/lib/areas";
+import { Button } from "@/components/ui-kit/forms/button";
+import { isLifeAreaValue, DEFAULT_AREA, MAX_ACTIVE_AREAS } from "@/lib/areas";
 
 interface ProjectsCCProps {
   initialData: ProjectsHubData;
@@ -76,18 +82,31 @@ export function ProjectsCC({
   const [statusFilter, setStatusFilter] =
     React.useState<PathStatusFilter>("all");
   const [sections, setSections] = React.useState(initialData.sections);
+  const [sharedPaths, setSharedPaths] = React.useState(
+    initialData.sharedPaths ?? [],
+  );
   const [pinnedPaths, setPinnedPaths] = React.useState(initialData.pinnedPaths);
   const [activeDrag, setActiveDrag] = React.useState<ProjectRow | null>(null);
+  const [creatingArea, setCreatingArea] = React.useState(false);
 
   React.useEffect(() => {
     setSections(initialData.sections);
+    setSharedPaths(initialData.sharedPaths ?? []);
     setPinnedPaths(initialData.pinnedPaths);
   }, [initialData]);
 
   React.useEffect(() => {
     if (!initialCreateArea) return;
+    const byId = sections.find(s => s.areaId === initialCreateArea);
+    if (byId) {
+      u.openCreate(byId.areaId);
+      return;
+    }
     if (isLifeAreaValue(initialCreateArea)) {
-      u.openCreate(initialCreateArea as LifeArea);
+      const byLegacy = sections.find(
+        s => s.legacyEnum === initialCreateArea,
+      );
+      u.openCreate(byLegacy?.areaId ?? initialCreateArea);
     }
     // deep-link from area dashboard
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -115,15 +134,19 @@ export function ProjectsCC({
           };
         });
 
-  const areaOptions = sections.map(s => ({
-    value: s.area,
-    label: s.bucket.name,
-  }));
+  const areaOptions = sections
+    .filter(s => !s.pref.archived)
+    .map(s => ({
+      value: s.areaId,
+      label: s.displayName || s.bucket.name,
+    }));
 
-  function findPath(id: string): { path: ProjectRow; area: LifeArea } | null {
+  function findPath(
+    id: string,
+  ): { path: ProjectRow; area: LifeArea; areaId: string } | null {
     for (const s of sections) {
       const path = s.paths.find(p => p.id === id);
-      if (path) return { path, area: s.area };
+      if (path) return { path, area: s.area, areaId: s.areaId };
     }
     return null;
   }
@@ -143,25 +166,28 @@ export function ProjectsCC({
     const from = findPath(activeId);
     if (!from) return;
 
+    let toAreaId = from.areaId;
     let toArea = from.area;
     let toIndex: number | undefined;
 
     if (overId.startsWith("area-drop-")) {
-      toArea = overId.replace("area-drop-", "") as LifeArea;
-      const dest = sections.find(s => s.area === toArea);
+      toAreaId = overId.replace("area-drop-", "");
+      const dest = sections.find(s => s.areaId === toAreaId);
+      toArea = dest?.area ?? from.area;
       toIndex = dest?.paths.length ?? 0;
     } else {
       const overPath = findPath(overId);
       if (overPath) {
+        toAreaId = overPath.areaId;
         toArea = overPath.area;
-        const dest = sections.find(s => s.area === toArea);
+        const dest = sections.find(s => s.areaId === toAreaId);
         toIndex = dest?.paths.findIndex(p => p.id === overId) ?? 0;
         if (toIndex < 0) toIndex = dest?.paths.length ?? 0;
       }
     }
 
-    if (toArea === from.area) {
-      const section = sections.find(s => s.area === from.area);
+    if (toAreaId === from.areaId) {
+      const section = sections.find(s => s.areaId === from.areaId);
       if (!section) return;
       const oldIndex = section.paths.findIndex(p => p.id === activeId);
       const newIndex =
@@ -173,7 +199,7 @@ export function ProjectsCC({
       );
       setSections(prev =>
         prev.map(s =>
-          s.area === from.area ? { ...s, paths: nextPaths } : s,
+          s.areaId === from.areaId ? { ...s, paths: nextPaths } : s,
         ),
       );
       const result = await reorderPathsInArea(
@@ -188,7 +214,7 @@ export function ProjectsCC({
     const countsAsActive = isActivePathStatus(from.path.status);
     setSections(prev => {
       const without = prev.map(s =>
-        s.area === from.area
+        s.areaId === from.areaId
           ? {
               ...s,
               paths: s.paths.filter(p => p.id !== activeId),
@@ -203,8 +229,8 @@ export function ProjectsCC({
           : s,
       );
       return without.map(s => {
-        if (s.area !== toArea) return s;
-        const moved = { ...from.path, area: toArea };
+        if (s.areaId !== toAreaId) return s;
+        const moved = { ...from.path, area: toArea, areaId: toAreaId };
         const paths = [...s.paths];
         const idx = Math.min(toIndex ?? paths.length, paths.length);
         paths.splice(idx, 0, moved);
@@ -221,6 +247,7 @@ export function ProjectsCC({
 
     const result = await movePathToArea({
       pathId: activeId,
+      toAreaId,
       toArea,
       toIndex,
     });
@@ -251,7 +278,7 @@ export function ProjectsCC({
   }
 
   async function onUpdatePref(
-    area: LifeArea,
+    areaId: string,
     patch: {
       color?: string | null;
       icon?: string | null;
@@ -260,33 +287,97 @@ export function ProjectsCC({
   ) {
     setSections(prev =>
       prev.map(s =>
-        s.area === area
+        s.areaId === areaId
           ? { ...s, pref: { ...s.pref, ...patch } }
           : s,
       ),
     );
-    const result = await updateAreaPreference({ area, ...patch });
+    const result = await updateAreaPreference({ areaId, ...patch });
     if (!result.success) router.refresh();
     else if (patch.archived === true) router.refresh();
   }
 
-  async function onMoveArea(area: LifeArea, direction: "up" | "down") {
-    const order = sections.map(s => s.area);
-    const idx = order.indexOf(area);
+  async function onMoveArea(areaId: string, direction: "up" | "down") {
+    const order = sections.map(s => s.areaId);
+    const idx = order.indexOf(areaId);
     if (idx < 0) return;
     const swapWith = direction === "up" ? idx - 1 : idx + 1;
     if (swapWith < 0 || swapWith >= order.length) return;
     const next = [...order];
     [next[idx], next[swapWith]] = [next[swapWith]!, next[idx]!];
     setSections(prev => {
-      const map = new Map(prev.map(s => [s.area, s]));
-      return next.map((a, i) => {
-        const s = map.get(a)!;
+      const map = new Map(prev.map(s => [s.areaId, s]));
+      return next.map((id, i) => {
+        const s = map.get(id)!;
         return { ...s, pref: { ...s.pref, sortOrder: i } };
       });
     });
     const result = await reorderAreas(next);
     if (!result.success) router.refresh();
+  }
+
+  async function onCreateArea() {
+    const active = sections.filter(s => !s.pref.archived).length;
+    if (active >= MAX_ACTIVE_AREAS) return;
+    const name = window.prompt(
+      t.projects.newAreaPrompt ?? "نام حوزهٔ جدید",
+    );
+    if (!name?.trim()) return;
+    setCreatingArea(true);
+    const res = await createUserAreaAction({ name: name.trim() });
+    setCreatingArea(false);
+    if (!res.success) {
+      window.alert(res.error ?? "ذخیره نشد");
+      return;
+    }
+    router.refresh();
+  }
+
+  async function onMoveAllContent(fromAreaId: string, deleteSource: boolean) {
+    const targets = sections.filter(
+      s => s.areaId !== fromAreaId && !s.pref.archived,
+    );
+    if (targets.length === 0) {
+      window.alert(t.projects.noMoveTarget ?? "حوزهٔ مقصدی نیست");
+      return;
+    }
+    const preview = await previewAreaMoveAction(fromAreaId);
+    const counts = preview.data;
+    const summary = counts
+      ? `${counts.tasks} کار، ${counts.docs} سند، ${counts.paths} پروژه`
+      : "";
+    const list = targets
+      .map((s, i) => `${i + 1}) ${s.displayName || s.bucket.name}`)
+      .join("\n");
+    const pick = window.prompt(
+      `${deleteSource ? (t.projects.mergeConfirm ?? "ادغام / حذف") : (t.projects.moveAllConfirm ?? "انتقال همه")}\n${summary}\n\n${list}\n\nشمارهٔ مقصد:`,
+    );
+    if (!pick?.trim()) return;
+    const idx = Number(pick.trim()) - 1;
+    const to = targets[idx];
+    if (!to) {
+      window.alert(t.projects.invalidTarget ?? "مقصد نامعتبر");
+      return;
+    }
+    if (
+      !window.confirm(
+        (t.projects.moveAllFinalConfirm ??
+          "همهٔ موارد منتقل می‌شود. برگشت‌پذیر نیست.") +
+          `\n→ ${to.displayName || to.bucket.name}`,
+      )
+    ) {
+      return;
+    }
+    const res = await moveAllAreaContentAction({
+      fromAreaId,
+      toAreaId: to.areaId,
+      deleteSource,
+    });
+    if (!res.success) {
+      window.alert(res.error ?? "خطا");
+      return;
+    }
+    router.refresh();
   }
 
   return (
@@ -335,10 +426,29 @@ export function ProjectsCC({
           onDragStart={onDragStart}
           onDragEnd={onDragEnd}
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 items-start">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant="subtle"
+              icon="plus"
+              loading={creatingArea}
+              disabled={
+                creatingArea ||
+                sections.filter(s => !s.pref.archived).length >= MAX_ACTIVE_AREAS
+              }
+              onClick={() => void onCreateArea()}
+            >
+              {t.projects.newArea ?? "حوزهٔ جدید"}
+            </Button>
+            {sections.filter(s => !s.pref.archived).length >= MAX_ACTIVE_AREAS ? (
+              <span className="text-xs text-muted-foreground">حداکثر ۸ حوزه</span>
+            ) : null}
+          </div>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3 md:gap-4 items-start">
             {displaySections.map(({ section, filterEmpty }) => (
               <AreaSection
-                key={section.area}
+                key={section.areaId}
                 section={section}
                 filterEmpty={filterEmpty}
                 onEditArea={u.openEditArea}
@@ -350,9 +460,40 @@ export function ProjectsCC({
                 onTogglePin={onTogglePin}
                 onUpdatePref={onUpdatePref}
                 onMoveArea={onMoveArea}
+                onMoveAllContent={onMoveAllContent}
+                otherAreas={sections
+                  .filter(
+                    s => s.areaId !== section.areaId && !s.pref.archived,
+                  )
+                  .map(s => ({
+                    id: s.areaId,
+                    label: s.displayName || s.bucket.name,
+                  }))}
               />
             ))}
           </div>
+          {sharedPaths.length > 0 ? (
+            <section className="mt-6 rounded-xl border border-border-default bg-bg-surface p-4">
+              <h2 className="mb-3 text-sm font-semibold">
+                {t.projects.sharedGroup ?? "مشترک"}
+              </h2>
+              <ul className="space-y-2">
+                {sharedPaths.map(path => (
+                  <li key={path.id}>
+                    <Link
+                      href={`/projects/${path.id}`}
+                      className="flex items-center justify-between rounded-md border border-border-default px-3 py-2 text-sm hover:bg-bg-hover"
+                    >
+                      <span className="truncate">{path.name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {path.teamName ?? path.memberCount}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
           <DragOverlay>
             {activeDrag ? (
               <div className="rounded-md border border-border-default bg-bg-surface px-3 py-2 text-sm shadow-lg">
@@ -406,7 +547,13 @@ export function ProjectsCC({
         areaName={u.editingProject?.name ?? null}
         area={u.editingArea ?? DEFAULT_AREA}
         pref={
-          sections.find(s => s.area === u.editingArea)?.pref ?? {
+          sections.find(
+            s =>
+              s.bucket.id === u.editingProject?.id ||
+              s.areaId === u.editingProject?.areaId ||
+              s.area === u.editingArea,
+          )?.pref ?? {
+            areaId: u.editingProject?.areaId ?? u.editingArea ?? DEFAULT_AREA,
             area: u.editingArea ?? DEFAULT_AREA,
             color: null,
             icon: null,
@@ -415,7 +562,13 @@ export function ProjectsCC({
           }
         }
         onPrefChange={patch => {
-          if (u.editingArea) void onUpdatePref(u.editingArea, patch);
+          const section = sections.find(
+            s =>
+              s.bucket.id === u.editingProject?.id ||
+              s.areaId === u.editingProject?.areaId ||
+              s.area === u.editingArea,
+          );
+          if (section) void onUpdatePref(section.areaId, patch);
         }}
         onSubmit={u.onAreaSubmit}
         actionError={u.actionError}

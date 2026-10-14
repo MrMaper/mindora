@@ -12,7 +12,7 @@ import {
 import { TasksCC } from "./components/client";
 import { SelectProvider } from "@/components/ui-kit/forms/common";
 import type { TaskStatus, TaskPriority } from "@/types/db";
-import { isLifeAreaValue, scopeFromFilters } from "@/lib/project-namespace";
+import { scopeFromFilters } from "@/lib/project-namespace";
 import { localizedTitle } from "@/lib/page-title";
 import { parseTaskGroup, parseTaskOrder, parseTaskSort } from "@/features/tasks/view";
 
@@ -85,7 +85,7 @@ export default async function TasksPage({
     ownerId,
     assigneeId,
     projectIds,
-    area: isLifeAreaValue(scope.area) ? scope.area : undefined,
+    area: scope.area || undefined,
     labelId: label || undefined,
     excludeHub: false,
     sort,

@@ -17,6 +17,7 @@ import {
   unarchiveProject,
   deleteProject,
 } from "@/features/projects/actions";
+import { updateUserAreaAction } from "@/features/projects/area-actions";
 import type {
   CreateProjectInput,
   UpdateProjectInput,
@@ -25,7 +26,7 @@ import type {
 import type { ProjectRow } from "@/features/projects/types";
 import type { LifeArea } from "@/types/db";
 import { DrawerMode } from "@/components/ui-kit/global/error";
-import { DEFAULT_AREA } from "@/lib/areas";
+import { DEFAULT_AREA, isLifeAreaValue } from "@/lib/areas";
 
 export type ProjectsDrawerMode = DrawerMode | "edit-area";
 
@@ -56,7 +57,8 @@ export function useProjects(initialSearch: string) {
       name: "",
       description: "",
       teamId: "",
-      area: DEFAULT_AREA,
+      area: "",
+      areaId: "",
     },
   });
 
@@ -65,12 +67,18 @@ export function useProjects(initialSearch: string) {
     defaultValues: { area: DEFAULT_AREA, name: "", description: "" },
   });
 
-  function openCreate(area?: LifeArea) {
+  function openCreate(areaOrId?: LifeArea | string) {
+    const asLegacy =
+      typeof areaOrId === "string" && isLifeAreaValue(areaOrId)
+        ? areaOrId
+        : undefined;
+    const asId = asLegacy ? "" : areaOrId ?? "";
     createForm.reset({
       name: "",
       description: "",
       teamId: "",
-      area: area ?? DEFAULT_AREA,
+      area: asLegacy ?? "",
+      areaId: asId,
     });
     setActionError(null);
     setDrawerMode("create");
@@ -113,7 +121,8 @@ export function useProjects(initialSearch: string) {
       fd.append("name", data.name);
       fd.append("description", data.description ?? "");
       fd.append("teamId", data.teamId ?? "");
-      fd.append("area", data.area);
+      if (data.areaId) fd.append("areaId", data.areaId);
+      if (data.area) fd.append("area", data.area);
       const result = await createProject(fd);
       if (!result.success) {
         setActionError(result.error ?? "Failed to create path.");
@@ -145,6 +154,19 @@ export function useProjects(initialSearch: string) {
   const onAreaSubmit = areaForm.handleSubmit(data => {
     setActionError(null);
     startTransition(async () => {
+      if (editingProject?.areaId) {
+        const result = await updateUserAreaAction({
+          areaId: editingProject.areaId,
+          name: data.name,
+        });
+        if (!result.success) {
+          setActionError(result.error ?? "Failed to update area.");
+          return;
+        }
+        closeDrawer();
+        router.refresh();
+        return;
+      }
       const fd = new FormData();
       fd.append("area", data.area);
       fd.append("name", data.name);

@@ -1,6 +1,7 @@
 import { prisma as db } from "@/lib/db";
 import type { GetWorkLogsParams, GetWorkLogsResult, WorkLogRow, WorkLogDetail, WorkLogSummary } from "./types";
 import { zonedDateKey } from "@/lib/life";
+import { areaScopeWhere } from "@/lib/project-namespace";
 
 const PAGE_SIZE = 20;
 
@@ -9,13 +10,7 @@ function taskScope(params: GetWorkLogsParams): Record<string, unknown> | undefin
   return {
     AND: [
       ...(params.projectId ? [{ projectId: params.projectId }] : []),
-      ...(params.area
-        ? [
-            {
-              OR: [{ area: params.area }, { project: { area: params.area } }],
-            },
-          ]
-        : []),
+      ...(params.area ? [areaScopeWhere(params.area)] : []),
     ],
   };
 }

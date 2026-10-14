@@ -15,15 +15,21 @@ import {
 } from "@/components/ui-kit/forms/time-roller";
 import { LabelPicker } from "@/app/(dashboard)/tasks/components/ui/label-picker";
 import { useTranslation } from "@/i18n/provider";
-import { LIFE_AREAS, coerceLifeArea, hasDueTime } from "@/lib/life";
-import { isAreaBucketId, lifeAreaFromBucketId, projectPickerLabel } from "@/lib/project-namespace";
+import { coerceLifeArea, hasDueTime } from "@/lib/life";
+import {
+  isAreaBucketId,
+  lifeAreaFromBucketId,
+  projectPickerLabel,
+} from "@/lib/project-namespace";
 import { useAreaBuckets } from "@/components/area-buckets-provider";
+import { useActiveMemberAreas } from "@/components/member-areas-provider";
+import { areaDisplayName, DEFAULT_AREA } from "@/lib/areas";
+import type { AreaRef } from "@/lib/areas";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/i18n/provider";
 import type { CreateTaskInput } from "@/schemas/tasks";
 import type { LabelRow } from "@/features/labels/types";
 import type { ProjectRow } from "@/features/projects/types";
-import type { LifeArea } from "@/types/db";
 
 export type TaskFormPreset = "life" | "research" | "language";
 
@@ -49,24 +55,18 @@ export interface TaskFormFieldsProps {
   lockProject?: boolean;
 }
 
-function areaLabel(
-  area: LifeArea,
-  t: ReturnType<typeof useTranslation>,
-  projects: ProjectRow[],
-  bucketId: string,
-): string {
-  const bucket = projects.find(p => p.id === bucketId);
-  if (bucket?.name?.trim()) return bucket.name.trim();
-  if (area === "PHD") return t.dashboard.areaPhd;
-  if (area === "WORK") return t.dashboard.areaWork;
-  if (area === "LANG") return t.dashboard.areaLang;
-  return t.dashboard.areaLife;
+function lockedHubForPreset(
+  preset: TaskFormPreset,
+): "research" | "language" | null {
+  if (preset === "research") return "research";
+  if (preset === "language") return "language";
+  return null;
 }
 
-function lockedAreaForPreset(preset: TaskFormPreset): LifeArea | null {
-  if (preset === "research") return "PHD";
-  if (preset === "language") return "LANG";
-  return null;
+function refMatchesProject(ref: AreaRef, p: ProjectRow): boolean {
+  if (p.areaId && p.areaId === ref.id) return true;
+  if (ref.legacyEnum && p.area === ref.legacyEnum) return true;
+  return p.id === ref.bucketProjectId;
 }
 
 export function TaskFormFields({
@@ -89,8 +89,9 @@ export function TaskFormFields({
   const t = useTranslation();
   const language = useLanguage();
   const areaIds = useAreaBuckets();
+  const memberAreas = useActiveMemberAreas();
   const isAdmin = currentUserRole === "ADMIN";
-  const lockedArea = lockedAreaForPreset(preset);
+  const lockedHub = lockedHubForPreset(preset);
   const labelsEnabled =
     showLabels ?? (preset === "life" || preset === "language");
   const [moreOpen, setMoreOpen] = React.useState(false);
@@ -123,38 +124,70 @@ export function TaskFormFields({
         : null,
     );
 
-  const currentArea = coerceLifeArea(
-    (watchedArea as string | undefined) ?? lockedArea ?? "LIFE",
-  );
+  const pickerAreas = React.useMemo(() => {
+    if (lockedHub) {
+      const hub = memberAreas.find(a => a.hubFor === lockedHub);
+      return hub ? [hub] : [];
+    }
+    return memberAreas;
+  }, [memberAreas, lockedHub]);
+
   const currentProjectId = (watchedProjectId as string | undefined) ?? "";
+  const currentAreaEnum = coerceLifeArea(
+    (watchedArea as string | undefined) ?? DEFAULT_AREA,
+  );
+
+  const activeRef = React.useMemo(() => {
+    if (currentProjectId) {
+      const byBucket = pickerAreas.find(
+        a => a.bucketProjectId === currentProjectId,
+      );
+      if (byBucket) return byBucket;
+      const proj = projects.find(p => p.id === currentProjectId);
+      if (proj?.areaId) {
+        const byId = pickerAreas.find(a => a.id === proj.areaId);
+        if (byId) return byId;
+      }
+      if (proj?.area) {
+        const byLegacy = pickerAreas.find(a => a.legacyEnum === proj.area);
+        if (byLegacy) return byLegacy;
+      }
+    }
+    const byLegacy = pickerAreas.find(a => a.legacyEnum === currentAreaEnum);
+    if (byLegacy) return byLegacy;
+    return pickerAreas.find(a => a.isDefault) ?? pickerAreas[0] ?? null;
+  }, [pickerAreas, currentProjectId, projects, currentAreaEnum]);
 
   const projectOptions = React.useMemo(() => {
-    const filtered = projects.filter(p => {
-      const area = coerceLifeArea(p.area);
-      if (preset === "research") return area === "PHD";
-      if (preset === "language") return area === "LANG";
-      return area === currentArea;
-    });
+    const filtered = activeRef
+      ? projects.filter(p => refMatchesProject(activeRef, p))
+      : projects.filter(p => coerceLifeArea(p.area) === currentAreaEnum);
 
-    const bucketId = areaIds[currentArea];
+    const bucketId =
+      activeRef?.bucketProjectId ??
+      areaIds[currentAreaEnum] ??
+      "";
+
     const opts: SelectOption[] = filtered.map(p => ({
       value: p.id,
       label: isAreaBucketId(p.id)
         ? preset === "research"
           ? t.life.researchProjectInbox
-          : projectPickerLabel(p, "FA")
+          : projectPickerLabel(p, language === "EN" ? "EN" : "FA")
         : p.name,
     }));
 
-    if (!opts.some(o => o.value === bucketId)) {
+    if (bucketId && !opts.some(o => o.value === bucketId)) {
       opts.unshift({
         value: bucketId,
         label:
           preset === "research"
             ? t.life.researchProjectInbox
-            : areaLabel(currentArea, t, projects, bucketId),
+            : activeRef
+              ? areaDisplayName(activeRef, language === "EN" ? "EN" : "FA")
+              : t.dashboard.areaLife,
       });
-    } else {
+    } else if (bucketId) {
       opts.sort((a, b) => {
         if (a.value === bucketId) return -1;
         if (b.value === bucketId) return 1;
@@ -163,23 +196,47 @@ export function TaskFormFields({
     }
 
     return opts;
-  }, [projects, currentArea, preset, t, areaIds]);
+  }, [
+    projects,
+    activeRef,
+    currentAreaEnum,
+    preset,
+    t,
+    areaIds,
+    language,
+  ]);
 
-  function handleAreaChange(area: LifeArea) {
-    if (lockedArea) return;
-    setValue("area", area, { shouldValidate: true });
-    setValue("projectId", areaIds[area], { shouldValidate: true });
+  function handleAreaChange(ref: AreaRef) {
+    if (lockedHub) return;
+    setValue("area", ref.legacyEnum ?? DEFAULT_AREA, { shouldValidate: true });
+    setValue("projectId", ref.bucketProjectId, { shouldValidate: true });
   }
 
   function handleProjectChange(value: string) {
     setValue("projectId", value, { shouldValidate: true });
     const project = projects.find(p => p.id === value);
+    if (project?.areaId) {
+      const ref = memberAreas.find(a => a.id === project.areaId);
+      if (ref) {
+        setValue("area", ref.legacyEnum ?? DEFAULT_AREA, {
+          shouldValidate: true,
+        });
+        return;
+      }
+    }
     if (project?.area) {
       setValue("area", coerceLifeArea(project.area), { shouldValidate: true });
     } else if (isAreaBucketId(value)) {
       const fromId = lifeAreaFromBucketId(value);
       if (fromId) {
         setValue("area", fromId, { shouldValidate: true });
+      } else {
+        const ref = memberAreas.find(a => a.bucketProjectId === value);
+        if (ref) {
+          setValue("area", ref.legacyEnum ?? DEFAULT_AREA, {
+            shouldValidate: true,
+          });
+        }
       }
     }
   }
@@ -207,6 +264,11 @@ export function TaskFormFields({
     { value: "WEEKLY", label: t.dashboard.recurrenceWeekly },
     { value: "MONTHLY", label: t.dashboard.recurrenceMonthly },
   ];
+
+  const areaChips =
+    pickerAreas.length > 0
+      ? pickerAreas
+      : null;
 
   return (
     <div className="flex flex-col gap-4">
@@ -241,23 +303,25 @@ export function TaskFormFields({
           {t.tasks.area}
         </div>
         <div className="flex flex-wrap gap-2">
-          {(lockedArea ? [lockedArea] : LIFE_AREAS).map(area => (
-            <button
-              key={area}
-              type="button"
-              disabled={!!lockedArea}
-              onClick={() => handleAreaChange(area)}
-              className={cn(
-                "px-2.5 py-1 rounded-full text-xs font-medium border transition-colors",
-                currentArea === area
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "text-muted-foreground hover:bg-accent",
-                lockedArea && "opacity-90 cursor-default",
-              )}
-            >
-              {areaLabel(area, t, projects, areaIds[area])}
-            </button>
-          ))}
+          {areaChips
+            ? areaChips.map(ref => (
+                <button
+                  key={ref.id}
+                  type="button"
+                  disabled={!!lockedHub}
+                  onClick={() => handleAreaChange(ref)}
+                  className={cn(
+                    "px-2.5 py-1 rounded-full text-xs font-medium border transition-colors",
+                    activeRef?.id === ref.id
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "text-muted-foreground hover:bg-accent",
+                    lockedHub && "opacity-90 cursor-default",
+                  )}
+                >
+                  {areaDisplayName(ref, language === "EN" ? "EN" : "FA")}
+                </button>
+              ))
+            : null}
         </div>
       </div>
 
@@ -267,7 +331,11 @@ export function TaskFormFields({
           control={control}
           render={({ field, fieldState }) => (
             <Select
-              value={field.value || areaIds[currentArea]}
+              value={
+                field.value ||
+                activeRef?.bucketProjectId ||
+                areaIds[currentAreaEnum]
+              }
               onChange={handleProjectChange}
               label={t.tasks.pathOrProject}
               options={projectSelectOptions}
@@ -389,20 +457,22 @@ export function TaskFormFields({
                         )}
                       </button>
                     ) : null}
-                    {DURATION_PRESETS.map(preset => (
+                    {DURATION_PRESETS.map(presetItem => (
                       <button
-                        key={preset.minutes}
+                        key={presetItem.minutes}
                         type="button"
-                        onClick={() => field.onChange(String(preset.minutes))}
+                        onClick={() =>
+                          field.onChange(String(presetItem.minutes))
+                        }
                         className={cn(
                           "rounded-md border px-2 py-1 text-xs transition-colors",
-                          current === preset.minutes
+                          current === presetItem.minutes
                             ? "border-primary bg-primary/10 text-primary"
                             : "text-muted-foreground hover:bg-accent",
                         )}
                       >
                         {formatDurationLabel(
-                          preset.minutes,
+                          presetItem.minutes,
                           language === "EN" ? "EN" : "FA",
                         )}
                       </button>

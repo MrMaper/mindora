@@ -9,7 +9,6 @@ import { Button } from "@/components/ui-kit/forms/button";
 import { Input } from "@/components/ui-kit/forms/input";
 import { Select } from "@/components/ui-kit/forms/select";
 import type { CreateProjectInput } from "@/schemas/projects";
-import type { LifeArea } from "@/types/db";
 
 interface CreateProjectDrawerProps {
   isOpen: boolean;
@@ -21,7 +20,7 @@ interface CreateProjectDrawerProps {
   onSubmit: () => void;
   actionError: string | null;
   isPending: boolean;
-  areaOptions: { value: LifeArea; label: string }[];
+  areaOptions: { value: string; label: string }[];
 }
 
 export function CreateProjectDrawer({
@@ -65,11 +64,11 @@ export function CreateProjectDrawer({
           </div>
         )}
         <Controller
-          name="area"
+          name="areaId"
           control={form.control}
           render={({ field, fieldState }) => (
             <Select
-              value={field.value}
+              value={field.value ?? ""}
               onChange={field.onChange}
               label={t.projects.selectArea}
               options={areaOptions.map(o => ({

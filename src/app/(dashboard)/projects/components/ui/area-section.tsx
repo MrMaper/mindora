@@ -20,34 +20,36 @@ import { cn, formatNumber } from "@/lib/utils";
 import {
   AREA_COLOR_PRESETS,
   AREA_ICON_PRESETS,
-  areaRelatedLinks,
+  areaRelatedLinksFromHub,
   areaVisualInline,
-  resolveAreaVisual,
+  resolveAreaVisualFromRef,
 } from "@/lib/area-visual";
+import { areaDashboardHref } from "@/lib/areas";
 import { getProjectStatusLabel } from "@/components/ui-kit/forms/select-utils";
 import type { AreaHubSection, ProjectRow } from "@/features/projects/types";
-import type { LifeArea } from "@/types/db";
 import type { ProjectStatus } from "@/features/projects/types";
 
 interface AreaSectionProps {
   section: AreaHubSection;
   filterEmpty?: boolean;
   onEditArea: (bucket: ProjectRow) => void;
-  onAddPath: (area: LifeArea) => void;
+  onAddPath: (areaId: string) => void;
   onView: (project: ProjectRow) => void;
   onEditPath: (project: ProjectRow) => void;
   onArchive: (project: ProjectRow) => void;
   onDelete: (project: ProjectRow) => void;
   onTogglePin: (project: ProjectRow) => void;
   onUpdatePref: (
-    area: LifeArea,
+    areaId: string,
     patch: {
       color?: string | null;
       icon?: string | null;
       archived?: boolean;
     },
   ) => void;
-  onMoveArea: (area: LifeArea, direction: "up" | "down") => void;
+  onMoveArea: (areaId: string, direction: "up" | "down") => void;
+  onMoveAllContent?: (areaId: string, deleteSource: boolean) => void;
+  otherAreas?: { id: string; label: string }[];
 }
 
 function statusTone(
@@ -183,21 +185,41 @@ export function AreaSection({
   onTogglePin,
   onUpdatePref,
   onMoveArea,
+  onMoveAllContent,
+  otherAreas = [],
 }: AreaSectionProps) {
   const t = useTranslation();
   const language = useLanguage();
   const router = useRouter();
-  const { area, bucket, paths, openTaskCount, activePathCount, pref } = section;
-  const visual = resolveAreaVisual(area, pref);
-  const related = areaRelatedLinks(area);
+  const {
+    areaId,
+    area,
+    hubFor,
+    displayName,
+    bucket,
+    paths,
+    openTaskCount,
+    activePathCount,
+    pref,
+    legacyEnum,
+    isDefault,
+  } = section;
+  const visual = resolveAreaVisualFromRef({
+    legacyEnum,
+    color: pref.color,
+    icon: pref.icon,
+    hubFor,
+  });
+  const related = areaRelatedLinksFromHub(hubFor);
   const isEmpty = paths.length === 0;
   const showCreateEmpty = isEmpty && !filterEmpty;
   const fmt = (n: number) => formatNumber(n, language);
   const inline = areaVisualInline(visual, pref);
+  const href = areaDashboardHref(areaId);
 
   const { setNodeRef, isOver } = useDroppable({
-    id: `area-drop-${area}`,
-    data: { type: "area", area },
+    id: `area-drop-${areaId}`,
+    data: { type: "area", area, areaId },
   });
 
   const relatedLabels: Record<(typeof related)[number]["labelKey"], string> = {
@@ -228,7 +250,7 @@ export function AreaSection({
       },
     ];
 
-    if (area === "PHD") {
+    if (hubFor === "research") {
       items.push({
         label: t.projects.relatedResearch,
         icon: "file-text",
@@ -238,7 +260,7 @@ export function AreaSection({
         },
       });
     }
-    if (area === "LANG") {
+    if (hubFor === "language") {
       items.push({
         label: t.projects.relatedLanguage,
         icon: "language",
@@ -287,7 +309,7 @@ export function AreaSection({
     {
       label: t.projects.openArea,
       icon: "eye",
-      onClick: () => router.push(`/projects/areas/${area.toLowerCase()}`),
+      onClick: () => router.push(href),
     },
     {
       label: t.projects.editArea,
@@ -301,7 +323,7 @@ export function AreaSection({
         const keys = AREA_COLOR_PRESETS.map(p => p.key);
         const cur = pref.color && keys.includes(pref.color) ? pref.color : keys[0]!;
         const next = keys[(keys.indexOf(cur) + 1) % keys.length]!;
-        onUpdatePref(area, { color: next });
+        onUpdatePref(areaId, { color: next });
       },
     },
     {
@@ -313,24 +335,49 @@ export function AreaSection({
           pref.icon && keys.includes(pref.icon) ? pref.icon : visual.emoji;
         const idx = Math.max(0, keys.indexOf(cur));
         const next = keys[(idx + 1) % keys.length]!;
-        onUpdatePref(area, { icon: next });
+        onUpdatePref(areaId, { icon: next });
       },
     },
     {
       label: t.projects.moveUp,
       icon: "arrow-up",
-      onClick: () => onMoveArea(area, "up"),
+      onClick: () => onMoveArea(areaId, "up"),
     },
     {
       label: t.projects.moveDown,
       icon: "arrow-down",
-      onClick: () => onMoveArea(area, "down"),
+      onClick: () => onMoveArea(areaId, "down"),
     },
+    ...(onMoveAllContent && otherAreas.length > 0
+      ? ([
+          { divider: true },
+          {
+            label: t.projects.moveAllToArea ?? "انتقال همه…",
+            icon: "arrow-right" as const,
+            onClick: () => onMoveAllContent(areaId, false),
+          },
+          ...(!isDefault
+            ? [
+                {
+                  label: t.projects.mergeIntoArea ?? "ادغام…",
+                  icon: "git-branch" as const,
+                  onClick: () => onMoveAllContent(areaId, true),
+                },
+                {
+                  label: t.projects.deleteArea ?? "حذف حوزه",
+                  icon: "trash" as const,
+                  danger: true,
+                  onClick: () => onMoveAllContent(areaId, true),
+                },
+              ]
+            : []),
+        ] as MenuItem[])
+      : []),
     { divider: true },
     {
       label: pref.archived ? t.projects.restoreArea : t.projects.archiveArea,
       icon: pref.archived ? "rotate-ccw" : "archive",
-      onClick: () => onUpdatePref(area, { archived: !pref.archived }),
+      onClick: () => onUpdatePref(areaId, { archived: !pref.archived }),
     },
   ];
 
@@ -355,7 +402,7 @@ export function AreaSection({
         <button
           type="button"
           className="min-w-0 flex-1 text-start"
-          onClick={() => router.push(`/projects/areas/${area.toLowerCase()}`)}
+          onClick={() => router.push(href)}
         >
           <div className="flex items-center gap-2">
             <span className="text-base leading-none" aria-hidden>
@@ -368,7 +415,7 @@ export function AreaSection({
               }
             />
             <h2 className="text-sm font-semibold text-foreground truncate">
-              {bucket.name}
+              {displayName || bucket.name}
             </h2>
           </div>
           {bucket.description ? (
@@ -388,7 +435,7 @@ export function AreaSection({
               icon="plus"
               size="sm"
               aria-label={t.projects.newPath}
-              onClick={() => onAddPath(area)}
+              onClick={() => onAddPath(areaId)}
             />
           ) : null}
           <Menu
@@ -439,7 +486,7 @@ export function AreaSection({
               variant="subtle"
               size="sm"
               icon="plus"
-              onClick={() => onAddPath(area)}
+              onClick={() => onAddPath(areaId)}
             >
               {t.projects.createFirstPath}
             </Button>

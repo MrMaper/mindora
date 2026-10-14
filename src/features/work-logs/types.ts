@@ -33,7 +33,7 @@ export interface GetWorkLogsParams {
   taskId?: string;
   userId?: string;
   projectId?: string;
-  area?: LifeArea;
+  area?: string;
   dateFrom?: Date;
   dateTo?: Date;
   page?: number;

@@ -30,6 +30,8 @@ import {
 import { ensureUserPreferencesRow } from "@/features/onboarding/lifecycle";
 import { areaProjectIdsForUser } from "@/lib/area-projects";
 import { AreaBucketsProvider } from "@/components/area-buckets-provider";
+import { MemberAreasProvider } from "@/components/member-areas-provider";
+import { getMemberContext } from "@/lib/areas/server";
 import { CaptureProvider } from "@/components/life/capture-provider";
 import { ReminderWatcher } from "@/components/life/reminder-watcher";
 
@@ -168,6 +170,7 @@ export default async function DashboardLayout({
   }
   const researchHref = researchHrefForScope(researchScope);
   const areaIds = areaProjectIdsForUser(session.user.id);
+  const memberCtx = await getMemberContext(session.user.id);
 
   const dailyItems: NavItem[] = [
     { label: t.nav.dashboard, href: "/dashboard", icon: "layout-dashboard" },
@@ -256,6 +259,7 @@ export default async function DashboardLayout({
       <DirectionSync language={language} />
       <PresenceBeacon />
       <AreaBucketsProvider ids={areaIds}>
+      <MemberAreasProvider areas={memberCtx.areas}>
         <CaptureProvider
           plain={uiProfile === "starter"}
           askLifePart={uiProfile === "starter" && !preferences?.firstCaptureAt}
@@ -279,6 +283,7 @@ export default async function DashboardLayout({
           </DashboardShell>
           <CommandPaletteLazy />
         </CaptureProvider>
+      </MemberAreasProvider>
       </AreaBucketsProvider>
     </div>
   );

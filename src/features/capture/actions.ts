@@ -67,6 +67,8 @@ export async function universalCapture(input: {
    */
   plain?: boolean;
   areaOverride?: LifeArea | null;
+  /** P5: lock to a UserArea id (custom areas without legacy enum). */
+  areaIdOverride?: string | null;
   dueDateFallback?: string | null;
   /** Client `Date#getTimezoneOffset()` so date-only noon stays noon on UTC servers. */
   timezoneOffsetMinutes?: number;
@@ -93,11 +95,29 @@ async function universalCaptureImpl(input: Parameters<typeof universalCapture>[0
   if (!title) return { success: false, error: "عنوان خالی است" };
 
   const plain = input.plain === true;
+  let projectIdOverride: string | null = null;
+  let lockedLegacy: LifeArea | null = null;
+  if (!plain && input.areaIdOverride) {
+    const ua = await db.userArea.findFirst({
+      where: {
+        id: input.areaIdOverride,
+        userId: session.user.id,
+        archived: false,
+      },
+      select: { legacyEnum: true, bucketProjectId: true },
+    });
+    if (ua) {
+      projectIdOverride = ua.bucketProjectId;
+      lockedLegacy = (ua.legacyEnum as LifeArea | null) ?? DEFAULT_AREA;
+    }
+  }
   const area = plain
     ? DEFAULT_AREA
-    : input.areaOverride && AREAS.has(input.areaOverride)
-      ? input.areaOverride
-      : parsed.area;
+    : lockedLegacy
+      ? lockedLegacy
+      : input.areaOverride && AREAS.has(input.areaOverride)
+        ? input.areaOverride
+        : parsed.area;
   const flags = await getUserModuleFlags(session.user.id);
   const product = plain ? "task" : captureProduct(parsed);
   const kind = plain ? "task" : parsed.kind;
@@ -270,6 +290,7 @@ async function universalCaptureImpl(input: Parameters<typeof universalCapture>[0
   const created = await quickCapture({
     title,
     area,
+    projectId: projectIdOverride,
     recurrence: parsed.recurrence,
     dueDate,
     time: parsed.time,

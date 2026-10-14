@@ -11,7 +11,7 @@ import {
 } from "@/lib/request-cache";
 import { KanbanCC } from "./components/client";
 import type { TaskPriority } from "@/types/db";
-import { isLifeAreaValue, scopeFromFilters } from "@/lib/project-namespace";
+import { scopeFromFilters } from "@/lib/project-namespace";
 import { localizedTitle } from "@/lib/page-title";
 
 export function generateMetadata(): Promise<Metadata> {
@@ -57,7 +57,7 @@ export default async function KanbanPage({
       labelId: label || undefined,
       priority: (priority || undefined) as TaskPriority | undefined,
       projectIds: scope.projectId ? [scope.projectId] : undefined,
-      area: isLifeAreaValue(scope.area) ? scope.area : undefined,
+      area: scope.area || undefined,
       excludeHub: false,
     }),
     getAssignableUsers(session.user.id),

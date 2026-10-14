@@ -92,6 +92,7 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
   if (area && (!projectId || isAreaBucketId(projectId))) {
     projectId = projectIdForArea(session.user.id, area);
   }
+  let projectAreaId: string | null = null;
   if (projectId) {
     const projectMember = await db.projectMember.findUnique({
       where: { projectId_userId: { projectId, userId: session.user.id } },
@@ -99,11 +100,12 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
     if (!projectMember) {
       return { success: false, error: "به این مسیر دسترسی ندارید" };
     }
+    const project = await db.project.findUnique({
+      where: { id: projectId },
+      select: { area: true, areaId: true },
+    });
+    projectAreaId = project?.areaId ?? null;
     if (!area) {
-      const project = await db.project.findUnique({
-        where: { id: projectId },
-        select: { area: true },
-      });
       area = (project?.area as LifeArea | null) ?? null;
     }
   }
@@ -166,6 +168,7 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
       waitingOn,
       projectId,
       area,
+      areaId: projectAreaId,
       recurrence,
       recurrenceSeriesId: seriesId,
       recurrenceEndsAt: recurrence !== "NONE" ? endsAt : null,

@@ -1,6 +1,6 @@
 import type { LifeArea } from "@/types/db";
 import { prisma as db } from "@/lib/db";
-import { taskWhereExcludeHub } from "@/lib/project-namespace";
+import { areaScopeWhere, taskWhereExcludeHub } from "@/lib/project-namespace";
 import { personalTaskOwnership } from "@/lib/task-access";
 import { compareTasks } from "./view";
 import type {
@@ -33,6 +33,7 @@ export function toTaskRow(task: {
   projectId: string | null;
   project: { name: string; area?: LifeArea } | null;
   area?: LifeArea | null;
+  areaId?: string | null;
   recurrence?: "NONE" | "DAILY" | "WEEKLY" | "MONTHLY";
   recurrenceSeriesId?: string | null;
   recurrenceEndsAt?: Date | null;
@@ -55,6 +56,7 @@ export function toTaskRow(task: {
     projectId: task.projectId,
     projectName: task.project?.name ?? null,
     area: task.area ?? task.project?.area ?? null,
+    areaId: task.areaId ?? null,
     recurrence: task.recurrence ?? "NONE",
     recurrenceSeriesId: task.recurrenceSeriesId ?? null,
     recurrenceEndsAt: task.recurrenceEndsAt ?? null,
@@ -94,16 +96,7 @@ export async function getTasks(
       ...(params.projectIds && params.projectIds.length > 0
         ? [{ projectId: { in: params.projectIds } }]
         : []),
-      ...(params.area
-        ? [
-            {
-              OR: [
-                { area: params.area },
-                { project: { area: params.area } },
-              ],
-            },
-          ]
-        : []),
+      ...(params.area ? [areaScopeWhere(params.area)] : []),
     ],
   };
 
@@ -143,10 +136,11 @@ export async function getTasks(
     updatedAt: true,
     projectId: true,
     area: true,
+    areaId: true,
     recurrence: true,
     recurrenceSeriesId: true,
     recurrenceEndsAt: true,
-    project: { select: { name: true, area: true } },
+    project: { select: { name: true, area: true, areaId: true } },
     createdBy: { select: userRefSelect },
     assignedTo: { select: userRefSelect },
     labels: {

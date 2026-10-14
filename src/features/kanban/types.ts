@@ -30,7 +30,8 @@ export interface BoardFilters {
   labelId?: string;
   priority?: TaskPriority;
   projectIds?: string[];
-  area?: LifeArea;
+  /** Legacy enum or UserArea id. */
+  area?: string;
   /** When true (default for /kanban), hide research/language hub tasks. */
   excludeHub?: boolean;
   /** Cap cards loaded for the board (default 400). */

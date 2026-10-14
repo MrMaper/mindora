@@ -9,8 +9,7 @@ import { PageHeaderBar } from "@/components/ui-kit/layout/page-header-bar";
 import { useLanguage, useTranslation } from "@/i18n/provider";
 import { cn, formatNumber } from "@/lib/utils";
 import {
-  AREA_VISUAL,
-  areaRelatedLinks,
+  areaRelatedLinksFromHub,
   areaVisualInline,
   resolveAreaVisual,
 } from "@/lib/area-visual";
@@ -22,7 +21,7 @@ export function AreaDashboardCC({ data }: { data: AreaDashboardData }) {
   const language = useLanguage();
   const router = useRouter();
   const visual = resolveAreaVisual(data.area, data.pref);
-  const related = areaRelatedLinks(data.area);
+  const related = areaRelatedLinksFromHub(data.hubFor);
   const fmt = (n: number) => formatNumber(n, language);
   const inline = areaVisualInline(visual, data.pref);
 
@@ -53,7 +52,7 @@ export function AreaDashboardCC({ data }: { data: AreaDashboardData }) {
               <span className="text-2xl leading-none" aria-hidden>
                 {visual.emoji}
               </span>
-              <span className="truncate">{data.bucket.name}</span>
+              <span className="truncate">{data.displayName || data.bucket.name}</span>
             </span>
           }
           description={
@@ -65,7 +64,7 @@ export function AreaDashboardCC({ data }: { data: AreaDashboardData }) {
             <Button
               variant="primary"
               icon="plus"
-              onClick={() => router.push(`/projects?create=${data.area}`)}
+              onClick={() => router.push(`/projects?create=${data.legacyEnum ?? data.area}`)}
             >
               {t.projects.newPath}
             </Button>
@@ -146,7 +145,7 @@ export function AreaDashboardCC({ data }: { data: AreaDashboardData }) {
                     <span
                       className={cn(
                         "mt-1.5 size-1.5 rounded-full shrink-0",
-                        visual.dot || AREA_VISUAL[data.area].dot,
+                        visual.dot,
                       )}
                       style={
                         data.pref.color

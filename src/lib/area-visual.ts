@@ -1,6 +1,8 @@
 import type { LifeArea } from "@/types/db";
 import type { IconName } from "@/components/ui-kit/foundation/icon";
 import type { AreaPrefRow } from "@/features/projects/types";
+import type { AreaRef, HubKind } from "@/lib/areas";
+import { DEFAULT_AREA } from "@/lib/areas";
 
 /**
  * Shared area identity for hub, calendar, tasks, etc.
@@ -111,7 +113,7 @@ export function resolveAreaVisual(
   area: LifeArea,
   pref?: Pick<AreaPrefRow, "color" | "icon"> | null,
 ): AreaVisual {
-  const base = AREA_VISUAL[area];
+  const base = AREA_VISUAL[area] ?? AREA_VISUAL[DEFAULT_AREA];
   const cssVar = resolveCssColor(pref?.color, base.cssVar);
   const customColor = Boolean(pref?.color);
   const emoji =
@@ -131,6 +133,20 @@ export function resolveAreaVisual(
     borderTop: "border-t-[3px]",
     dot: "bg-[var(--area-accent)]",
   };
+}
+
+/** Prefer UserArea color/icon; fall back to legacy enum palette. */
+export function resolveAreaVisualFromRef(
+  ref: Pick<AreaRef, "legacyEnum" | "color" | "icon" | "hubFor">,
+): AreaVisual {
+  const area =
+    ref.legacyEnum ??
+    (ref.hubFor === "research"
+      ? ("PHD" as LifeArea)
+      : ref.hubFor === "language"
+        ? ("LANG" as LifeArea)
+        : DEFAULT_AREA);
+  return resolveAreaVisual(area, { color: ref.color, icon: ref.icon });
 }
 
 /** Inline styles when user overrode color (Tailwind can't know the hex). */
@@ -156,31 +172,42 @@ export type AreaRelatedLink = {
     | "relatedCalendar";
 };
 
-/** Feature hubs tied to each default area (not paths). */
-export function areaRelatedLinks(area: LifeArea): AreaRelatedLink[] {
-  switch (area) {
-    case "PHD":
-      return [
-        { href: "/research", labelKey: "relatedResearch" },
-        { href: "/docs", labelKey: "relatedDocs" },
-      ];
-    case "LANG":
-      return [{ href: "/language", labelKey: "relatedLanguage" }];
-    case "WORK":
-      return [
-        { href: "/tasks", labelKey: "relatedTasks" },
-        { href: "/calendar", labelKey: "relatedCalendar" },
-      ];
-    case "LIFE":
-      return [
-        { href: "/tasks", labelKey: "relatedTasks" },
-        { href: "/calendar", labelKey: "relatedCalendar" },
-      ];
+/** Feature hubs from hubFor + effective modules (not AREA_VISUAL switches). */
+export function areaRelatedLinksFromHub(
+  hubFor: HubKind | null,
+  flags?: { research?: boolean; language?: boolean; tasks?: boolean; docs?: boolean },
+): AreaRelatedLink[] {
+  if (hubFor === "research") {
+    const links: AreaRelatedLink[] = [];
+    if (flags?.research !== false) links.push({ href: "/research", labelKey: "relatedResearch" });
+    if (flags?.docs !== false) links.push({ href: "/docs", labelKey: "relatedDocs" });
+    return links;
   }
+  if (hubFor === "language") {
+    return flags?.language === false
+      ? []
+      : [{ href: "/language", labelKey: "relatedLanguage" }];
+  }
+  return [
+    { href: "/tasks", labelKey: "relatedTasks" },
+    { href: "/calendar", labelKey: "relatedCalendar" },
+  ];
 }
 
-export function defaultAreaPref(area: LifeArea, sortOrder: number): AreaPrefRow {
+/** @deprecated Prefer areaRelatedLinksFromHub. */
+export function areaRelatedLinks(area: LifeArea): AreaRelatedLink[] {
+  if (area === "PHD") return areaRelatedLinksFromHub("research");
+  if (area === "LANG") return areaRelatedLinksFromHub("language");
+  return areaRelatedLinksFromHub(null);
+}
+
+export function defaultAreaPref(
+  area: LifeArea,
+  sortOrder: number,
+  areaId = area,
+): AreaPrefRow {
   return {
+    areaId,
     area,
     color: null,
     icon: null,

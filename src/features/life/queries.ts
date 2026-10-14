@@ -37,10 +37,11 @@ const taskSelect = {
   updatedAt: true,
   projectId: true,
   area: true,
+  areaId: true,
   recurrence: true,
   recurrenceSeriesId: true,
   recurrenceEndsAt: true,
-  project: { select: { name: true, area: true } },
+  project: { select: { name: true, area: true, areaId: true } },
   createdBy: { select: userRefSelect },
   assignedTo: { select: userRefSelect },
   labels: {
@@ -60,6 +61,7 @@ function withArea(task: Parameters<typeof toTaskRow>[0] & {
   return {
     ...toTaskRow(task),
     area: (task.area ?? task.project?.area ?? null) as LifeArea | null,
+    areaId: (task as { areaId?: string | null }).areaId ?? null,
     recurrence: task.recurrence ?? "NONE",
   };
 }
@@ -266,6 +268,7 @@ export async function getPersonalDashboard(
         id: true,
         name: true,
         area: true,
+        areaId: true,
       },
     }),
     wantLanguage
@@ -390,6 +393,7 @@ export async function getPersonalDashboard(
       id: row.id,
       name: row.name,
       area: row.area,
+      areaId: row.areaId,
       openTasks: row.area ? openByArea[row.area as LifeArea] ?? 0 : 0,
     })),
     attention: {

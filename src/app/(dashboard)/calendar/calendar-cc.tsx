@@ -30,7 +30,6 @@ import { useLanguage, useTranslation } from "@/i18n/provider";
 import { formatNumber, cn } from "@/lib/utils";
 import { toast } from "sonner";
 import {
-  LIFE_AREAS,
   PERSIAN_WEEKDAYS_SAT,
   addDays,
   addJalaliMonth,
@@ -54,8 +53,10 @@ import {
   toGregorianDate,
   weekCells,
   zonedDateKey,
-  coerceLifeArea,
 } from "@/lib/life";
+import { useActiveMemberAreas } from "@/components/member-areas-provider";
+import { areaDisplayName } from "@/lib/areas";
+import { taskAreaKey, visualForTask } from "@/lib/area-ui";
 import {
   loadCalendarRange,
   rescheduleTaskDueDate,
@@ -66,7 +67,6 @@ import {
   PRIORITY_OPTIONS,
 } from "@/features/tasks/types";
 import type { TaskRow } from "@/features/tasks/types";
-import type { LifeArea } from "@/types/db";
 import type { UserRow } from "@/features/users/types";
 import type { LabelRow } from "@/features/labels/types";
 import type { ProjectRow } from "@/features/projects/types";
@@ -87,37 +87,7 @@ import {
   startMinutesFromPointer,
 } from "@/lib/calendar-schedule";
 
-import { AREA_VISUAL } from "@/lib/area-visual";
-
 const COLUMN_HEIGHT = HOUR_HEIGHT_PX * 24;
-
-const AREA_CHIP: Record<LifeArea, string> = {
-  PHD: AREA_VISUAL.PHD.chip,
-  WORK: AREA_VISUAL.WORK.chip,
-  LIFE: AREA_VISUAL.LIFE.chip,
-  LANG: AREA_VISUAL.LANG.chip,
-};
-
-const AREA_ACCENT: Record<LifeArea, string> = {
-  PHD: "border-s-[var(--status-review)]",
-  WORK: "border-s-[var(--status-in-progress)]",
-  LIFE: "border-s-[var(--status-todo)]",
-  LANG: "border-s-emerald-600",
-};
-
-const AREA_OVERDUE_WASH: Record<LifeArea, string> = {
-  PHD: "bg-[linear-gradient(to_inline-end,color-mix(in_srgb,var(--status-review)_22%,var(--status-blocked-tint))_0%,var(--status-blocked-tint)_60%)]",
-  WORK: "bg-[linear-gradient(to_inline-end,color-mix(in_srgb,var(--status-in-progress)_22%,var(--status-blocked-tint))_0%,var(--status-blocked-tint)_60%)]",
-  LIFE: "bg-[linear-gradient(to_inline-end,color-mix(in_srgb,var(--status-todo)_22%,var(--status-blocked-tint))_0%,var(--status-blocked-tint)_60%)]",
-  LANG: "bg-[linear-gradient(to_inline-end,color-mix(in_srgb,#059669_22%,var(--status-blocked-tint))_0%,var(--status-blocked-tint)_60%)]",
-};
-
-const AREA_DOT: Record<LifeArea, string> = {
-  PHD: AREA_VISUAL.PHD.dot,
-  WORK: AREA_VISUAL.WORK.dot,
-  LIFE: AREA_VISUAL.LIFE.dot,
-  LANG: AREA_VISUAL.LANG.dot,
-};
 
 const WEEKDAYS_EN = ["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"];
 
@@ -138,10 +108,6 @@ const calendarCollision: CollisionDetection = args => {
   if (hours.length > 0) return hours;
   return hits;
 };
-
-function taskArea(task: TaskRow): LifeArea {
-  return coerceLifeArea(task.area);
-}
 
 /**
  * Date-only dues written on a UTC server as noon UTC show up as afternoon
@@ -227,16 +193,6 @@ function isSameDay(a: Date, b: Date) {
   return toDateKey(a) === toDateKey(b);
 }
 
-function areaLabel(
-  area: LifeArea,
-  t: { phd: string; work: string; lifeArea: string; language: string },
-) {
-  if (area === "PHD") return t.phd;
-  if (area === "WORK") return t.work;
-  if (area === "LANG") return t.language;
-  return t.lifeArea;
-}
-
 function TaskChipContent({
   task,
   overdue,
@@ -249,7 +205,8 @@ function TaskChipContent({
   className?: string;
 }) {
   const language = useLanguage();
-  const area = taskArea(task);
+  const areas = useActiveMemberAreas();
+  const visual = visualForTask(task, areas);
   const clock =
     task.dueDate != null
       ? formatClock(
@@ -266,13 +223,16 @@ function TaskChipContent({
         title={titleWithClock}
         className={cn(
           "flex w-full min-h-[22px] min-w-0 items-center gap-1 truncate rounded-md border border-[var(--status-blocked-border)] px-1.5 py-[3px] text-start text-[11px] font-medium leading-4 text-[var(--status-blocked)] border-s-4",
-          AREA_ACCENT[area],
-          AREA_OVERDUE_WASH[area],
+          "bg-[var(--status-blocked-tint)]",
           task.status === "DONE" && "opacity-45 line-through",
           className,
         )}
+        style={{ borderInlineStartColor: visual.cssVar }}
       >
-        <span className={cn("size-1.5 shrink-0 rounded-full", AREA_DOT[area])} />
+        <span
+          className={cn("size-1.5 shrink-0 rounded-full", visual.dot)}
+          style={{ backgroundColor: visual.cssVar }}
+        />
         <Icon
           name="alert-triangle"
           size={11}
@@ -292,10 +252,15 @@ function TaskChipContent({
       title={titleWithClock}
       className={cn(
         "flex w-full min-h-[22px] min-w-0 items-center gap-1 truncate rounded-[5px] px-1.5 py-[3px] text-start text-[11px] font-medium leading-4 shadow-[0_1px_0_rgb(0_0_0/0.04)]",
-        AREA_CHIP[area],
+        visual.chip,
         task.status === "DONE" && "opacity-45 line-through",
         className,
       )}
+      style={
+        visual.chip === "text-white"
+          ? { backgroundColor: visual.cssVar, color: "#fff" }
+          : undefined
+      }
     >
       <span className="min-w-0 truncate">{task.title}</span>
       {clock ? (
@@ -497,6 +462,11 @@ export function CalendarCC({
   const language = useLanguage();
   const edit = useLifeTaskEdit();
   const asideRef = React.useRef<HTMLElement>(null);
+  const memberAreas = useActiveMemberAreas();
+  const allAreaIds = React.useMemo(
+    () => memberAreas.map(a => a.id),
+    [memberAreas],
+  );
 
   // Stable across SSR → hydrate; refresh to client-local midnight after mount.
   const [today, setToday] = React.useState(() =>
@@ -517,9 +487,11 @@ export function CalendarCC({
   const [docsByTask, setDocsByTask] = React.useState<
     Record<string, { id: string; title: string }[]>
   >({});
-  const [areaFilter, setAreaFilter] = React.useState<Set<LifeArea>>(
-    () => new Set(LIFE_AREAS),
-  );
+  const [areaFilter, setAreaFilter] = React.useState<Set<string> | null>(null);
+  const effectiveAreaFilter = React.useMemo(() => {
+    if (areaFilter) return areaFilter;
+    return new Set(allAreaIds);
+  }, [areaFilter, allAreaIds]);
   const [activeDrag, setActiveDrag] = React.useState<TaskRow | null>(null);
   const [hourDragPreview, setHourDragPreview] =
     React.useState<HourDragPreview | null>(null);
@@ -594,8 +566,11 @@ export function CalendarCC({
   );
 
   const filteredTasks = React.useMemo(
-    () => tasks.filter(task => areaFilter.has(taskArea(task))),
-    [tasks, areaFilter],
+    () =>
+      tasks.filter(task =>
+        effectiveAreaFilter.has(taskAreaKey(task, memberAreas)),
+      ),
+    [tasks, effectiveAreaFilter, memberAreas],
   );
 
   const byDay = React.useMemo(() => {
@@ -686,21 +661,22 @@ export function CalendarCC({
     void edit.openTask(task);
   }
 
-  function toggleArea(area: LifeArea) {
+  function toggleArea(areaId: string) {
     setAreaFilter(prev => {
-      const next = new Set(prev);
-      if (next.has(area)) {
+      const base = prev ?? new Set(allAreaIds);
+      const next = new Set(base);
+      if (next.has(areaId)) {
         if (next.size === 1) return next;
-        next.delete(area);
+        next.delete(areaId);
       } else {
-        next.add(area);
+        next.add(areaId);
       }
       return next;
     });
   }
 
   function setAllAreas() {
-    setAreaFilter(new Set(LIFE_AREAS));
+    setAreaFilter(new Set(allAreaIds));
   }
 
   function clearHourDragTracking() {
@@ -1313,20 +1289,25 @@ export function CalendarCC({
               onClick={setAllAreas}
               className={cn(
                 "rounded-md border px-2 py-1 transition-colors",
-                areaFilter.size === LIFE_AREAS.length
+                effectiveAreaFilter.size === allAreaIds.length &&
+                  allAreaIds.length > 0
                   ? "border-primary bg-primary/10 text-primary"
                   : "text-muted-foreground hover:bg-accent",
               )}
             >
               {t.life.filterAll}
             </button>
-            {LIFE_AREAS.map(area => {
-              const active = areaFilter.has(area);
+            {memberAreas.map(ref => {
+              const active = effectiveAreaFilter.has(ref.id);
+              const visual = visualForTask(
+                { area: ref.legacyEnum, areaId: ref.id },
+                memberAreas,
+              );
               return (
                 <button
-                  key={area}
+                  key={ref.id}
                   type="button"
-                  onClick={() => toggleArea(area)}
+                  onClick={() => toggleArea(ref.id)}
                   className={cn(
                     "inline-flex items-center gap-1.5 rounded-md border px-2 py-1 transition-colors",
                     active
@@ -1334,8 +1315,11 @@ export function CalendarCC({
                       : "opacity-40 hover:opacity-70",
                   )}
                 >
-                  <span className={cn("size-2.5 rounded-full", AREA_DOT[area])} />
-                  {areaLabel(area, t.life)}
+                  <span
+                    className={cn("size-2.5 rounded-full", visual.dot)}
+                    style={{ backgroundColor: visual.cssVar }}
+                  />
+                  {areaDisplayName(ref, language === "EN" ? "EN" : "FA")}
                 </button>
               );
             })}

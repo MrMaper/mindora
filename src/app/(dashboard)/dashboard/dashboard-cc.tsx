@@ -94,7 +94,13 @@ function storeSideTab(tab: SideTab) {
 
 interface DashboardCCProps {
   userName: string;
-  areas: { id: string; name: string; area: LifeArea | null; openTasks: number }[];
+  areas: {
+    id: string;
+    name: string;
+    area: LifeArea | null;
+    areaId?: string | null;
+    openTasks: number;
+  }[];
   overdue: TaskRow[];
   today: TaskRow[];
   week: TaskRow[];
@@ -414,7 +420,7 @@ function WeekBalanceCard({
                 key={area.id}
                 href={
                   area.area
-                    ? `/projects/areas/${area.area.toLowerCase()}`
+                    ? `/projects/areas/${area.areaId ?? String(area.area).toLowerCase()}`
                     : `/projects`
                 }
                 className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground"

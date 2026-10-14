@@ -7,15 +7,21 @@ import { Dialog } from "@/components/ui-kit/overlays/dialog";
 import { Button } from "@/components/ui-kit/forms/button";
 import { Input } from "@/components/ui-kit/forms/input";
 import { useLanguage, useTranslation } from "@/i18n/provider";
-import { addDays, formatJalaliShort, parseLocalDate, startOfDay, toDateKey } from "@/lib/life";
+import {
+  addDays,
+  formatJalaliShort,
+  parseLocalDate,
+  startOfDay,
+  toDateKey,
+} from "@/lib/life";
 import { cn, formatNumber } from "@/lib/utils";
-import type { LifeArea, RecurrenceInterval } from "@/types/db";
+import type { RecurrenceInterval } from "@/types/db";
 import { universalCapture } from "@/features/capture/actions";
 import { captureProduct, parseCapture } from "@/features/capture/parse";
 import { formatDurationLabel } from "@/components/ui-kit/forms/time-roller";
 import { RESEARCH_SCOPE_STORAGE } from "@/features/research/scope-cookie";
-
-const AREAS: LifeArea[] = ["PHD", "WORK", "LIFE", "LANG"];
+import { useActiveMemberAreas } from "@/components/member-areas-provider";
+import { areaDisplayName } from "@/lib/areas";
 
 export function CaptureDialog({
   fallbackDate,
@@ -27,23 +33,24 @@ export function CaptureDialog({
   const t = useTranslation();
   const language = useLanguage();
   const router = useRouter();
+  const memberAreas = useActiveMemberAreas();
   const [text, setText] = React.useState("");
-  const [areaLock, setAreaLock] = React.useState<LifeArea | null>(null);
+  const [areaLockId, setAreaLockId] = React.useState<string | null>(null);
   const [pending, startTransition] = React.useTransition();
   const parsed = parseCapture(text);
   const product = captureProduct(parsed);
-  const area = areaLock ?? parsed.area;
+  const lockedRef = areaLockId
+    ? memberAreas.find(a => a.id === areaLockId) ?? null
+    : null;
+  const guessedRef =
+    memberAreas.find(a => a.legacyEnum === parsed.area) ??
+    memberAreas.find(a => a.isDefault) ??
+    null;
+  const areaRef = lockedRef ?? guessedRef;
   const showSchedule =
     product === "task" || product === "source" || product === "research";
   const dateKey =
     parsed.dateKey ?? (showSchedule ? fallbackDate : undefined);
-
-  function areaLabel(value: LifeArea) {
-    if (value === "PHD") return t.dashboard.areaPhd;
-    if (value === "WORK") return t.dashboard.areaWork;
-    if (value === "LANG") return t.dashboard.areaLang;
-    return t.dashboard.areaLife;
-  }
 
   function recurrenceLabel(value: RecurrenceInterval) {
     if (value === "DAILY") return t.dashboard.recurrenceDaily;
@@ -89,11 +96,15 @@ export function CaptureDialog({
     }
   }
 
+  const areaChip = areaRef
+    ? areaDisplayName(areaRef, language === "EN" ? "EN" : "FA")
+    : null;
+
   const chips = [
     ...new Set(
       [
         kindLabel,
-        areaLabel(area),
+        areaChip,
         pathChip,
         showSchedule ? dateLabel(dateKey) : null,
         showSchedule && parsed.time
@@ -116,7 +127,8 @@ export function CaptureDialog({
     startTransition(async () => {
       const result = await universalCapture({
         text,
-        areaOverride: areaLock,
+        areaOverride: lockedRef?.legacyEnum ?? null,
+        areaIdOverride: areaLockId,
         dueDateFallback: showSchedule ? fallbackDate : undefined,
         timezoneOffsetMinutes: new Date().getTimezoneOffset(),
       });
@@ -211,29 +223,29 @@ export function CaptureDialog({
             <div className="flex flex-wrap gap-1.5">
               <button
                 type="button"
-                onClick={() => setAreaLock(null)}
+                onClick={() => setAreaLockId(null)}
                 className={cn(
                   "rounded-full border px-2.5 py-1 text-xs",
-                  areaLock === null
+                  areaLockId === null
                     ? "border-primary bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:bg-accent",
                 )}
               >
                 {t.dashboard.captureAuto}
               </button>
-              {AREAS.map(value => (
+              {memberAreas.map(ref => (
                 <button
-                  key={value}
+                  key={ref.id}
                   type="button"
-                  onClick={() => setAreaLock(value)}
+                  onClick={() => setAreaLockId(ref.id)}
                   className={cn(
                     "rounded-full border px-2.5 py-1 text-xs",
-                    areaLock === value
+                    areaLockId === ref.id
                       ? "border-primary bg-primary text-primary-foreground"
                       : "text-muted-foreground hover:bg-accent",
                   )}
                 >
-                  {areaLabel(value)}
+                  {areaDisplayName(ref, language === "EN" ? "EN" : "FA")}
                 </button>
               ))}
             </div>
