@@ -9,6 +9,9 @@ import {
   zonedDateKeysBetween,
   zonedDayEndFromKey,
   zonedDayStartFromKey,
+  formatJalaliShort,
+  formatJalaliDate,
+  zonedWeekCells,
 } from "@/lib/life";
 
 describe("Asia/Tehran day bounds", () => {
@@ -57,6 +60,20 @@ describe("Asia/Tehran day bounds", () => {
     expect(instant.getTime()).toBeLessThanOrEqual(
       zonedDayEndFromKey("2026-10-01").getTime(),
     );
+  });
+
+  it("formats Jalali short/full from the Tehran calendar day, not the host local day", () => {
+    // Tehran midnight of 2026-10-14 = 2026-10-13 20:30 UTC → previous evening in US/Pacific.
+    const tehranMidnight = new Date("2026-10-13T20:30:00.000Z");
+    expect(zonedDateKey(tehranMidnight)).toBe("2026-10-14");
+    expect(formatJalaliShort(tehranMidnight, "FA")).toBe("۲۲ مهر");
+    expect(formatJalaliDate(tehranMidnight, "FA")).toContain("۲۲");
+    expect(formatJalaliDate(tehranMidnight, "FA")).toContain("مهر");
+    const todayCell = zonedWeekCells(tehranMidnight).find(
+      d => zonedDateKey(d) === "2026-10-14",
+    );
+    expect(todayCell).toBeTruthy();
+    expect(formatJalaliShort(todayCell!, "FA").split(" ")[0]).toBe("۲۲");
   });
 
   it("lists inclusive Tehran days and swaps a reversed range", () => {

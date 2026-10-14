@@ -239,17 +239,40 @@ export function nextRecurrenceDate(
   return next;
 }
 
+/**
+ * Gregorian Y/M/D and weekday (0=Sun) for `date` in Asia/Tehran.
+ * Do not use Date#getFullYear/getDay — Tehran midnight is still the previous
+ * local evening on a UTC or US host, which shifted the Today week strip by one day.
+ */
+function zonedGregorianParts(date: Date = new Date()): {
+  gy: number;
+  gm: number;
+  gd: number;
+  weekday: number;
+} {
+  const key = zonedDateKey(date);
+  const [gy, gm, gd] = key.split("-").map(Number);
+  const weekdayName = new Intl.DateTimeFormat("en-US", {
+    timeZone: LIFE_APP_TIMEZONE,
+    weekday: "short",
+  }).format(date);
+  const weekday =
+    { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 }[weekdayName] ?? 0;
+  return { gy: gy!, gm: gm!, gd: gd!, weekday };
+}
+
 export function formatJalaliDate(date: Date, language: "FA" | "EN" = "FA"): string {
   if (language === "EN") {
     return date.toLocaleDateString("en-US", {
+      timeZone: LIFE_APP_TIMEZONE,
       weekday: "long",
       month: "long",
       day: "numeric",
     });
   }
-  const { jy, jm, jd } = toJalaali(date);
-  const weekday = PERSIAN_WEEKDAYS[date.getDay()];
-  return `${weekday} ${jd} ${PERSIAN_MONTHS[jm - 1]} ${jy}`;
+  const { gy, gm, gd, weekday } = zonedGregorianParts(date);
+  const { jy, jm, jd } = toJalaali(gy, gm, gd);
+  return `${PERSIAN_WEEKDAYS[weekday]} ${formatNumber(jd, "FA")} ${PERSIAN_MONTHS[jm - 1]} ${formatNumber(jy, "FA")}`;
 }
 
 function clockDigits(date: Date, language: "FA" | "EN"): string {
@@ -451,10 +474,15 @@ export function dueDateToFormValue(date: Date | null | undefined): string {
 
 export function formatJalaliShort(date: Date, language: "FA" | "EN" = "FA"): string {
   if (language === "EN") {
-    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    return date.toLocaleDateString("en-US", {
+      timeZone: LIFE_APP_TIMEZONE,
+      month: "short",
+      day: "numeric",
+    });
   }
-  const { jm, jd } = toJalaali(date);
-  return `${jd} ${PERSIAN_MONTHS[jm - 1]}`;
+  const { gy, gm, gd } = zonedGregorianParts(date);
+  const { jm, jd } = toJalaali(gy, gm, gd);
+  return `${formatNumber(jd, "FA")} ${PERSIAN_MONTHS[jm - 1]}`;
 }
 
 const PERSIAN_WEEKDAYS_SAT = [

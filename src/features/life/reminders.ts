@@ -231,7 +231,13 @@ export async function ensureDeadlineReminders(userId?: string): Promise<void> {
       status: { not: "DONE" },
       dueDate: { lte: horizon, not: null },
     },
-    select: { id: true, title: true, dueDate: true, durationMinutes: true },
+    select: {
+      id: true,
+      title: true,
+      dueDate: true,
+      durationMinutes: true,
+      createdAt: true,
+    },
     take: 50,
   });
 
@@ -239,6 +245,11 @@ export async function ensureDeadlineReminders(userId?: string): Promise<void> {
     await ensureTimedDueReminders(uid);
     return;
   }
+
+  // Skip "approaching" for brand-new tasks so Capture of «فردا …» does not
+  // immediately create a مهلت notification (P3 finding).
+  const approachingQuietMs = 6 * 60 * 60_000;
+  const approachingQuietAfter = Date.now() - approachingQuietMs;
 
   const recent = await db.notification.findMany({
     where: {
@@ -284,6 +295,12 @@ export async function ensureDeadlineReminders(userId?: string): Promise<void> {
       task.durationMinutes,
     );
     if (bucket === "timed") continue;
+    if (
+      bucket === "approaching" &&
+      task.createdAt.getTime() > approachingQuietAfter
+    ) {
+      continue;
+    }
     const key = `${task.id}:${bucket}`;
     if (already.has(key) || already.has(`${task.id}:any`)) continue;
     eligible.push({
