@@ -4,13 +4,23 @@ export {
   listUserAreas,
   buildMemberContext,
   buildAreaRefs,
+  buildAreaRefsFromRows,
+  buildMemberContextFromRows,
   type AreaRef,
   type HubKind,
   type MemberContext,
+  type UserAreaRow,
 } from "./context";
 export {
   ensureDefaultArea,
   ensurePersonalWorkspace,
+  ensureUserAreas,
   projectIdForArea,
 } from "./ensure";
+export {
+  areaIdForLegacy,
+  dualAreaFields,
+  dualAreaRequired,
+  clearAreaIdCache,
+} from "./dual-write";
 export { getEffectiveFlagsForUser } from "@/lib/module-guard";

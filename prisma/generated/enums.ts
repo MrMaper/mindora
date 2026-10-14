@@ -148,6 +148,14 @@ export const LifeArea = {
 export type LifeArea = (typeof LifeArea)[keyof typeof LifeArea]
 
 
+export const AreaHubFor = {
+  RESEARCH: 'RESEARCH',
+  LANGUAGE: 'LANGUAGE'
+} as const
+
+export type AreaHubFor = (typeof AreaHubFor)[keyof typeof AreaHubFor]
+
+
 export const RecurrenceInterval = {
   NONE: 'NONE',
   DAILY: 'DAILY',

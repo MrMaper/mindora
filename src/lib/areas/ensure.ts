@@ -1,14 +1,13 @@
 ﻿import { prisma as db } from "@/lib/db";
+import type { LifeArea } from "@/types/db";
 import { AREA_META, LIFE_AREAS } from "./legacy";
 import { personalAreaProjectId, areaProjectIdsForUser } from "./buckets";
-import type { LifeArea } from "@/types/db";
+import { clearAreaIdCache } from "./dual-write";
+import { LEGACY_AREA_TEMPLATES, hubForToDb } from "./templates";
 
 /**
  * Ensure the member has a private workspace: one personal team + four area
- * bucket projects that only this user owns. No shared area-* buckets.
- *
- * P4 reshapes this into "ensure a default UserArea"; callers use
- * `ensureDefaultArea` so that change stays local.
+ * bucket projects + four UserArea rows (P4). Callers use `ensureDefaultArea`.
  */
 export async function ensurePersonalWorkspace(userId: string) {
   const teamId = `personal-${userId}`;
@@ -20,8 +19,8 @@ export async function ensurePersonalWorkspace(userId: string) {
   });
 
   if (existing) {
-    // Cheap existence check — skip 8 upserts on every navigation once buckets exist.
     await ensureAreaBuckets(userId, teamId, areaIds);
+    await ensureUserAreas(userId, areaIds);
     return { teamId, areaIds };
   }
 
@@ -55,10 +54,11 @@ export async function ensurePersonalWorkspace(userId: string) {
   });
 
   await ensureAreaBuckets(userId, teamId, areaIds, true);
+  await ensureUserAreas(userId, areaIds);
   return { teamId, areaIds };
 }
 
-/** Seam name from docs/AREAS.md §13 (today: the legacy four-bucket workspace). */
+/** Seam name from docs/AREAS.md §13. */
 export const ensureDefaultArea = ensurePersonalWorkspace;
 
 async function ensureAreaBuckets(
@@ -103,6 +103,74 @@ async function ensureAreaBuckets(
       update: {},
     });
   }
+}
+
+/**
+ * Create the four UserArea rows for a member and link each to its bucket.
+ * Idempotent. Copies color/icon/order/archived from UserAreaPreference when present.
+ */
+export async function ensureUserAreas(
+  userId: string,
+  areaIds: Record<LifeArea, string> = areaProjectIdsForUser(userId),
+) {
+  const prefs = await db.userAreaPreference.findMany({
+    where: { userId },
+    select: {
+      area: true,
+      color: true,
+      icon: true,
+      sortOrder: true,
+      archived: true,
+    },
+  });
+  const prefBy = new Map(prefs.map(p => [p.area, p]));
+
+  for (const tmpl of LEGACY_AREA_TEMPLATES) {
+    const pref = prefBy.get(tmpl.legacyEnum);
+    const bucketId = areaIds[tmpl.legacyEnum];
+    const hubFor = hubForToDb(tmpl.hubFor);
+    const row = await db.userArea.upsert({
+      where: {
+        userId_legacyEnum: { userId, legacyEnum: tmpl.legacyEnum },
+      },
+      create: {
+        userId,
+        name: tmpl.nameFa,
+        nameIsDefault: true,
+        templateKey: tmpl.templateKey,
+        color: pref?.color ?? null,
+        icon: pref?.icon ?? null,
+        sortOrder: pref?.sortOrder ?? tmpl.sortOrder,
+        archived: pref?.archived ?? false,
+        isDefault: tmpl.isDefault,
+        hubFor,
+        bucketProjectId: bucketId,
+        legacyEnum: tmpl.legacyEnum,
+      },
+      update: {
+        // Keep bucket link and hub/default flags stable; prefs may refresh visuals.
+        bucketProjectId: bucketId,
+        hubFor,
+        isDefault: tmpl.isDefault,
+        ...(pref
+          ? {
+              color: pref.color,
+              icon: pref.icon,
+              sortOrder: pref.sortOrder,
+              archived: tmpl.isDefault ? false : pref.archived,
+            }
+          : {}),
+      },
+      select: { id: true },
+    });
+
+    await db.project.update({
+      where: { id: bucketId },
+      data: { area: tmpl.legacyEnum, areaId: row.id },
+    });
+  }
+
+  clearAreaIdCache(userId);
 }
 
 export function projectIdForArea(userId: string, area: LifeArea): string {

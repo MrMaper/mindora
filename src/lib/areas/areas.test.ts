@@ -144,11 +144,11 @@ describe("member context (pure)", () => {
 
   it("defaults to the four enum areas with research/language hubs", () => {
     const ctx = buildMemberContext("u1", flags, []);
-    expect(ctx.areas.map(a => a.id)).toEqual([...LIFE_AREAS]);
-    expect(ctx.defaultArea.id).toBe(DEFAULT_AREA);
-    expect(ctx.hubAreas.research?.id).toBe(RESEARCH_AREA);
-    expect(ctx.hubAreas.language?.id).toBe(LANGUAGE_AREA);
-    expect(ctx.areas.find(a => a.id === "WORK")?.hubFor).toBeNull();
+    expect(ctx.areas.map(a => a.legacyEnum)).toEqual([...LIFE_AREAS]);
+    expect(ctx.defaultArea.legacyEnum).toBe(DEFAULT_AREA);
+    expect(ctx.hubAreas.research?.legacyEnum).toBe(RESEARCH_AREA);
+    expect(ctx.hubAreas.language?.legacyEnum).toBe(LANGUAGE_AREA);
+    expect(ctx.areas.find(a => a.legacyEnum === "WORK")?.hubFor).toBeNull();
     expect(ctx.areas.every(a => a.bucketProjectId.endsWith("-u1"))).toBe(true);
   });
 
@@ -157,9 +157,9 @@ describe("member context (pure)", () => {
       { area: "LIFE", color: "orange", icon: "home", sortOrder: -1, archived: false },
       { area: "WORK", color: null, icon: null, sortOrder: 9, archived: true },
     ]);
-    expect(refs[0]!.id).toBe("LIFE");
+    expect(refs[0]!.legacyEnum).toBe("LIFE");
     expect(refs[0]!.color).toBe("orange");
-    expect(refs.at(-1)!.id).toBe("WORK");
+    expect(refs.at(-1)!.legacyEnum).toBe("WORK");
     expect(refs.at(-1)!.archived).toBe(true);
   });
 });

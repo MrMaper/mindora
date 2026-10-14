@@ -1,6 +1,6 @@
 # Mindora — Areas, modules, access, and first-run
 
-**Status:** Design source of truth, version 2. **P0 and P1 are committed; P2 is implemented (uncommitted)** (see "Implementation status" below); P3 is done as an agent walkthrough, not a test with real people (§20.1); P4–P7 are not started.
+**Status:** Design source of truth, version 2. **P0–P3 are committed; P4 is implemented (uncommitted)** (see "Implementation status" below); P5–P7 are not started.
 **Rule:** Build only the phase the product owner names. Each phase below is shippable on its own.
 
 ### Implementation status
@@ -9,9 +9,19 @@
 |---|---|
 | P0 Foundation | Committed (`781a6e9`), not deployed. Local dev DB migrated, backfilled, and `verify-areas.ts` green. |
 | P1 Helper seam | Committed (`81cbdd9`). Server/logic code is fully migrated; 14 UI files remain on an ESLint baseline (see below). |
-| P2 Starter shell | Done in code, not committed. Migration `20261014180000_ui_profile_lifecycle` (additive) applied locally. |
-| P3 Validation | Run as a single-agent walkthrough of the protocol on a phone-size viewport (§20.1). Passed after copy and display fixes. **Not real-user data**; a real round is still recommended before public sign-up. |
-| P4 – P7, S-track | Not started |
+| P2 Starter shell | Committed (`a859b6f`). Migration `20261014180000_ui_profile_lifecycle` (additive) applied locally. |
+| P3 Validation | Committed (`9cb8556` + `5a22973` fixes). Agent walkthrough only — not real-user data; a real round is still recommended before public sign-up. |
+| P4 Schema and migration | Done in code, not committed. Migration `20261014200000_user_areas` applied locally; `backfill-areas.ts` run; `verify-areas` green. |
+| P5 – P7, S-track | Not started |
+
+**P4 as built (differences from the text below):**
+
+- Additive migration `20261014200000_user_areas`: `UserArea` + `AreaHubFor`, nullable `areaId` on Project/Task/Doc/Habit/DocFolder, partial unique indexes for one default and one hub per kind.
+- `ensurePersonalWorkspace` / `ensureUserAreas` create the four seeded areas and link buckets. `scripts/areas/backfill-areas.ts` is idempotent for existing members.
+- Dual-write: Prisma client extension on task/doc/habit/docFolder create+update fills `areaId` from the legacy enum when the member already has UserAreas. Bucket projects get `areaId` in ensure/backfill. `updateMany` is not covered (backfill + verify).
+- Reads: `getMemberContext` prefers `user_areas` rows; pre-backfill falls back to the enum + `UserAreaPreference`. `AreaRef.id` is the UserArea id after backfill (enum string before). `AreaRef.legacyEnum` carries the old value for redirects and hub predicates.
+- Hub predicates (`isHubArea`, `hubTaskExclusion`, …) still use the legacy enum columns — P6 moves them to `hubFor`.
+- UI that still routes on enum slugs (`/projects/areas/life`) is unchanged until P5.
 
 **P2 as built (differences from the text below):**
 

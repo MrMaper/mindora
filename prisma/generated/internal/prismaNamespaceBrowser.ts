@@ -69,6 +69,7 @@ export const ModelName = {
   Team: 'Team',
   TeamMember: 'TeamMember',
   Project: 'Project',
+  UserArea: 'UserArea',
   UserAreaPreference: 'UserAreaPreference',
   ProjectMember: 'ProjectMember',
   Sprint: 'Sprint',
@@ -363,6 +364,7 @@ export const ProjectScalarFieldEnum = {
   description: 'description',
   status: 'status',
   area: 'area',
+  areaId: 'areaId',
   pinned: 'pinned',
   sortOrder: 'sortOrder',
   createdAt: 'createdAt',
@@ -370,6 +372,27 @@ export const ProjectScalarFieldEnum = {
 } as const
 
 export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
+
+
+export const UserAreaScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  name: 'name',
+  nameIsDefault: 'nameIsDefault',
+  templateKey: 'templateKey',
+  color: 'color',
+  icon: 'icon',
+  sortOrder: 'sortOrder',
+  archived: 'archived',
+  isDefault: 'isDefault',
+  hubFor: 'hubFor',
+  bucketProjectId: 'bucketProjectId',
+  legacyEnum: 'legacyEnum',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserAreaScalarFieldEnum = (typeof UserAreaScalarFieldEnum)[keyof typeof UserAreaScalarFieldEnum]
 
 
 export const UserAreaPreferenceScalarFieldEnum = {
@@ -430,6 +453,7 @@ export const TaskScalarFieldEnum = {
   waitingOn: 'waitingOn',
   position: 'position',
   area: 'area',
+  areaId: 'areaId',
   recurrence: 'recurrence',
   recurrenceSeriesId: 'recurrenceSeriesId',
   recurrenceEndsAt: 'recurrenceEndsAt',
@@ -549,6 +573,7 @@ export const HabitScalarFieldEnum = {
   userId: 'userId',
   title: 'title',
   area: 'area',
+  areaId: 'areaId',
   cadence: 'cadence',
   streak: 'streak',
   bestStreak: 'bestStreak',
@@ -577,6 +602,7 @@ export const DocScalarFieldEnum = {
   content: 'content',
   contentText: 'contentText',
   area: 'area',
+  areaId: 'areaId',
   status: 'status',
   wordGoal: 'wordGoal',
   templateKey: 'templateKey',
@@ -599,6 +625,7 @@ export const DocFolderScalarFieldEnum = {
   name: 'name',
   description: 'description',
   area: 'area',
+  areaId: 'areaId',
   userId: 'userId',
   parentId: 'parentId',
   createdAt: 'createdAt',

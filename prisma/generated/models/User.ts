@@ -387,6 +387,7 @@ export type UserWhereInput = {
   mockAttempts?: Prisma.MockAttemptListRelationFilter
   habits?: Prisma.HabitListRelationFilter
   areaPreferences?: Prisma.UserAreaPreferenceListRelationFilter
+  areas?: Prisma.UserAreaListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -440,6 +441,7 @@ export type UserOrderByWithRelationInput = {
   mockAttempts?: Prisma.MockAttemptOrderByRelationAggregateInput
   habits?: Prisma.HabitOrderByRelationAggregateInput
   areaPreferences?: Prisma.UserAreaPreferenceOrderByRelationAggregateInput
+  areas?: Prisma.UserAreaOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -496,6 +498,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   mockAttempts?: Prisma.MockAttemptListRelationFilter
   habits?: Prisma.HabitListRelationFilter
   areaPreferences?: Prisma.UserAreaPreferenceListRelationFilter
+  areas?: Prisma.UserAreaListRelationFilter
 }, "id" | "email" | "baleUserId">
 
 export type UserOrderByWithAggregationInput = {
@@ -609,6 +612,7 @@ export type UserCreateInput = {
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -662,6 +666,7 @@ export type UserUncheckedCreateInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -715,6 +720,7 @@ export type UserUpdateInput = {
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -768,6 +774,7 @@ export type UserUncheckedUpdateInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -1098,6 +1105,20 @@ export type UserUpdateOneRequiredWithoutTeamMembersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTeamMembersInput, Prisma.UserUpdateWithoutTeamMembersInput>, Prisma.UserUncheckedUpdateWithoutTeamMembersInput>
 }
 
+export type UserCreateNestedOneWithoutAreasInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAreasInput, Prisma.UserUncheckedCreateWithoutAreasInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAreasInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutAreasNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAreasInput, Prisma.UserUncheckedCreateWithoutAreasInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAreasInput
+  upsert?: Prisma.UserUpsertWithoutAreasInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAreasInput, Prisma.UserUpdateWithoutAreasInput>, Prisma.UserUncheckedUpdateWithoutAreasInput>
+}
+
 export type UserCreateNestedOneWithoutAreaPreferencesInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutAreaPreferencesInput, Prisma.UserUncheckedCreateWithoutAreaPreferencesInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutAreaPreferencesInput
@@ -1416,6 +1437,7 @@ export type UserCreateWithoutLoginEventsInput = {
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLoginEventsInput = {
@@ -1468,6 +1490,7 @@ export type UserUncheckedCreateWithoutLoginEventsInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLoginEventsInput = {
@@ -1536,6 +1559,7 @@ export type UserUpdateWithoutLoginEventsInput = {
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLoginEventsInput = {
@@ -1588,6 +1612,7 @@ export type UserUncheckedUpdateWithoutLoginEventsInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAdminAuditsAsActorInput = {
@@ -1640,6 +1665,7 @@ export type UserCreateWithoutAdminAuditsAsActorInput = {
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAdminAuditsAsActorInput = {
@@ -1692,6 +1718,7 @@ export type UserUncheckedCreateWithoutAdminAuditsAsActorInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAdminAuditsAsActorInput = {
@@ -1749,6 +1776,7 @@ export type UserCreateWithoutAdminAuditsAsTargetInput = {
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAdminAuditsAsTargetInput = {
@@ -1801,6 +1829,7 @@ export type UserUncheckedCreateWithoutAdminAuditsAsTargetInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAdminAuditsAsTargetInput = {
@@ -1869,6 +1898,7 @@ export type UserUpdateWithoutAdminAuditsAsActorInput = {
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAdminAuditsAsActorInput = {
@@ -1921,6 +1951,7 @@ export type UserUncheckedUpdateWithoutAdminAuditsAsActorInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutAdminAuditsAsTargetInput = {
@@ -1984,6 +2015,7 @@ export type UserUpdateWithoutAdminAuditsAsTargetInput = {
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAdminAuditsAsTargetInput = {
@@ -2036,6 +2068,7 @@ export type UserUncheckedUpdateWithoutAdminAuditsAsTargetInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAccountsInput = {
@@ -2088,6 +2121,7 @@ export type UserCreateWithoutAccountsInput = {
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -2140,6 +2174,7 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -2208,6 +2243,7 @@ export type UserUpdateWithoutAccountsInput = {
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -2260,6 +2296,7 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -2312,6 +2349,7 @@ export type UserCreateWithoutSessionsInput = {
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -2364,6 +2402,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -2432,6 +2471,7 @@ export type UserUpdateWithoutSessionsInput = {
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -2484,6 +2524,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPasswordResetTokensInput = {
@@ -2536,6 +2577,7 @@ export type UserCreateWithoutPasswordResetTokensInput = {
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
@@ -2588,6 +2630,7 @@ export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPasswordResetTokensInput = {
@@ -2656,6 +2699,7 @@ export type UserUpdateWithoutPasswordResetTokensInput = {
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
@@ -2708,6 +2752,7 @@ export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPreferencesInput = {
@@ -2760,6 +2805,7 @@ export type UserCreateWithoutPreferencesInput = {
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPreferencesInput = {
@@ -2812,6 +2858,7 @@ export type UserUncheckedCreateWithoutPreferencesInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPreferencesInput = {
@@ -2880,6 +2927,7 @@ export type UserUpdateWithoutPreferencesInput = {
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPreferencesInput = {
@@ -2932,6 +2980,7 @@ export type UserUncheckedUpdateWithoutPreferencesInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutTeamMembersInput = {
@@ -2984,6 +3033,7 @@ export type UserCreateWithoutTeamMembersInput = {
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutTeamMembersInput = {
@@ -3036,6 +3086,7 @@ export type UserUncheckedCreateWithoutTeamMembersInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutTeamMembersInput = {
@@ -3104,6 +3155,7 @@ export type UserUpdateWithoutTeamMembersInput = {
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTeamMembersInput = {
@@ -3141,6 +3193,235 @@ export type UserUncheckedUpdateWithoutTeamMembersInput = {
   adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
   assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
+  workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUncheckedUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUncheckedUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUncheckedUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
+  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutAreasInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  avatar?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
+  baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
+  comments?: Prisma.CommentCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogCreateNestedManyWithoutTargetUserInput
+  assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
+  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
+  workLogs?: Prisma.WorkLogCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitCreateNestedManyWithoutUserInput
+  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutAreasInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  avatar?: string | null
+  role?: $Enums.UserRole
+  status?: $Enums.UserStatus
+  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
+  baleUserId?: string | null
+  baleLinkCode?: string | null
+  baleLinkChatId?: string | null
+  baleLinkExpires?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessionVersion?: number
+  lastLoginAt?: Date | string | null
+  lastSeenAt?: Date | string | null
+  totalOnlineSeconds?: number
+  failedLoginCount?: number
+  lockedUntil?: Date | string | null
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  loginEvents?: Prisma.UserLoginEventUncheckedCreateNestedManyWithoutUserInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutActorInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutTargetUserInput
+  assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
+  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
+  projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
+  workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutUserInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutUserInput
+  docFolders?: Prisma.DocFolderUncheckedCreateNestedManyWithoutUserInput
+  docTags?: Prisma.DocTagUncheckedCreateNestedManyWithoutUserInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutUserInput
+  langProfile?: Prisma.LangProfileUncheckedCreateNestedOneWithoutUserInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutUserInput
+  langVocabDays?: Prisma.LangVocabDayUncheckedCreateNestedManyWithoutUserInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutUserInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
+  habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
+  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutAreasInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAreasInput, Prisma.UserUncheckedCreateWithoutAreasInput>
+}
+
+export type UserUpsertWithoutAreasInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAreasInput, Prisma.UserUncheckedUpdateWithoutAreasInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAreasInput, Prisma.UserUncheckedCreateWithoutAreasInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAreasInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAreasInput, Prisma.UserUncheckedUpdateWithoutAreasInput>
+}
+
+export type UserUpdateWithoutAreasInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
+  comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUpdateManyWithoutTargetUserNestedInput
+  assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
+  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
+  projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
+  workLogs?: Prisma.WorkLogUpdateManyWithoutUserNestedInput
+  docs?: Prisma.DocUpdateManyWithoutUserNestedInput
+  docFolders?: Prisma.DocFolderUpdateManyWithoutUserNestedInput
+  docTags?: Prisma.DocTagUpdateManyWithoutUserNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutUserNestedInput
+  langProfile?: Prisma.LangProfileUpdateOneWithoutUserNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutUserNestedInput
+  langVocabDays?: Prisma.LangVocabDayUpdateManyWithoutUserNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutUserNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
+  habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
+  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAreasInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
+  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  loginEvents?: Prisma.UserLoginEventUncheckedUpdateManyWithoutUserNestedInput
+  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
+  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
+  assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
+  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
   projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
   workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutUserNestedInput
@@ -3208,6 +3489,7 @@ export type UserCreateWithoutAreaPreferencesInput = {
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAreaPreferencesInput = {
@@ -3260,6 +3542,7 @@ export type UserUncheckedCreateWithoutAreaPreferencesInput = {
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAreaPreferencesInput = {
@@ -3328,6 +3611,7 @@ export type UserUpdateWithoutAreaPreferencesInput = {
   examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAreaPreferencesInput = {
@@ -3380,6 +3664,7 @@ export type UserUncheckedUpdateWithoutAreaPreferencesInput = {
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutProjectMembersInput = {
@@ -3432,6 +3717,7 @@ export type UserCreateWithoutProjectMembersInput = {
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutProjectMembersInput = {
@@ -3484,6 +3770,7 @@ export type UserUncheckedCreateWithoutProjectMembersInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutProjectMembersInput = {
@@ -3552,6 +3839,7 @@ export type UserUpdateWithoutProjectMembersInput = {
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutProjectMembersInput = {
@@ -3604,6 +3892,7 @@ export type UserUncheckedUpdateWithoutProjectMembersInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAssignedTasksInput = {
@@ -3656,6 +3945,7 @@ export type UserCreateWithoutAssignedTasksInput = {
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAssignedTasksInput = {
@@ -3708,6 +3998,7 @@ export type UserUncheckedCreateWithoutAssignedTasksInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAssignedTasksInput = {
@@ -3765,6 +4056,7 @@ export type UserCreateWithoutCreatedTasksInput = {
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedTasksInput = {
@@ -3817,6 +4109,7 @@ export type UserUncheckedCreateWithoutCreatedTasksInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedTasksInput = {
@@ -3885,6 +4178,7 @@ export type UserUpdateWithoutAssignedTasksInput = {
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAssignedTasksInput = {
@@ -3937,6 +4231,7 @@ export type UserUncheckedUpdateWithoutAssignedTasksInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutCreatedTasksInput = {
@@ -4000,6 +4295,7 @@ export type UserUpdateWithoutCreatedTasksInput = {
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedTasksInput = {
@@ -4052,6 +4348,7 @@ export type UserUncheckedUpdateWithoutCreatedTasksInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCommentsInput = {
@@ -4104,6 +4401,7 @@ export type UserCreateWithoutCommentsInput = {
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCommentsInput = {
@@ -4156,6 +4454,7 @@ export type UserUncheckedCreateWithoutCommentsInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCommentsInput = {
@@ -4224,6 +4523,7 @@ export type UserUpdateWithoutCommentsInput = {
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCommentsInput = {
@@ -4276,6 +4576,7 @@ export type UserUncheckedUpdateWithoutCommentsInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutNotificationsInput = {
@@ -4328,6 +4629,7 @@ export type UserCreateWithoutNotificationsInput = {
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -4380,6 +4682,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -4448,6 +4751,7 @@ export type UserUpdateWithoutNotificationsInput = {
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -4500,6 +4804,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutActivityLogsInput = {
@@ -4552,6 +4857,7 @@ export type UserCreateWithoutActivityLogsInput = {
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutActivityLogsInput = {
@@ -4604,6 +4910,7 @@ export type UserUncheckedCreateWithoutActivityLogsInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutActivityLogsInput = {
@@ -4672,6 +4979,7 @@ export type UserUpdateWithoutActivityLogsInput = {
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutActivityLogsInput = {
@@ -4724,6 +5032,7 @@ export type UserUncheckedUpdateWithoutActivityLogsInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutWorkLogsInput = {
@@ -4776,6 +5085,7 @@ export type UserCreateWithoutWorkLogsInput = {
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutWorkLogsInput = {
@@ -4828,6 +5138,7 @@ export type UserUncheckedCreateWithoutWorkLogsInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutWorkLogsInput = {
@@ -4896,6 +5207,7 @@ export type UserUpdateWithoutWorkLogsInput = {
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutWorkLogsInput = {
@@ -4948,6 +5260,7 @@ export type UserUncheckedUpdateWithoutWorkLogsInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutHabitsInput = {
@@ -5000,6 +5313,7 @@ export type UserCreateWithoutHabitsInput = {
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutHabitsInput = {
@@ -5052,6 +5366,7 @@ export type UserUncheckedCreateWithoutHabitsInput = {
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutHabitsInput = {
@@ -5120,6 +5435,7 @@ export type UserUpdateWithoutHabitsInput = {
   examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutHabitsInput = {
@@ -5172,6 +5488,7 @@ export type UserUncheckedUpdateWithoutHabitsInput = {
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutDocsInput = {
@@ -5224,6 +5541,7 @@ export type UserCreateWithoutDocsInput = {
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDocsInput = {
@@ -5276,6 +5594,7 @@ export type UserUncheckedCreateWithoutDocsInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDocsInput = {
@@ -5344,6 +5663,7 @@ export type UserUpdateWithoutDocsInput = {
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDocsInput = {
@@ -5396,6 +5716,7 @@ export type UserUncheckedUpdateWithoutDocsInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutDocFoldersInput = {
@@ -5448,6 +5769,7 @@ export type UserCreateWithoutDocFoldersInput = {
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDocFoldersInput = {
@@ -5500,6 +5822,7 @@ export type UserUncheckedCreateWithoutDocFoldersInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDocFoldersInput = {
@@ -5568,6 +5891,7 @@ export type UserUpdateWithoutDocFoldersInput = {
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDocFoldersInput = {
@@ -5620,6 +5944,7 @@ export type UserUncheckedUpdateWithoutDocFoldersInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutDocTagsInput = {
@@ -5672,6 +5997,7 @@ export type UserCreateWithoutDocTagsInput = {
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDocTagsInput = {
@@ -5724,6 +6050,7 @@ export type UserUncheckedCreateWithoutDocTagsInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDocTagsInput = {
@@ -5792,6 +6119,7 @@ export type UserUpdateWithoutDocTagsInput = {
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDocTagsInput = {
@@ -5844,6 +6172,7 @@ export type UserUncheckedUpdateWithoutDocTagsInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLangProfileInput = {
@@ -5896,6 +6225,7 @@ export type UserCreateWithoutLangProfileInput = {
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLangProfileInput = {
@@ -5948,6 +6278,7 @@ export type UserUncheckedCreateWithoutLangProfileInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLangProfileInput = {
@@ -6016,6 +6347,7 @@ export type UserUpdateWithoutLangProfileInput = {
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLangProfileInput = {
@@ -6068,6 +6400,7 @@ export type UserUncheckedUpdateWithoutLangProfileInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLangSessionsInput = {
@@ -6120,6 +6453,7 @@ export type UserCreateWithoutLangSessionsInput = {
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLangSessionsInput = {
@@ -6172,6 +6506,7 @@ export type UserUncheckedCreateWithoutLangSessionsInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLangSessionsInput = {
@@ -6240,6 +6575,7 @@ export type UserUpdateWithoutLangSessionsInput = {
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLangSessionsInput = {
@@ -6292,6 +6628,7 @@ export type UserUncheckedUpdateWithoutLangSessionsInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLangListeningClipsInput = {
@@ -6344,6 +6681,7 @@ export type UserCreateWithoutLangListeningClipsInput = {
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLangListeningClipsInput = {
@@ -6396,6 +6734,7 @@ export type UserUncheckedCreateWithoutLangListeningClipsInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLangListeningClipsInput = {
@@ -6464,6 +6803,7 @@ export type UserUpdateWithoutLangListeningClipsInput = {
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLangListeningClipsInput = {
@@ -6516,6 +6856,7 @@ export type UserUncheckedUpdateWithoutLangListeningClipsInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLangCardsInput = {
@@ -6568,6 +6909,7 @@ export type UserCreateWithoutLangCardsInput = {
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLangCardsInput = {
@@ -6620,6 +6962,7 @@ export type UserUncheckedCreateWithoutLangCardsInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLangCardsInput = {
@@ -6688,6 +7031,7 @@ export type UserUpdateWithoutLangCardsInput = {
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLangCardsInput = {
@@ -6740,6 +7084,7 @@ export type UserUncheckedUpdateWithoutLangCardsInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLangVocabDaysInput = {
@@ -6792,6 +7137,7 @@ export type UserCreateWithoutLangVocabDaysInput = {
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLangVocabDaysInput = {
@@ -6844,6 +7190,7 @@ export type UserUncheckedCreateWithoutLangVocabDaysInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLangVocabDaysInput = {
@@ -6912,6 +7259,7 @@ export type UserUpdateWithoutLangVocabDaysInput = {
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLangVocabDaysInput = {
@@ -6964,6 +7312,7 @@ export type UserUncheckedUpdateWithoutLangVocabDaysInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutExamTracksInput = {
@@ -7016,6 +7365,7 @@ export type UserCreateWithoutExamTracksInput = {
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutExamTracksInput = {
@@ -7068,6 +7418,7 @@ export type UserUncheckedCreateWithoutExamTracksInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutExamTracksInput = {
@@ -7136,6 +7487,7 @@ export type UserUpdateWithoutExamTracksInput = {
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutExamTracksInput = {
@@ -7188,6 +7540,7 @@ export type UserUncheckedUpdateWithoutExamTracksInput = {
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutMockAttemptsInput = {
@@ -7240,6 +7593,7 @@ export type UserCreateWithoutMockAttemptsInput = {
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutMockAttemptsInput = {
@@ -7292,6 +7646,7 @@ export type UserUncheckedCreateWithoutMockAttemptsInput = {
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
+  areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutMockAttemptsInput = {
@@ -7360,6 +7715,7 @@ export type UserUpdateWithoutMockAttemptsInput = {
   examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMockAttemptsInput = {
@@ -7412,6 +7768,7 @@ export type UserUncheckedUpdateWithoutMockAttemptsInput = {
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
   areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
+  areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -7445,6 +7802,7 @@ export type UserCountOutputType = {
   mockAttempts: number
   habits: number
   areaPreferences: number
+  areas: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -7473,6 +7831,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   mockAttempts?: boolean | UserCountOutputTypeCountMockAttemptsArgs
   habits?: boolean | UserCountOutputTypeCountHabitsArgs
   areaPreferences?: boolean | UserCountOutputTypeCountAreaPreferencesArgs
+  areas?: boolean | UserCountOutputTypeCountAreasArgs
 }
 
 /**
@@ -7660,6 +8019,13 @@ export type UserCountOutputTypeCountAreaPreferencesArgs<ExtArgs extends runtime.
   where?: Prisma.UserAreaPreferenceWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountAreasArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserAreaWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -7712,6 +8078,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   mockAttempts?: boolean | Prisma.User$mockAttemptsArgs<ExtArgs>
   habits?: boolean | Prisma.User$habitsArgs<ExtArgs>
   areaPreferences?: boolean | Prisma.User$areaPreferencesArgs<ExtArgs>
+  areas?: boolean | Prisma.User$areasArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -7822,6 +8189,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   mockAttempts?: boolean | Prisma.User$mockAttemptsArgs<ExtArgs>
   habits?: boolean | Prisma.User$habitsArgs<ExtArgs>
   areaPreferences?: boolean | Prisma.User$areaPreferencesArgs<ExtArgs>
+  areas?: boolean | Prisma.User$areasArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -7857,6 +8225,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     mockAttempts: Prisma.$MockAttemptPayload<ExtArgs>[]
     habits: Prisma.$HabitPayload<ExtArgs>[]
     areaPreferences: Prisma.$UserAreaPreferencePayload<ExtArgs>[]
+    areas: Prisma.$UserAreaPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -8335,6 +8704,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   mockAttempts<T extends Prisma.User$mockAttemptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$mockAttemptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MockAttemptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   habits<T extends Prisma.User$habitsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$habitsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$HabitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   areaPreferences<T extends Prisma.User$areaPreferencesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$areaPreferencesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserAreaPreferencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  areas<T extends Prisma.User$areasArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$areasArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserAreaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -9415,6 +9785,30 @@ export type User$areaPreferencesArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.UserAreaPreferenceScalarFieldEnum | Prisma.UserAreaPreferenceScalarFieldEnum[]
+}
+
+/**
+ * User.areas
+ */
+export type User$areasArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserArea
+   */
+  select?: Prisma.UserAreaSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserArea
+   */
+  omit?: Prisma.UserAreaOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserAreaInclude<ExtArgs> | null
+  where?: Prisma.UserAreaWhereInput
+  orderBy?: Prisma.UserAreaOrderByWithRelationInput | Prisma.UserAreaOrderByWithRelationInput[]
+  cursor?: Prisma.UserAreaWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserAreaScalarFieldEnum | Prisma.UserAreaScalarFieldEnum[]
 }
 
 /**

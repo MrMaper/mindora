@@ -1,6 +1,7 @@
 /**
  * Pure member-context builders (no DB / auth) — unit-testable and client-safe.
- * P1: backed by the legacy enum; P4 swaps the store.
+ * P4: AreaRef.id is a UserArea id when backed by rows; legacy fallback still
+ * uses the enum string as id so pre-backfill members keep working.
  */
 import type { LifeArea } from "@/types/db";
 import type { ModuleFlags } from "@/lib/modules";
@@ -12,14 +13,19 @@ import {
   LIFE_AREAS,
   RESEARCH_AREA,
 } from "./legacy";
+import { hubForFromDb } from "./templates";
 
 export type HubKind = "research" | "language";
 
 export interface AreaRef {
-  /** Enum value today; becomes a UserArea id after P4. Treat as opaque. */
-  id: LifeArea;
+  /** UserArea id after backfill; legacy enum string before. Treat as opaque. */
+  id: string;
+  /** Old PHD/WORK/LIFE/LANG when this row was seeded from the enum. */
+  legacyEnum: LifeArea | null;
   nameFa: string;
   nameEn: string;
+  nameIsDefault: boolean;
+  templateKey: string | null;
   color: string | null;
   icon: string | null;
   sortOrder: number;
@@ -47,13 +53,29 @@ export type PrefRow = {
   archived: boolean;
 };
 
+/** Row shape loaded from `user_areas` (server). */
+export type UserAreaRow = {
+  id: string;
+  name: string;
+  nameIsDefault: boolean;
+  templateKey: string | null;
+  color: string | null;
+  icon: string | null;
+  sortOrder: number;
+  archived: boolean;
+  isDefault: boolean;
+  hubFor: "RESEARCH" | "LANGUAGE" | null;
+  bucketProjectId: string | null;
+  legacyEnum: LifeArea | null;
+};
+
 function hubKindOf(area: LifeArea): HubKind | null {
   if (area === RESEARCH_AREA) return "research";
   if (area === LANGUAGE_AREA) return "language";
   return null;
 }
 
-/** Pure: merge enum defaults with stored preferences. */
+/** Pure: merge enum defaults with stored preferences (pre-backfill fallback). */
 export function buildAreaRefs(userId: string, prefs: PrefRow[]): AreaRef[] {
   const byArea = new Map(prefs.map(p => [p.area, p]));
   const refs = LIFE_AREAS.map((area, index): AreaRef => {
@@ -61,8 +83,11 @@ export function buildAreaRefs(userId: string, prefs: PrefRow[]): AreaRef[] {
     const meta = AREA_META[area];
     return {
       id: area,
+      legacyEnum: area,
       nameFa: meta.nameFa,
       nameEn: meta.nameEn,
+      nameIsDefault: true,
+      templateKey: null,
       color: pref?.color ?? null,
       icon: pref?.icon ?? null,
       sortOrder: pref?.sortOrder ?? index,
@@ -72,7 +97,37 @@ export function buildAreaRefs(userId: string, prefs: PrefRow[]): AreaRef[] {
       bucketProjectId: personalAreaProjectId(userId, area),
     };
   });
-  // Stable: sortOrder, then enum order (Array#sort is stable).
+  return refs.sort((a, b) => a.sortOrder - b.sortOrder);
+}
+
+/** Pure: map persisted UserArea rows into AreaRefs. */
+export function buildAreaRefsFromRows(
+  userId: string,
+  rows: UserAreaRow[],
+): AreaRef[] {
+  const refs = rows.map((row): AreaRef => {
+    const legacy = row.legacyEnum;
+    const meta = legacy ? AREA_META[legacy] : null;
+    const nameFa = row.nameIsDefault && meta ? meta.nameFa : row.name;
+    const nameEn = row.nameIsDefault && meta ? meta.nameEn : row.name;
+    return {
+      id: row.id,
+      legacyEnum: legacy,
+      nameFa,
+      nameEn,
+      nameIsDefault: row.nameIsDefault,
+      templateKey: row.templateKey,
+      color: row.color,
+      icon: row.icon,
+      sortOrder: row.sortOrder,
+      archived: row.archived,
+      isDefault: row.isDefault,
+      hubFor: hubForFromDb(row.hubFor),
+      bucketProjectId:
+        row.bucketProjectId ??
+        (legacy ? personalAreaProjectId(userId, legacy) : ""),
+    };
+  });
   return refs.sort((a, b) => a.sortOrder - b.sortOrder);
 }
 
@@ -81,8 +136,30 @@ export function buildMemberContext(
   flags: ModuleFlags,
   prefs: PrefRow[],
 ): MemberContext {
-  const areas = buildAreaRefs(userId, prefs);
-  const defaultArea = areas.find(a => a.isDefault) ?? areas[0]!;
+  return memberContextFromRefs(userId, flags, buildAreaRefs(userId, prefs));
+}
+
+export function buildMemberContextFromRows(
+  userId: string,
+  flags: ModuleFlags,
+  rows: UserAreaRow[],
+): MemberContext {
+  return memberContextFromRefs(
+    userId,
+    flags,
+    buildAreaRefsFromRows(userId, rows),
+  );
+}
+
+function memberContextFromRefs(
+  userId: string,
+  flags: ModuleFlags,
+  areas: AreaRef[],
+): MemberContext {
+  const defaultArea =
+    areas.find(a => a.isDefault && !a.archived) ??
+    areas.find(a => !a.archived) ??
+    areas[0]!;
   return {
     userId,
     flags,

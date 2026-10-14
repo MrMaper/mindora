@@ -41,6 +41,7 @@ export type ProjectMinAggregateOutputType = {
   description: string | null
   status: $Enums.ProjectStatus | null
   area: $Enums.LifeArea | null
+  areaId: string | null
   pinned: boolean | null
   sortOrder: number | null
   createdAt: Date | null
@@ -54,6 +55,7 @@ export type ProjectMaxAggregateOutputType = {
   description: string | null
   status: $Enums.ProjectStatus | null
   area: $Enums.LifeArea | null
+  areaId: string | null
   pinned: boolean | null
   sortOrder: number | null
   createdAt: Date | null
@@ -67,6 +69,7 @@ export type ProjectCountAggregateOutputType = {
   description: number
   status: number
   area: number
+  areaId: number
   pinned: number
   sortOrder: number
   createdAt: number
@@ -90,6 +93,7 @@ export type ProjectMinAggregateInputType = {
   description?: true
   status?: true
   area?: true
+  areaId?: true
   pinned?: true
   sortOrder?: true
   createdAt?: true
@@ -103,6 +107,7 @@ export type ProjectMaxAggregateInputType = {
   description?: true
   status?: true
   area?: true
+  areaId?: true
   pinned?: true
   sortOrder?: true
   createdAt?: true
@@ -116,6 +121,7 @@ export type ProjectCountAggregateInputType = {
   description?: true
   status?: true
   area?: true
+  areaId?: true
   pinned?: true
   sortOrder?: true
   createdAt?: true
@@ -216,6 +222,7 @@ export type ProjectGroupByOutputType = {
   description: string | null
   status: $Enums.ProjectStatus
   area: $Enums.LifeArea
+  areaId: string | null
   pinned: boolean
   sortOrder: number
   createdAt: Date
@@ -252,11 +259,14 @@ export type ProjectWhereInput = {
   description?: Prisma.StringNullableFilter<"Project"> | string | null
   status?: Prisma.EnumProjectStatusFilter<"Project"> | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFilter<"Project"> | $Enums.LifeArea
+  areaId?: Prisma.StringNullableFilter<"Project"> | string | null
   pinned?: Prisma.BoolFilter<"Project"> | boolean
   sortOrder?: Prisma.IntFilter<"Project"> | number
   createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   team?: Prisma.XOR<Prisma.TeamNullableScalarRelationFilter, Prisma.TeamWhereInput> | null
+  userArea?: Prisma.XOR<Prisma.UserAreaNullableScalarRelationFilter, Prisma.UserAreaWhereInput> | null
+  bucketFor?: Prisma.XOR<Prisma.UserAreaNullableScalarRelationFilter, Prisma.UserAreaWhereInput> | null
   sprints?: Prisma.SprintListRelationFilter
   tasks?: Prisma.TaskListRelationFilter
   members?: Prisma.ProjectMemberListRelationFilter
@@ -276,11 +286,14 @@ export type ProjectOrderByWithRelationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   area?: Prisma.SortOrder
+  areaId?: Prisma.SortOrderInput | Prisma.SortOrder
   pinned?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   team?: Prisma.TeamOrderByWithRelationInput
+  userArea?: Prisma.UserAreaOrderByWithRelationInput
+  bucketFor?: Prisma.UserAreaOrderByWithRelationInput
   sprints?: Prisma.SprintOrderByRelationAggregateInput
   tasks?: Prisma.TaskOrderByRelationAggregateInput
   members?: Prisma.ProjectMemberOrderByRelationAggregateInput
@@ -303,11 +316,14 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   description?: Prisma.StringNullableFilter<"Project"> | string | null
   status?: Prisma.EnumProjectStatusFilter<"Project"> | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFilter<"Project"> | $Enums.LifeArea
+  areaId?: Prisma.StringNullableFilter<"Project"> | string | null
   pinned?: Prisma.BoolFilter<"Project"> | boolean
   sortOrder?: Prisma.IntFilter<"Project"> | number
   createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   team?: Prisma.XOR<Prisma.TeamNullableScalarRelationFilter, Prisma.TeamWhereInput> | null
+  userArea?: Prisma.XOR<Prisma.UserAreaNullableScalarRelationFilter, Prisma.UserAreaWhereInput> | null
+  bucketFor?: Prisma.XOR<Prisma.UserAreaNullableScalarRelationFilter, Prisma.UserAreaWhereInput> | null
   sprints?: Prisma.SprintListRelationFilter
   tasks?: Prisma.TaskListRelationFilter
   members?: Prisma.ProjectMemberListRelationFilter
@@ -327,6 +343,7 @@ export type ProjectOrderByWithAggregationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   area?: Prisma.SortOrder
+  areaId?: Prisma.SortOrderInput | Prisma.SortOrder
   pinned?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -348,6 +365,7 @@ export type ProjectScalarWhereWithAggregatesInput = {
   description?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   status?: Prisma.EnumProjectStatusWithAggregatesFilter<"Project"> | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaWithAggregatesFilter<"Project"> | $Enums.LifeArea
+  areaId?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   pinned?: Prisma.BoolWithAggregatesFilter<"Project"> | boolean
   sortOrder?: Prisma.IntWithAggregatesFilter<"Project"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Project"> | Date | string
@@ -365,6 +383,8 @@ export type ProjectCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
+  userArea?: Prisma.UserAreaCreateNestedOneWithoutProjectsInput
+  bucketFor?: Prisma.UserAreaCreateNestedOneWithoutBucketProjectInput
   sprints?: Prisma.SprintCreateNestedManyWithoutProjectInput
   tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
@@ -384,10 +404,12 @@ export type ProjectUncheckedCreateInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  areaId?: string | null
   pinned?: boolean
   sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  bucketFor?: Prisma.UserAreaUncheckedCreateNestedOneWithoutBucketProjectInput
   sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
@@ -411,6 +433,8 @@ export type ProjectUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
+  userArea?: Prisma.UserAreaUpdateOneWithoutProjectsNestedInput
+  bucketFor?: Prisma.UserAreaUpdateOneWithoutBucketProjectNestedInput
   sprints?: Prisma.SprintUpdateManyWithoutProjectNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
@@ -430,10 +454,12 @@ export type ProjectUncheckedUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bucketFor?: Prisma.UserAreaUncheckedUpdateOneWithoutBucketProjectNestedInput
   sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
@@ -453,6 +479,7 @@ export type ProjectCreateManyInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  areaId?: string | null
   pinned?: boolean
   sortOrder?: number
   createdAt?: Date | string
@@ -478,6 +505,7 @@ export type ProjectUncheckedUpdateManyInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -501,6 +529,7 @@ export type ProjectCountOrderByAggregateInput = {
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
   area?: Prisma.SortOrder
+  areaId?: Prisma.SortOrder
   pinned?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -518,6 +547,7 @@ export type ProjectMaxOrderByAggregateInput = {
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
   area?: Prisma.SortOrder
+  areaId?: Prisma.SortOrder
   pinned?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -531,6 +561,7 @@ export type ProjectMinOrderByAggregateInput = {
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
   area?: Prisma.SortOrder
+  areaId?: Prisma.SortOrder
   pinned?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -541,14 +572,14 @@ export type ProjectSumOrderByAggregateInput = {
   sortOrder?: Prisma.SortOrder
 }
 
-export type ProjectScalarRelationFilter = {
-  is?: Prisma.ProjectWhereInput
-  isNot?: Prisma.ProjectWhereInput
-}
-
 export type ProjectNullableScalarRelationFilter = {
   is?: Prisma.ProjectWhereInput | null
   isNot?: Prisma.ProjectWhereInput | null
+}
+
+export type ProjectScalarRelationFilter = {
+  is?: Prisma.ProjectWhereInput
+  isNot?: Prisma.ProjectWhereInput
 }
 
 export type ProjectCreateNestedManyWithoutTeamInput = {
@@ -599,6 +630,64 @@ export type EnumProjectStatusFieldUpdateOperationsInput = {
 
 export type EnumLifeAreaFieldUpdateOperationsInput = {
   set?: $Enums.LifeArea
+}
+
+export type ProjectCreateNestedOneWithoutBucketForInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutBucketForInput, Prisma.ProjectUncheckedCreateWithoutBucketForInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutBucketForInput
+  connect?: Prisma.ProjectWhereUniqueInput
+}
+
+export type ProjectCreateNestedManyWithoutUserAreaInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutUserAreaInput, Prisma.ProjectUncheckedCreateWithoutUserAreaInput> | Prisma.ProjectCreateWithoutUserAreaInput[] | Prisma.ProjectUncheckedCreateWithoutUserAreaInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutUserAreaInput | Prisma.ProjectCreateOrConnectWithoutUserAreaInput[]
+  createMany?: Prisma.ProjectCreateManyUserAreaInputEnvelope
+  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+}
+
+export type ProjectUncheckedCreateNestedManyWithoutUserAreaInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutUserAreaInput, Prisma.ProjectUncheckedCreateWithoutUserAreaInput> | Prisma.ProjectCreateWithoutUserAreaInput[] | Prisma.ProjectUncheckedCreateWithoutUserAreaInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutUserAreaInput | Prisma.ProjectCreateOrConnectWithoutUserAreaInput[]
+  createMany?: Prisma.ProjectCreateManyUserAreaInputEnvelope
+  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+}
+
+export type ProjectUpdateOneWithoutBucketForNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutBucketForInput, Prisma.ProjectUncheckedCreateWithoutBucketForInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutBucketForInput
+  upsert?: Prisma.ProjectUpsertWithoutBucketForInput
+  disconnect?: Prisma.ProjectWhereInput | boolean
+  delete?: Prisma.ProjectWhereInput | boolean
+  connect?: Prisma.ProjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutBucketForInput, Prisma.ProjectUpdateWithoutBucketForInput>, Prisma.ProjectUncheckedUpdateWithoutBucketForInput>
+}
+
+export type ProjectUpdateManyWithoutUserAreaNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutUserAreaInput, Prisma.ProjectUncheckedCreateWithoutUserAreaInput> | Prisma.ProjectCreateWithoutUserAreaInput[] | Prisma.ProjectUncheckedCreateWithoutUserAreaInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutUserAreaInput | Prisma.ProjectCreateOrConnectWithoutUserAreaInput[]
+  upsert?: Prisma.ProjectUpsertWithWhereUniqueWithoutUserAreaInput | Prisma.ProjectUpsertWithWhereUniqueWithoutUserAreaInput[]
+  createMany?: Prisma.ProjectCreateManyUserAreaInputEnvelope
+  set?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  disconnect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  delete?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  update?: Prisma.ProjectUpdateWithWhereUniqueWithoutUserAreaInput | Prisma.ProjectUpdateWithWhereUniqueWithoutUserAreaInput[]
+  updateMany?: Prisma.ProjectUpdateManyWithWhereWithoutUserAreaInput | Prisma.ProjectUpdateManyWithWhereWithoutUserAreaInput[]
+  deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
+}
+
+export type ProjectUncheckedUpdateManyWithoutUserAreaNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutUserAreaInput, Prisma.ProjectUncheckedCreateWithoutUserAreaInput> | Prisma.ProjectCreateWithoutUserAreaInput[] | Prisma.ProjectUncheckedCreateWithoutUserAreaInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutUserAreaInput | Prisma.ProjectCreateOrConnectWithoutUserAreaInput[]
+  upsert?: Prisma.ProjectUpsertWithWhereUniqueWithoutUserAreaInput | Prisma.ProjectUpsertWithWhereUniqueWithoutUserAreaInput[]
+  createMany?: Prisma.ProjectCreateManyUserAreaInputEnvelope
+  set?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  disconnect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  delete?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  update?: Prisma.ProjectUpdateWithWhereUniqueWithoutUserAreaInput | Prisma.ProjectUpdateWithWhereUniqueWithoutUserAreaInput[]
+  updateMany?: Prisma.ProjectUpdateManyWithWhereWithoutUserAreaInput | Prisma.ProjectUpdateManyWithWhereWithoutUserAreaInput[]
+  deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
 }
 
 export type ProjectCreateNestedOneWithoutMembersInput = {
@@ -767,6 +856,8 @@ export type ProjectCreateWithoutTeamInput = {
   sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  userArea?: Prisma.UserAreaCreateNestedOneWithoutProjectsInput
+  bucketFor?: Prisma.UserAreaCreateNestedOneWithoutBucketProjectInput
   sprints?: Prisma.SprintCreateNestedManyWithoutProjectInput
   tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
@@ -785,10 +876,12 @@ export type ProjectUncheckedCreateWithoutTeamInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  areaId?: string | null
   pinned?: boolean
   sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  bucketFor?: Prisma.UserAreaUncheckedCreateNestedOneWithoutBucketProjectInput
   sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
@@ -837,10 +930,197 @@ export type ProjectScalarWhereInput = {
   description?: Prisma.StringNullableFilter<"Project"> | string | null
   status?: Prisma.EnumProjectStatusFilter<"Project"> | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFilter<"Project"> | $Enums.LifeArea
+  areaId?: Prisma.StringNullableFilter<"Project"> | string | null
   pinned?: Prisma.BoolFilter<"Project"> | boolean
   sortOrder?: Prisma.IntFilter<"Project"> | number
   createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
+}
+
+export type ProjectCreateWithoutBucketForInput = {
+  id?: string
+  name: string
+  description?: string | null
+  status?: $Enums.ProjectStatus
+  area?: $Enums.LifeArea
+  pinned?: boolean
+  sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
+  userArea?: Prisma.UserAreaCreateNestedOneWithoutProjectsInput
+  sprints?: Prisma.SprintCreateNestedManyWithoutProjectInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
+  members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
+  docs?: Prisma.DocCreateNestedManyWithoutProjectInput
+  sources?: Prisma.DocSourceCreateNestedManyWithoutProjectInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutProjectInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutProjectInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutProjectInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutProjectInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectUncheckedCreateWithoutBucketForInput = {
+  id?: string
+  teamId?: string | null
+  name: string
+  description?: string | null
+  status?: $Enums.ProjectStatus
+  area?: $Enums.LifeArea
+  areaId?: string | null
+  pinned?: boolean
+  sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
+  members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutProjectInput
+  sources?: Prisma.DocSourceUncheckedCreateNestedManyWithoutProjectInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutProjectInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutProjectInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutProjectInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutProjectInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectCreateOrConnectWithoutBucketForInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutBucketForInput, Prisma.ProjectUncheckedCreateWithoutBucketForInput>
+}
+
+export type ProjectCreateWithoutUserAreaInput = {
+  id?: string
+  name: string
+  description?: string | null
+  status?: $Enums.ProjectStatus
+  area?: $Enums.LifeArea
+  pinned?: boolean
+  sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
+  bucketFor?: Prisma.UserAreaCreateNestedOneWithoutBucketProjectInput
+  sprints?: Prisma.SprintCreateNestedManyWithoutProjectInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
+  members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
+  docs?: Prisma.DocCreateNestedManyWithoutProjectInput
+  sources?: Prisma.DocSourceCreateNestedManyWithoutProjectInput
+  langSessions?: Prisma.LangSessionCreateNestedManyWithoutProjectInput
+  langCards?: Prisma.LangCardCreateNestedManyWithoutProjectInput
+  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutProjectInput
+  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutProjectInput
+  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectUncheckedCreateWithoutUserAreaInput = {
+  id?: string
+  teamId?: string | null
+  name: string
+  description?: string | null
+  status?: $Enums.ProjectStatus
+  area?: $Enums.LifeArea
+  pinned?: boolean
+  sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  bucketFor?: Prisma.UserAreaUncheckedCreateNestedOneWithoutBucketProjectInput
+  sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
+  members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutProjectInput
+  sources?: Prisma.DocSourceUncheckedCreateNestedManyWithoutProjectInput
+  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutProjectInput
+  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutProjectInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutProjectInput
+  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutProjectInput
+  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectCreateOrConnectWithoutUserAreaInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutUserAreaInput, Prisma.ProjectUncheckedCreateWithoutUserAreaInput>
+}
+
+export type ProjectCreateManyUserAreaInputEnvelope = {
+  data: Prisma.ProjectCreateManyUserAreaInput | Prisma.ProjectCreateManyUserAreaInput[]
+  skipDuplicates?: boolean
+}
+
+export type ProjectUpsertWithoutBucketForInput = {
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutBucketForInput, Prisma.ProjectUncheckedUpdateWithoutBucketForInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutBucketForInput, Prisma.ProjectUncheckedCreateWithoutBucketForInput>
+  where?: Prisma.ProjectWhereInput
+}
+
+export type ProjectUpdateToOneWithWhereWithoutBucketForInput = {
+  where?: Prisma.ProjectWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutBucketForInput, Prisma.ProjectUncheckedUpdateWithoutBucketForInput>
+}
+
+export type ProjectUpdateWithoutBucketForInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
+  userArea?: Prisma.UserAreaUpdateOneWithoutProjectsNestedInput
+  sprints?: Prisma.SprintUpdateManyWithoutProjectNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
+  members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
+  docs?: Prisma.DocUpdateManyWithoutProjectNestedInput
+  sources?: Prisma.DocSourceUpdateManyWithoutProjectNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutProjectNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutProjectNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutProjectNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutProjectNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutBucketForInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
+  members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutProjectNestedInput
+  sources?: Prisma.DocSourceUncheckedUpdateManyWithoutProjectNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutProjectNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutProjectNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutProjectNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutProjectNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUpsertWithWhereUniqueWithoutUserAreaInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutUserAreaInput, Prisma.ProjectUncheckedUpdateWithoutUserAreaInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutUserAreaInput, Prisma.ProjectUncheckedCreateWithoutUserAreaInput>
+}
+
+export type ProjectUpdateWithWhereUniqueWithoutUserAreaInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutUserAreaInput, Prisma.ProjectUncheckedUpdateWithoutUserAreaInput>
+}
+
+export type ProjectUpdateManyWithWhereWithoutUserAreaInput = {
+  where: Prisma.ProjectScalarWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateManyMutationInput, Prisma.ProjectUncheckedUpdateManyWithoutUserAreaInput>
 }
 
 export type ProjectCreateWithoutMembersInput = {
@@ -854,6 +1134,8 @@ export type ProjectCreateWithoutMembersInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
+  userArea?: Prisma.UserAreaCreateNestedOneWithoutProjectsInput
+  bucketFor?: Prisma.UserAreaCreateNestedOneWithoutBucketProjectInput
   sprints?: Prisma.SprintCreateNestedManyWithoutProjectInput
   tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
   docs?: Prisma.DocCreateNestedManyWithoutProjectInput
@@ -872,10 +1154,12 @@ export type ProjectUncheckedCreateWithoutMembersInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  areaId?: string | null
   pinned?: boolean
   sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  bucketFor?: Prisma.UserAreaUncheckedCreateNestedOneWithoutBucketProjectInput
   sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
   docs?: Prisma.DocUncheckedCreateNestedManyWithoutProjectInput
@@ -914,6 +1198,8 @@ export type ProjectUpdateWithoutMembersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
+  userArea?: Prisma.UserAreaUpdateOneWithoutProjectsNestedInput
+  bucketFor?: Prisma.UserAreaUpdateOneWithoutBucketProjectNestedInput
   sprints?: Prisma.SprintUpdateManyWithoutProjectNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
   docs?: Prisma.DocUpdateManyWithoutProjectNestedInput
@@ -932,10 +1218,12 @@ export type ProjectUncheckedUpdateWithoutMembersInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bucketFor?: Prisma.UserAreaUncheckedUpdateOneWithoutBucketProjectNestedInput
   sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
   docs?: Prisma.DocUncheckedUpdateManyWithoutProjectNestedInput
@@ -958,6 +1246,8 @@ export type ProjectCreateWithoutSprintsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
+  userArea?: Prisma.UserAreaCreateNestedOneWithoutProjectsInput
+  bucketFor?: Prisma.UserAreaCreateNestedOneWithoutBucketProjectInput
   tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
   docs?: Prisma.DocCreateNestedManyWithoutProjectInput
@@ -976,10 +1266,12 @@ export type ProjectUncheckedCreateWithoutSprintsInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  areaId?: string | null
   pinned?: boolean
   sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  bucketFor?: Prisma.UserAreaUncheckedCreateNestedOneWithoutBucketProjectInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
   docs?: Prisma.DocUncheckedCreateNestedManyWithoutProjectInput
@@ -1018,6 +1310,8 @@ export type ProjectUpdateWithoutSprintsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
+  userArea?: Prisma.UserAreaUpdateOneWithoutProjectsNestedInput
+  bucketFor?: Prisma.UserAreaUpdateOneWithoutBucketProjectNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
   docs?: Prisma.DocUpdateManyWithoutProjectNestedInput
@@ -1036,10 +1330,12 @@ export type ProjectUncheckedUpdateWithoutSprintsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bucketFor?: Prisma.UserAreaUncheckedUpdateOneWithoutBucketProjectNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
   docs?: Prisma.DocUncheckedUpdateManyWithoutProjectNestedInput
@@ -1062,6 +1358,8 @@ export type ProjectCreateWithoutTasksInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
+  userArea?: Prisma.UserAreaCreateNestedOneWithoutProjectsInput
+  bucketFor?: Prisma.UserAreaCreateNestedOneWithoutBucketProjectInput
   sprints?: Prisma.SprintCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
   docs?: Prisma.DocCreateNestedManyWithoutProjectInput
@@ -1080,10 +1378,12 @@ export type ProjectUncheckedCreateWithoutTasksInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  areaId?: string | null
   pinned?: boolean
   sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  bucketFor?: Prisma.UserAreaUncheckedCreateNestedOneWithoutBucketProjectInput
   sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
   docs?: Prisma.DocUncheckedCreateNestedManyWithoutProjectInput
@@ -1122,6 +1422,8 @@ export type ProjectUpdateWithoutTasksInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
+  userArea?: Prisma.UserAreaUpdateOneWithoutProjectsNestedInput
+  bucketFor?: Prisma.UserAreaUpdateOneWithoutBucketProjectNestedInput
   sprints?: Prisma.SprintUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
   docs?: Prisma.DocUpdateManyWithoutProjectNestedInput
@@ -1140,10 +1442,12 @@ export type ProjectUncheckedUpdateWithoutTasksInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bucketFor?: Prisma.UserAreaUncheckedUpdateOneWithoutBucketProjectNestedInput
   sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
   docs?: Prisma.DocUncheckedUpdateManyWithoutProjectNestedInput
@@ -1166,6 +1470,8 @@ export type ProjectCreateWithoutDocsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
+  userArea?: Prisma.UserAreaCreateNestedOneWithoutProjectsInput
+  bucketFor?: Prisma.UserAreaCreateNestedOneWithoutBucketProjectInput
   sprints?: Prisma.SprintCreateNestedManyWithoutProjectInput
   tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
@@ -1184,10 +1490,12 @@ export type ProjectUncheckedCreateWithoutDocsInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  areaId?: string | null
   pinned?: boolean
   sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  bucketFor?: Prisma.UserAreaUncheckedCreateNestedOneWithoutBucketProjectInput
   sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
@@ -1226,6 +1534,8 @@ export type ProjectUpdateWithoutDocsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
+  userArea?: Prisma.UserAreaUpdateOneWithoutProjectsNestedInput
+  bucketFor?: Prisma.UserAreaUpdateOneWithoutBucketProjectNestedInput
   sprints?: Prisma.SprintUpdateManyWithoutProjectNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
@@ -1244,10 +1554,12 @@ export type ProjectUncheckedUpdateWithoutDocsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bucketFor?: Prisma.UserAreaUncheckedUpdateOneWithoutBucketProjectNestedInput
   sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
@@ -1270,6 +1582,8 @@ export type ProjectCreateWithoutSourcesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
+  userArea?: Prisma.UserAreaCreateNestedOneWithoutProjectsInput
+  bucketFor?: Prisma.UserAreaCreateNestedOneWithoutBucketProjectInput
   sprints?: Prisma.SprintCreateNestedManyWithoutProjectInput
   tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
@@ -1288,10 +1602,12 @@ export type ProjectUncheckedCreateWithoutSourcesInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  areaId?: string | null
   pinned?: boolean
   sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  bucketFor?: Prisma.UserAreaUncheckedCreateNestedOneWithoutBucketProjectInput
   sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
@@ -1330,6 +1646,8 @@ export type ProjectUpdateWithoutSourcesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
+  userArea?: Prisma.UserAreaUpdateOneWithoutProjectsNestedInput
+  bucketFor?: Prisma.UserAreaUpdateOneWithoutBucketProjectNestedInput
   sprints?: Prisma.SprintUpdateManyWithoutProjectNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
@@ -1348,10 +1666,12 @@ export type ProjectUncheckedUpdateWithoutSourcesInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bucketFor?: Prisma.UserAreaUncheckedUpdateOneWithoutBucketProjectNestedInput
   sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
@@ -1374,6 +1694,8 @@ export type ProjectCreateWithoutLangSessionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
+  userArea?: Prisma.UserAreaCreateNestedOneWithoutProjectsInput
+  bucketFor?: Prisma.UserAreaCreateNestedOneWithoutBucketProjectInput
   sprints?: Prisma.SprintCreateNestedManyWithoutProjectInput
   tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
@@ -1392,10 +1714,12 @@ export type ProjectUncheckedCreateWithoutLangSessionsInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  areaId?: string | null
   pinned?: boolean
   sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  bucketFor?: Prisma.UserAreaUncheckedCreateNestedOneWithoutBucketProjectInput
   sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
@@ -1434,6 +1758,8 @@ export type ProjectUpdateWithoutLangSessionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
+  userArea?: Prisma.UserAreaUpdateOneWithoutProjectsNestedInput
+  bucketFor?: Prisma.UserAreaUpdateOneWithoutBucketProjectNestedInput
   sprints?: Prisma.SprintUpdateManyWithoutProjectNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
@@ -1452,10 +1778,12 @@ export type ProjectUncheckedUpdateWithoutLangSessionsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bucketFor?: Prisma.UserAreaUncheckedUpdateOneWithoutBucketProjectNestedInput
   sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
@@ -1478,6 +1806,8 @@ export type ProjectCreateWithoutLangListeningClipsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
+  userArea?: Prisma.UserAreaCreateNestedOneWithoutProjectsInput
+  bucketFor?: Prisma.UserAreaCreateNestedOneWithoutBucketProjectInput
   sprints?: Prisma.SprintCreateNestedManyWithoutProjectInput
   tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
@@ -1496,10 +1826,12 @@ export type ProjectUncheckedCreateWithoutLangListeningClipsInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  areaId?: string | null
   pinned?: boolean
   sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  bucketFor?: Prisma.UserAreaUncheckedCreateNestedOneWithoutBucketProjectInput
   sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
@@ -1538,6 +1870,8 @@ export type ProjectUpdateWithoutLangListeningClipsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
+  userArea?: Prisma.UserAreaUpdateOneWithoutProjectsNestedInput
+  bucketFor?: Prisma.UserAreaUpdateOneWithoutBucketProjectNestedInput
   sprints?: Prisma.SprintUpdateManyWithoutProjectNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
@@ -1556,10 +1890,12 @@ export type ProjectUncheckedUpdateWithoutLangListeningClipsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bucketFor?: Prisma.UserAreaUncheckedUpdateOneWithoutBucketProjectNestedInput
   sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
@@ -1582,6 +1918,8 @@ export type ProjectCreateWithoutLangCardsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
+  userArea?: Prisma.UserAreaCreateNestedOneWithoutProjectsInput
+  bucketFor?: Prisma.UserAreaCreateNestedOneWithoutBucketProjectInput
   sprints?: Prisma.SprintCreateNestedManyWithoutProjectInput
   tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
@@ -1600,10 +1938,12 @@ export type ProjectUncheckedCreateWithoutLangCardsInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  areaId?: string | null
   pinned?: boolean
   sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  bucketFor?: Prisma.UserAreaUncheckedCreateNestedOneWithoutBucketProjectInput
   sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
@@ -1642,6 +1982,8 @@ export type ProjectUpdateWithoutLangCardsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
+  userArea?: Prisma.UserAreaUpdateOneWithoutProjectsNestedInput
+  bucketFor?: Prisma.UserAreaUpdateOneWithoutBucketProjectNestedInput
   sprints?: Prisma.SprintUpdateManyWithoutProjectNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
@@ -1660,10 +2002,12 @@ export type ProjectUncheckedUpdateWithoutLangCardsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bucketFor?: Prisma.UserAreaUncheckedUpdateOneWithoutBucketProjectNestedInput
   sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
@@ -1686,6 +2030,8 @@ export type ProjectCreateWithoutExamTracksInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
+  userArea?: Prisma.UserAreaCreateNestedOneWithoutProjectsInput
+  bucketFor?: Prisma.UserAreaCreateNestedOneWithoutBucketProjectInput
   sprints?: Prisma.SprintCreateNestedManyWithoutProjectInput
   tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
@@ -1704,10 +2050,12 @@ export type ProjectUncheckedCreateWithoutExamTracksInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  areaId?: string | null
   pinned?: boolean
   sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  bucketFor?: Prisma.UserAreaUncheckedCreateNestedOneWithoutBucketProjectInput
   sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
@@ -1746,6 +2094,8 @@ export type ProjectUpdateWithoutExamTracksInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
+  userArea?: Prisma.UserAreaUpdateOneWithoutProjectsNestedInput
+  bucketFor?: Prisma.UserAreaUpdateOneWithoutBucketProjectNestedInput
   sprints?: Prisma.SprintUpdateManyWithoutProjectNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
@@ -1764,10 +2114,12 @@ export type ProjectUncheckedUpdateWithoutExamTracksInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bucketFor?: Prisma.UserAreaUncheckedUpdateOneWithoutBucketProjectNestedInput
   sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
@@ -1790,6 +2142,8 @@ export type ProjectCreateWithoutMockAttemptsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   team?: Prisma.TeamCreateNestedOneWithoutProjectsInput
+  userArea?: Prisma.UserAreaCreateNestedOneWithoutProjectsInput
+  bucketFor?: Prisma.UserAreaCreateNestedOneWithoutBucketProjectInput
   sprints?: Prisma.SprintCreateNestedManyWithoutProjectInput
   tasks?: Prisma.TaskCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberCreateNestedManyWithoutProjectInput
@@ -1808,10 +2162,12 @@ export type ProjectUncheckedCreateWithoutMockAttemptsInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  areaId?: string | null
   pinned?: boolean
   sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  bucketFor?: Prisma.UserAreaUncheckedCreateNestedOneWithoutBucketProjectInput
   sprints?: Prisma.SprintUncheckedCreateNestedManyWithoutProjectInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutProjectInput
   members?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutProjectInput
@@ -1850,6 +2206,8 @@ export type ProjectUpdateWithoutMockAttemptsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
+  userArea?: Prisma.UserAreaUpdateOneWithoutProjectsNestedInput
+  bucketFor?: Prisma.UserAreaUpdateOneWithoutBucketProjectNestedInput
   sprints?: Prisma.SprintUpdateManyWithoutProjectNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
@@ -1868,10 +2226,12 @@ export type ProjectUncheckedUpdateWithoutMockAttemptsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bucketFor?: Prisma.UserAreaUncheckedUpdateOneWithoutBucketProjectNestedInput
   sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
@@ -1889,6 +2249,7 @@ export type ProjectCreateManyTeamInput = {
   description?: string | null
   status?: $Enums.ProjectStatus
   area?: $Enums.LifeArea
+  areaId?: string | null
   pinned?: boolean
   sortOrder?: number
   createdAt?: Date | string
@@ -1905,6 +2266,8 @@ export type ProjectUpdateWithoutTeamInput = {
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userArea?: Prisma.UserAreaUpdateOneWithoutProjectsNestedInput
+  bucketFor?: Prisma.UserAreaUpdateOneWithoutBucketProjectNestedInput
   sprints?: Prisma.SprintUpdateManyWithoutProjectNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
@@ -1923,10 +2286,12 @@ export type ProjectUncheckedUpdateWithoutTeamInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
   area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bucketFor?: Prisma.UserAreaUncheckedUpdateOneWithoutBucketProjectNestedInput
   sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
   members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
@@ -1941,6 +2306,81 @@ export type ProjectUncheckedUpdateWithoutTeamInput = {
 
 export type ProjectUncheckedUpdateManyWithoutTeamInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ProjectCreateManyUserAreaInput = {
+  id?: string
+  teamId?: string | null
+  name: string
+  description?: string | null
+  status?: $Enums.ProjectStatus
+  area?: $Enums.LifeArea
+  pinned?: boolean
+  sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ProjectUpdateWithoutUserAreaInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  team?: Prisma.TeamUpdateOneWithoutProjectsNestedInput
+  bucketFor?: Prisma.UserAreaUpdateOneWithoutBucketProjectNestedInput
+  sprints?: Prisma.SprintUpdateManyWithoutProjectNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutProjectNestedInput
+  members?: Prisma.ProjectMemberUpdateManyWithoutProjectNestedInput
+  docs?: Prisma.DocUpdateManyWithoutProjectNestedInput
+  sources?: Prisma.DocSourceUpdateManyWithoutProjectNestedInput
+  langSessions?: Prisma.LangSessionUpdateManyWithoutProjectNestedInput
+  langCards?: Prisma.LangCardUpdateManyWithoutProjectNestedInput
+  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutProjectNestedInput
+  examTracks?: Prisma.ExamTrackUpdateManyWithoutProjectNestedInput
+  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutUserAreaInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bucketFor?: Prisma.UserAreaUncheckedUpdateOneWithoutBucketProjectNestedInput
+  sprints?: Prisma.SprintUncheckedUpdateManyWithoutProjectNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutProjectNestedInput
+  members?: Prisma.ProjectMemberUncheckedUpdateManyWithoutProjectNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutProjectNestedInput
+  sources?: Prisma.DocSourceUncheckedUpdateManyWithoutProjectNestedInput
+  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutProjectNestedInput
+  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutProjectNestedInput
+  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutProjectNestedInput
+  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutProjectNestedInput
+  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateManyWithoutUserAreaInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
@@ -2070,11 +2510,14 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   description?: boolean
   status?: boolean
   area?: boolean
+  areaId?: boolean
   pinned?: boolean
   sortOrder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   team?: boolean | Prisma.Project$teamArgs<ExtArgs>
+  userArea?: boolean | Prisma.Project$userAreaArgs<ExtArgs>
+  bucketFor?: boolean | Prisma.Project$bucketForArgs<ExtArgs>
   sprints?: boolean | Prisma.Project$sprintsArgs<ExtArgs>
   tasks?: boolean | Prisma.Project$tasksArgs<ExtArgs>
   members?: boolean | Prisma.Project$membersArgs<ExtArgs>
@@ -2095,11 +2538,13 @@ export type ProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   description?: boolean
   status?: boolean
   area?: boolean
+  areaId?: boolean
   pinned?: boolean
   sortOrder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   team?: boolean | Prisma.Project$teamArgs<ExtArgs>
+  userArea?: boolean | Prisma.Project$userAreaArgs<ExtArgs>
 }, ExtArgs["result"]["project"]>
 
 export type ProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -2109,11 +2554,13 @@ export type ProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   description?: boolean
   status?: boolean
   area?: boolean
+  areaId?: boolean
   pinned?: boolean
   sortOrder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   team?: boolean | Prisma.Project$teamArgs<ExtArgs>
+  userArea?: boolean | Prisma.Project$userAreaArgs<ExtArgs>
 }, ExtArgs["result"]["project"]>
 
 export type ProjectSelectScalar = {
@@ -2123,15 +2570,18 @@ export type ProjectSelectScalar = {
   description?: boolean
   status?: boolean
   area?: boolean
+  areaId?: boolean
   pinned?: boolean
   sortOrder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "teamId" | "name" | "description" | "status" | "area" | "pinned" | "sortOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
+export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "teamId" | "name" | "description" | "status" | "area" | "areaId" | "pinned" | "sortOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
 export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   team?: boolean | Prisma.Project$teamArgs<ExtArgs>
+  userArea?: boolean | Prisma.Project$userAreaArgs<ExtArgs>
+  bucketFor?: boolean | Prisma.Project$bucketForArgs<ExtArgs>
   sprints?: boolean | Prisma.Project$sprintsArgs<ExtArgs>
   tasks?: boolean | Prisma.Project$tasksArgs<ExtArgs>
   members?: boolean | Prisma.Project$membersArgs<ExtArgs>
@@ -2146,15 +2596,19 @@ export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
 }
 export type ProjectIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   team?: boolean | Prisma.Project$teamArgs<ExtArgs>
+  userArea?: boolean | Prisma.Project$userAreaArgs<ExtArgs>
 }
 export type ProjectIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   team?: boolean | Prisma.Project$teamArgs<ExtArgs>
+  userArea?: boolean | Prisma.Project$userAreaArgs<ExtArgs>
 }
 
 export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Project"
   objects: {
     team: Prisma.$TeamPayload<ExtArgs> | null
+    userArea: Prisma.$UserAreaPayload<ExtArgs> | null
+    bucketFor: Prisma.$UserAreaPayload<ExtArgs> | null
     sprints: Prisma.$SprintPayload<ExtArgs>[]
     tasks: Prisma.$TaskPayload<ExtArgs>[]
     members: Prisma.$ProjectMemberPayload<ExtArgs>[]
@@ -2173,6 +2627,10 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     description: string | null
     status: $Enums.ProjectStatus
     area: $Enums.LifeArea
+    /**
+     * Per-user area (P4). Dual-written with `area` until P7.
+     */
+    areaId: string | null
     /**
      * Pin on hub / Today shortcuts
      */
@@ -2578,6 +3036,8 @@ readonly fields: ProjectFieldRefs;
 export interface Prisma__ProjectClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   team<T extends Prisma.Project$teamArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$teamArgs<ExtArgs>>): Prisma.Prisma__TeamClient<runtime.Types.Result.GetResult<Prisma.$TeamPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  userArea<T extends Prisma.Project$userAreaArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$userAreaArgs<ExtArgs>>): Prisma.Prisma__UserAreaClient<runtime.Types.Result.GetResult<Prisma.$UserAreaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  bucketFor<T extends Prisma.Project$bucketForArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$bucketForArgs<ExtArgs>>): Prisma.Prisma__UserAreaClient<runtime.Types.Result.GetResult<Prisma.$UserAreaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   sprints<T extends Prisma.Project$sprintsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$sprintsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SprintPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   tasks<T extends Prisma.Project$tasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$tasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   members<T extends Prisma.Project$membersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$membersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2623,6 +3083,7 @@ export interface ProjectFieldRefs {
   readonly description: Prisma.FieldRef<"Project", 'String'>
   readonly status: Prisma.FieldRef<"Project", 'ProjectStatus'>
   readonly area: Prisma.FieldRef<"Project", 'LifeArea'>
+  readonly areaId: Prisma.FieldRef<"Project", 'String'>
   readonly pinned: Prisma.FieldRef<"Project", 'Boolean'>
   readonly sortOrder: Prisma.FieldRef<"Project", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Project", 'DateTime'>
@@ -3044,6 +3505,44 @@ export type Project$teamArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    */
   include?: Prisma.TeamInclude<ExtArgs> | null
   where?: Prisma.TeamWhereInput
+}
+
+/**
+ * Project.userArea
+ */
+export type Project$userAreaArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserArea
+   */
+  select?: Prisma.UserAreaSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserArea
+   */
+  omit?: Prisma.UserAreaOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserAreaInclude<ExtArgs> | null
+  where?: Prisma.UserAreaWhereInput
+}
+
+/**
+ * Project.bucketFor
+ */
+export type Project$bucketForArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserArea
+   */
+  select?: Prisma.UserAreaSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserArea
+   */
+  omit?: Prisma.UserAreaOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserAreaInclude<ExtArgs> | null
+  where?: Prisma.UserAreaWhereInput
 }
 
 /**

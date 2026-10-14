@@ -467,6 +467,40 @@ export type EnumLifeAreaWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumLifeAreaFilter<$PrismaModel>
 }
 
+export type EnumAreaHubForNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.AreaHubFor | Prisma.EnumAreaHubForFieldRefInput<$PrismaModel> | null
+  in?: $Enums.AreaHubFor[] | Prisma.ListEnumAreaHubForFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.AreaHubFor[] | Prisma.ListEnumAreaHubForFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumAreaHubForNullableFilter<$PrismaModel> | $Enums.AreaHubFor | null
+}
+
+export type EnumLifeAreaNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.LifeArea | Prisma.EnumLifeAreaFieldRefInput<$PrismaModel> | null
+  in?: $Enums.LifeArea[] | Prisma.ListEnumLifeAreaFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.LifeArea[] | Prisma.ListEnumLifeAreaFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumLifeAreaNullableFilter<$PrismaModel> | $Enums.LifeArea | null
+}
+
+export type EnumAreaHubForNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AreaHubFor | Prisma.EnumAreaHubForFieldRefInput<$PrismaModel> | null
+  in?: $Enums.AreaHubFor[] | Prisma.ListEnumAreaHubForFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.AreaHubFor[] | Prisma.ListEnumAreaHubForFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumAreaHubForNullableWithAggregatesFilter<$PrismaModel> | $Enums.AreaHubFor | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAreaHubForNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAreaHubForNullableFilter<$PrismaModel>
+}
+
+export type EnumLifeAreaNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.LifeArea | Prisma.EnumLifeAreaFieldRefInput<$PrismaModel> | null
+  in?: $Enums.LifeArea[] | Prisma.ListEnumLifeAreaFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.LifeArea[] | Prisma.ListEnumLifeAreaFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumLifeAreaNullableWithAggregatesFilter<$PrismaModel> | $Enums.LifeArea | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumLifeAreaNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumLifeAreaNullableFilter<$PrismaModel>
+}
+
 export type EnumProjectRoleFilter<$PrismaModel = never> = {
   equals?: $Enums.ProjectRole | Prisma.EnumProjectRoleFieldRefInput<$PrismaModel>
   in?: $Enums.ProjectRole[] | Prisma.ListEnumProjectRoleFieldRefInput<$PrismaModel>
@@ -522,13 +556,6 @@ export type EnumTaskTypeFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumTaskTypeFilter<$PrismaModel> | $Enums.TaskType
 }
 
-export type EnumLifeAreaNullableFilter<$PrismaModel = never> = {
-  equals?: $Enums.LifeArea | Prisma.EnumLifeAreaFieldRefInput<$PrismaModel> | null
-  in?: $Enums.LifeArea[] | Prisma.ListEnumLifeAreaFieldRefInput<$PrismaModel> | null
-  notIn?: $Enums.LifeArea[] | Prisma.ListEnumLifeAreaFieldRefInput<$PrismaModel> | null
-  not?: Prisma.NestedEnumLifeAreaNullableFilter<$PrismaModel> | $Enums.LifeArea | null
-}
-
 export type EnumRecurrenceIntervalFilter<$PrismaModel = never> = {
   equals?: $Enums.RecurrenceInterval | Prisma.EnumRecurrenceIntervalFieldRefInput<$PrismaModel>
   in?: $Enums.RecurrenceInterval[] | Prisma.ListEnumRecurrenceIntervalFieldRefInput<$PrismaModel>
@@ -564,16 +591,6 @@ export type EnumTaskTypeWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumTaskTypeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumTaskTypeFilter<$PrismaModel>
-}
-
-export type EnumLifeAreaNullableWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.LifeArea | Prisma.EnumLifeAreaFieldRefInput<$PrismaModel> | null
-  in?: $Enums.LifeArea[] | Prisma.ListEnumLifeAreaFieldRefInput<$PrismaModel> | null
-  notIn?: $Enums.LifeArea[] | Prisma.ListEnumLifeAreaFieldRefInput<$PrismaModel> | null
-  not?: Prisma.NestedEnumLifeAreaNullableWithAggregatesFilter<$PrismaModel> | $Enums.LifeArea | null
-  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumLifeAreaNullableFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumLifeAreaNullableFilter<$PrismaModel>
 }
 
 export type EnumRecurrenceIntervalWithAggregatesFilter<$PrismaModel = never> = {
@@ -1171,6 +1188,40 @@ export type NestedEnumLifeAreaWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumLifeAreaFilter<$PrismaModel>
 }
 
+export type NestedEnumAreaHubForNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.AreaHubFor | Prisma.EnumAreaHubForFieldRefInput<$PrismaModel> | null
+  in?: $Enums.AreaHubFor[] | Prisma.ListEnumAreaHubForFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.AreaHubFor[] | Prisma.ListEnumAreaHubForFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumAreaHubForNullableFilter<$PrismaModel> | $Enums.AreaHubFor | null
+}
+
+export type NestedEnumLifeAreaNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.LifeArea | Prisma.EnumLifeAreaFieldRefInput<$PrismaModel> | null
+  in?: $Enums.LifeArea[] | Prisma.ListEnumLifeAreaFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.LifeArea[] | Prisma.ListEnumLifeAreaFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumLifeAreaNullableFilter<$PrismaModel> | $Enums.LifeArea | null
+}
+
+export type NestedEnumAreaHubForNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AreaHubFor | Prisma.EnumAreaHubForFieldRefInput<$PrismaModel> | null
+  in?: $Enums.AreaHubFor[] | Prisma.ListEnumAreaHubForFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.AreaHubFor[] | Prisma.ListEnumAreaHubForFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumAreaHubForNullableWithAggregatesFilter<$PrismaModel> | $Enums.AreaHubFor | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAreaHubForNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAreaHubForNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumLifeAreaNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.LifeArea | Prisma.EnumLifeAreaFieldRefInput<$PrismaModel> | null
+  in?: $Enums.LifeArea[] | Prisma.ListEnumLifeAreaFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.LifeArea[] | Prisma.ListEnumLifeAreaFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumLifeAreaNullableWithAggregatesFilter<$PrismaModel> | $Enums.LifeArea | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumLifeAreaNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumLifeAreaNullableFilter<$PrismaModel>
+}
+
 export type NestedEnumProjectRoleFilter<$PrismaModel = never> = {
   equals?: $Enums.ProjectRole | Prisma.EnumProjectRoleFieldRefInput<$PrismaModel>
   in?: $Enums.ProjectRole[] | Prisma.ListEnumProjectRoleFieldRefInput<$PrismaModel>
@@ -1226,13 +1277,6 @@ export type NestedEnumTaskTypeFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumTaskTypeFilter<$PrismaModel> | $Enums.TaskType
 }
 
-export type NestedEnumLifeAreaNullableFilter<$PrismaModel = never> = {
-  equals?: $Enums.LifeArea | Prisma.EnumLifeAreaFieldRefInput<$PrismaModel> | null
-  in?: $Enums.LifeArea[] | Prisma.ListEnumLifeAreaFieldRefInput<$PrismaModel> | null
-  notIn?: $Enums.LifeArea[] | Prisma.ListEnumLifeAreaFieldRefInput<$PrismaModel> | null
-  not?: Prisma.NestedEnumLifeAreaNullableFilter<$PrismaModel> | $Enums.LifeArea | null
-}
-
 export type NestedEnumRecurrenceIntervalFilter<$PrismaModel = never> = {
   equals?: $Enums.RecurrenceInterval | Prisma.EnumRecurrenceIntervalFieldRefInput<$PrismaModel>
   in?: $Enums.RecurrenceInterval[] | Prisma.ListEnumRecurrenceIntervalFieldRefInput<$PrismaModel>
@@ -1268,16 +1312,6 @@ export type NestedEnumTaskTypeWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumTaskTypeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumTaskTypeFilter<$PrismaModel>
-}
-
-export type NestedEnumLifeAreaNullableWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.LifeArea | Prisma.EnumLifeAreaFieldRefInput<$PrismaModel> | null
-  in?: $Enums.LifeArea[] | Prisma.ListEnumLifeAreaFieldRefInput<$PrismaModel> | null
-  notIn?: $Enums.LifeArea[] | Prisma.ListEnumLifeAreaFieldRefInput<$PrismaModel> | null
-  not?: Prisma.NestedEnumLifeAreaNullableWithAggregatesFilter<$PrismaModel> | $Enums.LifeArea | null
-  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumLifeAreaNullableFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumLifeAreaNullableFilter<$PrismaModel>
 }
 
 export type NestedEnumRecurrenceIntervalWithAggregatesFilter<$PrismaModel = never> = {
