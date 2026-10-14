@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { authForModule } from "@/lib/module-guard";
 import { prisma as db } from "@/lib/db";
-import { isUserAreaBucket } from "@/lib/life";
 import type { LangSkill } from "@/types/db";
 import { Prisma } from "../../../prisma/generated/client";
 import { createDoc } from "@/features/docs/actions";
@@ -27,7 +26,8 @@ import type {
   LanguageProjectItem,
   LanguageProjectScope,
 } from "./types";
-import { LANGUAGE_AREA } from "@/lib/areas";
+import { isAreaBucketId } from "@/lib/areas";
+import { ensureHubAreaForModule } from "@/lib/areas/server";
 
 export interface ActionResult {
   success: boolean;
@@ -45,12 +45,13 @@ async function assertLangProjectMember(
   projectId: string,
   userId: string,
 ): Promise<boolean> {
-  if (isUserAreaBucket(projectId, userId, LANGUAGE_AREA)) return true;
+  const hub = await ensureHubAreaForModule(userId, "language");
+  if (isAreaBucketId(projectId)) return projectId === hub.bucketProjectId;
   const row = await db.projectMember.findFirst({
     where: {
       projectId,
       userId,
-      project: { area: LANGUAGE_AREA, status: { not: "ARCHIVED" } },
+      project: { areaId: hub.id, status: { not: "ARCHIVED" } },
     },
     select: { id: true },
   });
@@ -73,12 +74,13 @@ export async function createLangProjectAction(input: {
   const name = input.name.trim();
   if (!name) return { success: false, error: "نام مسیر لازم است" };
 
+  const hub = await ensureHubAreaForModule(session.user.id, "language");
   const project = await db.project.create({
     data: {
       name,
       description: input.description?.trim() || null,
       status: "ACTIVE",
-      area: LANGUAGE_AREA,
+      areaId: hub.id,
       members: {
         create: {
           userId: session.user.id,
@@ -119,9 +121,7 @@ export async function logLangSessionAction(input: {
       session.user.id,
     );
     if (!ok) return { success: false, error: "مسیر زبان پیدا نشد" };
-    projectId = isUserAreaBucket(input.projectId, session.user.id, LANGUAGE_AREA)
-      ? null
-      : input.projectId;
+    projectId = isAreaBucketId(input.projectId) ? null : input.projectId;
   }
 
   const practicedAt = input.practicedAt
@@ -242,13 +242,14 @@ export async function createLangDocAction(input?: {
   if (projectId) {
     const ok = await assertLangProjectMember(projectId, session.user.id);
     if (!ok) return { success: false, error: "مسیر زبان پیدا نشد" };
-    if (isUserAreaBucket(projectId, session.user.id, LANGUAGE_AREA)) projectId = null;
+    if (isAreaBucketId(projectId)) projectId = null;
   }
 
+  const hub = await ensureHubAreaForModule(session.user.id, "language");
   const result = await createDoc({
     templateKey: input?.templateKey ?? "langSession",
     title: input?.title,
-    area: LANGUAGE_AREA,
+    areaId: hub.id,
     ...(projectId !== undefined ? { projectId } : {}),
   });
 
@@ -263,7 +264,7 @@ async function resolveLangProjectId(
   userId: string,
 ): Promise<{ ok: true; projectId: string | null | undefined } | { ok: false; error: string }> {
   if (projectId === undefined) return { ok: true, projectId: undefined };
-  if (projectId === null || isUserAreaBucket(projectId, userId, LANGUAGE_AREA)) {
+  if (projectId === null || isAreaBucketId(projectId)) {
     return { ok: true, projectId: null };
   }
   const ok = await assertLangProjectMember(projectId, userId);
@@ -999,9 +1000,7 @@ export async function createListeningClipAction(input: {
       session.user.id,
     );
     if (!ok) return { success: false, error: "مسیر زبان پیدا نشد" };
-    projectId = isUserAreaBucket(input.projectId, session.user.id, LANGUAGE_AREA)
-      ? null
-      : input.projectId;
+    projectId = isAreaBucketId(input.projectId) ? null : input.projectId;
   }
 
   const row = await db.langListeningClip.create({
@@ -1035,9 +1034,7 @@ export async function installListeningStartersAction(input?: {
       session.user.id,
     );
     if (!ok) return { success: false, error: "مسیر زبان پیدا نشد" };
-    projectId = isUserAreaBucket(input.projectId, session.user.id, LANGUAGE_AREA)
-      ? null
-      : input.projectId;
+    projectId = isAreaBucketId(input.projectId) ? null : input.projectId;
   }
 
   const existing = await db.langListeningClip.findMany({

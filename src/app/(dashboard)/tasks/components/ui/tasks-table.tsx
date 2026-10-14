@@ -12,6 +12,7 @@ import { STATUS_OPTIONS, statusToDisplay, priorityToDisplay } from "@/features/t
 import { WorkLogButton } from "@/components/ui-kit/overlays/work-logs";
 import { isAreaBucketId } from "@/lib/area-projects";
 import { formatJalaliShort, parseLocalDate, toDateKey, isOverdueTask } from "@/lib/life";
+import { useAreaHelpers } from "@/components/member-areas-provider";
 import { groupTasks, TASK_GROUP_NONE, type TaskGroupField } from "@/features/tasks/view";
 
 interface TasksTableProps {
@@ -45,21 +46,14 @@ const COL_CLASS = [
   "w-[8%]",
 ] as const;
 
-function areaTitle(area: TaskRow["area"], t: TasksTableProps["t"]) {
-  if (area === "PHD") return t.dashboard.areaPhd as string;
-  if (area === "WORK") return t.dashboard.areaWork as string;
-  if (area === "LANG") return t.dashboard.areaLang as string;
-  if (area === "LIFE") return t.dashboard.areaLife as string;
-  return "";
-}
-
 function isOverdue(task: TaskRow): boolean {
   return isOverdueTask(task);
 }
 
 /** One line: named path, else area bucket, else «no path». */
 function TaskPlace({ task, t }: { task: TaskRow; t: TasksTableProps["t"] }) {
-  const area = areaTitle(task.area, t);
+  const { nameFor } = useAreaHelpers();
+  const area = nameFor(task.areaId) ?? "";
   const path =
     task.projectId && !isAreaBucketId(task.projectId)
       ? task.projectName?.trim() || null
@@ -93,7 +87,14 @@ export function TasksTable({
   const [workLogOpenTaskId, setWorkLogOpenTaskId] = React.useState<string | null>(null);
   const [collapsed, setCollapsed] = React.useState<Set<string>>(new Set());
   const group = (filters.group || "") as TaskGroupField | "";
-  const sections = group ? groupTasks(tasks, group) : [{ key: "all", tasks }];
+  const { areas: memberAreas, nameFor } = useAreaHelpers();
+  const areaOrder = React.useMemo(
+    () => new Map(memberAreas.map(a => [a.id, a.sortOrder] as const)),
+    [memberAreas],
+  );
+  const sections = group
+    ? groupTasks(tasks, group, areaOrder)
+    : [{ key: "all", tasks }];
 
   React.useEffect(() => {
     setCollapsed(new Set());
@@ -124,7 +125,7 @@ export function TasksTable({
     }
     if (group === "area") {
       if (key === TASK_GROUP_NONE) return t.tasks.noProject;
-      return areaTitle(key as TaskRow["area"], t) || key;
+      return nameFor(key) || key;
     }
     return key;
   }

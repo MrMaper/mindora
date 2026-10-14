@@ -3,9 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { prisma as db } from "@/lib/db";
 import { requireAuth } from "@/lib/require-role";
-import { DEFAULT_AREA, MAX_ACTIVE_AREAS } from "@/lib/areas";
+import { MAX_ACTIVE_AREAS } from "@/lib/areas";
 import {
-  clearAreaIdCache,
   ensurePersonalWorkspace,
 } from "@/lib/areas/server";
 export interface ActionResult<T = Record<string, unknown>> {
@@ -74,7 +73,6 @@ export async function createUserAreaAction(input: {
       archived: false,
       isDefault: false,
       hubFor: null,
-      legacyEnum: null,
     },
     select: { id: true },
   });
@@ -87,7 +85,6 @@ export async function createUserAreaAction(input: {
       name,
       description: null,
       status: "ACTIVE",
-      area: DEFAULT_AREA,
       areaId: area.id,
       teamId,
       members: { create: { userId, role: "OWNER" } },
@@ -97,7 +94,6 @@ export async function createUserAreaAction(input: {
     where: { id: area.id },
     data: { bucketProjectId: bucketId },
   });
-  clearAreaIdCache(userId);
   revalidateAreas(area.id);
   return { success: true, data: { id: area.id } };
 }
@@ -161,39 +157,12 @@ export async function updateUserAreaAction(input: {
     },
   });
 
-  // Keep legacy preference row in sync when this area still has a legacy enum.
-  if (row.legacyEnum) {
-    await db.userAreaPreference.upsert({
-      where: {
-        userId_area: {
-          userId: session.user.id,
-          area: row.legacyEnum,
-        },
-      },
-      create: {
-        userId: session.user.id,
-        area: row.legacyEnum,
-        color: input.color === undefined ? row.color : input.color,
-        icon: input.icon === undefined ? row.icon : input.icon,
-        sortOrder: row.sortOrder,
-        archived: input.archived === undefined ? row.archived : input.archived,
-      },
-      update: {
-        ...(input.color !== undefined ? { color: input.color } : {}),
-        ...(input.icon !== undefined ? { icon: input.icon } : {}),
-        ...(input.archived !== undefined ? { archived: input.archived } : {}),
-      },
-    });
-  }
-
   if (name !== undefined && row.bucketProjectId) {
     await db.project.update({
       where: { id: row.bucketProjectId },
       data: { name },
     });
   }
-
-  clearAreaIdCache(session.user.id);
   revalidateAreas(row.id);
   return { success: true };
 }
@@ -210,7 +179,7 @@ export async function reorderUserAreasAction(
 
   const rows = await db.userArea.findMany({
     where: { userId: session.user.id, id: { in: orderedIds } },
-    select: { id: true, legacyEnum: true },
+    select: { id: true },
   });
   if (rows.length !== orderedIds.length) {
     return { success: false, error: "ترتیب حوزه‌ها نامعتبر است" };
@@ -225,30 +194,6 @@ export async function reorderUserAreasAction(
     ),
   );
 
-  // Mirror sort onto legacy prefs when present.
-  await db.$transaction(
-    rows
-      .filter(r => r.legacyEnum)
-      .map(r => {
-        const index = orderedIds.indexOf(r.id);
-        return db.userAreaPreference.upsert({
-          where: {
-            userId_area: {
-              userId: session.user.id,
-              area: r.legacyEnum!,
-            },
-          },
-          create: {
-            userId: session.user.id,
-            area: r.legacyEnum!,
-            sortOrder: index,
-          },
-          update: { sortOrder: index },
-        });
-      }),
-  );
-
-  clearAreaIdCache(session.user.id);
   revalidateAreas();
   return { success: true };
 }
@@ -275,7 +220,6 @@ export async function setDefaultUserAreaAction(
       data: { isDefault: true, archived: false },
     }),
   ]);
-  clearAreaIdCache(session.user.id);
   revalidateAreas(row.id);
   return { success: true };
 }
@@ -317,7 +261,6 @@ export async function moveAllAreaContentAction(input: {
 
   const toAreaId = to.id;
   const fromAreaId = from.id;
-  const legacyTo = to.legacyEnum ?? DEFAULT_AREA;
 
   const [taskN, docN, habitN, folderN, pathN] = await db.$transaction([
     db.task.updateMany({
@@ -325,19 +268,19 @@ export async function moveAllAreaContentAction(input: {
         OR: [{ createdById: userId }, { assignedToId: userId }],
         areaId: fromAreaId,
       },
-      data: { areaId: toAreaId, area: legacyTo },
+      data: { areaId: toAreaId },
     }),
     db.doc.updateMany({
       where: { userId, areaId: fromAreaId },
-      data: { areaId: toAreaId, area: legacyTo },
+      data: { areaId: toAreaId },
     }),
     db.habit.updateMany({
       where: { userId, areaId: fromAreaId },
-      data: { areaId: toAreaId, area: legacyTo },
+      data: { areaId: toAreaId },
     }),
     db.docFolder.updateMany({
       where: { userId, areaId: fromAreaId },
-      data: { areaId: toAreaId, area: legacyTo },
+      data: { areaId: toAreaId },
     }),
     db.project.updateMany({
       where: {
@@ -345,7 +288,7 @@ export async function moveAllAreaContentAction(input: {
         id: { not: from.bucketProjectId ?? "" },
         members: { some: { userId, role: "OWNER" } },
       },
-      data: { areaId: toAreaId, area: legacyTo },
+      data: { areaId: toAreaId },
     }),
   ]);
 
@@ -356,7 +299,6 @@ export async function moveAllAreaContentAction(input: {
       data: {
         projectId: to.bucketProjectId,
         areaId: toAreaId,
-        area: legacyTo,
       },
     });
   }
@@ -391,8 +333,6 @@ export async function moveAllAreaContentAction(input: {
       });
     }
   }
-
-  clearAreaIdCache(userId);
   revalidateAreas(toAreaId);
   if (!deleted) revalidateAreas(fromAreaId);
 

@@ -1,15 +1,10 @@
 /**
- * Seed templates for the four legacy areas (docs/AREAS.md §9.5).
- * Pure / client-safe.
+ * Area templates (docs/AREAS.md §9.1, §9.5). Pure / client-safe.
+ *
+ * Templates only suggest names; they never grant capabilities. P7 removed the
+ * `LifeArea` enum, so these `templateKey`s (plus `UserArea.hubFor`) are the only
+ * stable identity an area has besides its id.
  */
-import type { LifeArea } from "@/types/db";
-import {
-  AREA_META,
-  DEFAULT_AREA,
-  LANGUAGE_AREA,
-  RESEARCH_AREA,
-  WORK_AREA,
-} from "./legacy";
 import type { HubKind } from "./member-context";
 
 export type AreaTemplateKey =
@@ -21,8 +16,49 @@ export type AreaTemplateKey =
   | "health"
   | "custom";
 
+export type AreaTemplateMeta = {
+  nameFa: string;
+  nameEn: string;
+  descriptionFa: string;
+  descriptionEn: string;
+};
+
+/** Default names/descriptions for template-created areas (used while `nameIsDefault`). */
+export const AREA_TEMPLATE_META: Partial<Record<AreaTemplateKey, AreaTemplateMeta>> = {
+  research: {
+    nameFa: "دکتری",
+    nameEn: "PhD",
+    descriptionFa: "تحصیل، پژوهش و نوشتن",
+    descriptionEn: "Study, research and writing",
+  },
+  work: {
+    nameFa: "کار",
+    nameEn: "Work",
+    descriptionFa: "شغل و کارهای حرفه‌ای",
+    descriptionEn: "Job and professional projects",
+  },
+  life: {
+    nameFa: "زندگی",
+    nameEn: "Life",
+    descriptionFa: "خانه، سلامت و امور شخصی",
+    descriptionEn: "Home, health and personal matters",
+  },
+  language: {
+    nameFa: "زبان",
+    nameEn: "Language",
+    descriptionFa: "مهارت‌ها، واژگان و آمادگی آزمون",
+    descriptionEn: "Skills, vocab and exam prep",
+  },
+};
+
+/** Meta for a template key (undefined for study/health/custom). */
+export function areaTemplateMeta(
+  key: string | null | undefined,
+): AreaTemplateMeta | undefined {
+  return key ? AREA_TEMPLATE_META[key as AreaTemplateKey] : undefined;
+}
+
 export type AreaTemplate = {
-  legacyEnum: LifeArea;
   templateKey: AreaTemplateKey;
   nameFa: string;
   nameEn: string;
@@ -31,40 +67,36 @@ export type AreaTemplate = {
   sortOrder: number;
 };
 
-/** One template per legacy enum, in display order. */
-export const LEGACY_AREA_TEMPLATES: readonly AreaTemplate[] = [
+/** The four areas every member is seeded with, in display order. */
+export const SEED_AREA_TEMPLATES: readonly AreaTemplate[] = [
   {
-    legacyEnum: DEFAULT_AREA,
     templateKey: "life",
-    nameFa: AREA_META.LIFE.nameFa,
-    nameEn: AREA_META.LIFE.nameEn,
+    nameFa: AREA_TEMPLATE_META.life!.nameFa,
+    nameEn: AREA_TEMPLATE_META.life!.nameEn,
     hubFor: null,
     isDefault: true,
     sortOrder: 0,
   },
   {
-    legacyEnum: WORK_AREA,
     templateKey: "work",
-    nameFa: AREA_META.WORK.nameFa,
-    nameEn: AREA_META.WORK.nameEn,
+    nameFa: AREA_TEMPLATE_META.work!.nameFa,
+    nameEn: AREA_TEMPLATE_META.work!.nameEn,
     hubFor: null,
     isDefault: false,
     sortOrder: 1,
   },
   {
-    legacyEnum: RESEARCH_AREA,
     templateKey: "research",
-    nameFa: AREA_META.PHD.nameFa,
-    nameEn: AREA_META.PHD.nameEn,
+    nameFa: AREA_TEMPLATE_META.research!.nameFa,
+    nameEn: AREA_TEMPLATE_META.research!.nameEn,
     hubFor: "research",
     isDefault: false,
     sortOrder: 2,
   },
   {
-    legacyEnum: LANGUAGE_AREA,
     templateKey: "language",
-    nameFa: AREA_META.LANG.nameFa,
-    nameEn: AREA_META.LANG.nameEn,
+    nameFa: AREA_TEMPLATE_META.language!.nameFa,
+    nameEn: AREA_TEMPLATE_META.language!.nameEn,
     hubFor: "language",
     isDefault: false,
     sortOrder: 3,

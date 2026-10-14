@@ -18,11 +18,15 @@ import {
   zonedDateKey,
   workLogInstantFromKey,
 } from "@/lib/life";
-import type { LifeArea, RecurrenceInterval } from "@/types/db";
-import { ensurePersonalWorkspace, projectIdForArea } from "./workspace";
+import type { RecurrenceInterval } from "@/types/db";
+import { ensurePersonalWorkspace, bucketProjectIdForArea } from "./workspace";
 import { getCalendarTasks } from "./queries";
-import { isHubArea, taskWhereExcludeHub } from "@/lib/project-namespace";
-import { getMemberContext } from "@/lib/areas/server";
+import { taskWhereExcludeHub } from "@/lib/project-namespace";
+import {
+  getMemberContext,
+  isMemberArea,
+  resolveMemberAreaId,
+} from "@/lib/areas/server";
 import {
   FOCUS_SLOT_COUNT,
   isTodayFocusCandidate,
@@ -30,7 +34,6 @@ import {
   serializeFocusSlots,
 } from "@/features/life/focus-slots";
 import { personalTaskOwnership, canAccessPersonalTask } from "@/lib/task-access";
-import { RESEARCH_AREA, DEFAULT_AREA } from "@/lib/areas";
 import { markFirstCapture } from "@/features/onboarding/lifecycle";
 
 export interface ActionResult {
@@ -84,7 +87,10 @@ function resolveDue(
 
 export async function quickCapture(input: {
   title: string;
-  area?: LifeArea;
+  /** UserArea id the task belongs to (defaults to the member's default area). */
+  areaId?: string | null;
+  /** Capture's text guess (`PHD|WORK|LIFE|LANG`), resolved through templateKey/hubFor. */
+  areaGuess?: string | null;
   /** Named research/work path; defaults to the area bucket. */
   projectId?: string | null;
   recurrence?: RecurrenceInterval;
@@ -100,9 +106,12 @@ export async function quickCapture(input: {
   if (!title) return { success: false, error: "عنوان خالی است" };
 
   const { teamId } = await ensurePersonalWorkspace(session.user.id);
-  let area = input.area ?? DEFAULT_AREA;
-  let projectId = input.projectId ?? projectIdForArea(session.user.id, area);
-  let areaId: string | null = null;
+  let areaId = await resolveMemberAreaId(session.user.id, {
+    areaId: input.areaId,
+    guess: input.areaGuess,
+  });
+  let projectId =
+    input.projectId ?? (await bucketProjectIdForArea(session.user.id, areaId));
   if (input.projectId) {
     const member = await db.projectMember.findFirst({
       where: {
@@ -118,10 +127,13 @@ export async function quickCapture(input: {
     projectId = input.projectId;
     const project = await db.project.findUnique({
       where: { id: projectId },
-      select: { area: true, areaId: true },
+      select: { areaId: true },
     });
-    if (project?.area) area = project.area as typeof area;
-    areaId = project?.areaId ?? null;
+    // A path in the member's own area files the task there; a shared path
+    // (owned by someone else) keeps the member's own area (docs/AREAS.md §11).
+    if (project && (await isMemberArea(session.user.id, project.areaId))) {
+      areaId = project.areaId;
+    }
   }
 
   const recurrence = input.recurrence ?? "NONE";
@@ -130,16 +142,17 @@ export async function quickCapture(input: {
     due && input.time && input.durationMinutes && input.durationMinutes > 0
       ? Math.min(24 * 60, Math.round(input.durationMinutes))
       : null;
-  const status = isHubArea(area)
-    ? "BACKLOG"
-    : planningStatusFromDue(due);
+  const hubArea = await db.userArea.findUnique({
+    where: { id: areaId },
+    select: { hubFor: true },
+  });
+  const status = hubArea?.hubFor ? "BACKLOG" : planningStatusFromDue(due);
   const task = await db.task.create({
     data: {
       title,
       status,
       priority: "NONE",
       type: "TASK",
-      area,
       areaId,
       recurrence,
       recurrenceSeriesId:
@@ -176,7 +189,7 @@ export async function completePersonalTask(taskId: string): Promise<ActionResult
     if (!result.ok) return { success: false, error: result.error };
 
     // PhD pipeline only — skip import/call for Life/Work/Lang cards.
-    if (result.changed && result.area === RESEARCH_AREA) {
+    if (result.changed && result.hubKind === "research") {
       try {
         const { syncResearchLinksFromTaskStatus } = await import(
           "@/features/research/sync-links"
@@ -217,9 +230,8 @@ export async function planTaskThisWeek(taskId: string): Promise<ActionResult> {
       assignedToId: true,
       createdById: true,
       status: true,
-      area: true,
+      userArea: { select: { hubFor: true } },
       waitingOn: true,
-      project: { select: { area: true } },
     },
   });
   if (!existing) return { success: false, error: "کار پیدا نشد" };
@@ -230,16 +242,16 @@ export async function planTaskThisWeek(taskId: string): Promise<ActionResult> {
     return { success: false, error: "اجازه ویرایش ندارید" };
   }
 
-  const area = existing.area ?? existing.project?.area ?? null;
+  const isHub = !!existing.userArea.hubFor;
   const dueDate = moveDueToDay(
     existing.dueDate,
     zonedDateKey(endOfZonedWeek()),
     existing.durationMinutes,
   );
   const status = resolvePersonalTaskPlanningStatus(
-    isHubArea(area) ? existing.status : "TODO",
+    isHub ? existing.status : "TODO",
     dueDate,
-    { area, waitingOn: existing.waitingOn },
+    { isHub, waitingOn: existing.waitingOn },
   );
 
   await db.task.update({
@@ -264,9 +276,8 @@ export async function planTaskForToday(taskId: string): Promise<ActionResult> {
       dueDate: true,
       durationMinutes: true,
       status: true,
-      area: true,
+      userArea: { select: { hubFor: true } },
       waitingOn: true,
-      project: { select: { area: true } },
     },
   });
   if (!existing) return { success: false, error: "کار پیدا نشد" };
@@ -277,16 +288,16 @@ export async function planTaskForToday(taskId: string): Promise<ActionResult> {
     return { success: false, error: "اجازه ویرایش ندارید" };
   }
 
-  const area = existing.area ?? existing.project?.area ?? null;
+  const isHub = !!existing.userArea.hubFor;
   const dueDate = moveDueToDay(
     existing.dueDate,
     zonedDateKey(),
     existing.durationMinutes,
   );
   const status = resolvePersonalTaskPlanningStatus(
-    isHubArea(area) ? existing.status : "TODO",
+    isHub ? existing.status : "TODO",
     dueDate,
-    { area, waitingOn: existing.waitingOn },
+    { isHub, waitingOn: existing.waitingOn },
   );
 
   await db.task.update({
@@ -380,8 +391,6 @@ async function loadOwnedTasks(userId: string, ids: string[]) {
       id: true,
       status: true,
       dueDate: true,
-      area: true,
-      project: { select: { area: true } },
     },
   });
 }
@@ -390,8 +399,6 @@ function canAddToTodayFocus(
   task: {
     status: string;
     dueDate: Date | null;
-    area: LifeArea | null;
-    project: { area: LifeArea | null } | null;
   },
   todayKey: string,
 ) {
@@ -588,9 +595,8 @@ export async function rescheduleTaskDueDate(input: {
         dueDate: true,
         durationMinutes: true,
         status: true,
-        area: true,
+        userArea: { select: { hubFor: true } },
         waitingOn: true,
-        project: { select: { area: true } },
       },
     });
     if (!existing) return { success: false, error: "کار پیدا نشد" };
@@ -631,14 +637,14 @@ export async function rescheduleTaskDueDate(input: {
       );
     }
 
-    const area = existing.area ?? existing.project?.area ?? null;
+    const isHub = !!existing.userArea.hubFor;
     await db.task.update({
       where: { id: taskId },
       data: {
         dueDate: nextDue,
         ...(time === "" ? { durationMinutes: null } : {}),
         status: resolvePersonalTaskPlanningStatus(existing.status, nextDue, {
-          area,
+          isHub,
           waitingOn: existing.waitingOn,
           now: clientLocalNow(tz),
         }),
@@ -688,9 +694,8 @@ export async function rescheduleTaskSchedule(input: {
         assignedToId: true,
         createdById: true,
         status: true,
-        area: true,
+        userArea: { select: { hubFor: true } },
         waitingOn: true,
-        project: { select: { area: true } },
       },
     });
     if (!existing) return { success: false, error: "کار پیدا نشد" };
@@ -727,14 +732,14 @@ export async function rescheduleTaskSchedule(input: {
       else durationMinutes = Math.min(24 * 60, Math.round(durationMinutes));
     }
 
-    const area = existing.area ?? existing.project?.area ?? null;
+    const isHub = !!existing.userArea.hubFor;
     await db.task.update({
       where: { id: taskId },
       data: {
         dueDate: nextDue,
         ...(durationMinutes !== undefined ? { durationMinutes } : {}),
         status: resolvePersonalTaskPlanningStatus(existing.status, nextDue, {
-          area,
+          isHub,
           waitingOn: existing.waitingOn,
           now: clientLocalNow(tz),
         }),

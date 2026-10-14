@@ -5,10 +5,12 @@ import { Drawer } from "@/components/ui-kit/overlays/drawer";
 import { Button } from "@/components/ui-kit/forms/button";
 import { Input } from "@/components/ui-kit/forms/input";
 import { Textarea } from "@/components/ui-kit/forms/textarea";
-import { useTranslation } from "@/i18n/provider";
-import { LIFE_AREAS } from "@/lib/life";
+import { useLanguage, useTranslation } from "@/i18n/provider";
 import { cn } from "@/lib/utils";
-import type { LifeArea } from "@/types/db";
+import { areaDisplayName } from "@/lib/areas";
+import {
+  useActiveMemberAreas,
+} from "@/components/member-areas-provider";
 import type { DocFolderItem, DocTagItem } from "@/features/docs/types";
 import {
   buildFolderTree,
@@ -32,7 +34,7 @@ const TAG_COLORS = [
 export interface TaxonomyFormValue {
   name: string;
   description?: string | null;
-  area?: LifeArea | null;
+  areaId?: string | null;
   parentId?: string | null;
   color?: string;
 }
@@ -49,16 +51,6 @@ interface DocTaxonomyDrawerProps {
   onSubmit: (input: TaxonomyFormValue) => Promise<boolean>;
 }
 
-function areaLabel(
-  area: LifeArea,
-  t: { phd: string; work: string; lifeArea: string; language?: string },
-) {
-  if (area === "PHD") return t.phd;
-  if (area === "WORK") return t.work;
-  if (area === "LANG") return t.language ?? "Language";
-  return t.lifeArea;
-}
-
 export function DocTaxonomyDrawer({
   open,
   mode,
@@ -70,10 +62,12 @@ export function DocTaxonomyDrawer({
   onSubmit,
 }: DocTaxonomyDrawerProps) {
   const t = useTranslation();
+  const language = useLanguage();
+  const memberAreas = useActiveMemberAreas();
   const editing = mode === "folder" ? !!editFolder : !!editTag;
   const [name, setName] = React.useState("");
   const [description, setDescription] = React.useState("");
-  const [area, setArea] = React.useState<LifeArea | "">("");
+  const [area, setArea] = React.useState<string>("");
   const [parentId, setParentId] = React.useState<string>("");
   const [color, setColor] = React.useState<string>(TAG_COLORS[0]);
   const [pending, setPending] = React.useState(false);
@@ -89,7 +83,7 @@ export function DocTaxonomyDrawer({
     if (mode === "folder" && editFolder) {
       setName(editFolder.name);
       setDescription(editFolder.description ?? "");
-      setArea(editFolder.area ?? "");
+      setArea(editFolder.areaId ?? "");
       setParentId(editFolder.parentId ?? "");
     } else if (mode === "tag" && editTag) {
       setName(editTag.name);
@@ -134,7 +128,7 @@ export function DocTaxonomyDrawer({
       const ok = await onSubmit({
         name: trimmed,
         description: description.trim() || null,
-        area: mode === "folder" ? area || null : undefined,
+        areaId: mode === "folder" ? area || null : undefined,
         parentId: mode === "folder" ? parentId || null : undefined,
         color: mode === "tag" ? color : undefined,
       });
@@ -243,20 +237,20 @@ export function DocTaxonomyDrawer({
                 >
                   {t.docs.filterAll}
                 </button>
-                {LIFE_AREAS.map(a => (
+                {memberAreas.map(a => (
                   <button
-                    key={a}
+                    key={a.id}
                     type="button"
                     disabled={pending}
-                    onClick={() => setArea(a)}
+                    onClick={() => setArea(a.id)}
                     className={cn(
                       "rounded-lg border px-2.5 py-1.5 text-xs transition-colors",
-                      area === a
+                      area === a.id
                         ? "border-primary bg-primary/10 text-primary"
                         : "text-muted-foreground hover:bg-accent",
                     )}
                   >
-                    {areaLabel(a, t.life)}
+                    {areaDisplayName(a, language)}
                   </button>
                 ))}
               </div>

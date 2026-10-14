@@ -1,5 +1,4 @@
 import { prisma as db } from "@/lib/db";
-import type { LifeArea } from "@/types/db";
 import type {
   DocDetail,
   DocFolderItem,
@@ -51,7 +50,7 @@ export async function purgeExpiredTrash(userId: string): Promise<number> {
 export async function getDocs(
   userId: string,
   opts?: {
-    area?: LifeArea | "ALL";
+    areaId?: string | "ALL";
     search?: string;
     archived?: boolean;
     trash?: boolean;
@@ -65,7 +64,7 @@ export async function getDocs(
 ): Promise<DocListItem[]> {
   await purgeExpiredTrash(userId);
 
-  const area = opts?.area && opts.area !== "ALL" ? opts.area : undefined;
+  const areaId = opts?.areaId && opts.areaId !== "ALL" ? opts.areaId : undefined;
   const search = opts?.search?.trim();
   const trash = opts?.trash ?? false;
   const archived = trash ? undefined : (opts?.archived ?? false);
@@ -77,7 +76,7 @@ export async function getDocs(
       ...(trash
         ? { deletedAt: { not: null } }
         : { deletedAt: null, archived: archived ?? false }),
-      ...(area ? { area } : {}),
+      ...(areaId ? { areaId } : {}),
       AND: [excludeLibraryBindersWhere],
       ...(opts?.folderId === "NONE"
         ? { folderId: null }
@@ -106,7 +105,7 @@ export async function getDocs(
     select: {
       id: true,
       title: true,
-      area: true,
+      areaId: true,
       status: true,
       pinned: true,
       archived: true,
@@ -133,7 +132,7 @@ export async function getDocs(
     return {
       id: doc.id,
       title: doc.title,
-      area: doc.area,
+      areaId: doc.areaId,
       status: doc.status,
       pinned: doc.pinned,
       archived: doc.archived,
@@ -163,7 +162,7 @@ export async function getDocById(
       title: true,
       content: true,
       contentText: true,
-      area: true,
+      areaId: true,
       status: true,
       wordGoal: true,
       templateKey: true,
@@ -236,7 +235,7 @@ export async function getDocById(
     title: doc.title,
     content: doc.content,
     contentText: doc.contentText,
-    area: doc.area,
+    areaId: doc.areaId,
     status: doc.status,
     wordGoal: doc.wordGoal,
     templateKey: doc.templateKey,
@@ -274,12 +273,12 @@ export async function getRecentDocs(
   userId: string,
   opts?: {
     limit?: number;
-    area?: LifeArea;
+    areaId?: string;
     projectId?: string | null | "NONE";
   },
 ): Promise<DocListItem[]> {
   return getDocs(userId, {
-    area: opts?.area ?? "ALL",
+    areaId: opts?.areaId ?? "ALL",
     archived: false,
     projectId: opts?.projectId,
   }).then(docs => docs.slice(0, opts?.limit ?? 5));
@@ -288,7 +287,7 @@ export async function getRecentDocs(
 export async function getDocsForTask(
   userId: string,
   taskId: string,
-): Promise<{ id: string; title: string; area: LifeArea }[]> {
+): Promise<{ id: string; title: string; areaId: string }[]> {
   const rows = await db.docTask.findMany({
     where: {
       taskId,
@@ -296,7 +295,7 @@ export async function getDocsForTask(
     },
     orderBy: { doc: { updatedAt: "desc" } },
     select: {
-      doc: { select: { id: true, title: true, area: true } },
+      doc: { select: { id: true, title: true, areaId: true } },
     },
   });
   return rows.map(r => r.doc);
@@ -332,7 +331,7 @@ export async function getDocFolders(userId: string): Promise<DocFolderItem[]> {
       id: true,
       name: true,
       description: true,
-      area: true,
+      areaId: true,
       parentId: true,
       _count: {
         select: {
@@ -345,7 +344,7 @@ export async function getDocFolders(userId: string): Promise<DocFolderItem[]> {
     id: f.id,
     name: f.name,
     description: f.description,
-    area: f.area,
+    areaId: f.areaId,
     parentId: f.parentId,
     docCount: f._count.docs,
   }));
@@ -374,7 +373,7 @@ export async function getWritingPulse(
   userId: string,
   opts?: {
     limit?: number;
-    area?: LifeArea;
+    areaId?: string;
     projectId?: string | null | "NONE";
   },
 ): Promise<WritingPulseItem[]> {
@@ -385,7 +384,7 @@ export async function getWritingPulse(
       archived: false,
       status: { in: ["IDEA", "DRAFTING", "REVIEW"] },
       AND: [excludeLibraryBindersWhere],
-      ...(opts?.area ? { area: opts.area } : {}),
+      ...(opts?.areaId ? { areaId: opts.areaId } : {}),
       ...(opts?.projectId === "NONE"
         ? { projectId: null }
         : opts?.projectId
@@ -397,7 +396,7 @@ export async function getWritingPulse(
     select: {
       id: true,
       title: true,
-      area: true,
+      areaId: true,
       status: true,
       updatedAt: true,
       contentText: true,
@@ -429,7 +428,7 @@ export async function getWritingPulse(
     items.push({
       id: doc.id,
       title,
-      area: doc.area,
+      areaId: doc.areaId,
       status: doc.status,
       daysIdle,
       wordCount,

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
@@ -6,21 +6,15 @@ import { useForm } from "react-hook-form";
 import { localizedZodResolver } from "@/lib/validation-message";
 import { updateTaskSchema } from "@/schemas/tasks";
 import { updateTask, getTaskDetailAction } from "@/features/tasks/actions";
-import { coerceLifeArea, dueDateToFormValue } from "@/lib/life";
-import { useAreaBuckets } from "@/components/area-buckets-provider";
+import { dueDateToFormValue } from "@/lib/life";
+import { useAreaHelpers } from "@/components/member-areas-provider";
 import type { UpdateTaskInput } from "@/schemas/tasks";
 import type { TaskRow, TaskDetail } from "@/features/tasks/types";
 import { toFormStatus } from "@/features/tasks/types";
-import type { LifeArea } from "@/types/db";
-import { DEFAULT_AREA } from "@/lib/areas";
-
-function resolveArea(task: TaskRow | TaskDetail): LifeArea {
-  return coerceLifeArea(task.area);
-}
 
 export function useLifeTaskEdit() {
   const router = useRouter();
-  const areaIds = useAreaBuckets();
+  const { bucketFor, defaultAreaId } = useAreaHelpers();
 
   const [editingTaskId, setEditingTaskId] = React.useState<string | null>(null);
   const [activeTask, setActiveTask] = React.useState<TaskDetail | null>(null);
@@ -42,7 +36,7 @@ export function useLifeTaskEdit() {
       dueDate: "",
       durationMinutes: "",
       waitingOn: "",
-      area: DEFAULT_AREA,
+      areaId: defaultAreaId,
       recurrence: "NONE",
     },
   }) as import("react-hook-form").UseFormReturn<UpdateTaskInput>;
@@ -60,7 +54,7 @@ export function useLifeTaskEdit() {
       return;
     }
 
-    const area = resolveArea(detail);
+    const areaId = detail.areaId;
     setActiveTask(detail);
     setSelectedLabelIds(detail.labels.map(l => l.id));
     editForm.reset({
@@ -69,7 +63,7 @@ export function useLifeTaskEdit() {
       status: toFormStatus(detail.status),
       priority: detail.priority,
       type: detail.type,
-      projectId: detail.projectId ?? areaIds[area],
+      projectId: detail.projectId ?? bucketFor(areaId),
       assignedToId: detail.assignedTo?.id ?? "",
       dueDate: dueDateToFormValue(detail.dueDate),
       durationMinutes:
@@ -77,7 +71,7 @@ export function useLifeTaskEdit() {
           ? String(detail.durationMinutes)
           : "",
       waitingOn: detail.waitingOn ? "1" : "",
-      area,
+      areaId,
       recurrence: detail.recurrence ?? "NONE",
     });
   }
@@ -101,19 +95,19 @@ export function useLifeTaskEdit() {
     if (!editingTaskId) return;
     setActionError(null);
     startTransition(async () => {
-      const area = (data.area ?? DEFAULT_AREA) as LifeArea;
+      const areaId = data.areaId || defaultAreaId;
       const fd = new FormData();
       fd.append("title", data.title);
       fd.append("description", data.description ?? "");
       fd.append("status", data.status);
       fd.append("priority", data.priority);
       fd.append("type", "TASK");
-      fd.append("projectId", data.projectId || areaIds[area]);
+      fd.append("projectId", data.projectId || bucketFor(areaId));
       fd.append("assignedToId", data.assignedToId ?? "");
       fd.append("dueDate", data.dueDate ?? "");
       fd.append("durationMinutes", data.durationMinutes ?? "");
       fd.append("waitingOn", data.waitingOn === "1" || data.waitingOn === "true" ? "1" : "");
-      fd.append("area", area);
+      fd.append("areaId", areaId);
       fd.append("recurrence", data.recurrence ?? "NONE");
       fd.append("labelIds", JSON.stringify(selectedLabelIds));
       const result = await updateTask(editingTaskId, fd);

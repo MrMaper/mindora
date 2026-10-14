@@ -1,10 +1,12 @@
 /**
  * Read-only invariant checks (docs/AREAS.md §19.1). Safe on production.
- * Exits non-zero on any violation. Run after each rollout and backfill:
+ * Exits non-zero on any violation. Run after each rollout:
  *
  *   npx tsx scripts/areas/verify-areas.ts
  *
  * P0: module policy. P4: UserArea invariants (§9.6).
+ * P7: legacy enum / mirror columns are gone — `areaId` is NOT NULL on
+ * Project / Task / Doc / Habit, so only ownership agreement is checked here.
  */
 import * as dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
@@ -15,7 +17,6 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import {
   PRIMARY_MODULES,
   parseModulePolicy,
-  policyToLegacyFlags,
   resolveEffectiveFlags,
 } from "../../src/lib/modules";
 
@@ -23,6 +24,11 @@ const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const db = new PrismaClient({ adapter });
 
 const STATES = new Set(["off", "on", "member_choice"]);
+
+async function count(sql: Promise<{ n: bigint }[]>): Promise<number> {
+  const rows = await sql;
+  return Number(rows[0]?.n ?? 0);
+}
 
 async function main() {
   const violations: string[] = [];
@@ -32,7 +38,6 @@ async function main() {
     select: {
       id: true,
       email: true,
-      enabledModules: true,
       modulePolicy: true,
       mustChangePassword: true,
       password: true,
@@ -44,7 +49,6 @@ async function main() {
           archived: true,
           hubFor: true,
           bucketProjectId: true,
-          legacyEnum: true,
           name: true,
         },
       },
@@ -56,18 +60,7 @@ async function main() {
     for (const key of PRIMARY_MODULES) {
       if (!STATES.has(String(stored[key]))) {
         violations.push(
-          `${m.email}: modulePolicy.${key} is missing/invalid (run backfill-modules)`,
-        );
-      }
-    }
-
-    const policy = parseModulePolicy(m.modulePolicy, m.enabledModules);
-    const mirror = policyToLegacyFlags(policy);
-    const legacy = (m.enabledModules ?? {}) as Record<string, unknown>;
-    for (const key of PRIMARY_MODULES) {
-      if (legacy[key] !== undefined && legacy[key] !== mirror[key]) {
-        violations.push(
-          `${m.email}: enabledModules.${key} disagrees with policy mirror`,
+          `${m.email}: modulePolicy.${key} is missing/invalid (set via admin Users or provisionMember)`,
         );
       }
     }
@@ -93,7 +86,7 @@ async function main() {
       );
     }
 
-    // --- P4 UserArea invariants (skip members not yet backfilled) ---
+    // --- UserArea invariants (members who never signed in have none yet) ---
     if (m.areas.length === 0) continue;
 
     const activeDefaults = m.areas.filter(a => a.isDefault && !a.archived);
@@ -131,7 +124,7 @@ async function main() {
       }
       const bucket = await db.project.findUnique({
         where: { id: area.bucketProjectId },
-        select: { id: true, areaId: true, area: true },
+        select: { id: true, areaId: true },
       });
       if (!bucket) {
         violations.push(
@@ -141,21 +134,12 @@ async function main() {
         violations.push(
           `${m.email}: bucket ${bucket.id} areaId does not point back to area`,
         );
-      } else if (
-        area.legacyEnum &&
-        bucket.area &&
-        bucket.area !== area.legacyEnum
-      ) {
-        violations.push(
-          `${m.email}: bucket ${bucket.id} legacy area disagrees with UserArea.legacyEnum`,
-        );
       }
     }
 
     const flags = resolveEffectiveFlags({
-      policy: m.modulePolicy,
+      policy: parseModulePolicy(m.modulePolicy),
       prefs: m.preferences?.moduleMemberPrefs,
-      legacy: m.enabledModules,
     });
     if (flags.research && !research) {
       violations.push(
@@ -168,20 +152,42 @@ async function main() {
       );
     }
 
-    // Dual-write agreement: area enum vs userArea.legacyEnum
-    const mismatched = await db.$queryRaw<{ n: bigint }[]>`
+    // Ownership agreement: the area a row points at must belong to its owner.
+    const badTasks = await count(db.$queryRaw<{ n: bigint }[]>`
       SELECT COUNT(*)::bigint AS n
       FROM tasks t
       JOIN user_areas ua ON ua.id = t."areaId"
-      WHERE (t."createdById" = ${m.id} OR t."assignedToId" = ${m.id})
-        AND t.area IS NOT NULL
-        AND ua."legacyEnum" IS NOT NULL
-        AND t.area::text <> ua."legacyEnum"::text
-    `;
-    const n = Number(mismatched[0]?.n ?? 0);
-    if (n > 0) {
+      WHERE ua."userId" = ${m.id}
+        AND t."createdById" <> ${m.id}
+        AND (t."assignedToId" IS NULL OR t."assignedToId" <> ${m.id})
+    `);
+    if (badTasks > 0) {
       violations.push(
-        `${m.email}: ${n} tasks have area enum disagreeing with areaId.legacyEnum`,
+        `${m.email}: ${badTasks} tasks point at this member's area but are neither created by nor assigned to them`,
+      );
+    }
+
+    const badDocs = await count(db.$queryRaw<{ n: bigint }[]>`
+      SELECT COUNT(*)::bigint AS n
+      FROM docs d
+      JOIN user_areas ua ON ua.id = d."areaId"
+      WHERE d."userId" = ${m.id} AND ua."userId" <> d."userId"
+    `);
+    if (badDocs > 0) {
+      violations.push(
+        `${m.email}: ${badDocs} docs point at another member's area`,
+      );
+    }
+
+    const badHabits = await count(db.$queryRaw<{ n: bigint }[]>`
+      SELECT COUNT(*)::bigint AS n
+      FROM habits h
+      JOIN user_areas ua ON ua.id = h."areaId"
+      WHERE h."userId" = ${m.id} AND ua."userId" <> h."userId"
+    `);
+    if (badHabits > 0) {
+      violations.push(
+        `${m.email}: ${badHabits} habits point at another member's area`,
       );
     }
   }

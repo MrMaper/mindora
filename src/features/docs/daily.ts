@@ -4,7 +4,7 @@ import { getDocTemplate } from "./templates";
 import { ensureHeadingIds } from "./utils";
 import { getDocById } from "./queries";
 import type { DocDetail } from "./types";
-import { DEFAULT_AREA } from "@/lib/areas";
+import { defaultAreaId } from "@/lib/areas/server";
 
 function htmlToText(html: string): string {
   return html
@@ -49,7 +49,7 @@ export async function ensureDailyNote(
       title,
       content,
       contentText: htmlToText(content),
-      area: DEFAULT_AREA,
+      areaId: await defaultAreaId(userId),
       status: "DRAFTING",
       templateKey: tpl.key,
       systemKey,

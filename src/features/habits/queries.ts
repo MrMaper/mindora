@@ -5,13 +5,13 @@ import {
   startOfWeek,
   toDateKey,
 } from "@/lib/life";
-import type { LifeArea, RecurrenceInterval } from "@/types/db";
+import type { RecurrenceInterval } from "@/types/db";
 import { HABIT_HEATMAP_WEEKS } from "@/features/habits/constants";
 
 export interface HabitItem {
   id: string;
   title: string;
-  area: LifeArea | null;
+  areaId: string;
   cadence: RecurrenceInterval;
   streak: number;
   bestStreak: number;
@@ -42,7 +42,7 @@ export async function listHabitsForUser(
     select: {
       id: true,
       title: true,
-      area: true,
+      areaId: true,
       cadence: true,
       streak: true,
       bestStreak: true,
@@ -58,7 +58,7 @@ export async function listHabitsForUser(
   return rows.map(h => ({
     id: h.id,
     title: h.title,
-    area: h.area,
+    areaId: h.areaId,
     cadence: h.cadence,
     streak: h.streak,
     bestStreak: h.bestStreak,

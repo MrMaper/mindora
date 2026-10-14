@@ -40,10 +40,10 @@ import {
   moveAllAreaContentAction,
   previewAreaMoveAction,
 } from "@/features/projects/area-actions";
-import type { LifeArea } from "@/types/db";
 import Link from "next/link";
 import { Button } from "@/components/ui-kit/forms/button";
-import { isLifeAreaValue, DEFAULT_AREA, MAX_ACTIVE_AREAS } from "@/lib/areas";
+import { MAX_ACTIVE_AREAS } from "@/lib/areas";
+import { normalizeAreaParam } from "@/lib/project-namespace";
 
 interface ProjectsCCProps {
   initialData: ProjectsHubData;
@@ -97,17 +97,17 @@ export function ProjectsCC({
 
   React.useEffect(() => {
     if (!initialCreateArea) return;
-    const byId = sections.find(s => s.areaId === initialCreateArea);
-    if (byId) {
-      u.openCreate(byId.areaId);
-      return;
-    }
-    if (isLifeAreaValue(initialCreateArea)) {
-      const byLegacy = sections.find(
-        s => s.legacyEnum === initialCreateArea,
-      );
-      u.openCreate(byLegacy?.areaId ?? initialCreateArea);
-    }
+    // Accepts a UserArea id or a legacy slug (life/work/phd/lang) via templateKey.
+    const id = normalizeAreaParam(
+      initialCreateArea,
+      sections.map(s => ({
+        id: s.areaId,
+        templateKey: s.templateKey,
+        hubFor: s.hubFor,
+      })),
+    );
+    const match = sections.find(s => s.areaId === id);
+    if (match) u.openCreate(match.areaId);
     // deep-link from area dashboard
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -143,10 +143,10 @@ export function ProjectsCC({
 
   function findPath(
     id: string,
-  ): { path: ProjectRow; area: LifeArea; areaId: string } | null {
+  ): { path: ProjectRow; areaId: string } | null {
     for (const s of sections) {
       const path = s.paths.find(p => p.id === id);
-      if (path) return { path, area: s.area, areaId: s.areaId };
+      if (path) return { path, areaId: s.areaId };
     }
     return null;
   }
@@ -167,19 +167,16 @@ export function ProjectsCC({
     if (!from) return;
 
     let toAreaId = from.areaId;
-    let toArea = from.area;
     let toIndex: number | undefined;
 
     if (overId.startsWith("area-drop-")) {
       toAreaId = overId.replace("area-drop-", "");
       const dest = sections.find(s => s.areaId === toAreaId);
-      toArea = dest?.area ?? from.area;
       toIndex = dest?.paths.length ?? 0;
     } else {
       const overPath = findPath(overId);
       if (overPath) {
         toAreaId = overPath.areaId;
-        toArea = overPath.area;
         const dest = sections.find(s => s.areaId === toAreaId);
         toIndex = dest?.paths.findIndex(p => p.id === overId) ?? 0;
         if (toIndex < 0) toIndex = dest?.paths.length ?? 0;
@@ -203,7 +200,7 @@ export function ProjectsCC({
         ),
       );
       const result = await reorderPathsInArea(
-        from.area,
+        from.areaId,
         nextPaths.map(p => p.id),
       );
       if (!result.success) router.refresh();
@@ -230,7 +227,7 @@ export function ProjectsCC({
       );
       return without.map(s => {
         if (s.areaId !== toAreaId) return s;
-        const moved = { ...from.path, area: toArea, areaId: toAreaId };
+        const moved = { ...from.path, areaId: toAreaId };
         const paths = [...s.paths];
         const idx = Math.min(toIndex ?? paths.length, paths.length);
         paths.splice(idx, 0, moved);
@@ -248,7 +245,6 @@ export function ProjectsCC({
     const result = await movePathToArea({
       pathId: activeId,
       toAreaId,
-      toArea,
       toIndex,
     });
     if (!result.success) router.refresh();
@@ -545,16 +541,14 @@ export function ProjectsCC({
           isPending: u.isPending,
         }}
         areaName={u.editingProject?.name ?? null}
-        area={u.editingArea ?? DEFAULT_AREA}
         pref={
           sections.find(
             s =>
               s.bucket.id === u.editingProject?.id ||
               s.areaId === u.editingProject?.areaId ||
-              s.area === u.editingArea,
+              s.areaId === u.editingArea,
           )?.pref ?? {
-            areaId: u.editingProject?.areaId ?? u.editingArea ?? DEFAULT_AREA,
-            area: u.editingArea ?? DEFAULT_AREA,
+            areaId: u.editingProject?.areaId ?? u.editingArea ?? "",
             color: null,
             icon: null,
             sortOrder: 0,
@@ -566,7 +560,7 @@ export function ProjectsCC({
             s =>
               s.bucket.id === u.editingProject?.id ||
               s.areaId === u.editingProject?.areaId ||
-              s.area === u.editingArea,
+              s.areaId === u.editingArea,
           );
           if (section) void onUpdatePref(section.areaId, patch);
         }}

@@ -185,13 +185,13 @@ describe("resolvePersonalTaskPlanningStatus", () => {
   it("never remaps PhD / Language by due", () => {
     expect(
       resolvePersonalTaskPlanningStatus("BACKLOG", now, {
-        area: "PHD",
+        isHub: true,
         now,
       }),
     ).toBe("BACKLOG");
     expect(
       resolvePersonalTaskPlanningStatus("IN_PROGRESS", null, {
-        area: "LANG",
+        isHub: true,
         now,
       }),
     ).toBe("IN_PROGRESS");
@@ -200,7 +200,7 @@ describe("resolvePersonalTaskPlanningStatus", () => {
   it("parks waiting tasks in Inbox", () => {
     expect(
       resolvePersonalTaskPlanningStatus("TODO", now, {
-        area: "LIFE",
+        isHub: false,
         waitingOn: true,
         now,
       }),
@@ -210,7 +210,7 @@ describe("resolvePersonalTaskPlanningStatus", () => {
   it("still plans non-hub work from due", () => {
     expect(
       resolvePersonalTaskPlanningStatus("BACKLOG", now, {
-        area: "WORK",
+        isHub: false,
         now,
       }),
     ).toBe("TODO");

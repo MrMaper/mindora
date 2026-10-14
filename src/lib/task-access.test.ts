@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { parseModuleFlags } from "@/lib/modules";
 import {
   canAccessPersonalTask,
   personalLifeTaskWhere,
@@ -18,7 +19,10 @@ describe("personalTaskOwnership", () => {
 
 describe("personalLifeTaskWhere", () => {
   it("nests ownership under AND so extra OR filters cannot overwrite it", () => {
-    const where = personalLifeTaskWhere("u1");
+    const where = personalLifeTaskWhere("u1", {
+      flags: parseModuleFlags({}),
+      hubAreas: { research: null, language: null },
+    });
     expect(where).toHaveProperty("AND");
     expect(Array.isArray(where.AND)).toBe(true);
     expect(where.AND[0]).toEqual(personalTaskOwnership("u1"));

@@ -403,7 +403,6 @@ export const ModelName = {
   TeamMember: 'TeamMember',
   Project: 'Project',
   UserArea: 'UserArea',
-  UserAreaPreference: 'UserAreaPreference',
   ProjectMember: 'ProjectMember',
   Sprint: 'Sprint',
   Task: 'Task',
@@ -451,7 +450,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "userLoginEvent" | "adminAuditLog" | "cronHeartbeat" | "systemSettings" | "storageLedgerEntry" | "account" | "session" | "verificationToken" | "passwordResetToken" | "userPreferences" | "role" | "permission" | "rolePermission" | "organization" | "team" | "teamMember" | "project" | "userArea" | "userAreaPreference" | "projectMember" | "sprint" | "task" | "label" | "taskLabel" | "comment" | "attachment" | "checklist" | "checklistItem" | "notification" | "activityLog" | "workLog" | "habit" | "habitLog" | "doc" | "docFolder" | "docTag" | "docTagOnDoc" | "docTask" | "docVersion" | "docSource" | "docQuote" | "langProfile" | "langSession" | "langListeningClip" | "langCard" | "langVocabDay" | "examTrack" | "mockAttempt" | "baleConfig" | "baleDelivery" | "baleOutbound"
+    modelProps: "user" | "userLoginEvent" | "adminAuditLog" | "cronHeartbeat" | "systemSettings" | "storageLedgerEntry" | "account" | "session" | "verificationToken" | "passwordResetToken" | "userPreferences" | "role" | "permission" | "rolePermission" | "organization" | "team" | "teamMember" | "project" | "userArea" | "projectMember" | "sprint" | "task" | "label" | "taskLabel" | "comment" | "attachment" | "checklist" | "checklistItem" | "notification" | "activityLog" | "workLog" | "habit" | "habitLog" | "doc" | "docFolder" | "docTag" | "docTagOnDoc" | "docTask" | "docVersion" | "docSource" | "docQuote" | "langProfile" | "langSession" | "langListeningClip" | "langCard" | "langVocabDay" | "examTrack" | "mockAttempt" | "baleConfig" | "baleDelivery" | "baleOutbound"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1858,80 +1857,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.UserAreaCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.UserAreaCountAggregateOutputType> | number
-        }
-      }
-    }
-    UserAreaPreference: {
-      payload: Prisma.$UserAreaPreferencePayload<ExtArgs>
-      fields: Prisma.UserAreaPreferenceFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.UserAreaPreferenceFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAreaPreferencePayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.UserAreaPreferenceFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAreaPreferencePayload>
-        }
-        findFirst: {
-          args: Prisma.UserAreaPreferenceFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAreaPreferencePayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.UserAreaPreferenceFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAreaPreferencePayload>
-        }
-        findMany: {
-          args: Prisma.UserAreaPreferenceFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAreaPreferencePayload>[]
-        }
-        create: {
-          args: Prisma.UserAreaPreferenceCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAreaPreferencePayload>
-        }
-        createMany: {
-          args: Prisma.UserAreaPreferenceCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.UserAreaPreferenceCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAreaPreferencePayload>[]
-        }
-        delete: {
-          args: Prisma.UserAreaPreferenceDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAreaPreferencePayload>
-        }
-        update: {
-          args: Prisma.UserAreaPreferenceUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAreaPreferencePayload>
-        }
-        deleteMany: {
-          args: Prisma.UserAreaPreferenceDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.UserAreaPreferenceUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.UserAreaPreferenceUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAreaPreferencePayload>[]
-        }
-        upsert: {
-          args: Prisma.UserAreaPreferenceUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAreaPreferencePayload>
-        }
-        aggregate: {
-          args: Prisma.UserAreaPreferenceAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateUserAreaPreference>
-        }
-        groupBy: {
-          args: Prisma.UserAreaPreferenceGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.UserAreaPreferenceGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.UserAreaPreferenceCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.UserAreaPreferenceCountAggregateOutputType> | number
         }
       }
     }
@@ -4350,7 +4275,6 @@ export const UserScalarFieldEnum = {
   avatar: 'avatar',
   role: 'role',
   status: 'status',
-  enabledModules: 'enabledModules',
   modulePolicy: 'modulePolicy',
   createdVia: 'createdVia',
   mustChangePassword: 'mustChangePassword',
@@ -4584,7 +4508,6 @@ export const ProjectScalarFieldEnum = {
   name: 'name',
   description: 'description',
   status: 'status',
-  area: 'area',
   areaId: 'areaId',
   pinned: 'pinned',
   sortOrder: 'sortOrder',
@@ -4608,27 +4531,11 @@ export const UserAreaScalarFieldEnum = {
   isDefault: 'isDefault',
   hubFor: 'hubFor',
   bucketProjectId: 'bucketProjectId',
-  legacyEnum: 'legacyEnum',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type UserAreaScalarFieldEnum = (typeof UserAreaScalarFieldEnum)[keyof typeof UserAreaScalarFieldEnum]
-
-
-export const UserAreaPreferenceScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  area: 'area',
-  color: 'color',
-  icon: 'icon',
-  sortOrder: 'sortOrder',
-  archived: 'archived',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type UserAreaPreferenceScalarFieldEnum = (typeof UserAreaPreferenceScalarFieldEnum)[keyof typeof UserAreaPreferenceScalarFieldEnum]
 
 
 export const ProjectMemberScalarFieldEnum = {
@@ -4673,7 +4580,6 @@ export const TaskScalarFieldEnum = {
   durationMinutes: 'durationMinutes',
   waitingOn: 'waitingOn',
   position: 'position',
-  area: 'area',
   areaId: 'areaId',
   recurrence: 'recurrence',
   recurrenceSeriesId: 'recurrenceSeriesId',
@@ -4793,7 +4699,6 @@ export const HabitScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   title: 'title',
-  area: 'area',
   areaId: 'areaId',
   cadence: 'cadence',
   streak: 'streak',
@@ -4822,7 +4727,6 @@ export const DocScalarFieldEnum = {
   title: 'title',
   content: 'content',
   contentText: 'contentText',
-  area: 'area',
   areaId: 'areaId',
   status: 'status',
   wordGoal: 'wordGoal',
@@ -4845,7 +4749,6 @@ export const DocFolderScalarFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
-  area: 'area',
   areaId: 'areaId',
   userId: 'userId',
   parentId: 'parentId',
@@ -5333,20 +5236,6 @@ export type ListEnumProjectStatusFieldRefInput<$PrismaModel> = FieldRefInputType
 
 
 /**
- * Reference to a field of type 'LifeArea'
- */
-export type EnumLifeAreaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LifeArea'>
-    
-
-
-/**
- * Reference to a field of type 'LifeArea[]'
- */
-export type ListEnumLifeAreaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LifeArea[]'>
-    
-
-
-/**
  * Reference to a field of type 'AreaHubFor'
  */
 export type EnumAreaHubForFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AreaHubFor'>
@@ -5669,7 +5558,6 @@ export type GlobalOmitConfig = {
   teamMember?: Prisma.TeamMemberOmit
   project?: Prisma.ProjectOmit
   userArea?: Prisma.UserAreaOmit
-  userAreaPreference?: Prisma.UserAreaPreferenceOmit
   projectMember?: Prisma.ProjectMemberOmit
   sprint?: Prisma.SprintOmit
   task?: Prisma.TaskOmit

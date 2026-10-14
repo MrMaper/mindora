@@ -1,4 +1,3 @@
-import type { LifeArea } from "@/types/db";
 export type ProjectStatus =
   | "ACTIVE"
   | "ARCHIVED"
@@ -11,9 +10,8 @@ export interface ProjectRow {
   name: string;
   description: string | null;
   status: ProjectStatus;
-  area: LifeArea;
-  /** UserArea id when dual-written (P4+). */
-  areaId?: string | null;
+  /** UserArea id this path belongs to. */
+  areaId: string;
   teamId: string | null;
   teamName: string | null;
   memberCount: number;
@@ -36,8 +34,6 @@ export interface GetProjectsResult {
 
 export interface AreaPrefRow {
   areaId: string;
-  /** Legacy enum when seeded from the four; null for custom areas. */
-  area: LifeArea | null;
   color: string | null;
   icon: string | null;
   sortOrder: number;
@@ -46,9 +42,8 @@ export interface AreaPrefRow {
 
 export interface AreaHubSection {
   areaId: string;
-  /** Dual-write / visual fallback: legacyEnum or LIFE. */
-  area: LifeArea;
-  legacyEnum: LifeArea | null;
+  /** Template hint (palette / names); never an identity. */
+  templateKey: string | null;
   displayName: string;
   hubFor: "research" | "language" | null;
   isDefault: boolean;
@@ -71,8 +66,7 @@ export interface ProjectsHubData {
 
 export interface AreaDashboardData {
   areaId: string;
-  area: LifeArea;
-  legacyEnum: LifeArea | null;
+  templateKey: string | null;
   displayName: string;
   hubFor: "research" | "language" | null;
   isDefault: boolean;
@@ -107,8 +101,7 @@ export interface ProjectDetail {
   name: string;
   description: string | null;
   status: ProjectStatus;
-  area: LifeArea;
-  areaId?: string | null;
+  areaId: string;
   teamId: string | null;
   teamName: string | null;
   createdAt: Date;

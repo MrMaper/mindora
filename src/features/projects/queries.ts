@@ -1,7 +1,5 @@
 import { prisma as db } from "@/lib/db";
-import type { LifeArea } from "@/types/db";
 import { startOfDay, startOfWeek, endOfWeek } from "@/lib/life";
-import { personalAreaProjectId } from "@/lib/area-projects";
 import {
   isAreaBucketId,
   projectWhereForScope,
@@ -9,7 +7,6 @@ import {
 } from "@/lib/project-namespace";
 import { ensurePersonalWorkspace } from "@/features/life/workspace";
 import type {
-  GetProjectsResult,
   ProjectRow,
   ProjectDetail,
   ProjectMemberRow,
@@ -19,23 +16,14 @@ import type {
   AreaHubSection,
   AreaDashboardData,
 } from "./types";
-import {
-  DEFAULT_AREA,
-  LIFE_AREAS,
-  WORKSPACE_AREAS,
-  AREA_ORDER,
-  areaDisplayName,
-} from "@/lib/areas";
+import { areaDisplayName } from "@/lib/areas";
 import { getMemberContext } from "@/lib/areas/server";
-
-const PAGE_SIZE = 15;
 
 const projectListSelect = {
   id: true,
   name: true,
   description: true,
   status: true,
-  area: true,
   areaId: true,
   pinned: true,
   sortOrder: true,
@@ -50,8 +38,7 @@ function toProjectRow(p: {
   name: string;
   description: string | null;
   status: ProjectRow["status"];
-  area: LifeArea;
-  areaId?: string | null;
+  areaId: string;
   pinned?: boolean;
   sortOrder?: number;
   teamId: string | null;
@@ -64,8 +51,7 @@ function toProjectRow(p: {
     name: p.name,
     description: p.description,
     status: p.status,
-    area: p.area,
-    areaId: p.areaId ?? null,
+    areaId: p.areaId,
     teamId: p.teamId,
     teamName: p.team?.name ?? null,
     memberCount: p._count.members,
@@ -229,13 +215,8 @@ export async function getProjectsHub(
     : ctx.areas; // archived stay in the list; UI collapses them
 
   const sectionsRaw: AreaHubSection[] = areas.map(ref => {
-    const legacy = ref.legacyEnum;
-    const areaKey = legacy ?? DEFAULT_AREA;
     const list = ownedRows.filter(
-      p =>
-        p.areaId === ref.id ||
-        (!p.areaId && legacy != null && p.area === legacy) ||
-        p.id === ref.bucketProjectId,
+      p => p.areaId === ref.id || p.id === ref.bucketProjectId,
     );
     const bucket =
       list.find(p => p.id === ref.bucketProjectId || isAreaBucketId(p.id)) ??
@@ -244,7 +225,6 @@ export async function getProjectsHub(
         name: areaDisplayName(ref, "FA"),
         description: null,
         status: "ACTIVE" as const,
-        area: areaKey,
         areaId: ref.id,
         teamId: null,
         teamName: null,
@@ -284,8 +264,7 @@ export async function getProjectsHub(
 
     return {
       areaId: ref.id,
-      area: areaKey,
-      legacyEnum: legacy,
+      templateKey: ref.templateKey,
       displayName,
       hubFor: ref.hubFor,
       isDefault: ref.isDefault,
@@ -295,7 +274,6 @@ export async function getProjectsHub(
       activePathCount,
       pref: {
         areaId: ref.id,
-        area: legacy,
         color: ref.color,
         icon: ref.icon,
         sortOrder: ref.sortOrder,
@@ -335,18 +313,14 @@ export async function getProjectsHub(
   return { sections, sharedPaths, search, pinnedPaths };
 }
 
-/** Area context dashboard: `/projects/areas/[areaId]` (or legacy slug). */
+/** Area context dashboard: `/projects/areas/[areaId]` (legacy slugs redirect in the page). */
 export async function getAreaDashboard(
   userId: string,
   areaKey: string,
 ): Promise<AreaDashboardData | null> {
   await ensurePersonalWorkspace(userId);
   const hub = await getProjectsHub(userId, "", { includeArchivedAreas: true });
-  const upper = areaKey.toUpperCase();
-  const section =
-    hub.sections.find(s => s.areaId === areaKey) ??
-    hub.sections.find(s => s.legacyEnum === upper) ??
-    null;
+  const section = hub.sections.find(s => s.areaId === areaKey) ?? null;
   if (!section) return null;
 
   const pathIds = [section.bucket.id, ...section.paths.map(p => p.id)];
@@ -395,8 +369,7 @@ export async function getAreaDashboard(
 
   return {
     areaId: section.areaId,
-    area: section.area,
-    legacyEnum: section.legacyEnum,
+    templateKey: section.templateKey,
     displayName: section.displayName,
     hubFor: section.hubFor,
     isDefault: section.isDefault,
@@ -426,50 +399,6 @@ export async function getAreaDashboard(
 }
 
 /**
- * @deprecated Prefer getProjectsHub for the projects page.
- * Kept for any callers expecting paginated WORK/LIFE paths.
- */
-export async function getProjects(
-  search = "",
-  page = 1,
-  userId?: string,
-): Promise<GetProjectsResult> {
-  const skip = (page - 1) * PAGE_SIZE;
-  const where: Record<string, unknown> = {
-    area: { in: WORKSPACE_AREAS },
-    id: {
-      notIn: ["area-phd", "area-work", "area-life", "area-lang"],
-    },
-  };
-
-  if (search) {
-    where.name = { contains: search, mode: "insensitive" as const };
-  }
-
-  if (userId) {
-    where.members = { some: { userId } };
-  }
-
-  const [projects, total] = await Promise.all([
-    db.project.findMany({
-      where,
-      select: projectListSelect,
-      orderBy: { createdAt: "desc" },
-      skip,
-      take: PAGE_SIZE,
-    }),
-    db.project.count({ where }),
-  ]);
-
-  return {
-    projects: projects.map(toProjectRow),
-    total,
-    page,
-    totalPages: Math.max(1, Math.ceil(total / PAGE_SIZE)),
-  };
-}
-
-/**
  * Projects the current user can pick on a given surface.
  * Default `life` = area buckets + named work/life projects.
  */
@@ -477,12 +406,13 @@ export async function getUserProjects(
   userId: string,
   scope: ProjectListScope = "life",
 ): Promise<ProjectRow[]> {
+  const ctx = await getMemberContext(userId);
   const memberships = await db.projectMember.findMany({
     where: {
       userId,
       project: {
         status: { not: "ARCHIVED" },
-        ...projectWhereForScope(scope),
+        ...projectWhereForScope(scope, ctx),
       },
     },
     select: {
@@ -491,13 +421,13 @@ export async function getUserProjects(
   });
 
   const rows = memberships.map(m => toProjectRow(m.project));
-  const areaOrder: Record<string, number> = AREA_ORDER;
+  const areaOrder = new Map(ctx.areas.map(a => [a.id, a.sortOrder]));
 
   rows.sort((a, b) => {
     const aIsBucket = isAreaBucketId(a.id);
     const bIsBucket = isAreaBucketId(b.id);
     if (aIsBucket && bIsBucket) {
-      return (areaOrder[a.area] ?? 9) - (areaOrder[b.area] ?? 9);
+      return (areaOrder.get(a.areaId) ?? 99) - (areaOrder.get(b.areaId) ?? 99);
     }
     if (aIsBucket) return -1;
     if (bIsBucket) return 1;
@@ -523,7 +453,7 @@ export async function getProjectById(
       name: true,
       description: true,
       status: true,
-      area: true,
+      areaId: true,
       pinned: true,
       sortOrder: true,
       teamId: true,
@@ -551,7 +481,7 @@ export async function getProjectById(
     name: project.name,
     description: project.description,
     status: project.status,
-    area: project.area,
+    areaId: project.areaId,
     teamId: project.teamId ?? null,
     teamName: project.team?.name ?? null,
     createdAt: project.createdAt,

@@ -5,15 +5,14 @@ import { auth } from "@/auth";
 import { prisma as db } from "@/lib/db";
 import { createTaskSchema, updateTaskSchema } from "@/schemas/tasks";
 import { getTaskById } from "./queries";
-import { ensurePersonalWorkspace, projectIdForArea } from "@/features/life/workspace";
+import { ensurePersonalWorkspace, bucketProjectIdForArea } from "@/features/life/workspace";
 import { isAreaBucketId } from "@/lib/area-projects";
 import { spawnNextIfRecurring, newRecurrenceSeriesId } from "@/features/life/recurrence";
 import { updateRecurrenceSeries } from "@/features/life/recurrence";
 import { formatJalaliShort, parseLocalDate, resolveBoardPlanningStatus } from "@/lib/life";
-import { isHubArea } from "@/lib/project-namespace";
 import { isBoardStatus } from "@/features/kanban/types";
 import { notify } from "@/lib/notify";
-import type { LifeArea, RecurrenceInterval, TaskStatus } from "@/types/db";
+import type { RecurrenceInterval, TaskStatus } from "@/types/db";
 import {
   sendBaleTaskNotification,
   sendBaleAssignmentNotification,
@@ -25,7 +24,7 @@ import type { TaskDetail } from "./types";
 import { canAccessPersonalTask } from "@/lib/task-access";
 import { applyTaskStatusChange } from "@/features/tasks/apply-status";
 import { completedAtWrite } from "@/features/tasks/completed-at";
-import { RESEARCH_AREA, LANGUAGE_AREA, isLifeAreaValue } from "@/lib/areas";
+import { defaultAreaId, isMemberArea } from "@/lib/areas/server";
 
 function revalidateTasks(extra: string[] = []) {
   revalidatePath("/tasks");
@@ -87,12 +86,14 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
   const { teamId } = await ensurePersonalWorkspace(session.user.id);
 
   let projectId = parsed.data.projectId || null;
-  const rawArea = parsed.data.area;
-  let area: LifeArea | null = isLifeAreaValue(rawArea) ? rawArea : null;
-  if (area && (!projectId || isAreaBucketId(projectId))) {
-    projectId = projectIdForArea(session.user.id, area);
+  const explicitAreaId = parsed.data.areaId || null;
+  let areaId: string | null =
+    explicitAreaId && (await isMemberArea(session.user.id, explicitAreaId))
+      ? explicitAreaId
+      : null;
+  if (areaId && (!projectId || isAreaBucketId(projectId))) {
+    projectId = await bucketProjectIdForArea(session.user.id, areaId);
   }
-  let projectAreaId: string | null = null;
   if (projectId) {
     const projectMember = await db.projectMember.findUnique({
       where: { projectId_userId: { projectId, userId: session.user.id } },
@@ -102,13 +103,18 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
     }
     const project = await db.project.findUnique({
       where: { id: projectId },
-      select: { area: true, areaId: true },
+      select: { areaId: true },
     });
-    projectAreaId = project?.areaId ?? null;
-    if (!area) {
-      area = (project?.area as LifeArea | null) ?? null;
+    // Explicit area wins; otherwise a path in the member's own area files it there.
+    if (!areaId && project && (await isMemberArea(session.user.id, project.areaId))) {
+      areaId = project.areaId;
     }
   }
+  if (!areaId) areaId = await defaultAreaId(session.user.id);
+  const taskArea = await db.userArea.findUnique({
+    where: { id: areaId },
+    select: { hubFor: true },
+  });
 
   const rawRecurrence = parsed.data.recurrence;
   const recurrence: RecurrenceInterval =
@@ -148,7 +154,7 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
     parsed.data.waitingOn === "true" ||
     parsed.data.waitingOn === "on";
 
-  let status = isHubArea(area)
+  let status = taskArea?.hubFor
     ? parsed.data.status
     : resolveBoardPlanningStatus(parsed.data.status, dueDate);
   if (waitingOn && status !== "DONE" && status !== "IN_PROGRESS") {
@@ -167,8 +173,7 @@ export async function createTask(formData: FormData): Promise<ActionResult> {
       durationMinutes,
       waitingOn,
       projectId,
-      area,
-      areaId: projectAreaId,
+      areaId,
       recurrence,
       recurrenceSeriesId: seriesId,
       recurrenceEndsAt: recurrence !== "NONE" ? endsAt : null,
@@ -252,7 +257,7 @@ export async function updateTask(
       dueDate: true,
       durationMinutes: true,
       projectId: true,
-      area: true,
+      areaId: true,
       recurrence: true,
       recurrenceSeriesId: true,
       recurrenceEndsAt: true,
@@ -272,15 +277,21 @@ export async function updateTask(
 
   // Validate project access if projectId is provided
   let projectId = parsed.data.projectId || null;
-  const nextArea = (parsed.data.area ?? existing.area ?? null) as LifeArea | null;
+  const explicitAreaId = parsed.data.areaId || null;
+  const nextAreaId =
+    explicitAreaId && (await isMemberArea(session.user.id, explicitAreaId))
+      ? explicitAreaId
+      : existing.areaId;
+  const nextArea = await db.userArea.findUnique({
+    where: { id: nextAreaId },
+    select: { hubFor: true },
+  });
   const nextRecurrence = (parsed.data.recurrence ??
     existing.recurrence ??
     "NONE") as RecurrenceInterval;
 
-  if (nextArea && (!projectId || isAreaBucketId(projectId))) {
-    projectId = projectIdForArea(session.user.id, nextArea);
-  } else if (nextArea && !projectId) {
-    projectId = projectIdForArea(session.user.id, nextArea);
+  if (!projectId || isAreaBucketId(projectId)) {
+    projectId = await bucketProjectIdForArea(session.user.id, nextAreaId);
   }
 
   if (projectId && projectId !== existing.projectId) {
@@ -313,7 +324,7 @@ export async function updateTask(
     ? parsed.data.assignedToId || null
     : session.user.id;
 
-  let nextStatus = isHubArea(nextArea)
+  let nextStatus = nextArea?.hubFor
     ? parsed.data.status
     : resolveBoardPlanningStatus(parsed.data.status, nextDueDate);
   if (waitingOn && nextStatus !== "DONE" && nextStatus !== "IN_PROGRESS") {
@@ -355,7 +366,7 @@ export async function updateTask(
       waitingOn: nextStatus === "DONE" ? false : waitingOn,
       ...(completedAtWrite(existing.status, nextStatus) ?? {}),
       projectId,
-      area: nextArea,
+      areaId: nextAreaId,
       labels: {
         deleteMany: {},
         create: labelIds.map(labelId => ({ labelId })),
@@ -583,7 +594,7 @@ export async function updateTaskStatus(
     if (!applied.ok) return { success: false, error: applied.error };
 
     if (applied.changed) {
-      if (applied.area === RESEARCH_AREA) {
+      if (applied.hubKind === "research") {
         try {
           const { syncResearchLinksFromTaskStatus } = await import(
             "@/features/research/sync-links"

@@ -4,7 +4,7 @@
 import type { AreaRef } from "./member-context";
 
 export function areaDisplayName(
-  area: Pick<AreaRef, "nameFa" | "nameEn" | "nameIsDefault" | "legacyEnum"> & {
+  area: Pick<AreaRef, "nameFa" | "nameEn" | "nameIsDefault"> & {
     name?: string;
   },
   language: "FA" | "EN" = "FA",

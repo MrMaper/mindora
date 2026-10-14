@@ -1,4 +1,5 @@
 import { prisma as db } from "@/lib/db";
+import { getMemberContext } from "@/lib/areas/server";
 import { toTaskRow } from "@/features/tasks/queries";
 import { areaScopeWhere, taskWhereExcludeHub } from "@/lib/project-namespace";
 import { personalTaskOwnership } from "@/lib/task-access";
@@ -27,7 +28,9 @@ export async function getBoardColumns(
     ...(filters.labelId
       ? { labels: { some: { labelId: filters.labelId } } }
       : {}),
-    ...(excludeHub ? taskWhereExcludeHub() : {}),
+    ...(excludeHub && filters.ownerId
+      ? taskWhereExcludeHub(await getMemberContext(filters.ownerId))
+      : {}),
     AND: [
       {
         OR: [
@@ -60,10 +63,9 @@ export async function getBoardColumns(
       createdAt: true,
       updatedAt: true,
       projectId: true,
-      area: true,
       areaId: true,
       recurrence: true,
-      project: { select: { name: true, area: true, areaId: true } },
+      project: { select: { name: true } },
       createdBy: { select: userRefSelect },
       assignedTo: { select: userRefSelect },
       labels: {

@@ -15,12 +15,11 @@ export function personalTaskOwnership(userId: string) {
 
 /**
  * Ownership + hide active hub tasks from Today / life surfaces.
- * Pass `ctx` (P6) so exclusion respects hubFor + module flags; without it,
- * falls back to the static PHD/LANG fragment.
+ * `ctx` makes exclusion respect hubFor + module flags (dormant hubs reappear).
  */
 export function personalLifeTaskWhere(
   userId: string,
-  ctx?: Pick<MemberContext, "flags" | "hubAreas">,
+  ctx: Pick<MemberContext, "flags" | "hubAreas">,
 ) {
   const exclusion = hubTaskExclusion(ctx);
   const parts: Record<string, unknown>[] = [personalTaskOwnership(userId)];

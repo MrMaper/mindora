@@ -15,15 +15,16 @@ import {
 } from "@/components/ui-kit/forms/time-roller";
 import { LabelPicker } from "@/app/(dashboard)/tasks/components/ui/label-picker";
 import { useTranslation } from "@/i18n/provider";
-import { coerceLifeArea, hasDueTime } from "@/lib/life";
+import { hasDueTime } from "@/lib/life";
 import {
   isAreaBucketId,
-  lifeAreaFromBucketId,
   projectPickerLabel,
 } from "@/lib/project-namespace";
-import { useAreaBuckets } from "@/components/area-buckets-provider";
-import { useActiveMemberAreas } from "@/components/member-areas-provider";
-import { areaDisplayName, DEFAULT_AREA } from "@/lib/areas";
+import {
+  useActiveMemberAreas,
+  useAreaHelpers,
+} from "@/components/member-areas-provider";
+import { areaDisplayName } from "@/lib/areas";
 import type { AreaRef } from "@/lib/areas";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/i18n/provider";
@@ -64,9 +65,7 @@ function lockedHubForPreset(
 }
 
 function refMatchesProject(ref: AreaRef, p: ProjectRow): boolean {
-  if (p.areaId && p.areaId === ref.id) return true;
-  if (ref.legacyEnum && p.area === ref.legacyEnum) return true;
-  return p.id === ref.bucketProjectId;
+  return p.areaId === ref.id || p.id === ref.bucketProjectId;
 }
 
 export function TaskFormFields({
@@ -88,7 +87,7 @@ export function TaskFormFields({
 }: TaskFormFieldsProps) {
   const t = useTranslation();
   const language = useLanguage();
-  const areaIds = useAreaBuckets();
+  const { bucketFor, defaultAreaId } = useAreaHelpers();
   const memberAreas = useActiveMemberAreas();
   const isAdmin = currentUserRole === "ADMIN";
   const lockedHub = lockedHubForPreset(preset);
@@ -96,7 +95,7 @@ export function TaskFormFields({
     showLabels ?? (preset === "life" || preset === "language");
   const [moreOpen, setMoreOpen] = React.useState(false);
 
-  const watchedArea = useWatch({ control, name: "area" });
+  const watchedAreaId = useWatch({ control, name: "areaId" });
   const watchedProjectId = useWatch({ control, name: "projectId" });
   const watchedDueDate = useWatch({ control, name: "dueDate" });
   const watchedDuration = useWatch({ control, name: "durationMinutes" });
@@ -133,9 +132,7 @@ export function TaskFormFields({
   }, [memberAreas, lockedHub]);
 
   const currentProjectId = (watchedProjectId as string | undefined) ?? "";
-  const currentAreaEnum = coerceLifeArea(
-    (watchedArea as string | undefined) ?? DEFAULT_AREA,
-  );
+  const currentAreaId = (watchedAreaId as string | undefined) || defaultAreaId;
 
   const activeRef = React.useMemo(() => {
     if (currentProjectId) {
@@ -148,25 +145,18 @@ export function TaskFormFields({
         const byId = pickerAreas.find(a => a.id === proj.areaId);
         if (byId) return byId;
       }
-      if (proj?.area) {
-        const byLegacy = pickerAreas.find(a => a.legacyEnum === proj.area);
-        if (byLegacy) return byLegacy;
-      }
     }
-    const byLegacy = pickerAreas.find(a => a.legacyEnum === currentAreaEnum);
-    if (byLegacy) return byLegacy;
+    const byArea = pickerAreas.find(a => a.id === currentAreaId);
+    if (byArea) return byArea;
     return pickerAreas.find(a => a.isDefault) ?? pickerAreas[0] ?? null;
-  }, [pickerAreas, currentProjectId, projects, currentAreaEnum]);
+  }, [pickerAreas, currentProjectId, projects, currentAreaId]);
 
   const projectOptions = React.useMemo(() => {
     const filtered = activeRef
       ? projects.filter(p => refMatchesProject(activeRef, p))
-      : projects.filter(p => coerceLifeArea(p.area) === currentAreaEnum);
+      : projects.filter(p => p.areaId === currentAreaId);
 
-    const bucketId =
-      activeRef?.bucketProjectId ??
-      areaIds[currentAreaEnum] ??
-      "";
+    const bucketId = activeRef?.bucketProjectId ?? bucketFor(currentAreaId);
 
     const opts: SelectOption[] = filtered.map(p => ({
       value: p.id,
@@ -199,16 +189,16 @@ export function TaskFormFields({
   }, [
     projects,
     activeRef,
-    currentAreaEnum,
+    currentAreaId,
     preset,
     t,
-    areaIds,
+    bucketFor,
     language,
   ]);
 
   function handleAreaChange(ref: AreaRef) {
     if (lockedHub) return;
-    setValue("area", ref.legacyEnum ?? DEFAULT_AREA, { shouldValidate: true });
+    setValue("areaId", ref.id, { shouldValidate: true });
     setValue("projectId", ref.bucketProjectId, { shouldValidate: true });
   }
 
@@ -218,26 +208,13 @@ export function TaskFormFields({
     if (project?.areaId) {
       const ref = memberAreas.find(a => a.id === project.areaId);
       if (ref) {
-        setValue("area", ref.legacyEnum ?? DEFAULT_AREA, {
-          shouldValidate: true,
-        });
+        setValue("areaId", ref.id, { shouldValidate: true });
         return;
       }
     }
-    if (project?.area) {
-      setValue("area", coerceLifeArea(project.area), { shouldValidate: true });
-    } else if (isAreaBucketId(value)) {
-      const fromId = lifeAreaFromBucketId(value);
-      if (fromId) {
-        setValue("area", fromId, { shouldValidate: true });
-      } else {
-        const ref = memberAreas.find(a => a.bucketProjectId === value);
-        if (ref) {
-          setValue("area", ref.legacyEnum ?? DEFAULT_AREA, {
-            shouldValidate: true,
-          });
-        }
-      }
+    if (isAreaBucketId(value)) {
+      const ref = memberAreas.find(a => a.bucketProjectId === value);
+      if (ref) setValue("areaId", ref.id, { shouldValidate: true });
     }
   }
 
@@ -334,7 +311,7 @@ export function TaskFormFields({
               value={
                 field.value ||
                 activeRef?.bucketProjectId ||
-                areaIds[currentAreaEnum]
+                bucketFor(currentAreaId)
               }
               onChange={handleProjectChange}
               label={t.tasks.pathOrProject}

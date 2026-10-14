@@ -12,6 +12,7 @@ import {
   areaRelatedLinksFromHub,
   areaVisualInline,
   resolveAreaVisual,
+  areaVisualKey,
 } from "@/lib/area-visual";
 import type { AreaDashboardData } from "@/features/projects/types";
 import { getProjectStatusLabel } from "@/components/ui-kit/forms/select-utils";
@@ -20,7 +21,10 @@ export function AreaDashboardCC({ data }: { data: AreaDashboardData }) {
   const t = useTranslation();
   const language = useLanguage();
   const router = useRouter();
-  const visual = resolveAreaVisual(data.area, data.pref);
+  const visual = resolveAreaVisual(
+    areaVisualKey({ templateKey: data.templateKey, hubFor: data.hubFor }),
+    data.pref,
+  );
   const related = areaRelatedLinksFromHub(data.hubFor);
   const fmt = (n: number) => formatNumber(n, language);
   const inline = areaVisualInline(visual, data.pref);
@@ -64,7 +68,7 @@ export function AreaDashboardCC({ data }: { data: AreaDashboardData }) {
             <Button
               variant="primary"
               icon="plus"
-              onClick={() => router.push(`/projects?create=${data.legacyEnum ?? data.area}`)}
+              onClick={() => router.push(`/projects?create=${data.areaId}`)}
             >
               {t.projects.newPath}
             </Button>

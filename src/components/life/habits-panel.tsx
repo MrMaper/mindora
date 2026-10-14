@@ -22,7 +22,13 @@ import {
 import type { HabitHeatDay, HabitItem } from "@/features/habits/queries";
 import { HABIT_HEATMAP_WEEKS } from "@/features/habits/constants";
 import { cn } from "@/lib/utils";
-import type { LifeArea, RecurrenceInterval } from "@/types/db";
+import type { RecurrenceInterval } from "@/types/db";
+import { areaDisplayName } from "@/lib/areas";
+import {
+  useActiveMemberAreas,
+  useAreaHelpers,
+} from "@/components/member-areas-provider";
+import { useLanguage } from "@/i18n/provider";
 
 const HabitHeatmap = dynamic(
   () => import("@/components/life/habit-heatmap").then(m => m.HabitHeatmap),
@@ -139,40 +145,37 @@ export function HabitsPanel({
   initialHeatDays?: HabitHeatDay[];
 }) {
   const t = useTranslation();
+  const language = useLanguage();
+  const activeAreas = useActiveMemberAreas();
+  const { defaultAreaId, nameFor } = useAreaHelpers();
   const [view, setView] = React.useState<HabitsView>("active");
   const [habits, setHabits] = React.useState(initialHabits);
   const [archivedHabits, setArchivedHabits] = React.useState<HabitItem[]>([]);
   const [title, setTitle] = React.useState("");
   const [cadence, setCadence] = React.useState<HabitCadence>("DAILY");
-  const [area, setArea] = React.useState<LifeArea | "">("");
+  const [area, setArea] = React.useState<string>(defaultAreaId);
   const [pending, setPending] = React.useState(false);
   const [heatFilter, setHeatFilter] = React.useState("all");
   const [heatDays, setHeatDays] = React.useState(initialHeatDays);
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [editTitle, setEditTitle] = React.useState("");
   const [editCadence, setEditCadence] = React.useState<HabitCadence>("DAILY");
-  const [editArea, setEditArea] = React.useState<LifeArea | "">("");
+  const [editArea, setEditArea] = React.useState<string>("");
   /** Empty archive is valid — don't re-fetch / lock tabs on every visit. */
   const archivedLoadedRef = React.useRef(false);
   const archiveLoadingRef = React.useRef(false);
 
   const areaOptions = React.useMemo(
-    () => [
-      { value: "", label: t.habits.areaNone },
-      { value: "PHD", label: t.dashboard.areaPhd },
-      { value: "WORK", label: t.dashboard.areaWork },
-      { value: "LIFE", label: t.dashboard.areaLife },
-      { value: "LANG", label: t.dashboard.areaLang },
-    ],
-    [t],
+    () =>
+      activeAreas.map(a => ({
+        value: a.id,
+        label: areaDisplayName(a, language),
+      })),
+    [activeAreas, language],
   );
 
-  function areaLabel(value: LifeArea | null | undefined): string | null {
-    if (!value) return null;
-    if (value === "PHD") return t.dashboard.areaPhd;
-    if (value === "WORK") return t.dashboard.areaWork;
-    if (value === "LANG") return t.dashboard.areaLang;
-    return t.dashboard.areaLife;
+  function areaLabel(value: string | null | undefined): string | null {
+    return nameFor(value);
   }
 
   function cadenceLabel(value: RecurrenceInterval): string {
@@ -253,13 +256,13 @@ export function HabitsPanel({
     const result = await createHabitAction({
       title,
       cadence,
-      area: area || null,
+      areaId: area || undefined,
     });
     setPending(false);
     if (result.success) {
       setTitle("");
       setCadence("DAILY");
-      setArea("");
+      setArea(defaultAreaId);
       if (view !== "active") setView("active");
       toast.success(t.habits.added);
       await softReloadActive();
@@ -345,7 +348,7 @@ export function HabitsPanel({
     setEditingId(habit.id);
     setEditTitle(habit.title);
     setEditCadence(habit.cadence === "WEEKLY" ? "WEEKLY" : "DAILY");
-    setEditArea(habit.area ?? "");
+    setEditArea(habit.areaId);
   }
 
   function cancelEdit() {
@@ -366,7 +369,7 @@ export function HabitsPanel({
       habitId: id,
       title: next,
       cadence: editCadence,
-      area: editArea || null,
+      areaId: editArea || undefined,
     });
     setPending(false);
     if (!result.success) {
@@ -381,7 +384,7 @@ export function HabitsPanel({
             ...h,
             title: next,
             cadence: editCadence,
-            area: editArea || null,
+            areaId: editArea || h.areaId,
             streak: Number.isFinite(streak) ? streak : h.streak,
             bestStreak: Number.isFinite(best) ? best : h.bestStreak,
           }
@@ -491,7 +494,7 @@ export function HabitsPanel({
               <Select
                 options={areaOptions}
                 value={area}
-                onChange={value => setArea((value as LifeArea | "") || "")}
+                onChange={value => setArea(value || defaultAreaId)}
                 placeholder={t.habits.areaLabel}
                 disabled={pending}
                 wrapperClassName="w-[8.5rem] shrink-0"
@@ -605,7 +608,7 @@ export function HabitsPanel({
                           options={areaOptions}
                           value={editArea}
                           onChange={value =>
-                            setEditArea((value as LifeArea | "") || "")
+                            setEditArea(value || "")
                           }
                           placeholder={t.habits.areaLabel}
                           disabled={pending}
@@ -637,8 +640,8 @@ export function HabitsPanel({
                       <div className="truncate text-sm">{h.title}</div>
                       <div className="mt-1 flex flex-wrap items-center gap-1.5">
                         <MetaChip>{cadenceLabel(h.cadence)}</MetaChip>
-                        {areaLabel(h.area) ? (
-                          <MetaChip>{areaLabel(h.area)}</MetaChip>
+                        {areaLabel(h.areaId) ? (
+                          <MetaChip>{areaLabel(h.areaId)}</MetaChip>
                         ) : null}
                         <span className="text-[11px] tabular-nums text-muted-foreground">
                           {t.habits.streakLabel

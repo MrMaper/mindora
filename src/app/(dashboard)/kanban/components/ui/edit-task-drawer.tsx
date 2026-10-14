@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import * as React from "react";
 import type { Control, UseFormSetValue } from "react-hook-form";
@@ -23,7 +23,7 @@ import type { ProjectRow } from "@/features/projects/types";
 import { activityLabel } from "@/features/tasks/types";
 import { getStatusLabel } from "@/components/ui-kit/forms/select-utils";
 import type { SelectOption } from "@/components/ui-kit/forms/select";
-import { RESEARCH_AREA } from "@/lib/areas";
+import { useAreaHelpers } from "@/components/member-areas-provider";
 
 interface EditTaskDrawerProps {
   open: boolean;
@@ -71,6 +71,7 @@ export function EditTaskDrawer({
   preset = "life",
 }: EditTaskDrawerProps) {
   const t = useTranslation();
+  const { isHub } = useAreaHelpers();
   const language = useLanguage();
   const dateLocale = language === "EN" ? "en-US" : "fa-IR";
   const [expandedEntries, setExpandedEntries] = React.useState<Set<string>>(
@@ -253,7 +254,7 @@ export function EditTaskDrawer({
               hasRecurrenceSeries={Boolean(activeTask?.recurrenceSeriesId)}
             />
 
-            {activeTask && activeTask.area === RESEARCH_AREA ? (
+            {activeTask && isHub(activeTask.areaId, "research") ? (
               <TaskLinkedDocs taskId={activeTask.id} />
             ) : null}
 

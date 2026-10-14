@@ -17,7 +17,29 @@ dotenv.config({ path: ".env" });
 
 import { PrismaClient } from "../prisma/generated/client";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { AREA_META, AREA_PROJECT_IDS, LIFE_AREAS } from "../src/lib/life";
+
+// Capture-style guesses used only to pick one of the member's own areas.
+type Guess = "PHD" | "WORK" | "LIFE" | "LANG";
+const AREAS = {} as Record<Guess, { id: string; bucket: string }>;
+
+async function loadAreas(userId: string) {
+  const rows = await db.userArea.findMany({ where: { userId, archived: false } });
+  const pick = (guess: Guess) =>
+    guess === "PHD"
+      ? rows.find(a => a.hubFor === "RESEARCH") ?? rows.find(a => a.templateKey === "research")
+      : guess === "LANG"
+        ? rows.find(a => a.hubFor === "LANGUAGE") ?? rows.find(a => a.templateKey === "language")
+        : rows.find(a => a.templateKey === (guess === "WORK" ? "work" : "life"));
+  for (const guess of ["PHD", "WORK", "LIFE", "LANG"] as const) {
+    const ua = pick(guess);
+    if (!ua || !ua.bucketProjectId) {
+      throw new Error(
+        `No ${guess} area for user ${userId}. Sign in once (ensurePersonalWorkspace seeds areas) and retry.`,
+      );
+    }
+    AREAS[guess] = { id: ua.id, bucket: ua.bucketProjectId };
+  }
+}
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const db = new PrismaClient({ adapter });
@@ -65,28 +87,6 @@ async function ensureWorkspace(userId: string) {
     update: {},
   });
 
-  for (const area of LIFE_AREAS) {
-    const id = AREA_PROJECT_IDS[area];
-    const meta = AREA_META[area];
-    await db.project.upsert({
-      where: { id },
-      create: {
-        id,
-        name: meta.nameFa,
-        description: meta.descriptionFa,
-        status: "ACTIVE",
-        area,
-        teamId: team.id,
-        members: { create: { userId, role: "OWNER" } },
-      },
-      update: { area, name: meta.nameFa },
-    });
-    await db.projectMember.upsert({
-      where: { projectId_userId: { projectId: id, userId } },
-      create: { projectId: id, userId, role: "OWNER" },
-      update: {},
-    });
-  }
 
   return team.id;
 }
@@ -106,14 +106,14 @@ async function upsertDemoProject(input: {
       name: input.name,
       description: input.description,
       status: "ACTIVE",
-      area: input.area,
+      areaId: AREAS[input.area].id,
       teamId: input.teamId ?? null,
       members: { create: { userId: input.userId, role: "OWNER" } },
     },
     update: {
       name: input.name,
       description: input.description,
-      area: input.area,
+      areaId: AREAS[input.area].id,
       status: "ACTIVE",
     },
   });
@@ -184,7 +184,7 @@ async function createTask(input: {
       status: input.status ?? "TODO",
       priority: input.priority ?? "MEDIUM",
       type: "TASK",
-      area: input.area,
+      areaId: AREAS[input.area].id,
       projectId: input.projectId,
       dueDate:
         input.dueInDays === null || input.dueInDays === undefined
@@ -196,7 +196,7 @@ async function createTask(input: {
     },
     update: {
       title: input.title,
-      area: input.area,
+      areaId: AREAS[input.area].id,
       projectId: input.projectId,
       status: input.status ?? "TODO",
       dueDate:
@@ -218,12 +218,13 @@ async function main() {
 
   console.log(`Seeding namespace demo for ${user.email}…`);
   const teamId = await ensureWorkspace(user.id);
+  await loadAreas(user.id);
   await clearPreviousDemo(user.id);
 
   // Hide legacy seed project from workspace pickers
   await db.project.updateMany({
     where: { id: "default-project" },
-    data: { status: "ARCHIVED", area: "LIFE" },
+    data: { status: "ARCHIVED", areaId: AREAS.LIFE.id },
   });
 
   // ── Workspace (should appear in /projects, /kanban, /calendar) ──
@@ -292,7 +293,7 @@ async function main() {
   await createTask({
     id: "demo-task-ws-3",
     title: `${DEMO_PREFIX} پرداخت قبض`,
-    projectId: AREA_PROJECT_IDS.LIFE,
+    projectId: AREAS.LIFE.bucket,
     area: "LIFE",
     userId: user.id,
     dueInDays: 2,
@@ -328,7 +329,7 @@ async function main() {
   await createTask({
     id: "demo-task-phd-inbox",
     title: `${DEMO_PREFIX} یادداشت پژوهش بدون مسیر`,
-    projectId: AREA_PROJECT_IDS.PHD,
+    projectId: AREAS.PHD.bucket,
     area: "PHD",
     userId: user.id,
     dueInDays: 0,
@@ -353,14 +354,14 @@ async function main() {
       title: `${DEMO_PREFIX} نوت منبع A`,
       content: "<h2>منبع</h2><p>یادداشت پژوهش ماک</p>",
       contentText: "یادداشت پژوهش ماک",
-      area: "PHD",
+      areaId: AREAS.PHD.id,
       projectId: phdThesis.id,
       userId: user.id,
       status: "DRAFTING",
     },
     update: {
       title: `${DEMO_PREFIX} نوت منبع A`,
-      area: "PHD",
+      areaId: AREAS.PHD.id,
       projectId: phdThesis.id,
     },
   });
@@ -371,14 +372,14 @@ async function main() {
       title: `${DEMO_PREFIX} جلسه واژگان`,
       content: "<h2>جلسه زبان</h2><p>ماک</p>",
       contentText: "جلسه زبان ماک",
-      area: "LANG",
+      areaId: AREAS.LANG.id,
       projectId: langMsrt.id,
       userId: user.id,
       status: "DRAFTING",
     },
     update: {
       title: `${DEMO_PREFIX} جلسه واژگان`,
-      area: "LANG",
+      areaId: AREAS.LANG.id,
       projectId: langMsrt.id,
     },
   });

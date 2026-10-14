@@ -2,13 +2,7 @@
  * Starter / Full UI profile (docs/AREAS.md §6.5, §6.6, §15.2).
  * Pure helpers: no DB, safe for client and server.
  */
-import {
-  DEFAULT_AREA,
-  LANGUAGE_AREA,
-  RESEARCH_AREA,
-  WORK_AREA,
-} from "@/lib/areas";
-import type { LifeArea } from "@/types/db";
+import type { AreaTemplateKey } from "@/lib/areas";
 import {
   hasModule,
   type AppModule,
@@ -153,23 +147,23 @@ export const LIFE_PART_LABEL: Record<LifePartChip, { fa: string; en: string }> =
 };
 
 /**
- * Which of the four fixed areas a Starter chip maps to (P2 runs on the existing
- * enum; P4 replaces this with real per-member areas). Study/Language only land
- * in their hub when that module is on, otherwise the task would vanish from
+ * Which area template a Starter chip lands in; the caller resolves it to one of
+ * the member's own areas (`areaRefForTemplate`). Study/Language only land in
+ * their hub when that module is on, otherwise the task would vanish from
  * Today. Choosing a chip never enables a module.
  */
-export function areaForLifePart(
+export function templateKeyForLifePart(
   chip: LifePartChip,
   flags: { research: boolean; language: boolean },
-): LifeArea {
+): AreaTemplateKey {
   switch (chip) {
     case "work":
-      return WORK_AREA;
+      return "work";
     case "study":
-      return flags.research ? RESEARCH_AREA : DEFAULT_AREA;
+      return flags.research ? "research" : "life";
     case "language":
-      return flags.language ? LANGUAGE_AREA : DEFAULT_AREA;
+      return flags.language ? "language" : "life";
     default:
-      return DEFAULT_AREA;
+      return "life";
   }
 }

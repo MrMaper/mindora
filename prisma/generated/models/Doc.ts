@@ -39,7 +39,6 @@ export type DocMinAggregateOutputType = {
   title: string | null
   content: string | null
   contentText: string | null
-  area: $Enums.LifeArea | null
   areaId: string | null
   status: $Enums.DocStatus | null
   wordGoal: number | null
@@ -60,7 +59,6 @@ export type DocMaxAggregateOutputType = {
   title: string | null
   content: string | null
   contentText: string | null
-  area: $Enums.LifeArea | null
   areaId: string | null
   status: $Enums.DocStatus | null
   wordGoal: number | null
@@ -81,7 +79,6 @@ export type DocCountAggregateOutputType = {
   title: number
   content: number
   contentText: number
-  area: number
   areaId: number
   status: number
   wordGoal: number
@@ -112,7 +109,6 @@ export type DocMinAggregateInputType = {
   title?: true
   content?: true
   contentText?: true
-  area?: true
   areaId?: true
   status?: true
   wordGoal?: true
@@ -133,7 +129,6 @@ export type DocMaxAggregateInputType = {
   title?: true
   content?: true
   contentText?: true
-  area?: true
   areaId?: true
   status?: true
   wordGoal?: true
@@ -154,7 +149,6 @@ export type DocCountAggregateInputType = {
   title?: true
   content?: true
   contentText?: true
-  area?: true
   areaId?: true
   status?: true
   wordGoal?: true
@@ -262,8 +256,7 @@ export type DocGroupByOutputType = {
   title: string
   content: string
   contentText: string
-  area: $Enums.LifeArea
-  areaId: string | null
+  areaId: string
   status: $Enums.DocStatus
   wordGoal: number | null
   templateKey: string | null
@@ -306,8 +299,7 @@ export type DocWhereInput = {
   title?: Prisma.StringFilter<"Doc"> | string
   content?: Prisma.StringFilter<"Doc"> | string
   contentText?: Prisma.StringFilter<"Doc"> | string
-  area?: Prisma.EnumLifeAreaFilter<"Doc"> | $Enums.LifeArea
-  areaId?: Prisma.StringNullableFilter<"Doc"> | string | null
+  areaId?: Prisma.StringFilter<"Doc"> | string
   status?: Prisma.EnumDocStatusFilter<"Doc"> | $Enums.DocStatus
   wordGoal?: Prisma.IntNullableFilter<"Doc"> | number | null
   templateKey?: Prisma.StringNullableFilter<"Doc"> | string | null
@@ -323,7 +315,7 @@ export type DocWhereInput = {
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   folder?: Prisma.XOR<Prisma.DocFolderNullableScalarRelationFilter, Prisma.DocFolderWhereInput> | null
   project?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
-  userArea?: Prisma.XOR<Prisma.UserAreaNullableScalarRelationFilter, Prisma.UserAreaWhereInput> | null
+  userArea?: Prisma.XOR<Prisma.UserAreaScalarRelationFilter, Prisma.UserAreaWhereInput>
   tasks?: Prisma.DocTaskListRelationFilter
   versions?: Prisma.DocVersionListRelationFilter
   sources?: Prisma.DocSourceListRelationFilter
@@ -336,8 +328,7 @@ export type DocOrderByWithRelationInput = {
   title?: Prisma.SortOrder
   content?: Prisma.SortOrder
   contentText?: Prisma.SortOrder
-  area?: Prisma.SortOrder
-  areaId?: Prisma.SortOrderInput | Prisma.SortOrder
+  areaId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   wordGoal?: Prisma.SortOrderInput | Prisma.SortOrder
   templateKey?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -370,8 +361,7 @@ export type DocWhereUniqueInput = Prisma.AtLeast<{
   title?: Prisma.StringFilter<"Doc"> | string
   content?: Prisma.StringFilter<"Doc"> | string
   contentText?: Prisma.StringFilter<"Doc"> | string
-  area?: Prisma.EnumLifeAreaFilter<"Doc"> | $Enums.LifeArea
-  areaId?: Prisma.StringNullableFilter<"Doc"> | string | null
+  areaId?: Prisma.StringFilter<"Doc"> | string
   status?: Prisma.EnumDocStatusFilter<"Doc"> | $Enums.DocStatus
   wordGoal?: Prisma.IntNullableFilter<"Doc"> | number | null
   templateKey?: Prisma.StringNullableFilter<"Doc"> | string | null
@@ -387,7 +377,7 @@ export type DocWhereUniqueInput = Prisma.AtLeast<{
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   folder?: Prisma.XOR<Prisma.DocFolderNullableScalarRelationFilter, Prisma.DocFolderWhereInput> | null
   project?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
-  userArea?: Prisma.XOR<Prisma.UserAreaNullableScalarRelationFilter, Prisma.UserAreaWhereInput> | null
+  userArea?: Prisma.XOR<Prisma.UserAreaScalarRelationFilter, Prisma.UserAreaWhereInput>
   tasks?: Prisma.DocTaskListRelationFilter
   versions?: Prisma.DocVersionListRelationFilter
   sources?: Prisma.DocSourceListRelationFilter
@@ -400,8 +390,7 @@ export type DocOrderByWithAggregationInput = {
   title?: Prisma.SortOrder
   content?: Prisma.SortOrder
   contentText?: Prisma.SortOrder
-  area?: Prisma.SortOrder
-  areaId?: Prisma.SortOrderInput | Prisma.SortOrder
+  areaId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   wordGoal?: Prisma.SortOrderInput | Prisma.SortOrder
   templateKey?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -429,8 +418,7 @@ export type DocScalarWhereWithAggregatesInput = {
   title?: Prisma.StringWithAggregatesFilter<"Doc"> | string
   content?: Prisma.StringWithAggregatesFilter<"Doc"> | string
   contentText?: Prisma.StringWithAggregatesFilter<"Doc"> | string
-  area?: Prisma.EnumLifeAreaWithAggregatesFilter<"Doc"> | $Enums.LifeArea
-  areaId?: Prisma.StringNullableWithAggregatesFilter<"Doc"> | string | null
+  areaId?: Prisma.StringWithAggregatesFilter<"Doc"> | string
   status?: Prisma.EnumDocStatusWithAggregatesFilter<"Doc"> | $Enums.DocStatus
   wordGoal?: Prisma.IntNullableWithAggregatesFilter<"Doc"> | number | null
   templateKey?: Prisma.StringNullableWithAggregatesFilter<"Doc"> | string | null
@@ -450,7 +438,6 @@ export type DocCreateInput = {
   title?: string
   content?: string
   contentText?: string
-  area?: $Enums.LifeArea
   status?: $Enums.DocStatus
   wordGoal?: number | null
   templateKey?: string | null
@@ -463,7 +450,7 @@ export type DocCreateInput = {
   user: Prisma.UserCreateNestedOneWithoutDocsInput
   folder?: Prisma.DocFolderCreateNestedOneWithoutDocsInput
   project?: Prisma.ProjectCreateNestedOneWithoutDocsInput
-  userArea?: Prisma.UserAreaCreateNestedOneWithoutDocsInput
+  userArea: Prisma.UserAreaCreateNestedOneWithoutDocsInput
   tasks?: Prisma.DocTaskCreateNestedManyWithoutDocInput
   versions?: Prisma.DocVersionCreateNestedManyWithoutDocInput
   sources?: Prisma.DocSourceCreateNestedManyWithoutDocInput
@@ -476,8 +463,7 @@ export type DocUncheckedCreateInput = {
   title?: string
   content?: string
   contentText?: string
-  area?: $Enums.LifeArea
-  areaId?: string | null
+  areaId: string
   status?: $Enums.DocStatus
   wordGoal?: number | null
   templateKey?: string | null
@@ -502,7 +488,6 @@ export type DocUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentText?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
   wordGoal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -515,7 +500,7 @@ export type DocUpdateInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutDocsNestedInput
   folder?: Prisma.DocFolderUpdateOneWithoutDocsNestedInput
   project?: Prisma.ProjectUpdateOneWithoutDocsNestedInput
-  userArea?: Prisma.UserAreaUpdateOneWithoutDocsNestedInput
+  userArea?: Prisma.UserAreaUpdateOneRequiredWithoutDocsNestedInput
   tasks?: Prisma.DocTaskUpdateManyWithoutDocNestedInput
   versions?: Prisma.DocVersionUpdateManyWithoutDocNestedInput
   sources?: Prisma.DocSourceUpdateManyWithoutDocNestedInput
@@ -528,8 +513,7 @@ export type DocUncheckedUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentText?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
   wordGoal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -554,8 +538,7 @@ export type DocCreateManyInput = {
   title?: string
   content?: string
   contentText?: string
-  area?: $Enums.LifeArea
-  areaId?: string | null
+  areaId: string
   status?: $Enums.DocStatus
   wordGoal?: number | null
   templateKey?: string | null
@@ -575,7 +558,6 @@ export type DocUpdateManyMutationInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentText?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
   wordGoal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -592,8 +574,7 @@ export type DocUncheckedUpdateManyInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentText?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
   wordGoal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -628,7 +609,6 @@ export type DocCountOrderByAggregateInput = {
   title?: Prisma.SortOrder
   content?: Prisma.SortOrder
   contentText?: Prisma.SortOrder
-  area?: Prisma.SortOrder
   areaId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   wordGoal?: Prisma.SortOrder
@@ -653,7 +633,6 @@ export type DocMaxOrderByAggregateInput = {
   title?: Prisma.SortOrder
   content?: Prisma.SortOrder
   contentText?: Prisma.SortOrder
-  area?: Prisma.SortOrder
   areaId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   wordGoal?: Prisma.SortOrder
@@ -674,7 +653,6 @@ export type DocMinOrderByAggregateInput = {
   title?: Prisma.SortOrder
   content?: Prisma.SortOrder
   contentText?: Prisma.SortOrder
-  area?: Prisma.SortOrder
   areaId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   wordGoal?: Prisma.SortOrder
@@ -946,7 +924,6 @@ export type DocCreateWithoutUserInput = {
   title?: string
   content?: string
   contentText?: string
-  area?: $Enums.LifeArea
   status?: $Enums.DocStatus
   wordGoal?: number | null
   templateKey?: string | null
@@ -958,7 +935,7 @@ export type DocCreateWithoutUserInput = {
   updatedAt?: Date | string
   folder?: Prisma.DocFolderCreateNestedOneWithoutDocsInput
   project?: Prisma.ProjectCreateNestedOneWithoutDocsInput
-  userArea?: Prisma.UserAreaCreateNestedOneWithoutDocsInput
+  userArea: Prisma.UserAreaCreateNestedOneWithoutDocsInput
   tasks?: Prisma.DocTaskCreateNestedManyWithoutDocInput
   versions?: Prisma.DocVersionCreateNestedManyWithoutDocInput
   sources?: Prisma.DocSourceCreateNestedManyWithoutDocInput
@@ -971,8 +948,7 @@ export type DocUncheckedCreateWithoutUserInput = {
   title?: string
   content?: string
   contentText?: string
-  area?: $Enums.LifeArea
-  areaId?: string | null
+  areaId: string
   status?: $Enums.DocStatus
   wordGoal?: number | null
   templateKey?: string | null
@@ -1025,8 +1001,7 @@ export type DocScalarWhereInput = {
   title?: Prisma.StringFilter<"Doc"> | string
   content?: Prisma.StringFilter<"Doc"> | string
   contentText?: Prisma.StringFilter<"Doc"> | string
-  area?: Prisma.EnumLifeAreaFilter<"Doc"> | $Enums.LifeArea
-  areaId?: Prisma.StringNullableFilter<"Doc"> | string | null
+  areaId?: Prisma.StringFilter<"Doc"> | string
   status?: Prisma.EnumDocStatusFilter<"Doc"> | $Enums.DocStatus
   wordGoal?: Prisma.IntNullableFilter<"Doc"> | number | null
   templateKey?: Prisma.StringNullableFilter<"Doc"> | string | null
@@ -1046,7 +1021,6 @@ export type DocCreateWithoutProjectInput = {
   title?: string
   content?: string
   contentText?: string
-  area?: $Enums.LifeArea
   status?: $Enums.DocStatus
   wordGoal?: number | null
   templateKey?: string | null
@@ -1058,7 +1032,7 @@ export type DocCreateWithoutProjectInput = {
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutDocsInput
   folder?: Prisma.DocFolderCreateNestedOneWithoutDocsInput
-  userArea?: Prisma.UserAreaCreateNestedOneWithoutDocsInput
+  userArea: Prisma.UserAreaCreateNestedOneWithoutDocsInput
   tasks?: Prisma.DocTaskCreateNestedManyWithoutDocInput
   versions?: Prisma.DocVersionCreateNestedManyWithoutDocInput
   sources?: Prisma.DocSourceCreateNestedManyWithoutDocInput
@@ -1071,8 +1045,7 @@ export type DocUncheckedCreateWithoutProjectInput = {
   title?: string
   content?: string
   contentText?: string
-  area?: $Enums.LifeArea
-  areaId?: string | null
+  areaId: string
   status?: $Enums.DocStatus
   wordGoal?: number | null
   templateKey?: string | null
@@ -1122,7 +1095,6 @@ export type DocCreateWithoutUserAreaInput = {
   title?: string
   content?: string
   contentText?: string
-  area?: $Enums.LifeArea
   status?: $Enums.DocStatus
   wordGoal?: number | null
   templateKey?: string | null
@@ -1147,7 +1119,6 @@ export type DocUncheckedCreateWithoutUserAreaInput = {
   title?: string
   content?: string
   contentText?: string
-  area?: $Enums.LifeArea
   status?: $Enums.DocStatus
   wordGoal?: number | null
   templateKey?: string | null
@@ -1198,7 +1169,6 @@ export type DocCreateWithoutFolderInput = {
   title?: string
   content?: string
   contentText?: string
-  area?: $Enums.LifeArea
   status?: $Enums.DocStatus
   wordGoal?: number | null
   templateKey?: string | null
@@ -1210,7 +1180,7 @@ export type DocCreateWithoutFolderInput = {
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutDocsInput
   project?: Prisma.ProjectCreateNestedOneWithoutDocsInput
-  userArea?: Prisma.UserAreaCreateNestedOneWithoutDocsInput
+  userArea: Prisma.UserAreaCreateNestedOneWithoutDocsInput
   tasks?: Prisma.DocTaskCreateNestedManyWithoutDocInput
   versions?: Prisma.DocVersionCreateNestedManyWithoutDocInput
   sources?: Prisma.DocSourceCreateNestedManyWithoutDocInput
@@ -1223,8 +1193,7 @@ export type DocUncheckedCreateWithoutFolderInput = {
   title?: string
   content?: string
   contentText?: string
-  area?: $Enums.LifeArea
-  areaId?: string | null
+  areaId: string
   status?: $Enums.DocStatus
   wordGoal?: number | null
   templateKey?: string | null
@@ -1274,7 +1243,6 @@ export type DocCreateWithoutTagsInput = {
   title?: string
   content?: string
   contentText?: string
-  area?: $Enums.LifeArea
   status?: $Enums.DocStatus
   wordGoal?: number | null
   templateKey?: string | null
@@ -1287,7 +1255,7 @@ export type DocCreateWithoutTagsInput = {
   user: Prisma.UserCreateNestedOneWithoutDocsInput
   folder?: Prisma.DocFolderCreateNestedOneWithoutDocsInput
   project?: Prisma.ProjectCreateNestedOneWithoutDocsInput
-  userArea?: Prisma.UserAreaCreateNestedOneWithoutDocsInput
+  userArea: Prisma.UserAreaCreateNestedOneWithoutDocsInput
   tasks?: Prisma.DocTaskCreateNestedManyWithoutDocInput
   versions?: Prisma.DocVersionCreateNestedManyWithoutDocInput
   sources?: Prisma.DocSourceCreateNestedManyWithoutDocInput
@@ -1299,8 +1267,7 @@ export type DocUncheckedCreateWithoutTagsInput = {
   title?: string
   content?: string
   contentText?: string
-  area?: $Enums.LifeArea
-  areaId?: string | null
+  areaId: string
   status?: $Enums.DocStatus
   wordGoal?: number | null
   templateKey?: string | null
@@ -1340,7 +1307,6 @@ export type DocUpdateWithoutTagsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentText?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
   wordGoal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1353,7 +1319,7 @@ export type DocUpdateWithoutTagsInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutDocsNestedInput
   folder?: Prisma.DocFolderUpdateOneWithoutDocsNestedInput
   project?: Prisma.ProjectUpdateOneWithoutDocsNestedInput
-  userArea?: Prisma.UserAreaUpdateOneWithoutDocsNestedInput
+  userArea?: Prisma.UserAreaUpdateOneRequiredWithoutDocsNestedInput
   tasks?: Prisma.DocTaskUpdateManyWithoutDocNestedInput
   versions?: Prisma.DocVersionUpdateManyWithoutDocNestedInput
   sources?: Prisma.DocSourceUpdateManyWithoutDocNestedInput
@@ -1365,8 +1331,7 @@ export type DocUncheckedUpdateWithoutTagsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentText?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
   wordGoal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1390,7 +1355,6 @@ export type DocCreateWithoutTasksInput = {
   title?: string
   content?: string
   contentText?: string
-  area?: $Enums.LifeArea
   status?: $Enums.DocStatus
   wordGoal?: number | null
   templateKey?: string | null
@@ -1403,7 +1367,7 @@ export type DocCreateWithoutTasksInput = {
   user: Prisma.UserCreateNestedOneWithoutDocsInput
   folder?: Prisma.DocFolderCreateNestedOneWithoutDocsInput
   project?: Prisma.ProjectCreateNestedOneWithoutDocsInput
-  userArea?: Prisma.UserAreaCreateNestedOneWithoutDocsInput
+  userArea: Prisma.UserAreaCreateNestedOneWithoutDocsInput
   versions?: Prisma.DocVersionCreateNestedManyWithoutDocInput
   sources?: Prisma.DocSourceCreateNestedManyWithoutDocInput
   quotes?: Prisma.DocQuoteCreateNestedManyWithoutDocInput
@@ -1415,8 +1379,7 @@ export type DocUncheckedCreateWithoutTasksInput = {
   title?: string
   content?: string
   contentText?: string
-  area?: $Enums.LifeArea
-  areaId?: string | null
+  areaId: string
   status?: $Enums.DocStatus
   wordGoal?: number | null
   templateKey?: string | null
@@ -1456,7 +1419,6 @@ export type DocUpdateWithoutTasksInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentText?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
   wordGoal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1469,7 +1431,7 @@ export type DocUpdateWithoutTasksInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutDocsNestedInput
   folder?: Prisma.DocFolderUpdateOneWithoutDocsNestedInput
   project?: Prisma.ProjectUpdateOneWithoutDocsNestedInput
-  userArea?: Prisma.UserAreaUpdateOneWithoutDocsNestedInput
+  userArea?: Prisma.UserAreaUpdateOneRequiredWithoutDocsNestedInput
   versions?: Prisma.DocVersionUpdateManyWithoutDocNestedInput
   sources?: Prisma.DocSourceUpdateManyWithoutDocNestedInput
   quotes?: Prisma.DocQuoteUpdateManyWithoutDocNestedInput
@@ -1481,8 +1443,7 @@ export type DocUncheckedUpdateWithoutTasksInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentText?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
   wordGoal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1506,7 +1467,6 @@ export type DocCreateWithoutVersionsInput = {
   title?: string
   content?: string
   contentText?: string
-  area?: $Enums.LifeArea
   status?: $Enums.DocStatus
   wordGoal?: number | null
   templateKey?: string | null
@@ -1519,7 +1479,7 @@ export type DocCreateWithoutVersionsInput = {
   user: Prisma.UserCreateNestedOneWithoutDocsInput
   folder?: Prisma.DocFolderCreateNestedOneWithoutDocsInput
   project?: Prisma.ProjectCreateNestedOneWithoutDocsInput
-  userArea?: Prisma.UserAreaCreateNestedOneWithoutDocsInput
+  userArea: Prisma.UserAreaCreateNestedOneWithoutDocsInput
   tasks?: Prisma.DocTaskCreateNestedManyWithoutDocInput
   sources?: Prisma.DocSourceCreateNestedManyWithoutDocInput
   quotes?: Prisma.DocQuoteCreateNestedManyWithoutDocInput
@@ -1531,8 +1491,7 @@ export type DocUncheckedCreateWithoutVersionsInput = {
   title?: string
   content?: string
   contentText?: string
-  area?: $Enums.LifeArea
-  areaId?: string | null
+  areaId: string
   status?: $Enums.DocStatus
   wordGoal?: number | null
   templateKey?: string | null
@@ -1572,7 +1531,6 @@ export type DocUpdateWithoutVersionsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentText?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
   wordGoal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1585,7 +1543,7 @@ export type DocUpdateWithoutVersionsInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutDocsNestedInput
   folder?: Prisma.DocFolderUpdateOneWithoutDocsNestedInput
   project?: Prisma.ProjectUpdateOneWithoutDocsNestedInput
-  userArea?: Prisma.UserAreaUpdateOneWithoutDocsNestedInput
+  userArea?: Prisma.UserAreaUpdateOneRequiredWithoutDocsNestedInput
   tasks?: Prisma.DocTaskUpdateManyWithoutDocNestedInput
   sources?: Prisma.DocSourceUpdateManyWithoutDocNestedInput
   quotes?: Prisma.DocQuoteUpdateManyWithoutDocNestedInput
@@ -1597,8 +1555,7 @@ export type DocUncheckedUpdateWithoutVersionsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentText?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
   wordGoal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1622,7 +1579,6 @@ export type DocCreateWithoutSourcesInput = {
   title?: string
   content?: string
   contentText?: string
-  area?: $Enums.LifeArea
   status?: $Enums.DocStatus
   wordGoal?: number | null
   templateKey?: string | null
@@ -1635,7 +1591,7 @@ export type DocCreateWithoutSourcesInput = {
   user: Prisma.UserCreateNestedOneWithoutDocsInput
   folder?: Prisma.DocFolderCreateNestedOneWithoutDocsInput
   project?: Prisma.ProjectCreateNestedOneWithoutDocsInput
-  userArea?: Prisma.UserAreaCreateNestedOneWithoutDocsInput
+  userArea: Prisma.UserAreaCreateNestedOneWithoutDocsInput
   tasks?: Prisma.DocTaskCreateNestedManyWithoutDocInput
   versions?: Prisma.DocVersionCreateNestedManyWithoutDocInput
   quotes?: Prisma.DocQuoteCreateNestedManyWithoutDocInput
@@ -1647,8 +1603,7 @@ export type DocUncheckedCreateWithoutSourcesInput = {
   title?: string
   content?: string
   contentText?: string
-  area?: $Enums.LifeArea
-  areaId?: string | null
+  areaId: string
   status?: $Enums.DocStatus
   wordGoal?: number | null
   templateKey?: string | null
@@ -1688,7 +1643,6 @@ export type DocUpdateWithoutSourcesInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentText?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
   wordGoal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1701,7 +1655,7 @@ export type DocUpdateWithoutSourcesInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutDocsNestedInput
   folder?: Prisma.DocFolderUpdateOneWithoutDocsNestedInput
   project?: Prisma.ProjectUpdateOneWithoutDocsNestedInput
-  userArea?: Prisma.UserAreaUpdateOneWithoutDocsNestedInput
+  userArea?: Prisma.UserAreaUpdateOneRequiredWithoutDocsNestedInput
   tasks?: Prisma.DocTaskUpdateManyWithoutDocNestedInput
   versions?: Prisma.DocVersionUpdateManyWithoutDocNestedInput
   quotes?: Prisma.DocQuoteUpdateManyWithoutDocNestedInput
@@ -1713,8 +1667,7 @@ export type DocUncheckedUpdateWithoutSourcesInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentText?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
   wordGoal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1738,7 +1691,6 @@ export type DocCreateWithoutQuotesInput = {
   title?: string
   content?: string
   contentText?: string
-  area?: $Enums.LifeArea
   status?: $Enums.DocStatus
   wordGoal?: number | null
   templateKey?: string | null
@@ -1751,7 +1703,7 @@ export type DocCreateWithoutQuotesInput = {
   user: Prisma.UserCreateNestedOneWithoutDocsInput
   folder?: Prisma.DocFolderCreateNestedOneWithoutDocsInput
   project?: Prisma.ProjectCreateNestedOneWithoutDocsInput
-  userArea?: Prisma.UserAreaCreateNestedOneWithoutDocsInput
+  userArea: Prisma.UserAreaCreateNestedOneWithoutDocsInput
   tasks?: Prisma.DocTaskCreateNestedManyWithoutDocInput
   versions?: Prisma.DocVersionCreateNestedManyWithoutDocInput
   sources?: Prisma.DocSourceCreateNestedManyWithoutDocInput
@@ -1763,8 +1715,7 @@ export type DocUncheckedCreateWithoutQuotesInput = {
   title?: string
   content?: string
   contentText?: string
-  area?: $Enums.LifeArea
-  areaId?: string | null
+  areaId: string
   status?: $Enums.DocStatus
   wordGoal?: number | null
   templateKey?: string | null
@@ -1804,7 +1755,6 @@ export type DocUpdateWithoutQuotesInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentText?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
   wordGoal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1817,7 +1767,7 @@ export type DocUpdateWithoutQuotesInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutDocsNestedInput
   folder?: Prisma.DocFolderUpdateOneWithoutDocsNestedInput
   project?: Prisma.ProjectUpdateOneWithoutDocsNestedInput
-  userArea?: Prisma.UserAreaUpdateOneWithoutDocsNestedInput
+  userArea?: Prisma.UserAreaUpdateOneRequiredWithoutDocsNestedInput
   tasks?: Prisma.DocTaskUpdateManyWithoutDocNestedInput
   versions?: Prisma.DocVersionUpdateManyWithoutDocNestedInput
   sources?: Prisma.DocSourceUpdateManyWithoutDocNestedInput
@@ -1829,8 +1779,7 @@ export type DocUncheckedUpdateWithoutQuotesInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentText?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
   wordGoal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1854,8 +1803,7 @@ export type DocCreateManyUserInput = {
   title?: string
   content?: string
   contentText?: string
-  area?: $Enums.LifeArea
-  areaId?: string | null
+  areaId: string
   status?: $Enums.DocStatus
   wordGoal?: number | null
   templateKey?: string | null
@@ -1874,7 +1822,6 @@ export type DocUpdateWithoutUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentText?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
   wordGoal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1886,7 +1833,7 @@ export type DocUpdateWithoutUserInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   folder?: Prisma.DocFolderUpdateOneWithoutDocsNestedInput
   project?: Prisma.ProjectUpdateOneWithoutDocsNestedInput
-  userArea?: Prisma.UserAreaUpdateOneWithoutDocsNestedInput
+  userArea?: Prisma.UserAreaUpdateOneRequiredWithoutDocsNestedInput
   tasks?: Prisma.DocTaskUpdateManyWithoutDocNestedInput
   versions?: Prisma.DocVersionUpdateManyWithoutDocNestedInput
   sources?: Prisma.DocSourceUpdateManyWithoutDocNestedInput
@@ -1899,8 +1846,7 @@ export type DocUncheckedUpdateWithoutUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentText?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
   wordGoal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1924,8 +1870,7 @@ export type DocUncheckedUpdateManyWithoutUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentText?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
   wordGoal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1944,8 +1889,7 @@ export type DocCreateManyProjectInput = {
   title?: string
   content?: string
   contentText?: string
-  area?: $Enums.LifeArea
-  areaId?: string | null
+  areaId: string
   status?: $Enums.DocStatus
   wordGoal?: number | null
   templateKey?: string | null
@@ -1964,7 +1908,6 @@ export type DocUpdateWithoutProjectInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentText?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
   wordGoal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1976,7 +1919,7 @@ export type DocUpdateWithoutProjectInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutDocsNestedInput
   folder?: Prisma.DocFolderUpdateOneWithoutDocsNestedInput
-  userArea?: Prisma.UserAreaUpdateOneWithoutDocsNestedInput
+  userArea?: Prisma.UserAreaUpdateOneRequiredWithoutDocsNestedInput
   tasks?: Prisma.DocTaskUpdateManyWithoutDocNestedInput
   versions?: Prisma.DocVersionUpdateManyWithoutDocNestedInput
   sources?: Prisma.DocSourceUpdateManyWithoutDocNestedInput
@@ -1989,8 +1932,7 @@ export type DocUncheckedUpdateWithoutProjectInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentText?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
   wordGoal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2014,8 +1956,7 @@ export type DocUncheckedUpdateManyWithoutProjectInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentText?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
   wordGoal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2034,7 +1975,6 @@ export type DocCreateManyUserAreaInput = {
   title?: string
   content?: string
   contentText?: string
-  area?: $Enums.LifeArea
   status?: $Enums.DocStatus
   wordGoal?: number | null
   templateKey?: string | null
@@ -2054,7 +1994,6 @@ export type DocUpdateWithoutUserAreaInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentText?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
   wordGoal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2079,7 +2018,6 @@ export type DocUncheckedUpdateWithoutUserAreaInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentText?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
   wordGoal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2104,7 +2042,6 @@ export type DocUncheckedUpdateManyWithoutUserAreaInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentText?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
   wordGoal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2124,8 +2061,7 @@ export type DocCreateManyFolderInput = {
   title?: string
   content?: string
   contentText?: string
-  area?: $Enums.LifeArea
-  areaId?: string | null
+  areaId: string
   status?: $Enums.DocStatus
   wordGoal?: number | null
   templateKey?: string | null
@@ -2144,7 +2080,6 @@ export type DocUpdateWithoutFolderInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentText?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
   wordGoal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2156,7 +2091,7 @@ export type DocUpdateWithoutFolderInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutDocsNestedInput
   project?: Prisma.ProjectUpdateOneWithoutDocsNestedInput
-  userArea?: Prisma.UserAreaUpdateOneWithoutDocsNestedInput
+  userArea?: Prisma.UserAreaUpdateOneRequiredWithoutDocsNestedInput
   tasks?: Prisma.DocTaskUpdateManyWithoutDocNestedInput
   versions?: Prisma.DocVersionUpdateManyWithoutDocNestedInput
   sources?: Prisma.DocSourceUpdateManyWithoutDocNestedInput
@@ -2169,8 +2104,7 @@ export type DocUncheckedUpdateWithoutFolderInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentText?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
   wordGoal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2194,8 +2128,7 @@ export type DocUncheckedUpdateManyWithoutFolderInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   contentText?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.EnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
   wordGoal?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2281,7 +2214,6 @@ export type DocSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   title?: boolean
   content?: boolean
   contentText?: boolean
-  area?: boolean
   areaId?: boolean
   status?: boolean
   wordGoal?: boolean
@@ -2298,7 +2230,7 @@ export type DocSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   folder?: boolean | Prisma.Doc$folderArgs<ExtArgs>
   project?: boolean | Prisma.Doc$projectArgs<ExtArgs>
-  userArea?: boolean | Prisma.Doc$userAreaArgs<ExtArgs>
+  userArea?: boolean | Prisma.UserAreaDefaultArgs<ExtArgs>
   tasks?: boolean | Prisma.Doc$tasksArgs<ExtArgs>
   versions?: boolean | Prisma.Doc$versionsArgs<ExtArgs>
   sources?: boolean | Prisma.Doc$sourcesArgs<ExtArgs>
@@ -2312,7 +2244,6 @@ export type DocSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extension
   title?: boolean
   content?: boolean
   contentText?: boolean
-  area?: boolean
   areaId?: boolean
   status?: boolean
   wordGoal?: boolean
@@ -2329,7 +2260,7 @@ export type DocSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extension
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   folder?: boolean | Prisma.Doc$folderArgs<ExtArgs>
   project?: boolean | Prisma.Doc$projectArgs<ExtArgs>
-  userArea?: boolean | Prisma.Doc$userAreaArgs<ExtArgs>
+  userArea?: boolean | Prisma.UserAreaDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["doc"]>
 
 export type DocSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -2337,7 +2268,6 @@ export type DocSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extension
   title?: boolean
   content?: boolean
   contentText?: boolean
-  area?: boolean
   areaId?: boolean
   status?: boolean
   wordGoal?: boolean
@@ -2354,7 +2284,7 @@ export type DocSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extension
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   folder?: boolean | Prisma.Doc$folderArgs<ExtArgs>
   project?: boolean | Prisma.Doc$projectArgs<ExtArgs>
-  userArea?: boolean | Prisma.Doc$userAreaArgs<ExtArgs>
+  userArea?: boolean | Prisma.UserAreaDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["doc"]>
 
 export type DocSelectScalar = {
@@ -2362,7 +2292,6 @@ export type DocSelectScalar = {
   title?: boolean
   content?: boolean
   contentText?: boolean
-  area?: boolean
   areaId?: boolean
   status?: boolean
   wordGoal?: boolean
@@ -2378,12 +2307,12 @@ export type DocSelectScalar = {
   updatedAt?: boolean
 }
 
-export type DocOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "content" | "contentText" | "area" | "areaId" | "status" | "wordGoal" | "templateKey" | "systemKey" | "pinned" | "archived" | "deletedAt" | "folderId" | "projectId" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["doc"]>
+export type DocOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "content" | "contentText" | "areaId" | "status" | "wordGoal" | "templateKey" | "systemKey" | "pinned" | "archived" | "deletedAt" | "folderId" | "projectId" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["doc"]>
 export type DocInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   folder?: boolean | Prisma.Doc$folderArgs<ExtArgs>
   project?: boolean | Prisma.Doc$projectArgs<ExtArgs>
-  userArea?: boolean | Prisma.Doc$userAreaArgs<ExtArgs>
+  userArea?: boolean | Prisma.UserAreaDefaultArgs<ExtArgs>
   tasks?: boolean | Prisma.Doc$tasksArgs<ExtArgs>
   versions?: boolean | Prisma.Doc$versionsArgs<ExtArgs>
   sources?: boolean | Prisma.Doc$sourcesArgs<ExtArgs>
@@ -2395,13 +2324,13 @@ export type DocIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   folder?: boolean | Prisma.Doc$folderArgs<ExtArgs>
   project?: boolean | Prisma.Doc$projectArgs<ExtArgs>
-  userArea?: boolean | Prisma.Doc$userAreaArgs<ExtArgs>
+  userArea?: boolean | Prisma.UserAreaDefaultArgs<ExtArgs>
 }
 export type DocIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   folder?: boolean | Prisma.Doc$folderArgs<ExtArgs>
   project?: boolean | Prisma.Doc$projectArgs<ExtArgs>
-  userArea?: boolean | Prisma.Doc$userAreaArgs<ExtArgs>
+  userArea?: boolean | Prisma.UserAreaDefaultArgs<ExtArgs>
 }
 
 export type $DocPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2410,7 +2339,7 @@ export type $DocPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     user: Prisma.$UserPayload<ExtArgs>
     folder: Prisma.$DocFolderPayload<ExtArgs> | null
     project: Prisma.$ProjectPayload<ExtArgs> | null
-    userArea: Prisma.$UserAreaPayload<ExtArgs> | null
+    userArea: Prisma.$UserAreaPayload<ExtArgs>
     tasks: Prisma.$DocTaskPayload<ExtArgs>[]
     versions: Prisma.$DocVersionPayload<ExtArgs>[]
     sources: Prisma.$DocSourcePayload<ExtArgs>[]
@@ -2422,8 +2351,7 @@ export type $DocPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     title: string
     content: string
     contentText: string
-    area: $Enums.LifeArea
-    areaId: string | null
+    areaId: string
     status: $Enums.DocStatus
     wordGoal: number | null
     templateKey: string | null
@@ -2833,7 +2761,7 @@ export interface Prisma__DocClient<T, Null = never, ExtArgs extends runtime.Type
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   folder<T extends Prisma.Doc$folderArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Doc$folderArgs<ExtArgs>>): Prisma.Prisma__DocFolderClient<runtime.Types.Result.GetResult<Prisma.$DocFolderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   project<T extends Prisma.Doc$projectArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Doc$projectArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  userArea<T extends Prisma.Doc$userAreaArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Doc$userAreaArgs<ExtArgs>>): Prisma.Prisma__UserAreaClient<runtime.Types.Result.GetResult<Prisma.$UserAreaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  userArea<T extends Prisma.UserAreaDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserAreaDefaultArgs<ExtArgs>>): Prisma.Prisma__UserAreaClient<runtime.Types.Result.GetResult<Prisma.$UserAreaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   tasks<T extends Prisma.Doc$tasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Doc$tasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DocTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   versions<T extends Prisma.Doc$versionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Doc$versionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DocVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sources<T extends Prisma.Doc$sourcesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Doc$sourcesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DocSourcePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2872,7 +2800,6 @@ export interface DocFieldRefs {
   readonly title: Prisma.FieldRef<"Doc", 'String'>
   readonly content: Prisma.FieldRef<"Doc", 'String'>
   readonly contentText: Prisma.FieldRef<"Doc", 'String'>
-  readonly area: Prisma.FieldRef<"Doc", 'LifeArea'>
   readonly areaId: Prisma.FieldRef<"Doc", 'String'>
   readonly status: Prisma.FieldRef<"Doc", 'DocStatus'>
   readonly wordGoal: Prisma.FieldRef<"Doc", 'Int'>
@@ -3322,25 +3249,6 @@ export type Doc$projectArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
    */
   include?: Prisma.ProjectInclude<ExtArgs> | null
   where?: Prisma.ProjectWhereInput
-}
-
-/**
- * Doc.userArea
- */
-export type Doc$userAreaArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the UserArea
-   */
-  select?: Prisma.UserAreaSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the UserArea
-   */
-  omit?: Prisma.UserAreaOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.UserAreaInclude<ExtArgs> | null
-  where?: Prisma.UserAreaWhereInput
 }
 
 /**

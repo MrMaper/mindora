@@ -1,6 +1,6 @@
 # Mindora — Areas, modules, access, and first-run
 
-**Status:** Design source of truth, version 2. **P0–P5 committed; P6 implemented (uncommitted)** (see "Implementation status" below); P7 and S-track are not started.
+**Status:** Design source of truth, version 2. **P0–P7 committed** (see "Implementation status" below); S-track is not started.
 **Rule:** Build only the phase the product owner names. Each phase below is shippable on its own.
 
 ### Implementation status
@@ -13,14 +13,29 @@
 | P3 Validation | Committed (`9cb8556` + `5a22973` fixes). Agent walkthrough only — not real-user data; a real round is still recommended before public sign-up. |
 | P4 Schema and migration | Committed (`921a99e`). Migration `20261014200000_user_areas` applied locally; `backfill-areas.ts` run; `verify-areas` green. |
 | P5 Dynamic UI | Committed (`ae0f66c`). Routes/filters/calendar/task form/capture use `AreaRef.id`; S-2/S-3/S-10 wired on `/projects`. |
-| P6 Hub areas | Done in code, not committed. `hubFor`-aware exclusion; `ensureHubAreaForModule` on enable; research/language scope via hub areaId; `library:` keys + `backfill-hub-keys.ts`. |
-| P7, S-track | Not started |
+| P6 Hub areas | Committed. `hubFor`-aware exclusion; `ensureHubAreaForModule` on enable; research/language scope via hub areaId; `library:` keys + `backfill-hub-keys.ts`. |
+| P7 Cleanup | Committed. Migration `20261014210000_p7_cleanup` applied to the local dev DB; legacy columns, enum, mirror table and dual-write layer are gone. **2-week soak waived** for local only (see "P7 as built"). |
+| S-track | Not started |
+
+**P7 as built (differences from the text below):**
+
+- **Soak waiver.** §18.2 rule 6 asks for two weeks of soak before destructive changes. The owner explicitly waived that for the local dev DB (2 members, no production data). Preconditions that were still met: fresh dump `backups/scrumflow-pre-p7-20261014-1037.sql` (gitignored), `areaId` NULL counts were 0 on task/project/doc/habit/docFolder, and the migration itself aborts with an exception if any NULL `areaId` remains. **Do not copy this waiver to production** — apply the normal soak + dump there before deploying the migration.
+- Migration `20261014210000_p7_cleanup`: drops the `area` `LifeArea` columns on Project/Task/Doc/Habit/DocFolder, `UserAreaPreference`, `User.enabledModules`, `UserArea.legacyEnum` and the `LifeArea` enum. `areaId` is now `NOT NULL` on Project/Task/Doc/Habit (`DocFolder.areaId` stays optional = "all areas"). Required FKs use `onDelete: NoAction`, so `deleteUser` first moves rows that other members keep in the leaving member's areas to their own default area (or deletes them when there is no heir).
+- Identity is `areaId` only. `templateKey` is a hint (palette, default names, legacy slug redirects); `hubFor` marks Research/Language hubs. `AreaRef.legacyEnum`, `DEFAULT_AREA`, `LIFE_AREAS`, `RESEARCH_AREA`, `LANGUAGE_AREA`, `HUB_AREAS`, `AREA_META`, `isLifeAreaValue` and `coerceLifeArea` no longer exist.
+- Legacy slugs (`phd`/`research`, `work`, `life`, `lang`/`language`) still redirect permanently on `/projects/areas/[area]`, `?area=` filters and `/projects?create=` — resolved through `templateKeyForSlug` + `hubFor` to the member's own area id (`normalizeAreaParam`).
+- Capture keeps the string guesses (`PHD|WORK|LIFE|LANG`) as **parser output only** (`AreaGuess`, `lib/areas/legacy.ts`). They are resolved to an `areaId` on write (`areaIdForGuess`) and never stored. `areaOverride` was removed; `areaIdOverride` remains.
+- The Prisma dual-write extension (`src/lib/areas/dual-write.ts`) is deleted; `src/lib/db.ts` is a plain `PrismaClient`. Writers set `areaId` explicitly (`resolveMemberAreaId`, `defaultAreaId`, `ensureHubAreaForModule`).
+- Behavior changes worth knowing: `taskWhereExcludeHub(ctx)` and `personalLifeTaskWhere(userId, ctx)` now **require** the member context (no static fallback); `parseModulePolicy(raw)` takes one argument (missing/invalid key → `member_choice` when `DEFAULT_MODULE_FLAGS[key]` is true, else `"off"`); `policyToLegacyFlags` was renamed `policyAllowedFlags`; the Users DTO field `enabledModules` is now `allowedModules`; research/language scoping uses relation filters (`userArea.hubFor`) instead of enum columns. Tasks / kanban / work-logs pass `memberCtx.areas` into `scopeFromFilters` so legacy `?area=PHD` bookmarks still resolve.
+- Client plumbing: `AreaBucketsProvider` / `useAreaBuckets` are removed. Use `useAreaHelpers()` from `member-areas-provider` (`bucketFor`, `defaultAreaId`, `nameFor`, `dotFor`, `isHub`, `hubArea`).
+- Scripts: `backfill-areas.ts`, `backfill-modules.ts`, `backfill-p7-ready.ts` and the null-count helpers are retired (nothing left to backfill after P7). `verify-areas.ts` now checks module policy completeness, one default area, hub uniqueness, bucket back-pointers, hub-area presence for effective modules, and that tasks/docs/habits only point at areas owned by their owner (tasks: creator or assignee). Incomplete `modulePolicy` keys are repaired via admin Users / `provisionMember`, not a backfill script. `backfill-hub-keys.ts` remains for `phd-library:` → `library:`. `seed-namespace-demo.ts` resolves the member's own areas by `hubFor`/`templateKey` and writes `areaId` only.
+- ESLint: the area-literal baseline (`eslint.area-baseline.mjs`) was emptied and deleted; the rule applies to all of `src/**` except `src/lib/areas/**` and tests.
+- Follow-ups: `groupTasks(..., "area")` takes an optional area sort-order map — the only caller (tasks table) passes it. Habit "no area" option was removed (a habit always belongs to an area; default is the member's default area). Custom area colors only affect dots where `resolveAreaVisualFromRef` is used; `dotFor` uses the palette for the template/hub. `deleteUser` rehomes or deletes docs/habits that still point at the leaving member's areas before removing the user.
 
 **P4 as built (differences from the text below):**
 
 - Additive migration `20261014200000_user_areas`: `UserArea` + `AreaHubFor`, nullable `areaId` on Project/Task/Doc/Habit/DocFolder, partial unique indexes for one default and one hub per kind.
 - `ensurePersonalWorkspace` / `ensureUserAreas` create the four seeded areas and link buckets. `scripts/areas/backfill-areas.ts` is idempotent for existing members.
-- Dual-write: Prisma client extension on task/doc/habit/docFolder create+update fills `areaId` from the legacy enum when the member already has UserAreas. Bucket projects get `areaId` in ensure/backfill. `updateMany` is not covered (backfill + verify).
+- Dual-write (removed in P7): Prisma client extension on task/doc/habit/docFolder create+update filled `areaId` from the legacy enum. See "P7 as built".
 - Reads: `getMemberContext` prefers `user_areas` rows; pre-backfill falls back to the enum + `UserAreaPreference`. `AreaRef.id` is the UserArea id after backfill (enum string before). `AreaRef.legacyEnum` carries the old value for redirects and hub predicates.
 - Hub predicates (`isHubArea`, `hubTaskExclusion`, …) still use the legacy enum columns — P6 moves them to `hubFor`.
 - UI that still routes on enum slugs (`/projects/areas/life`) is unchanged until P5.
@@ -28,18 +43,18 @@
 **P5 as built (differences from the text below):**
 
 - `MemberAreasProvider` in the member dashboard layout; client pickers/filters/calendar chips/capture area lock read `useActiveMemberAreas()`.
-- Area dashboards: `/projects/areas/[areaId]` with permanent redirect from legacy enum slugs via `legacyEnum`.
-- Filters (`AreaPathFilters`, tasks/kanban/work-logs) use UserArea ids; `areaScopeWhere` / `scopeFromFilters` accept enum or opaque id.
+- Area dashboards: `/projects/areas/[areaId]` with permanent redirect from legacy enum slugs via `templateKey` / `hubFor` (`normalizeAreaParam`).
+- Filters (`AreaPathFilters`, tasks/kanban/work-logs) use UserArea ids; `scopeFromFilters` maps legacy slugs when given `memberCtx.areas`.
 - Task form and create-path drawer select by `areaId`; custom areas write `Project.areaId` / `Task.areaId` (legacy enum falls back to default when null).
 - S-2 create/rename/reorder/archive; S-3 move-all / merge / delete via area menu (prompt-based confirm); S-10 shared group on `/projects`.
 - Custom bucket ids `area-inbox-*` count as area buckets in `isAreaBucketId`.
-- Baseline shrunk (calendar, task form, capture, area-section removed). Docs/habits/focus surfaces that still switch on literals stay listed until a later pass or P6/P7.
+- Baseline shrunk (calendar, task form, capture, area-section removed). The remaining surfaces were migrated and the baseline deleted in P7.
 
 **P6 as built (differences from the text below):**
 
 - `hubTaskExclusion(ctx)` excludes only **active** hubs (module flag ∧ `hubAreas.*`); dormant hub tasks return to Today when the module is off. Static no-arg form kept for dual-read/tests.
 - `ensureHubAreaForModule` binds Research/Language from the legacy template (or creates a dedicated area). Hooked on member toggle, admin policy change, and first visit to `/research` or `/language` (S-4 default path — no multi-step wizard UI yet).
-- Research/Language project lists and language notes use `hubProjectWhere(areaId, legacyEnum)`.
+- Research/Language project lists and language notes use `hubProjectWhere(areaId)` (hub identity is `hubFor`, not the enum).
 - Library binder keys write as `library:{projectId}` / `library:inbox:{areaId}`; reads accept `phd-library:` until `backfill-hub-keys.ts` runs.
 - Guest hub evaluation still uses the viewer’s own hub areas (unchanged ownership rule).
 
@@ -60,12 +75,12 @@
 - Two entry points: `@/lib/areas` is pure and safe for client components. `@/lib/areas/server` adds `getMemberContext` (React.cache'd), `listUserAreas`, `ensureDefaultArea` (today an alias of `ensurePersonalWorkspace`), and `getEffectiveFlagsForUser`.
 - `src/lib/life.ts`, `project-namespace.ts`, `area-projects.ts` and `features/life/workspace.ts` re-export from the seam, so old imports still work. Nothing moved behavior: `hubTaskExclusion()` is byte-for-byte the old `taskWhereExcludeHub()` fragment (a test checks `isHubTask` against it).
 - Hub identity is still static (`RESEARCH_AREA = "PHD"`, `LANGUAGE_AREA = "LANG"`) and does not look at module flags. The `ctx`-aware versions (`MemberContext.hubAreas`, flags) arrive in P6. `AreaRef.id` is the enum value today and must be treated as opaque; it becomes a `UserArea` id in P4.
-- Lint: `eslint.config.mjs` forbids the four literals (as strings, object keys, and `X.PHD` members) in `src/**`, except `src/lib/areas/**` and tests. The 14 UI files that still switch on literals (label chains, visual maps, calendar/habits/focus components) are listed in `eslint.area-baseline.mjs`. P5 removes them; the list may only shrink.
+- Lint: `eslint.config.mjs` forbids the four literals (as strings, object keys, and `X.PHD` members) in `src/**`, except `src/lib/areas/**` and tests. The baseline file was removed in P7 (no exceptions left).
 - `ensurePersonalWorkspace` and the request-cache wrapper still create four bucket projects per member. Reshaping that into "one default area" is P4.
 
 **P0 as built (differences from the text below):**
 
-- Migration `20261014160000_module_policy_provisioning` is additive (no backfill). Until `backfill-modules.ts` runs, a missing policy key falls back to the legacy `enabledModules` flag at read time, so behavior is identical either way.
+- Migration `20261014160000_module_policy_provisioning` is additive. Until the P0 backfill ran, a missing policy key fell back to the legacy `enabledModules` flag; that mirror column is gone in P7 and `parseModulePolicy` fills missing keys from defaults.
 - Resolution and presets live in `src/lib/modules.ts` (unit-tested in `modules.test.ts`, including backfill equivalence). The guard lives in `src/lib/module-guard.ts`: `getModuleAccess`, `getEffectiveFlagsForUser`, `assertModule`, `moduleGuardError`, and `authForModule` (a drop-in for `auth()` in module actions).
 - Guarded: all research, language, habits and work-log server actions; `createDoc` (Docs, and Research for PHD docs); reporting export; per-task work-log API; `/api/search` (omits disabled modules); vocab reminders; Bale digest and habit nudge. Capture already read effective flags.
 - Disabled module pages redirect to `/module-disabled` (two variants) instead of redirecting silently.
@@ -156,31 +171,25 @@ Teams as an organization product, multi-assignee workflow, external calendar syn
 
 ---
 
-## 3. Diagnosis: how the current system is wired
+## 3. Diagnosis: how the system was wired (pre-P0 baseline)
 
-Facts verified in code and schema:
+Historical snapshot that motivated the redesign. **Current behavior is in "Implementation status" / "P7 as built" above** — do not treat this section as live schema.
 
-- Prisma `enum LifeArea { PHD WORK LIFE LANG }` is used by `Project.area`, `Task.area`, `Habit.area`, `Doc.area`, `DocFolder.area`, `UserAreaPreference.area`. About 90 source files read `area` directly.
-- `ensurePersonalWorkspace` creates one personal team and four bucket projects (`area-{phd|work|life|lang}-{userId}`). A cached existence check avoids re-upserting on every navigation, but the four buckets are always created.
-- `HUB_AREAS = ["PHD","LANG"]` and `taskWhereExcludeHub()` decide which tasks are kept out of Today lists.
-- Language data (`LangSession`, `LangCard`, `LangListeningClip`, `ExamTrack`, `MockAttempt`) has only `projectId`; the language hub filters by `project.area = LANG`.
-- Research is wired to `area: "PHD"` in `src/features/research/**`, sync rules, and the `phd-library:` doc system key.
-- Modules live in `User.enabledModules` (JSON, default `{}`) and are edited only by the admin. `parseModuleFlags` fills missing keys from `DEFAULT_MODULE_FLAGS` (all `true`), so changing defaults silently changes existing users whose JSON is missing keys.
-- Module gating happens in pages (`requireModule`) and in `capture/actions`. Server actions in research, language, docs, habits, work-logs and reporting do not check it.
-- `requireModule` redirects silently to `memberHomePath`.
-- `OnboardingTour` is a read-only five-step modal that lists the four fixed areas, then promotes Language and Research. “Skip” only sets `onboardingCompletedAt`.
-- Accounts are created by the admin with a temporary password. There is no forced change on first login. When SMTP is not configured, `createUser` writes the temporary password to the server log.
-- `docker-entrypoint.sh` runs `prisma migrate deploy` on every container start (10 retries, then exit). `docs/DEPLOY.md` has no backup, restore, or rollback section.
-- Tests: 11 vitest files (pure logic only). No database tests and no end-to-end tests.
+- Global `LifeArea` enum on Project/Task/Habit/Doc/DocFolder plus `UserAreaPreference`; many call sites read `area` directly.
+- Four fixed bucket projects per member; hub exclusion via static `HUB_AREAS` / enum.
+- Research/Language bound to `PHD`/`LANG`; library binders used `phd-library:`.
+- Modules in `User.enabledModules` only; weak gating outside pages/capture.
+- Onboarding tour listed four fixed areas; no forced password change; temp passwords logged when SMTP off.
+- No deploy backup/rollback guidance yet.
 
-### 3.1 Why this fails a general audience
+### 3.1 Why that failed a general audience
 
-1. Renaming “PhD” does not remove Research, because Research is coded to `PHD`.
-2. Defaults turn Research and Language on for everyone, and onboarding advertises both.
-3. Four fixed areas are too many for some people and too few for others.
-4. `UserAreaPreference` is a half-migration: color, icon, and archive exist, but the enum and URLs stay fixed.
-5. Skipping onboarding changes nothing visible.
-6. Today is a power dashboard even when empty.
+1. Renaming “PhD” did not remove Research, because Research was coded to `PHD`.
+2. Defaults turned Research and Language on for everyone, and onboarding advertised both.
+3. Four fixed areas were too many for some people and too few for others.
+4. `UserAreaPreference` was a half-migration: color, icon, and archive existed, but the enum and URLs stayed fixed.
+5. Skipping onboarding changed nothing visible.
+6. Today was a power dashboard even when empty.
 
 ---
 
@@ -370,12 +379,9 @@ Presets exist for the create-member form, the member editor, and bulk apply.
 ### 7.6 Storage and backfill (P0, step zero)
 
 - New columns: `User.modulePolicy Json @default("{}")`, `UserPreferences.moduleMemberPrefs Json @default("{}")`.
-- Legacy `User.enabledModules` stays until P7 as a **mirror** (`policy != off`), rewritten on every policy change so an older build still reads correctly.
-- **Backfill (explicit, for every existing user, before any default changes):**
-  - old flag `true` → policy `member_choice` and preference `true`;
-  - old flag `false` → policy `off`.
-- **Acceptance:** for every existing user the effective flags before and after the backfill are identical (§19.2).
-- Only after the backfill is verified do the defaults and the Starter preset apply, and only to new members.
+- Legacy `User.enabledModules` was a **mirror** until P7 (`policy != off`); the column is gone. Policy completeness is checked by `verify-areas.ts`; repair via admin Users / `provisionMember`.
+- **Historical P0 backfill (done):** old flag `true` → policy `member_choice` + preference `true`; `false` → policy `off`. Acceptance was identical effective flags before/after (§19.2).
+- Defaults and the Starter preset apply only to new members after that backfill.
 
 ### 7.7 Enforcement
 
@@ -472,8 +478,9 @@ Preset selector (Starter / Full / Custom). Choosing Custom reveals the per-modul
 | `isDefault` | bool | Exactly one active default per member (partial unique index, raw SQL) |
 | `hubFor` | enum? (`RESEARCH`, `LANGUAGE`) | Makes this the hub area. Unique per `(userId, hubFor)` where not null (partial unique index, raw SQL) |
 | `bucketProjectId` | fk? unique | The area’s inbox bucket project (1:1) |
-| `legacyEnum` | enum? | Old `PHD/WORK/LIFE/LANG`, kept for permanent redirects and backfill |
 | `createdAt`, `updatedAt` | datetime | |
+
+*(P7 dropped `legacyEnum`. Permanent slug redirects use `templateKey` / `hubFor` via `normalizeAreaParam`.)*
 
 Constraints (enforced in a transaction in app code; the two partial unique indexes enforce the rest):
 
@@ -484,15 +491,15 @@ Constraints (enforced in a transaction in app code; the two partial unique index
 
 ### 9.2 Foreign keys on existing models
 
-| Model | Added | Final state |
-|---|---|---|
-| `Project` | `areaId` (owner’s `UserArea`) | Required for every project; bucket projects point to their own area |
-| `Task` | `areaId` nullable | Explicit override only; effective area is `task.areaId ?? project.areaId` (same rule as today’s `area ?? project.area`) |
-| `Doc` | `areaId` | Required after backfill (nullable until P7) |
-| `Habit` | `areaId` nullable | |
-| `DocFolder` | `areaId` nullable | |
+| Model | Final state (P7) |
+|---|---|
+| `Project` | `areaId` required; bucket projects point to their own area; `onDelete: NoAction` |
+| `Task` | `areaId` required; effective area is still `task.areaId` with project fallback only when reading older null rows during dual-write (gone after P7) |
+| `Doc` | `areaId` required; `onDelete: NoAction` |
+| `Habit` | `areaId` required; `onDelete: NoAction` |
+| `DocFolder` | `areaId` optional (= all areas); `onDelete: SetNull` |
 
-The legacy `area` enum columns stay and are dual-written until P7.
+Legacy `area` enum columns and dual-write were removed in P7.
 
 ### 9.3 One source of truth
 
@@ -535,7 +542,7 @@ On `User`:
 3. Every `UserArea` has one bucket project, and every bucket belongs to one area.
 4. For each member, at most one area per `hubFor` value, and the two hub areas differ.
 5. A hub area is never the default.
-6. While the dual-write period lasts, `legacyEnum` and the legacy enum columns agree with `areaId`.
+6. (P4–P6 only) Dual-write agreement between enum columns / `legacyEnum` and `areaId` — dropped in P7.
 
 ---
 
@@ -674,7 +681,7 @@ Wrapped in `React.cache` like `getUserModuleFlags`. The dashboard layout already
 
 ### 13.4 Lint guard
 
-An ESLint `no-restricted-syntax` rule (live since P1) fails the build for new uses of the string literals `"PHD"`, `"WORK"`, `"LIFE"`, `"LANG"` outside `src/lib/areas/**`, tests, scripts and the shrinking baseline in `eslint.area-baseline.mjs`. Importing `LIFE_AREAS` from `@/lib/areas` stays allowed; the rule targets the literals, not the helper names.
+An ESLint `no-restricted-syntax` rule (live since P1) fails the build for new uses of the string literals `"PHD"`, `"WORK"`, `"LIFE"`, `"LANG"` outside `src/lib/areas/**`, tests and scripts (the baseline file was deleted in P7). Importing `LIFE_AREAS` from `@/lib/areas` stays allowed; the rule targets the literals, not the helper names.
 
 ---
 
@@ -878,7 +885,7 @@ Area names are user data. Template-created names with `nameIsDefault = true` ren
 | Query `area=PHD` | `area={userAreaId}` |
 | Research scope cookie (project id or `inbox`) | Unchanged; unresolved values fall back to the hub area inbox |
 
-**Redirects for the legacy slugs are permanent**, resolved through `UserArea.legacyEnum`. Notifications, Bale messages, and bookmarks keep old links forever.
+**Redirects for the legacy slugs are permanent**, resolved through `templateKey` / `hubFor` (`normalizeAreaParam`, `templateKeyForSlug`). Notifications, Bale messages, and bookmarks keep old links forever.
 
 ---
 
@@ -913,19 +920,16 @@ Needed in the S-track (not in P0–P7):
 ### 18.2 Rules
 
 1. Prisma migrations are **additive and fast**: new tables, columns, indexes. No backfill, no drop, no rename.
-2. Backfills are separate scripts: idempotent, batched, resumable, run by hand before reads are switched:
-   - `scripts/areas/backfill-modules.ts` (P0)
-   - `scripts/areas/backfill-areas.ts` (P4)
-   - `scripts/areas/backfill-hub-keys.ts` (P6)
+2. Backfills were separate scripts (idempotent, batched, run by hand). After P7 only `scripts/areas/backfill-hub-keys.ts` remains useful (`phd-library:` → `library:`). `backfill-modules` / `backfill-areas` are retired.
 3. Partial unique indexes (`isDefault`, `hubFor`) are written as raw SQL in the migration, because Prisma cannot express them.
 4. The cap of 8 active areas is enforced in a transaction in app code.
 5. Take `pg_dump` before every deploy that includes a migration or backfill (commands in `DEPLOY.md`).
-6. Destructive changes (drop enum columns, drop `UserAreaPreference`, drop `enabledModules`) happen only in P7, after at least two weeks of soak, with a fresh dump.
-7. While migrations are additive, the previous application build still works against the new schema, so code rollback is a `git checkout <previous>` plus rebuild.
+6. Destructive changes (drop enum columns, drop `UserAreaPreference`, drop `enabledModules`) happen only in P7, after at least two weeks of soak, with a fresh dump. (Waived once, for the local dev DB only — see "P7 as built".)
+7. While migrations are additive, the previous application build still works against the new schema, so code rollback is a `git checkout <previous>` plus rebuild. After P7’s destructive migration, rollback needs a dump restore.
 
 ### 18.3 Dual-write window
 
-From P4 until P7, writes set both the legacy enum column and `areaId`; `verify-areas.ts` asserts they agree. Reads switch to `areaId` only inside `lib/areas/*`.
+Closed in P7. From P4 until then, writes set both the legacy enum column and `areaId`; reads preferred `areaId` inside `lib/areas/*`. The dual-write Prisma extension is deleted.
 
 ---
 
@@ -1097,10 +1101,10 @@ Exit: a member with 1 area and a member with 8 areas both work; merge and delete
 Scope: `hubFor`; S-4 wizard; Research and Language off the enum; `library:*` keys; hub change flow; `backfill-hub-keys.ts`; guest/hub rules.
 Exit: the owner’s PhD and Language data show identically; enabling Research for a new member creates a dedicated area.
 
-### P7 Cleanup (M)
+### P7 Cleanup (M) — done, soak waived locally (see "P7 as built")
 
-Scope: drop legacy enum columns, `UserAreaPreference`, `enabledModules`, `HUB_AREAS`, `AREA_META` enum record, dead constants; final doc pass.
-Preconditions: two weeks of soak and a fresh dump.
+Scope: drop legacy enum columns, `UserAreaPreference`, `enabledModules`, `HUB_AREAS`, `AREA_META` enum record, dead constants; doc pass for status / schema / deploy sections.
+Preconditions: two weeks of soak and a fresh dump. (Local dev DB: soak waived by the owner, dump taken; production still needs both.)
 
 ### S-track (later)
 

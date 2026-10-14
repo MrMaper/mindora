@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { parseModuleFlags, type ModuleFlags } from "@/lib/modules";
 import {
   SUGGEST_FULL_AFTER_DONE,
-  areaForLifePart,
+  templateKeyForLifePart,
   explicitNavModules,
   isLifePartChip,
   navVisibility,
@@ -113,14 +113,14 @@ describe("life-part chips", () => {
   it("maps to the four fixed areas without ever hiding the task", () => {
     const off = { research: false, language: false };
     const on = { research: true, language: true };
-    expect(areaForLifePart("work", off)).toBe("WORK");
-    expect(areaForLifePart("home", off)).toBe("LIFE");
-    expect(areaForLifePart("health", off)).toBe("LIFE");
-    expect(areaForLifePart("other", off)).toBe("LIFE");
+    expect(templateKeyForLifePart("work", off)).toBe("work");
+    expect(templateKeyForLifePart("home", off)).toBe("life");
+    expect(templateKeyForLifePart("health", off)).toBe("life");
+    expect(templateKeyForLifePart("other", off)).toBe("life");
     // Hub areas hide tasks from Today, so only when the module is on.
-    expect(areaForLifePart("study", off)).toBe("LIFE");
-    expect(areaForLifePart("language", off)).toBe("LIFE");
-    expect(areaForLifePart("study", on)).toBe("PHD");
-    expect(areaForLifePart("language", on)).toBe("LANG");
+    expect(templateKeyForLifePart("study", off)).toBe("life");
+    expect(templateKeyForLifePart("language", off)).toBe("life");
+    expect(templateKeyForLifePart("study", on)).toBe("research");
+    expect(templateKeyForLifePart("language", on)).toBe("language");
   });
 });

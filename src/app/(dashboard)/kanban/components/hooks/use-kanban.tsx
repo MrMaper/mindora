@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
@@ -26,10 +26,8 @@ import type { BoardColumns, BoardStatus } from "@/features/kanban/types";
 import type { CreateTaskInput, UpdateTaskInput } from "@/schemas/tasks";
 import type { TaskRow, TaskDetail } from "@/features/tasks/types";
 import { toFormStatus } from "@/features/tasks/types";
-import type { LifeArea } from "@/types/db";
-import { coerceLifeArea, dueDateToFormValue } from "@/lib/life";
-import { useAreaBuckets } from "@/components/area-buckets-provider";
-import { DEFAULT_AREA } from "@/lib/areas";
+import { dueDateToFormValue } from "@/lib/life";
+import { useAreaHelpers } from "@/components/member-areas-provider";
 
 interface KanbanFilters {
   search: string;
@@ -42,7 +40,7 @@ interface KanbanFilters {
 
 export interface KanbanCreateDefaults {
   projectId?: string;
-  area?: LifeArea;
+  areaId?: string;
   status?: CreateTaskInput["status"];
 }
 
@@ -70,7 +68,7 @@ export function useKanban(
   },
 ) {
   const router = useRouter();
-  const areaIds = useAreaBuckets();
+  const { bucketFor, defaultAreaId } = useAreaHelpers();
   const basePath = options?.basePath ?? "/kanban";
   const urlProjectParam = options?.urlProjectParam;
   const boardStatuses = options?.statuses ?? BOARD_STATUSES;
@@ -119,7 +117,7 @@ export function useKanban(
       dueDate: "",
       durationMinutes: "",
       waitingOn: "",
-      area: DEFAULT_AREA,
+      areaId: defaultAreaId,
       recurrence: "NONE",
       recurrenceEndsAt: "",
       applyRecurrenceToSeries: "",
@@ -139,7 +137,7 @@ export function useKanban(
       dueDate: "",
       durationMinutes: "",
       waitingOn: "",
-      area: DEFAULT_AREA,
+      areaId: defaultAreaId,
       recurrence: "NONE",
       recurrenceEndsAt: "",
       applyRecurrenceToSeries: "",
@@ -374,7 +372,7 @@ export function useKanban(
           ? String(detail.durationMinutes)
           : "",
       waitingOn: detail.waitingOn ? "1" : "",
-      area: coerceLifeArea(detail.area),
+      areaId: detail.areaId,
       recurrence: detail.recurrence ?? "NONE",
       recurrenceEndsAt: detail.recurrenceEndsAt
         ? toDateOnlyValue(detail.recurrenceEndsAt)
@@ -384,17 +382,16 @@ export function useKanban(
   }
 
   function openCreate(defaults: KanbanCreateDefaults = {}) {
-    const area = coerceLifeArea(
-      defaults.area ?? createDefaults.area ?? DEFAULT_AREA,
-    );
+    const areaId =
+      defaults.areaId ?? createDefaults.areaId ?? defaultAreaId;
     const projectId =
       defaults.projectId ??
       createDefaults.projectId ??
-      areaIds[area];
+      bucketFor(areaId);
     const status = toFormStatus(
       defaults.status ?? createDefaults.status ?? "BACKLOG",
     );
-    setCreateDefaults({ projectId, area, status });
+    setCreateDefaults({ projectId, areaId, status });
     createForm.reset({
       title: "",
       description: "",
@@ -406,7 +403,7 @@ export function useKanban(
       dueDate: "",
       durationMinutes: "",
       waitingOn: "",
-      area,
+      areaId,
       recurrence: "NONE",
       recurrenceEndsAt: "",
       applyRecurrenceToSeries: "",
@@ -445,7 +442,7 @@ export function useKanban(
       fd.append("type", "TASK");
       fd.append(
         "projectId",
-        data.projectId || areaIds[coerceLifeArea(data.area)],
+        data.projectId || bucketFor(data.areaId || defaultAreaId),
       );
       fd.append("assignedToId", data.assignedToId ?? "");
       fd.append("dueDate", data.dueDate ?? "");
@@ -454,7 +451,7 @@ export function useKanban(
         "waitingOn",
         data.waitingOn === "1" || data.waitingOn === "true" ? "1" : "",
       );
-      fd.append("area", data.area || DEFAULT_AREA);
+      fd.append("areaId", data.areaId || defaultAreaId);
       fd.append("recurrence", data.recurrence ?? "NONE");
       if (data.recurrenceEndsAt) fd.append("recurrenceEndsAt", data.recurrenceEndsAt);
       if (data.applyRecurrenceToSeries) {
@@ -489,7 +486,7 @@ export function useKanban(
         "waitingOn",
         data.waitingOn === "1" || data.waitingOn === "true" ? "1" : "",
       );
-      fd.append("area", data.area ?? DEFAULT_AREA);
+      fd.append("areaId", data.areaId || defaultAreaId);
       fd.append("recurrence", data.recurrence ?? "NONE");
       if (data.recurrenceEndsAt) fd.append("recurrenceEndsAt", data.recurrenceEndsAt);
       if (data.applyRecurrenceToSeries) {

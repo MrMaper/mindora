@@ -5,7 +5,7 @@ import { auth } from "@/auth";
 import { createDoc } from "@/features/docs/actions";
 import { createHabitAction } from "@/features/habits/actions";
 import { quickCapture } from "@/features/life/actions";
-import { ensurePersonalWorkspace, projectIdForArea } from "@/features/life/workspace";
+import { ensurePersonalWorkspace, bucketProjectIdForArea } from "@/features/life/workspace";
 import {
   addPhdSourceAction,
   createDocLinkedToTask,
@@ -16,16 +16,14 @@ import { prisma as db } from "@/lib/db";
 import { hasModule } from "@/lib/modules";
 import { getUserModuleFlags } from "@/lib/require-role";
 import { clientLocalNow, toDateKey } from "@/lib/life";
-import type { LifeArea } from "@/types/db";
 import {
   captureProduct,
   parseCapture,
   type CaptureKind,
 } from "./parse";
-import { RESEARCH_AREA, DEFAULT_AREA, LIFE_AREAS } from "@/lib/areas";
+import { GUESS_RESEARCH } from "@/lib/areas";
+import { areaIdForGuess, defaultAreaId } from "@/lib/areas/server";
 import { markFirstCapture } from "@/features/onboarding/lifecycle";
-
-const AREAS = new Set<LifeArea>(LIFE_AREAS);
 
 export interface CaptureResult {
   success: boolean;
@@ -52,7 +50,10 @@ async function resolveCaptureResearchProjectId(
     where: {
       userId,
       projectId: scope,
-      project: { area: RESEARCH_AREA, status: { not: "ARCHIVED" } },
+      project: {
+        userArea: { hubFor: "RESEARCH" },
+        status: { not: "ARCHIVED" },
+      },
     },
     select: { id: true },
   });
@@ -66,8 +67,7 @@ export async function universalCapture(input: {
    * everything becomes a task in the default area (docs/AREAS.md §6.6).
    */
   plain?: boolean;
-  areaOverride?: LifeArea | null;
-  /** P5: lock to a UserArea id (custom areas without legacy enum). */
+  /** Lock to one of the member's areas (Capture opened from an area page). */
   areaIdOverride?: string | null;
   dueDateFallback?: string | null;
   /** Client `Date#getTimezoneOffset()` so date-only noon stays noon on UTC servers. */
@@ -96,7 +96,7 @@ async function universalCaptureImpl(input: Parameters<typeof universalCapture>[0
 
   const plain = input.plain === true;
   let projectIdOverride: string | null = null;
-  let lockedLegacy: LifeArea | null = null;
+  let lockedAreaId: string | null = null;
   if (!plain && input.areaIdOverride) {
     const ua = await db.userArea.findFirst({
       where: {
@@ -104,20 +104,17 @@ async function universalCaptureImpl(input: Parameters<typeof universalCapture>[0
         userId: session.user.id,
         archived: false,
       },
-      select: { legacyEnum: true, bucketProjectId: true },
+      select: { id: true, bucketProjectId: true },
     });
     if (ua) {
       projectIdOverride = ua.bucketProjectId;
-      lockedLegacy = (ua.legacyEnum as LifeArea | null) ?? DEFAULT_AREA;
+      lockedAreaId = ua.id;
     }
   }
-  const area = plain
-    ? DEFAULT_AREA
-    : lockedLegacy
-      ? lockedLegacy
-      : input.areaOverride && AREAS.has(input.areaOverride)
-        ? input.areaOverride
-        : parsed.area;
+  // The parser only guesses (PHD|WORK|LIFE|LANG); resolve it to the member's own area.
+  const areaId = plain
+    ? await defaultAreaId(session.user.id)
+    : (lockedAreaId ?? (await areaIdForGuess(session.user.id, parsed.area)));
   const flags = await getUserModuleFlags(session.user.id);
   const product = plain ? "task" : captureProduct(parsed);
   const kind = plain ? "task" : parsed.kind;
@@ -129,9 +126,9 @@ async function universalCaptureImpl(input: Parameters<typeof universalCapture>[0
     await ensurePersonalWorkspace(session.user.id);
     const created = await createDoc({
       title,
-      area,
+      areaId,
       status: "IDEA",
-      projectId: projectIdForArea(session.user.id, area),
+      projectId: await bucketProjectIdForArea(session.user.id, areaId),
       content: "<p></p>",
     });
     if (!created.success || !created.data?.id) {
@@ -148,7 +145,7 @@ async function universalCaptureImpl(input: Parameters<typeof universalCapture>[0
       return { success: false, error: "عادت‌ها برای این حساب خاموش است" };
     }
     const cadence = parsed.recurrence === "WEEKLY" ? "WEEKLY" : "DAILY";
-    const created = await createHabitAction({ title, area, cadence });
+    const created = await createHabitAction({ title, areaId, cadence });
     const id = typeof created.data?.id === "string" ? created.data.id : "";
     if (!created.success || !id) {
       return { success: false, error: created.error ?? "خطا" };
@@ -226,7 +223,7 @@ async function universalCaptureImpl(input: Parameters<typeof universalCapture>[0
     if (!hasModule(flags, "research") || !hasModule(flags, "docs")) {
       const created = await quickCapture({
         title,
-        area,
+        areaId,
         recurrence: parsed.recurrence,
         dueDate,
         time: parsed.time,
@@ -245,11 +242,13 @@ async function universalCaptureImpl(input: Parameters<typeof universalCapture>[0
     const researchProjectId = await resolveCaptureResearchProjectId(
       session.user.id,
     );
+    const researchAreaId = await areaIdForGuess(session.user.id, GUESS_RESEARCH);
     const created = await quickCapture({
       title,
-      area: RESEARCH_AREA,
+      areaId: researchAreaId,
       projectId:
-        researchProjectId ?? projectIdForArea(session.user.id, RESEARCH_AREA),
+        researchProjectId ??
+        (await bucketProjectIdForArea(session.user.id, researchAreaId)),
       recurrence: parsed.recurrence,
       dueDate,
       time: parsed.time,
@@ -289,7 +288,7 @@ async function universalCaptureImpl(input: Parameters<typeof universalCapture>[0
 
   const created = await quickCapture({
     title,
-    area,
+    areaId,
     projectId: projectIdOverride,
     recurrence: parsed.recurrence,
     dueDate,

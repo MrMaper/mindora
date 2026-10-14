@@ -1,4 +1,4 @@
-import type { DocStatus, LifeArea, SourceReadingStatus } from "@/types/db";
+import type { DocStatus, SourceReadingStatus } from "@/types/db";
 import type { DocListItem, WritingPulseItem } from "@/features/docs/types";
 import {
   RESEARCH_TASK_TO_DOC_STATUS,
@@ -78,4 +78,4 @@ export const DOC_STATUS_HINT: Record<
   READY: { fa: "سابمیت", en: "Submitted", researchCol: "DONE" },
 };
 
-export type { LifeArea, SourceReadingStatus };
+export type { SourceReadingStatus };

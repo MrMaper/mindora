@@ -9,6 +9,7 @@ import { logFocusSession } from "@/features/life/actions";
 import { focusPickGroup } from "@/features/life/focus-slots";
 import type { TaskRow } from "@/features/tasks/types";
 import { cn, formatNumber } from "@/lib/utils";
+import { useAreaHelpers } from "@/components/member-areas-provider";
 
 const DURATIONS = [15, 25, 50] as const;
 const BREAK_SEC = 5 * 60;
@@ -217,6 +218,7 @@ export function FocusSessionCard() {
   const language = useLanguage();
   const session = React.useContext(SessionState);
   const pickerRef = React.useRef<HTMLDivElement>(null);
+  const { nameFor } = useAreaHelpers();
   if (!session) return null;
 
   const {
@@ -235,15 +237,7 @@ export function FocusSessionCard() {
     stop,
   } = session;
 
-  const areaName = task?.area
-    ? task.area === "PHD"
-      ? t.dashboard.areaPhd
-      : task.area === "WORK"
-        ? t.dashboard.areaWork
-        : task.area === "LANG"
-          ? t.dashboard.areaLang
-          : t.dashboard.areaLife
-    : null;
+  const areaName = nameFor(task?.areaId);
 
   const pickGroups = [
     {
@@ -355,16 +349,7 @@ export function FocusSessionCard() {
                         {group.label}
                       </p>
                       {group.tasks.map(item => {
-                        const area =
-                          item.area === "PHD"
-                            ? t.dashboard.areaPhd
-                            : item.area === "LANG"
-                              ? t.dashboard.areaLang
-                              : item.area === "WORK"
-                                ? t.dashboard.areaWork
-                                : item.area === "LIFE"
-                                  ? t.dashboard.areaLife
-                                  : null;
+                        const area = nameFor(item.areaId);
                         return (
                           <button
                             key={item.id}

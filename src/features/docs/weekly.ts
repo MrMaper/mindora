@@ -1,4 +1,5 @@
 import { prisma as db } from "@/lib/db";
+import { areaIdForTemplate, defaultAreaId } from "@/lib/areas/server";
 import {
   formatJalaliShort,
   parseLocalDate,
@@ -153,7 +154,9 @@ export async function ensureWeeklyReviewDoc(
       title,
       content,
       contentText: htmlToText(content),
-      area: tpl.area,
+      areaId:
+        (await areaIdForTemplate(userId, tpl.areaTemplate)) ??
+        (await defaultAreaId(userId)),
       status: "REVIEW",
       templateKey: tpl.key,
       systemKey,

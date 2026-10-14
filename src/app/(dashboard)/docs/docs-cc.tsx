@@ -11,7 +11,12 @@ import { Icon } from "@/components/ui-kit/foundation/icon";
 import { PageHeaderBar } from "@/components/ui-kit/layout/page-header-bar";
 import { useLanguage, useTranslation } from "@/i18n/provider";
 import { cn, formatNumber } from "@/lib/utils";
-import { formatJalaliShort, LIFE_AREAS } from "@/lib/life";
+import { formatJalaliShort } from "@/lib/life";
+import { areaDisplayName, areaRefForTemplate } from "@/lib/areas";
+import {
+  useActiveMemberAreas,
+  useAreaHelpers,
+} from "@/components/member-areas-provider";
 import {
   addDocQuote,
   addDocSource,
@@ -71,7 +76,7 @@ import {
   type DocQuoteItem,
   type DocTagItem,
 } from "@/features/docs/types";
-import type { DocStatus, LifeArea } from "@/types/db";
+import type { DocStatus } from "@/types/db";
 import { VersionCompareModal } from "@/components/docs/version-compare-modal";
 import {
   DocTaxonomyDrawer,
@@ -101,24 +106,8 @@ const DocEditor = dynamic(
   },
 );
 
-const AREA_DOT: Record<LifeArea, string> = {
-  PHD: "bg-[var(--status-review)]",
-  WORK: "bg-[var(--status-in-progress)]",
-  LIFE: "bg-[var(--status-todo)]",
-  LANG: "bg-emerald-600",
-};
-
-type AreaFilter = LifeArea | "ALL";
-
-function areaLabel(
-  area: LifeArea,
-  t: { phd: string; work: string; lifeArea: string; language?: string },
-) {
-  if (area === "PHD") return t.phd;
-  if (area === "WORK") return t.work;
-  if (area === "LANG") return t.language ?? "زبان";
-  return t.lifeArea;
-}
+/** "ALL" or a UserArea id. */
+type AreaFilter = string;
 
 function statusLabel(
   status: DocStatus,
@@ -146,6 +135,9 @@ export function DocsCC({
 }) {
   const t = useTranslation();
   const language = useLanguage();
+  const memberAreas = useActiveMemberAreas();
+  const { dotFor, hubArea, isHub } = useAreaHelpers();
+  const researchAreaId = hubArea("research")?.id;
   const router = useRouter();
 
   const [docs, setDocs] = React.useState(initialDocs);
@@ -215,7 +207,7 @@ export function DocsCC({
     trash = showTrash,
   ) {
     const next = await listDocsAction({
-      area: areaFilter,
+      areaId: areaFilter === "ALL" ? undefined : areaFilter,
       search,
       archived,
       trash,
@@ -263,7 +255,7 @@ export function DocsCC({
     let cancelled = false;
     const handle = setTimeout(async () => {
       const next = await listDocsAction({
-        area: areaFilter,
+        areaId: areaFilter === "ALL" ? undefined : areaFilter,
         search,
         archived: showArchived,
         trash: showTrash,
@@ -415,30 +407,34 @@ export function DocsCC({
     }
   }
 
-  async function onCreate(area: LifeArea = "LIFE") {
+  async function onCreate(areaId?: string) {
+    const targetAreaId =
+      areaId ?? (areaFilter !== "ALL" ? areaFilter : undefined);
     setPending(true);
     setShowArchived(false);
     setShowTrash(false);
     setFolderFilter("ALL");
     setTagFilter("ALL");
     try {
-      const pid = area === "PHD" ? projectIdForCreate() : undefined;
+      const pid = isHub(targetAreaId, "research")
+        ? projectIdForCreate()
+        : undefined;
       const result = await createDoc({
-        area,
+        areaId: targetAreaId,
         title: t.docs.untitled,
         content: `<p>${t.docs.emptyBody}</p>`,
         ...(pid !== undefined ? { projectId: pid } : {}),
       });
       if (!result.success || !result.data?.id) return;
       const next = await listDocsAction({
-        area: areaFilter === "ALL" ? "ALL" : area,
+        areaId: areaFilter === "ALL" ? undefined : targetAreaId,
         search,
         archived: false,
         trash: false,
         folderId: undefined,
         tagId: undefined,
       });
-      if (areaFilter !== "ALL" && areaFilter !== area) {
+      if (areaFilter !== "ALL" && areaFilter !== targetAreaId) {
         setAreaFilter("ALL");
       }
       setDocs(next);
@@ -458,15 +454,18 @@ export function DocsCC({
     try {
       const { getDocTemplate } = await import("@/features/docs/templates");
       const tpl = getDocTemplate(key);
-      const pid = tpl.area === "PHD" ? projectIdForCreate() : undefined;
+      const tplArea = areaRefForTemplate(memberAreas, tpl.areaTemplate);
+      const pid = isHub(tplArea?.id, "research")
+        ? projectIdForCreate()
+        : undefined;
       const result = await createDoc({
         templateKey: key,
-        area: tpl.area,
+        areaId: tplArea?.id,
         ...(pid !== undefined ? { projectId: pid } : {}),
       });
       if (!result.success || !result.data?.id) return;
       const next = await listDocsAction({
-        area: "ALL",
+        areaId: undefined,
         search,
         archived: false,
         trash: false,
@@ -549,13 +548,13 @@ export function DocsCC({
     await selectDoc(doc.id);
   }
 
-  async function onAreaChange(area: LifeArea) {
+  async function onAreaChange(areaId: string) {
     if (!doc) return;
-    setDoc({ ...doc, area });
+    setDoc({ ...doc, areaId });
     setDocs(prev =>
-      prev.map(item => (item.id === doc.id ? { ...item, area } : item)),
+      prev.map(item => (item.id === doc.id ? { ...item, areaId } : item)),
     );
-    await updateDoc(doc.id, { area });
+    await updateDoc(doc.id, { areaId });
   }
 
   async function onStatusChange(status: DocStatus) {
@@ -608,7 +607,7 @@ export function DocsCC({
     await createTaskFromDoc({
       docId: doc.id,
       title: title.trim(),
-      area: doc.area,
+      areaId: doc.areaId,
     });
     await reloadDoc(doc.id);
     await refreshList();
@@ -621,7 +620,7 @@ export function DocsCC({
     await createTaskFromDoc({
       docId: doc.id,
       title,
-      area: doc.area,
+      areaId: doc.areaId,
     });
     await reloadDoc(doc.id);
     await refreshList();
@@ -732,20 +731,20 @@ export function DocsCC({
           >
             {t.docs.filterAll}
           </button>
-          {LIFE_AREAS.map(area => (
+          {memberAreas.map(area => (
             <button
-              key={area}
+              key={area.id}
               type="button"
-              onClick={() => setAreaFilter(area)}
+              onClick={() => setAreaFilter(area.id)}
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-md border px-2 py-1",
-                areaFilter === area
+                areaFilter === area.id
                   ? "border-foreground/20 bg-card"
                   : "opacity-45 hover:opacity-80",
               )}
             >
-              <span className={cn("size-2.5 rounded-full", AREA_DOT[area])} />
-              {areaLabel(area, t.life)}
+              <span className={cn("size-2.5 rounded-full", dotFor(area.id))} />
+              {areaDisplayName(area, language)}
             </button>
           ))}
           <button
@@ -884,7 +883,7 @@ export function DocsCC({
                         <span
                           className={cn(
                             "size-2 rounded-full shrink-0",
-                            AREA_DOT[item.area],
+                            dotFor(item.areaId),
                           )}
                         />
                         <span className="min-w-0 flex-1 truncate text-sm font-medium">
@@ -1180,20 +1179,20 @@ export function DocsCC({
                 )}
               >
               <div className="flex items-center gap-2 px-3 py-2 max-xl:w-max xl:flex-wrap xl:px-4">
-                {LIFE_AREAS.map(area => (
+                {memberAreas.map(area => (
                   <button
-                    key={area}
+                    key={area.id}
                     type="button"
-                    onClick={() => void onAreaChange(area)}
+                    onClick={() => void onAreaChange(area.id)}
                     className={cn(
                       "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs",
-                      doc.area === area
+                      doc.areaId === area.id
                         ? "border-foreground/25 bg-card font-medium"
                         : "opacity-50 hover:opacity-90",
                     )}
                   >
-                    <span className={cn("size-2 rounded-full", AREA_DOT[area])} />
-                    {areaLabel(area, t.life)}
+                    <span className={cn("size-2 rounded-full", dotFor(area.id))} />
+                    {areaDisplayName(area, language)}
                   </button>
                 ))}
                 <span className="mx-1 h-4 w-px shrink-0 bg-border" />
@@ -1244,7 +1243,7 @@ export function DocsCC({
                     </option>
                   ))}
                 </select>
-                {(doc.area === "PHD" || phdProjects.length > 0) && (
+                {(isHub(doc.areaId, "research") || phdProjects.length > 0) && (
                   <select
                     className="h-7 max-w-[10rem] shrink-0 rounded-full border bg-card text-xs"
                     value={doc.projectId ?? ""}
@@ -1256,11 +1255,16 @@ export function DocsCC({
                         projectName:
                           phdProjects.find(p => p.id === projectId)?.name ??
                           null,
-                        area: projectId ? "PHD" : doc.area,
+                        areaId:
+                          projectId && researchAreaId
+                            ? researchAreaId
+                            : doc.areaId,
                       });
                       void updateDoc(doc.id, {
                         projectId,
-                        ...(projectId ? { area: "PHD" } : {}),
+                        ...(projectId && researchAreaId
+                          ? { areaId: researchAreaId }
+                          : {}),
                       });
                       void refreshList();
                     }}
@@ -1637,7 +1641,7 @@ export function DocsCC({
               const result = await updateDocFolder(taxonomyDrawer.editFolder.id, {
                 name: input.name,
                 description: input.description,
-                area: input.area,
+                areaId: input.areaId,
                 parentId: input.parentId,
               });
               if (!result.success) return false;
@@ -1647,7 +1651,7 @@ export function DocsCC({
             const result = await createDocFolder({
               name: input.name,
               description: input.description,
-              area: input.area,
+              areaId: input.areaId,
               parentId: input.parentId ?? taxonomyDrawer.parentId ?? null,
             });
             if (!result.success) return false;
@@ -1780,7 +1784,7 @@ export function DocsCC({
                 >
                   <div className="flex items-center gap-2 mb-1">
                     <span
-                      className={cn("size-2 rounded-full", AREA_DOT[tpl.area])}
+                      className={cn("size-2 rounded-full", dotFor(areaRefForTemplate(memberAreas, tpl.areaTemplate)?.id))}
                     />
                     <span className="font-medium text-sm">
                       {language === "FA" ? tpl.titleFa : tpl.titleEn}

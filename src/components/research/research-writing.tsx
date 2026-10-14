@@ -11,7 +11,7 @@ import { ensurePhdFolderTreeAction } from "@/features/research/actions";
 import { DOC_STATUS_HINT } from "@/features/research/types";
 import type { DocListItem, WritingPulseItem } from "@/features/docs/types";
 import { projectIdForCreate } from "@/features/research/active-project";
-import { RESEARCH_AREA } from "@/lib/areas";
+import { useAreaHelpers } from "@/components/member-areas-provider";
 
 export function ResearchWritingPanel({
   phdDocs,
@@ -23,6 +23,7 @@ export function ResearchWritingPanel({
   projectId?: string | null;
 }) {
   const t = useTranslation();
+  const { hubArea } = useAreaHelpers();
   const language = useLanguage();
   const router = useRouter();
   const [pending, setPending] = React.useState<string | null>(null);
@@ -43,7 +44,7 @@ export function ResearchWritingPanel({
     setPending(pendingKey);
     const result = await createDoc({
       templateKey: key,
-      area: RESEARCH_AREA,
+      areaId: hubArea("research")?.id,
       projectId: pid,
     });
     setPending(null);

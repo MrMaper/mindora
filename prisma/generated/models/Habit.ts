@@ -40,7 +40,6 @@ export type HabitMinAggregateOutputType = {
   id: string | null
   userId: string | null
   title: string | null
-  area: $Enums.LifeArea | null
   areaId: string | null
   cadence: $Enums.RecurrenceInterval | null
   streak: number | null
@@ -55,7 +54,6 @@ export type HabitMaxAggregateOutputType = {
   id: string | null
   userId: string | null
   title: string | null
-  area: $Enums.LifeArea | null
   areaId: string | null
   cadence: $Enums.RecurrenceInterval | null
   streak: number | null
@@ -70,7 +68,6 @@ export type HabitCountAggregateOutputType = {
   id: number
   userId: number
   title: number
-  area: number
   areaId: number
   cadence: number
   streak: number
@@ -97,7 +94,6 @@ export type HabitMinAggregateInputType = {
   id?: true
   userId?: true
   title?: true
-  area?: true
   areaId?: true
   cadence?: true
   streak?: true
@@ -112,7 +108,6 @@ export type HabitMaxAggregateInputType = {
   id?: true
   userId?: true
   title?: true
-  area?: true
   areaId?: true
   cadence?: true
   streak?: true
@@ -127,7 +122,6 @@ export type HabitCountAggregateInputType = {
   id?: true
   userId?: true
   title?: true
-  area?: true
   areaId?: true
   cadence?: true
   streak?: true
@@ -229,8 +223,7 @@ export type HabitGroupByOutputType = {
   id: string
   userId: string
   title: string
-  area: $Enums.LifeArea | null
-  areaId: string | null
+  areaId: string
   cadence: $Enums.RecurrenceInterval
   streak: number
   bestStreak: number
@@ -267,8 +260,7 @@ export type HabitWhereInput = {
   id?: Prisma.StringFilter<"Habit"> | string
   userId?: Prisma.StringFilter<"Habit"> | string
   title?: Prisma.StringFilter<"Habit"> | string
-  area?: Prisma.EnumLifeAreaNullableFilter<"Habit"> | $Enums.LifeArea | null
-  areaId?: Prisma.StringNullableFilter<"Habit"> | string | null
+  areaId?: Prisma.StringFilter<"Habit"> | string
   cadence?: Prisma.EnumRecurrenceIntervalFilter<"Habit"> | $Enums.RecurrenceInterval
   streak?: Prisma.IntFilter<"Habit"> | number
   bestStreak?: Prisma.IntFilter<"Habit"> | number
@@ -277,7 +269,7 @@ export type HabitWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Habit"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Habit"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-  userArea?: Prisma.XOR<Prisma.UserAreaNullableScalarRelationFilter, Prisma.UserAreaWhereInput> | null
+  userArea?: Prisma.XOR<Prisma.UserAreaScalarRelationFilter, Prisma.UserAreaWhereInput>
   logs?: Prisma.HabitLogListRelationFilter
 }
 
@@ -285,8 +277,7 @@ export type HabitOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   title?: Prisma.SortOrder
-  area?: Prisma.SortOrderInput | Prisma.SortOrder
-  areaId?: Prisma.SortOrderInput | Prisma.SortOrder
+  areaId?: Prisma.SortOrder
   cadence?: Prisma.SortOrder
   streak?: Prisma.SortOrder
   bestStreak?: Prisma.SortOrder
@@ -306,8 +297,7 @@ export type HabitWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.HabitWhereInput | Prisma.HabitWhereInput[]
   userId?: Prisma.StringFilter<"Habit"> | string
   title?: Prisma.StringFilter<"Habit"> | string
-  area?: Prisma.EnumLifeAreaNullableFilter<"Habit"> | $Enums.LifeArea | null
-  areaId?: Prisma.StringNullableFilter<"Habit"> | string | null
+  areaId?: Prisma.StringFilter<"Habit"> | string
   cadence?: Prisma.EnumRecurrenceIntervalFilter<"Habit"> | $Enums.RecurrenceInterval
   streak?: Prisma.IntFilter<"Habit"> | number
   bestStreak?: Prisma.IntFilter<"Habit"> | number
@@ -316,7 +306,7 @@ export type HabitWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Habit"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Habit"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-  userArea?: Prisma.XOR<Prisma.UserAreaNullableScalarRelationFilter, Prisma.UserAreaWhereInput> | null
+  userArea?: Prisma.XOR<Prisma.UserAreaScalarRelationFilter, Prisma.UserAreaWhereInput>
   logs?: Prisma.HabitLogListRelationFilter
 }, "id">
 
@@ -324,8 +314,7 @@ export type HabitOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   title?: Prisma.SortOrder
-  area?: Prisma.SortOrderInput | Prisma.SortOrder
-  areaId?: Prisma.SortOrderInput | Prisma.SortOrder
+  areaId?: Prisma.SortOrder
   cadence?: Prisma.SortOrder
   streak?: Prisma.SortOrder
   bestStreak?: Prisma.SortOrder
@@ -347,8 +336,7 @@ export type HabitScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Habit"> | string
   userId?: Prisma.StringWithAggregatesFilter<"Habit"> | string
   title?: Prisma.StringWithAggregatesFilter<"Habit"> | string
-  area?: Prisma.EnumLifeAreaNullableWithAggregatesFilter<"Habit"> | $Enums.LifeArea | null
-  areaId?: Prisma.StringNullableWithAggregatesFilter<"Habit"> | string | null
+  areaId?: Prisma.StringWithAggregatesFilter<"Habit"> | string
   cadence?: Prisma.EnumRecurrenceIntervalWithAggregatesFilter<"Habit"> | $Enums.RecurrenceInterval
   streak?: Prisma.IntWithAggregatesFilter<"Habit"> | number
   bestStreak?: Prisma.IntWithAggregatesFilter<"Habit"> | number
@@ -361,7 +349,6 @@ export type HabitScalarWhereWithAggregatesInput = {
 export type HabitCreateInput = {
   id?: string
   title: string
-  area?: $Enums.LifeArea | null
   cadence?: $Enums.RecurrenceInterval
   streak?: number
   bestStreak?: number
@@ -370,7 +357,7 @@ export type HabitCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutHabitsInput
-  userArea?: Prisma.UserAreaCreateNestedOneWithoutHabitsInput
+  userArea: Prisma.UserAreaCreateNestedOneWithoutHabitsInput
   logs?: Prisma.HabitLogCreateNestedManyWithoutHabitInput
 }
 
@@ -378,8 +365,7 @@ export type HabitUncheckedCreateInput = {
   id?: string
   userId: string
   title: string
-  area?: $Enums.LifeArea | null
-  areaId?: string | null
+  areaId: string
   cadence?: $Enums.RecurrenceInterval
   streak?: number
   bestStreak?: number
@@ -393,7 +379,6 @@ export type HabitUncheckedCreateInput = {
 export type HabitUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   cadence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   streak?: Prisma.IntFieldUpdateOperationsInput | number
   bestStreak?: Prisma.IntFieldUpdateOperationsInput | number
@@ -402,7 +387,7 @@ export type HabitUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutHabitsNestedInput
-  userArea?: Prisma.UserAreaUpdateOneWithoutHabitsNestedInput
+  userArea?: Prisma.UserAreaUpdateOneRequiredWithoutHabitsNestedInput
   logs?: Prisma.HabitLogUpdateManyWithoutHabitNestedInput
 }
 
@@ -410,8 +395,7 @@ export type HabitUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   cadence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   streak?: Prisma.IntFieldUpdateOperationsInput | number
   bestStreak?: Prisma.IntFieldUpdateOperationsInput | number
@@ -426,8 +410,7 @@ export type HabitCreateManyInput = {
   id?: string
   userId: string
   title: string
-  area?: $Enums.LifeArea | null
-  areaId?: string | null
+  areaId: string
   cadence?: $Enums.RecurrenceInterval
   streak?: number
   bestStreak?: number
@@ -440,7 +423,6 @@ export type HabitCreateManyInput = {
 export type HabitUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   cadence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   streak?: Prisma.IntFieldUpdateOperationsInput | number
   bestStreak?: Prisma.IntFieldUpdateOperationsInput | number
@@ -454,8 +436,7 @@ export type HabitUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   cadence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   streak?: Prisma.IntFieldUpdateOperationsInput | number
   bestStreak?: Prisma.IntFieldUpdateOperationsInput | number
@@ -479,7 +460,6 @@ export type HabitCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   title?: Prisma.SortOrder
-  area?: Prisma.SortOrder
   areaId?: Prisma.SortOrder
   cadence?: Prisma.SortOrder
   streak?: Prisma.SortOrder
@@ -499,7 +479,6 @@ export type HabitMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   title?: Prisma.SortOrder
-  area?: Prisma.SortOrder
   areaId?: Prisma.SortOrder
   cadence?: Prisma.SortOrder
   streak?: Prisma.SortOrder
@@ -514,7 +493,6 @@ export type HabitMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   title?: Prisma.SortOrder
-  area?: Prisma.SortOrder
   areaId?: Prisma.SortOrder
   cadence?: Prisma.SortOrder
   streak?: Prisma.SortOrder
@@ -636,7 +614,6 @@ export type HabitUpdateOneRequiredWithoutLogsNestedInput = {
 export type HabitCreateWithoutUserInput = {
   id?: string
   title: string
-  area?: $Enums.LifeArea | null
   cadence?: $Enums.RecurrenceInterval
   streak?: number
   bestStreak?: number
@@ -644,15 +621,14 @@ export type HabitCreateWithoutUserInput = {
   archivedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  userArea?: Prisma.UserAreaCreateNestedOneWithoutHabitsInput
+  userArea: Prisma.UserAreaCreateNestedOneWithoutHabitsInput
   logs?: Prisma.HabitLogCreateNestedManyWithoutHabitInput
 }
 
 export type HabitUncheckedCreateWithoutUserInput = {
   id?: string
   title: string
-  area?: $Enums.LifeArea | null
-  areaId?: string | null
+  areaId: string
   cadence?: $Enums.RecurrenceInterval
   streak?: number
   bestStreak?: number
@@ -696,8 +672,7 @@ export type HabitScalarWhereInput = {
   id?: Prisma.StringFilter<"Habit"> | string
   userId?: Prisma.StringFilter<"Habit"> | string
   title?: Prisma.StringFilter<"Habit"> | string
-  area?: Prisma.EnumLifeAreaNullableFilter<"Habit"> | $Enums.LifeArea | null
-  areaId?: Prisma.StringNullableFilter<"Habit"> | string | null
+  areaId?: Prisma.StringFilter<"Habit"> | string
   cadence?: Prisma.EnumRecurrenceIntervalFilter<"Habit"> | $Enums.RecurrenceInterval
   streak?: Prisma.IntFilter<"Habit"> | number
   bestStreak?: Prisma.IntFilter<"Habit"> | number
@@ -710,7 +685,6 @@ export type HabitScalarWhereInput = {
 export type HabitCreateWithoutUserAreaInput = {
   id?: string
   title: string
-  area?: $Enums.LifeArea | null
   cadence?: $Enums.RecurrenceInterval
   streak?: number
   bestStreak?: number
@@ -726,7 +700,6 @@ export type HabitUncheckedCreateWithoutUserAreaInput = {
   id?: string
   userId: string
   title: string
-  area?: $Enums.LifeArea | null
   cadence?: $Enums.RecurrenceInterval
   streak?: number
   bestStreak?: number
@@ -766,7 +739,6 @@ export type HabitUpdateManyWithWhereWithoutUserAreaInput = {
 export type HabitCreateWithoutLogsInput = {
   id?: string
   title: string
-  area?: $Enums.LifeArea | null
   cadence?: $Enums.RecurrenceInterval
   streak?: number
   bestStreak?: number
@@ -775,15 +747,14 @@ export type HabitCreateWithoutLogsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutHabitsInput
-  userArea?: Prisma.UserAreaCreateNestedOneWithoutHabitsInput
+  userArea: Prisma.UserAreaCreateNestedOneWithoutHabitsInput
 }
 
 export type HabitUncheckedCreateWithoutLogsInput = {
   id?: string
   userId: string
   title: string
-  area?: $Enums.LifeArea | null
-  areaId?: string | null
+  areaId: string
   cadence?: $Enums.RecurrenceInterval
   streak?: number
   bestStreak?: number
@@ -812,7 +783,6 @@ export type HabitUpdateToOneWithWhereWithoutLogsInput = {
 export type HabitUpdateWithoutLogsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   cadence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   streak?: Prisma.IntFieldUpdateOperationsInput | number
   bestStreak?: Prisma.IntFieldUpdateOperationsInput | number
@@ -821,15 +791,14 @@ export type HabitUpdateWithoutLogsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutHabitsNestedInput
-  userArea?: Prisma.UserAreaUpdateOneWithoutHabitsNestedInput
+  userArea?: Prisma.UserAreaUpdateOneRequiredWithoutHabitsNestedInput
 }
 
 export type HabitUncheckedUpdateWithoutLogsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   cadence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   streak?: Prisma.IntFieldUpdateOperationsInput | number
   bestStreak?: Prisma.IntFieldUpdateOperationsInput | number
@@ -842,8 +811,7 @@ export type HabitUncheckedUpdateWithoutLogsInput = {
 export type HabitCreateManyUserInput = {
   id?: string
   title: string
-  area?: $Enums.LifeArea | null
-  areaId?: string | null
+  areaId: string
   cadence?: $Enums.RecurrenceInterval
   streak?: number
   bestStreak?: number
@@ -856,7 +824,6 @@ export type HabitCreateManyUserInput = {
 export type HabitUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   cadence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   streak?: Prisma.IntFieldUpdateOperationsInput | number
   bestStreak?: Prisma.IntFieldUpdateOperationsInput | number
@@ -864,15 +831,14 @@ export type HabitUpdateWithoutUserInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userArea?: Prisma.UserAreaUpdateOneWithoutHabitsNestedInput
+  userArea?: Prisma.UserAreaUpdateOneRequiredWithoutHabitsNestedInput
   logs?: Prisma.HabitLogUpdateManyWithoutHabitNestedInput
 }
 
 export type HabitUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   cadence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   streak?: Prisma.IntFieldUpdateOperationsInput | number
   bestStreak?: Prisma.IntFieldUpdateOperationsInput | number
@@ -886,8 +852,7 @@ export type HabitUncheckedUpdateWithoutUserInput = {
 export type HabitUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   cadence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   streak?: Prisma.IntFieldUpdateOperationsInput | number
   bestStreak?: Prisma.IntFieldUpdateOperationsInput | number
@@ -901,7 +866,6 @@ export type HabitCreateManyUserAreaInput = {
   id?: string
   userId: string
   title: string
-  area?: $Enums.LifeArea | null
   cadence?: $Enums.RecurrenceInterval
   streak?: number
   bestStreak?: number
@@ -914,7 +878,6 @@ export type HabitCreateManyUserAreaInput = {
 export type HabitUpdateWithoutUserAreaInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   cadence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   streak?: Prisma.IntFieldUpdateOperationsInput | number
   bestStreak?: Prisma.IntFieldUpdateOperationsInput | number
@@ -930,7 +893,6 @@ export type HabitUncheckedUpdateWithoutUserAreaInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   cadence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   streak?: Prisma.IntFieldUpdateOperationsInput | number
   bestStreak?: Prisma.IntFieldUpdateOperationsInput | number
@@ -945,7 +907,6 @@ export type HabitUncheckedUpdateManyWithoutUserAreaInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   cadence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   streak?: Prisma.IntFieldUpdateOperationsInput | number
   bestStreak?: Prisma.IntFieldUpdateOperationsInput | number
@@ -990,7 +951,6 @@ export type HabitSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   id?: boolean
   userId?: boolean
   title?: boolean
-  area?: boolean
   areaId?: boolean
   cadence?: boolean
   streak?: boolean
@@ -1000,7 +960,7 @@ export type HabitSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  userArea?: boolean | Prisma.Habit$userAreaArgs<ExtArgs>
+  userArea?: boolean | Prisma.UserAreaDefaultArgs<ExtArgs>
   logs?: boolean | Prisma.Habit$logsArgs<ExtArgs>
   _count?: boolean | Prisma.HabitCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["habit"]>
@@ -1009,7 +969,6 @@ export type HabitSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   id?: boolean
   userId?: boolean
   title?: boolean
-  area?: boolean
   areaId?: boolean
   cadence?: boolean
   streak?: boolean
@@ -1019,14 +978,13 @@ export type HabitSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  userArea?: boolean | Prisma.Habit$userAreaArgs<ExtArgs>
+  userArea?: boolean | Prisma.UserAreaDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["habit"]>
 
 export type HabitSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
   title?: boolean
-  area?: boolean
   areaId?: boolean
   cadence?: boolean
   streak?: boolean
@@ -1036,14 +994,13 @@ export type HabitSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  userArea?: boolean | Prisma.Habit$userAreaArgs<ExtArgs>
+  userArea?: boolean | Prisma.UserAreaDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["habit"]>
 
 export type HabitSelectScalar = {
   id?: boolean
   userId?: boolean
   title?: boolean
-  area?: boolean
   areaId?: boolean
   cadence?: boolean
   streak?: boolean
@@ -1054,35 +1011,34 @@ export type HabitSelectScalar = {
   updatedAt?: boolean
 }
 
-export type HabitOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "title" | "area" | "areaId" | "cadence" | "streak" | "bestStreak" | "lastDoneDate" | "archivedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["habit"]>
+export type HabitOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "title" | "areaId" | "cadence" | "streak" | "bestStreak" | "lastDoneDate" | "archivedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["habit"]>
 export type HabitInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  userArea?: boolean | Prisma.Habit$userAreaArgs<ExtArgs>
+  userArea?: boolean | Prisma.UserAreaDefaultArgs<ExtArgs>
   logs?: boolean | Prisma.Habit$logsArgs<ExtArgs>
   _count?: boolean | Prisma.HabitCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type HabitIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  userArea?: boolean | Prisma.Habit$userAreaArgs<ExtArgs>
+  userArea?: boolean | Prisma.UserAreaDefaultArgs<ExtArgs>
 }
 export type HabitIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  userArea?: boolean | Prisma.Habit$userAreaArgs<ExtArgs>
+  userArea?: boolean | Prisma.UserAreaDefaultArgs<ExtArgs>
 }
 
 export type $HabitPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Habit"
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
-    userArea: Prisma.$UserAreaPayload<ExtArgs> | null
+    userArea: Prisma.$UserAreaPayload<ExtArgs>
     logs: Prisma.$HabitLogPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     userId: string
     title: string
-    area: $Enums.LifeArea | null
-    areaId: string | null
+    areaId: string
     /**
      * Habits use DAILY (or WEEKLY); NONE means paused
      */
@@ -1488,7 +1444,7 @@ readonly fields: HabitFieldRefs;
 export interface Prisma__HabitClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  userArea<T extends Prisma.Habit$userAreaArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Habit$userAreaArgs<ExtArgs>>): Prisma.Prisma__UserAreaClient<runtime.Types.Result.GetResult<Prisma.$UserAreaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  userArea<T extends Prisma.UserAreaDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserAreaDefaultArgs<ExtArgs>>): Prisma.Prisma__UserAreaClient<runtime.Types.Result.GetResult<Prisma.$UserAreaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   logs<T extends Prisma.Habit$logsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Habit$logsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$HabitLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1522,7 +1478,6 @@ export interface HabitFieldRefs {
   readonly id: Prisma.FieldRef<"Habit", 'String'>
   readonly userId: Prisma.FieldRef<"Habit", 'String'>
   readonly title: Prisma.FieldRef<"Habit", 'String'>
-  readonly area: Prisma.FieldRef<"Habit", 'LifeArea'>
   readonly areaId: Prisma.FieldRef<"Habit", 'String'>
   readonly cadence: Prisma.FieldRef<"Habit", 'RecurrenceInterval'>
   readonly streak: Prisma.FieldRef<"Habit", 'Int'>
@@ -1929,25 +1884,6 @@ export type HabitDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Limit how many Habits to delete.
    */
   limit?: number
-}
-
-/**
- * Habit.userArea
- */
-export type Habit$userAreaArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the UserArea
-   */
-  select?: Prisma.UserAreaSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the UserArea
-   */
-  omit?: Prisma.UserAreaOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.UserAreaInclude<ExtArgs> | null
-  where?: Prisma.UserAreaWhereInput
 }
 
 /**

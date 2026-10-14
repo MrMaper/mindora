@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
@@ -24,21 +24,21 @@ import type {
   UpdateAreaBucketInput,
 } from "@/schemas/projects";
 import type { ProjectRow } from "@/features/projects/types";
-import type { LifeArea } from "@/types/db";
 import { DrawerMode } from "@/components/ui-kit/global/error";
-import { DEFAULT_AREA, isLifeAreaValue } from "@/lib/areas";
+import { useAreaHelpers } from "@/components/member-areas-provider";
 
 export type ProjectsDrawerMode = DrawerMode | "edit-area";
 
 export function useProjects(initialSearch: string) {
   const router = useRouter();
+  const { defaultAreaId } = useAreaHelpers();
 
   const [drawerMode, setDrawerMode] =
     React.useState<ProjectsDrawerMode>("none");
   const [editingProject, setEditingProject] = React.useState<ProjectRow | null>(
     null,
   );
-  const [editingArea, setEditingArea] = React.useState<LifeArea | null>(null);
+  const [editingArea, setEditingArea] = React.useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = React.useState<ProjectRow | null>(
     null,
   );
@@ -57,28 +57,21 @@ export function useProjects(initialSearch: string) {
       name: "",
       description: "",
       teamId: "",
-      area: "",
-      areaId: "",
+      areaId: defaultAreaId,
     },
   });
 
   const areaForm = useForm<UpdateAreaBucketInput>({
     resolver: localizedZodResolver(updateAreaBucketSchema),
-    defaultValues: { area: DEFAULT_AREA, name: "", description: "" },
+    defaultValues: { areaId: "", name: "", description: "" },
   });
 
-  function openCreate(areaOrId?: LifeArea | string) {
-    const asLegacy =
-      typeof areaOrId === "string" && isLifeAreaValue(areaOrId)
-        ? areaOrId
-        : undefined;
-    const asId = asLegacy ? "" : areaOrId ?? "";
+  function openCreate(areaId?: string) {
     createForm.reset({
       name: "",
       description: "",
       teamId: "",
-      area: asLegacy ?? "",
-      areaId: asId,
+      areaId: areaId || defaultAreaId,
     });
     setActionError(null);
     setDrawerMode("create");
@@ -97,11 +90,11 @@ export function useProjects(initialSearch: string) {
 
   function openEditArea(bucket: ProjectRow) {
     areaForm.reset({
-      area: bucket.area,
+      areaId: bucket.areaId,
       name: bucket.name,
       description: bucket.description ?? "",
     });
-    setEditingArea(bucket.area);
+    setEditingArea(bucket.areaId);
     setEditingProject(bucket);
     setActionError(null);
     setDrawerMode("edit-area");
@@ -121,8 +114,7 @@ export function useProjects(initialSearch: string) {
       fd.append("name", data.name);
       fd.append("description", data.description ?? "");
       fd.append("teamId", data.teamId ?? "");
-      if (data.areaId) fd.append("areaId", data.areaId);
-      if (data.area) fd.append("area", data.area);
+      fd.append("areaId", data.areaId);
       const result = await createProject(fd);
       if (!result.success) {
         setActionError(result.error ?? "Failed to create path.");
@@ -168,7 +160,7 @@ export function useProjects(initialSearch: string) {
         return;
       }
       const fd = new FormData();
-      fd.append("area", data.area);
+      fd.append("areaId", data.areaId);
       fd.append("name", data.name);
       fd.append("description", data.description ?? "");
       const result = await updateAreaBucket(fd);

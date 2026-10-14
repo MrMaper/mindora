@@ -7,18 +7,16 @@ import {
   SOURCE_READING_TO_DOC,
   SOURCE_READING_TO_TASK,
 } from "./status-sync";
-import { RESEARCH_AREA } from "@/lib/areas";
+import { researchHubDocWhere, researchHubTaskWhere } from "@/lib/areas";
 
 /** After a PhD pipeline card moves, mirror status onto linked docs + their sources. */
 export async function syncResearchLinksFromTaskStatus(
   taskId: string,
   toStatus: TaskStatus | string,
 ): Promise<void> {
-  const task = await db.task.findUnique({
-    where: { id: taskId },
+  const task = await db.task.findFirst({
+    where: { id: taskId, ...researchHubTaskWhere() },
     select: {
-      area: true,
-      project: { select: { area: true } },
       docs: {
         select: {
           docId: true,
@@ -28,8 +26,6 @@ export async function syncResearchLinksFromTaskStatus(
     },
   });
   if (!task) return;
-  const area = task.area ?? task.project?.area ?? null;
-  if (area !== RESEARCH_AREA) return;
 
   const docIds = task.docs.map(d => d.docId);
   if (docIds.length === 0) return;
@@ -46,7 +42,7 @@ export async function syncResearchLinksFromTaskStatus(
   await Promise.all([
     docStatus
       ? db.doc.updateMany({
-          where: { id: { in: docIds }, area: RESEARCH_AREA, deletedAt: null },
+          where: { id: { in: docIds }, ...researchHubDocWhere(), deletedAt: null },
           data: { status: docStatus },
         })
       : Promise.resolve(),
@@ -78,14 +74,12 @@ export async function syncResearchLinksFromSourceReading(
   if (!nextStatus) return;
 
   const links = await db.docTask.findMany({
-    where: { docId: source.docId },
+    where: { docId: source.docId, task: researchHubTaskWhere() },
     select: {
       task: {
         select: {
           id: true,
           status: true,
-          area: true,
-          project: { select: { area: true } },
         },
       },
     },
@@ -94,17 +88,13 @@ export async function syncResearchLinksFromSourceReading(
 
   const phdTasks = links
     .map(l => l.task)
-    .filter(t => {
-      const area = t.area ?? t.project?.area ?? null;
-      return area === RESEARCH_AREA;
-    })
     .sort((a, b) => a.id.localeCompare(b.id));
 
   const primary = phdTasks[0];
   if (!primary) {
     if (nextDocStatus) {
       await db.doc.updateMany({
-        where: { id: source.docId, area: RESEARCH_AREA, deletedAt: null },
+        where: { id: source.docId, ...researchHubDocWhere(), deletedAt: null },
         data: { status: nextDocStatus },
       });
     }
@@ -127,7 +117,7 @@ export async function syncResearchLinksFromSourceReading(
   if (nextRank < currentRank) {
     if (nextDocStatus) {
       await db.doc.updateMany({
-        where: { id: source.docId, area: RESEARCH_AREA, deletedAt: null },
+        where: { id: source.docId, ...researchHubDocWhere(), deletedAt: null },
         data: { status: nextDocStatus },
       });
     }
@@ -138,7 +128,7 @@ export async function syncResearchLinksFromSourceReading(
   if (primary.status === nextStatus) {
     if (nextDocStatus) {
       await db.doc.updateMany({
-        where: { id: source.docId, area: RESEARCH_AREA, deletedAt: null },
+        where: { id: source.docId, ...researchHubDocWhere(), deletedAt: null },
         data: { status: nextDocStatus },
       });
     }
@@ -162,12 +152,12 @@ export async function syncResearchLinksFromSourceReading(
   const taskDocStatus = RESEARCH_TASK_TO_DOC_STATUS[nextStatus];
   if (taskDocStatus && siblingIds.length > 0) {
     await db.doc.updateMany({
-      where: { id: { in: siblingIds }, area: RESEARCH_AREA, deletedAt: null },
+      where: { id: { in: siblingIds }, ...researchHubDocWhere(), deletedAt: null },
       data: { status: taskDocStatus },
     });
   } else if (nextDocStatus) {
     await db.doc.updateMany({
-      where: { id: source.docId, area: RESEARCH_AREA, deletedAt: null },
+      where: { id: source.docId, ...researchHubDocWhere(), deletedAt: null },
       data: { status: nextDocStatus },
     });
   }

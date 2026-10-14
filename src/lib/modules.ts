@@ -96,20 +96,20 @@ function asRecord(raw: unknown): Record<string, unknown> {
 }
 
 /**
- * Normalize stored policy. A key that is missing (user created before the
- * policy column existed and not backfilled yet) falls back to the legacy
- * `enabledModules` flag: true → member_choice, false → off.
+ * Normalize stored policy. A key that is missing or invalid falls back to
+ * `member_choice` (the pre-policy default: everything available, member decides).
+ * The legacy `User.enabledModules` mirror was dropped in P7.
  */
-export function parseModulePolicy(
-  rawPolicy: unknown,
-  rawLegacy: unknown,
-): ModulePolicy {
+export function parseModulePolicy(rawPolicy: unknown): ModulePolicy {
   const policy = asRecord(rawPolicy);
-  const legacy = parseModuleFlags(rawLegacy);
   const out = {} as ModulePolicy;
   for (const key of PRIMARY_MODULES) {
     const v = policy[key];
-    out[key] = isPolicyState(v) ? v : legacy[key] ? "member_choice" : "off";
+    out[key] = isPolicyState(v)
+      ? v
+      : DEFAULT_MODULE_FLAGS[key]
+        ? "member_choice"
+        : "off";
   }
   return out;
 }
@@ -126,23 +126,18 @@ export function parseMemberPrefs(raw: unknown): ModuleMemberPrefs {
 /**
  * Effective flags for a member.
  * raw(m): off → false, on → true, member_choice → pref ?? default
- * Policy keys missing from storage use the legacy flag directly (so existing
- * members keep exactly what they had). Dependencies are applied last.
+Missing policy keys are normalized by `parseModulePolicy`. Dependencies are applied last.
  */
 export function resolveEffectiveFlags(input: {
   policy: unknown;
   prefs: unknown;
-  legacy: unknown;
 }): ModuleFlags {
-  const policy = asRecord(input.policy);
+  const policy = parseModulePolicy(input.policy);
   const prefs = parseMemberPrefs(input.prefs);
-  const legacy = parseModuleFlags(input.legacy);
   const raw = {} as ModuleFlags;
   for (const key of PRIMARY_MODULES) {
     const state = policy[key];
-    if (!isPolicyState(state)) {
-      raw[key] = legacy[key];
-    } else if (state === "off") {
+    if (state === "off") {
       raw[key] = false;
     } else if (state === "on") {
       raw[key] = true;
@@ -153,34 +148,11 @@ export function resolveEffectiveFlags(input: {
   return normalizeModuleFlags(raw);
 }
 
-/** Legacy mirror written on every policy change so an older build still reads it. */
-export function policyToLegacyFlags(policy: ModulePolicy): ModuleFlags {
+/** Flags for every module the admin policy allows (anything not `off`). */
+export function policyAllowedFlags(policy: ModulePolicy): ModuleFlags {
   const flags = {} as ModuleFlags;
   for (const key of PRIMARY_MODULES) flags[key] = policy[key] !== "off";
   return normalizeModuleFlags(flags);
-}
-
-/**
- * Materialize an explicit policy for a user whose stored policy is incomplete.
- * old flag true → member_choice + pref true; false → off (docs/AREAS.md §7.6).
- */
-export function backfillPolicyFromLegacy(
-  rawPolicy: unknown,
-  rawPrefs: unknown,
-  rawLegacy: unknown,
-): { policy: ModulePolicy; prefs: ModuleMemberPrefs; changed: boolean } {
-  const storedPolicy = asRecord(rawPolicy);
-  const prefs = parseMemberPrefs(rawPrefs);
-  const legacy = parseModuleFlags(rawLegacy);
-  const policy = parseModulePolicy(rawPolicy, rawLegacy);
-  let changed = false;
-  for (const key of PRIMARY_MODULES) {
-    if (!isPolicyState(storedPolicy[key])) {
-      changed = true;
-      if (legacy[key]) prefs[key] = true;
-    }
-  }
-  return { policy, prefs, changed };
 }
 
 export type MemberToggleResult =

@@ -1,19 +1,15 @@
-import type { LifeArea } from "@/types/db";
 import {
-  AREA_META,
-  DEFAULT_AREA,
-  HUB_AREAS,
-  LANGUAGE_AREA,
-  LIFE_AREAS,
-  RESEARCH_AREA,
-  WORKSPACE_AREAS,
-  isAreaBucketId,
-  isHubArea,
-  isLifeAreaValue,
   allLegacyBucketIds,
-  personalAreaProjectId,
-  lifeAreaFromBucketId,
+  areaWhere,
   hubTaskExclusion,
+  isAreaBucketId,
+  isHubAreaId,
+  seedKeyFromBucketId,
+  areaTemplateMeta,
+  templateKeyForSlug,
+  areaRefForTemplate,
+  personalAreaProjectId,
+  type MemberContext,
 } from "@/lib/areas";
 
 export type ProjectKind = "bucket" | "path" | "workspace";
@@ -27,64 +23,67 @@ export type ProjectListScope =
   | "all";
 
 export {
-  HUB_AREAS,
-  WORKSPACE_AREAS,
-  isHubArea,
-  isLifeAreaValue,
+  isHubAreaId,
   isAreaBucketId,
   personalAreaProjectId,
-  lifeAreaFromBucketId,
+  seedKeyFromBucketId,
 };
 
-export function projectKind(project: {
-  id: string;
-  area: LifeArea | string | null | undefined;
-}): ProjectKind {
+/** bucket | hub path | workspace path, from the project's area and the member's hubs. */
+export function projectKind(
+  project: { id: string; areaId: string | null | undefined },
+  ctx: Pick<MemberContext, "hubAreas">,
+): ProjectKind {
   if (isAreaBucketId(project.id)) return "bucket";
-  const area = project.area ?? DEFAULT_AREA;
-  if (isHubArea(area)) return "path";
+  if (isHubAreaId(project.areaId, ctx)) return "path";
   return "workspace";
 }
 
 export function projectPickerLabel(
-  project: { id: string; name: string; area?: LifeArea | string | null },
+  project: { id: string; name: string },
   language: "FA" | "EN" = "FA",
 ): string {
   if (isAreaBucketId(project.id)) {
     const trimmed = project.name?.trim();
     if (trimmed) return trimmed;
-    const area = (project.area ?? DEFAULT_AREA) as LifeArea;
-    const meta = AREA_META[area];
-    return language === "EN" ? meta.nameEn : meta.nameFa;
+    const meta = areaTemplateMeta(seedKeyFromBucketId(project.id) ?? "life");
+    if (meta) return language === "EN" ? meta.nameEn : meta.nameFa;
   }
   return project.name;
 }
 
-/** Prisma `where` fragment: projects visible for a list scope (membership applied by caller). */
+/**
+ * Prisma `where` fragment: projects visible for a list scope (membership applied
+ * by caller). Hub scopes follow the member's hub areas (docs/AREAS.md §10.6/§10.7).
+ */
 export function projectWhereForScope(
   scope: ProjectListScope,
+  ctx: Pick<MemberContext, "areas" | "hubAreas">,
 ): Record<string, unknown> {
   if (scope === "all") return {};
 
   if (scope === "research") {
-    return { area: RESEARCH_AREA };
+    const id = ctx.hubAreas.research?.id;
+    return id ? { areaId: id } : { id: "__never__" };
   }
 
   if (scope === "language") {
-    return { area: LANGUAGE_AREA };
+    const id = ctx.hubAreas.language?.id;
+    return id ? { areaId: id } : { id: "__never__" };
   }
 
   const legacy = allLegacyBucketIds();
+  const workspaceAreaIds = ctx.areas.filter(a => !a.hubFor).map(a => a.id);
+  const bucketIds = ctx.areas
+    .map(a => a.bucketProjectId)
+    .filter((id): id is string => Boolean(id));
 
   if (scope === "workspace") {
     return {
-      area: { in: WORKSPACE_AREAS },
+      areaId: { in: workspaceAreaIds },
       AND: [
-        { id: { notIn: legacy } },
-        { NOT: { id: { startsWith: "area-work-" } } },
-        { NOT: { id: { startsWith: "area-life-" } } },
-        { NOT: { id: { startsWith: "area-phd-" } } },
-        { NOT: { id: { startsWith: "area-lang-" } } },
+        { id: { notIn: [...legacy, ...bucketIds] } },
+        { NOT: { id: { startsWith: "area-" } } },
       ],
     };
   }
@@ -94,7 +93,7 @@ export function projectWhereForScope(
       OR: [
         { id: { in: legacy } },
         { id: { startsWith: "area-" } },
-        { area: { in: WORKSPACE_AREAS } },
+        { areaId: { in: workspaceAreaIds } },
       ],
     };
   }
@@ -106,96 +105,77 @@ export function projectWhereForScope(
   return {};
 }
 
+/** Hub-task exclusion for a viewer (see `hubTaskExclusion`). */
 export function taskWhereExcludeHub(
-  ctx?: Parameters<typeof hubTaskExclusion>[0],
+  ctx: Parameters<typeof hubTaskExclusion>[0],
 ): Record<string, unknown> {
   return hubTaskExclusion(ctx);
 }
 
-/** Prisma fragment: filter by legacy enum or UserArea id. */
-export function areaScopeWhere(area: string): Record<string, unknown> {
-  if (isLifeAreaValue(area)) {
-    return {
-      OR: [{ area }, { project: { area } }],
-    };
-  }
-  return {
-    OR: [{ areaId: area }, { project: { areaId: area } }],
-  };
+/** Prisma fragment: filter tasks by UserArea id (own area or its project's). */
+export function areaScopeWhere(areaId: string): Record<string, unknown> {
+  return areaWhere(areaId);
 }
 
-/** Turn `?area=` and `?project=` into area key (enum or areaId) plus named path. */
+type MemberAreaKey = {
+  id: string;
+  templateKey?: string | null;
+  hubFor?: "research" | "language" | null;
+};
+
+/**
+ * Normalise a `?area=` value: a UserArea id passes through; a legacy slug from an
+ * old bookmark (`phd|work|life|lang`, any case) maps through `templateKey`.
+ */
+export function normalizeAreaParam(
+  raw: string,
+  memberAreas: readonly MemberAreaKey[] = [],
+): string {
+  const value = raw.trim();
+  if (!value || memberAreas.some(a => a.id === value)) return value;
+  const key = templateKeyForSlug(value);
+  if (!key) return value;
+  const hit = areaRefForTemplate(
+    memberAreas.map(a => ({
+      id: a.id,
+      templateKey: a.templateKey ?? null,
+      hubFor: a.hubFor ?? null,
+      archived: false,
+    })),
+    key,
+  );
+  return hit?.id ?? value;
+}
+
+/** Turn `?area=` and `?project=` into an area id plus named path. */
 export function scopeFromFilters(
   areaParam: string,
   projectParam: string,
-  projects: { id: string; area?: string | null; areaId?: string | null }[] = [],
+  projects: { id: string; areaId?: string | null }[] = [],
+  memberAreas: readonly MemberAreaKey[] = [],
 ): { area: string; projectId: string } {
   const ids = projectParam.split(",").map(id => id.trim()).filter(Boolean);
   const pathId = ids.find(id => !isAreaBucketId(id)) ?? "";
   const bucketId = ids.find(id => isAreaBucketId(id));
-  let area = areaParam.trim();
+  let area = normalizeAreaParam(areaParam, memberAreas);
   if (!area && !pathId && bucketId) {
-    const fromLegacy = lifeAreaFromBucketId(bucketId);
-    if (fromLegacy) area = fromLegacy;
-    else {
-      const bucket = projects.find(p => p.id === bucketId);
-      area = bucket?.areaId ?? "";
-    }
+    const bucket = projects.find(p => p.id === bucketId);
+    area = bucket?.areaId ?? "";
   }
   if (pathId) {
     const path = projects.find(item => item.id === pathId);
     if (area) {
-      if (isLifeAreaValue(area)) {
-        const pathArea = isLifeAreaValue(path?.area) ? path.area : "";
-        if (pathArea && pathArea !== area) return { area, projectId: "" };
-      } else if (path?.areaId && path.areaId !== area) {
+      if (path?.areaId && path.areaId !== area) {
         return { area, projectId: "" };
       }
     } else {
-      area = path?.areaId ?? (isLifeAreaValue(path?.area) ? path.area : "") ?? "";
+      area = path?.areaId ?? "";
     }
   }
   return { area, projectId: pathId };
 }
 
-function bucketForArea(
-  projects: { id: string; name: string; area?: LifeArea | string | null }[],
-  area: LifeArea,
-) {
-  const matches = projects.filter(
-    item =>
-      isAreaBucketId(item.id) &&
-      (lifeAreaFromBucketId(item.id) === area || item.area === area),
-  );
-  return matches.find(item => !allLegacyBucketIds().includes(item.id)) ?? matches[0];
-}
-
-export function areaOptionLabel(
-  projects: { id: string; name: string; area?: LifeArea | string | null }[],
-  area: LifeArea,
-  language: "FA" | "EN",
-): string {
-  const bucket = bucketForArea(projects, area);
-  if (bucket) return projectPickerLabel(bucket, language);
-  const meta = AREA_META[area];
-  return language === "EN" ? meta.nameEn : meta.nameFa;
-}
-
-export function areaFilterOptions(
-  projects: { id: string; name: string; area?: LifeArea | string | null }[],
-  language: "FA" | "EN",
-  allLabel: string,
-): { value: string; label: string }[] {
-  return [
-    { value: "", label: allLabel },
-    ...LIFE_AREAS.map(area => ({
-      value: area,
-      label: areaOptionLabel(projects, area, language),
-    })),
-  ];
-}
-
-/** P5: filter options from the member's UserAreas (value = areaId). */
+/** Filter options from the member's UserAreas (value = areaId). */
 export function areaFilterOptionsFromAreas(
   areas: { id: string; nameFa: string; nameEn: string; archived?: boolean }[],
   language: "FA" | "EN",
@@ -212,47 +192,17 @@ export function areaFilterOptionsFromAreas(
   ];
 }
 
-export function pathFilterOptions(
-  projects: { id: string; name: string; area?: LifeArea | string | null }[],
-  language: "FA" | "EN",
-  area: LifeArea | "",
-): { value: string; label: string }[] {
-  const paths = projects.filter(item => !isAreaBucketId(item.id));
-  const visible = area ? paths.filter(item => item.area === area) : paths;
-  return [...visible]
-    .sort((a, b) => {
-      const areaOrder =
-        LIFE_AREAS.indexOf(isLifeAreaValue(a.area) ? a.area : DEFAULT_AREA) -
-        LIFE_AREAS.indexOf(isLifeAreaValue(b.area) ? b.area : DEFAULT_AREA);
-      if (!area && areaOrder !== 0) return areaOrder;
-      return a.name.localeCompare(b.name, language === "EN" ? "en" : "fa");
-    })
-    .map(item => ({
-      value: item.id,
-      label:
-        area || !isLifeAreaValue(item.area)
-          ? item.name
-          : `${areaOptionLabel(projects, item.area, language)} · ${item.name}`,
-    }));
-}
-
 export function pathFilterOptionsForAreaId(
   projects: {
     id: string;
     name: string;
-    area?: LifeArea | string | null;
     areaId?: string | null;
   }[],
   language: "FA" | "EN",
   areaId: string,
-  legacyEnum?: LifeArea | null,
 ): { value: string; label: string }[] {
   const paths = projects.filter(item => !isAreaBucketId(item.id));
-  const visible = paths.filter(
-    item =>
-      item.areaId === areaId ||
-      (!item.areaId && legacyEnum != null && item.area === legacyEnum),
-  );
+  const visible = paths.filter(item => item.areaId === areaId);
   return [...visible]
     .sort((a, b) => a.name.localeCompare(b.name, language === "EN" ? "en" : "fa"))
     .map(item => ({ value: item.id, label: item.name }));

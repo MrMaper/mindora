@@ -1,5 +1,5 @@
 import { prisma as db } from "@/lib/db";
-import { parseModulePolicy, policyToLegacyFlags } from "@/lib/modules";
+import { parseModulePolicy, policyAllowedFlags } from "@/lib/modules";
 import { parseUiProfile } from "@/lib/ui-profile";
 import { startOfZonedDay } from "@/lib/life";
 import { ONLINE_WINDOW_MS, isUserOnline } from "@/lib/presence";
@@ -22,14 +22,13 @@ function mapUser(u: {
   role: UserRow["role"];
   status: UserRow["status"];
   createdAt: Date;
-  enabledModules: unknown;
   modulePolicy: unknown;
   preferences?: { uiProfile: string } | null;
   lastLoginAt: Date | null;
   lastSeenAt: Date | null;
   totalOnlineSeconds: number;
 }): UserRow {
-  const modulePolicy = parseModulePolicy(u.modulePolicy, u.enabledModules);
+  const modulePolicy = parseModulePolicy(u.modulePolicy);
   return {
     id: u.id,
     name: u.name,
@@ -41,7 +40,7 @@ function mapUser(u: {
     modulePolicy,
     uiProfile: parseUiProfile(u.preferences?.uiProfile),
     /** Modules the admin allows (policy != off). */
-    enabledModules: policyToLegacyFlags(modulePolicy),
+    allowedModules: policyAllowedFlags(modulePolicy),
     lastLoginAt: u.lastLoginAt,
     lastSeenAt: u.lastSeenAt,
     totalOnlineSeconds: u.totalOnlineSeconds,
@@ -57,7 +56,6 @@ const userSelect = {
   role: true,
   status: true,
   createdAt: true,
-  enabledModules: true,
   modulePolicy: true,
   preferences: { select: { uiProfile: true } },
   lastLoginAt: true,

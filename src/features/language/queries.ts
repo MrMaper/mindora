@@ -27,7 +27,7 @@ import {
 import { VOCAB_DECK_KEYS, VOCAB_DECK_META } from "./decks/catalog-meta";
 import type { LanguageTab } from "./types";
 import { daysAgoApp, startOfAppDay, startOfAppDayInstant } from "./day";
-import { LANGUAGE_AREA, hubProjectWhere } from "@/lib/areas";
+import { hubProjectWhere } from "@/lib/areas";
 import { getHubScope } from "@/lib/areas/server";
 
 function startOfLocalDay(d = new Date()): Date {
@@ -63,13 +63,16 @@ export async function listLangProjects(
       userId,
       project: {
         AND: [
-          hubProjectWhere(scope.areaId, scope.legacyEnum),
+          hubProjectWhere(scope.areaId),
           {
             status: { not: "ARCHIVED" },
             id: {
               notIn: [
                 scope.bucketProjectId,
-                ...areaBucketIdsToExclude(userId, LANGUAGE_AREA),
+                ...areaBucketIdsToExclude({
+                  bucketProjectId: scope.bucketProjectId,
+                  templateKey: scope.templateKey,
+                }),
               ],
             },
           },
@@ -516,7 +519,7 @@ export async function getLanguageHubData(
             userId,
             deletedAt: null,
             archived: false,
-            AND: [hubProjectWhere(langHub.areaId, LANGUAGE_AREA)],
+            AND: [hubProjectWhere(langHub.areaId)],
             ...(pf.projectId !== undefined
               ? pf.projectId === null
                 ? { projectId: null }

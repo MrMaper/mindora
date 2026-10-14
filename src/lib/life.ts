@@ -1,20 +1,14 @@
 import type { RecurrenceInterval } from "@/types/db";
 import { toJalaali, toGregorian, jalaaliMonthLength } from "jalaali-js";
 import { formatNumber } from "@/lib/utils";
-import { isHubArea } from "@/lib/areas";
-
 export {
-  AREA_PROJECT_IDS,
   LEGACY_AREA_PROJECT_IDS,
   personalAreaProjectId,
   areaProjectIdsForUser,
   isAreaBucketId,
-  isUserAreaBucket,
+  isAreaBucketOf,
   areaBucketIdsToExclude,
-  lifeAreaFromBucketId,
-  LIFE_AREAS,
-  coerceLifeArea,
-  AREA_META,
+  seedKeyFromBucketId,
 } from "@/lib/areas";
 
 const PERSIAN_WEEKDAYS = [
@@ -188,7 +182,8 @@ export function resolvePersonalTaskPlanningStatus<S extends string>(
   requested: S,
   due: Date | null | undefined,
   opts?: {
-    area?: string | null;
+    /** True when the task sits in a Research/Language hub area (stage is not due-derived). */
+    isHub?: boolean;
     waitingOn?: boolean;
     now?: Date;
   },
@@ -200,7 +195,7 @@ export function resolvePersonalTaskPlanningStatus<S extends string>(
   ) {
     return "BACKLOG";
   }
-  if (isHubArea(opts?.area)) {
+  if (opts?.isHub) {
     return requested;
   }
   return resolveBoardPlanningStatus(requested, due, opts?.now);

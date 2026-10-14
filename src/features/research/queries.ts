@@ -1,8 +1,5 @@
 import { prisma as db } from "@/lib/db";
-import {
-  areaBucketIdsToExclude,
-  personalAreaProjectId,
-} from "@/lib/life";
+import { areaBucketIdsToExclude } from "@/lib/life";
 import { getRecentDocs, getWritingPulse } from "@/features/docs/queries";
 import type {
   ResearchHubData,
@@ -13,7 +10,11 @@ import type {
 } from "./types";
 import type { SourceReadingStatus } from "@/types/db";
 import { excludeLibraryBindersWhere, isLibraryBinderSystemKey } from "./status-sync";
-import { RESEARCH_AREA, hubProjectWhere } from "@/lib/areas";
+import {
+  hubProjectWhere,
+  researchHubDocWhere,
+  researchHubTaskWhere,
+} from "@/lib/areas";
 import { getHubScope } from "@/lib/areas/server";
 
 function docProjectFilter(scope: ResearchProjectScope): {
@@ -30,14 +31,14 @@ export async function resolveResearchTaskProjectIds(
   scope: ResearchProjectScope,
 ): Promise<string[]> {
   const hub = await getHubScope(userId, "research");
-  const phdInbox = hub.bucketProjectId || personalAreaProjectId(userId, RESEARCH_AREA);
-  if (scope === "inbox") return [phdInbox];
+  const phdInbox = hub.bucketProjectId;
+  if (scope === "inbox") return phdInbox ? [phdInbox] : [];
   if (scope !== "all") return [scope];
 
   const projects = await listPhdResearchProjects(userId);
   const ids = projects.map(p => p.id);
-  if (!ids.includes(phdInbox)) ids.push(phdInbox);
-  return ids.length > 0 ? ids : [phdInbox];
+  if (phdInbox && !ids.includes(phdInbox)) ids.push(phdInbox);
+  return ids;
 }
 
 export async function listPhdResearchProjects(
@@ -49,13 +50,16 @@ export async function listPhdResearchProjects(
       userId,
       project: {
         AND: [
-          hubProjectWhere(scope.areaId, scope.legacyEnum),
+          hubProjectWhere(scope.areaId),
           {
             status: { not: "ARCHIVED" },
             id: {
               notIn: [
                 scope.bucketProjectId,
-                ...areaBucketIdsToExclude(userId, RESEARCH_AREA),
+                ...areaBucketIdsToExclude({
+                  bucketProjectId: scope.bucketProjectId,
+                  templateKey: scope.templateKey,
+                }),
               ],
             },
           },
@@ -77,11 +81,12 @@ export async function getResearchHubData(
   scope: ResearchProjectScope = "all",
 ): Promise<ResearchHubData> {
   const projectFilter = docProjectFilter(scope);
+  const hubAreaId = (await getHubScope(userId, "research")).areaId ?? "__none__";
   const [phdDocs, quotes, sources, pulse] = await Promise.all([
-    getRecentDocs(userId, { limit: 12, area: RESEARCH_AREA, ...projectFilter }),
+    getRecentDocs(userId, { limit: 12, areaId: hubAreaId, ...projectFilter }),
     getRecentPhdQuotes(userId, 12, scope),
     getAggregatedPhdSources(userId, { ...projectFilter }),
-    getWritingPulse(userId, { limit: 8, area: RESEARCH_AREA, ...projectFilter }),
+    getWritingPulse(userId, { limit: 8, areaId: hubAreaId, ...projectFilter }),
   ]);
 
   return { phdDocs, quotes, sources, pulse };
@@ -101,7 +106,7 @@ export async function getRecentPhdQuotes(
         AND: [
           {
             userId,
-            area: RESEARCH_AREA,
+            ...researchHubDocWhere(),
             deletedAt: null,
             archived: false,
             ...(projectFilter.projectId === "NONE"
@@ -161,7 +166,7 @@ export async function getAggregatedPhdSources(
     where: {
       doc: {
         userId,
-        area: RESEARCH_AREA,
+        ...researchHubDocWhere(),
         deletedAt: null,
         archived: false,
         ...(opts?.projectId === "NONE" ? { projectId: null } : {}),
@@ -217,7 +222,7 @@ export async function getAggregatedPhdSources(
           systemKey: true,
           templateKey: true,
           tasks: {
-            where: { task: { area: RESEARCH_AREA } },
+            where: { task: researchHubTaskWhere() },
             take: 1,
             select: {
               task: { select: { id: true, title: true } },

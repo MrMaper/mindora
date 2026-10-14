@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma as db } from "@/lib/db";
 import { moduleGuardError } from "@/lib/module-guard";
-import type { DocStatus, LifeArea } from "@/types/db";
+import type { DocStatus } from "@/types/db";
+import type { AreaTemplateKey } from "@/lib/areas";
 import { getDocTemplate, type DocTemplateKey } from "./templates";
 import {
   getDocById,
@@ -27,7 +28,13 @@ import type {
 import { countWords, ensureHeadingIds } from "./utils";
 import { extractTaskCandidatesFromHtml } from "./checklist";
 import { ensureDailyNote } from "./daily";
-import { RESEARCH_AREA, LANGUAGE_AREA, LIFE_AREAS, DEFAULT_AREA } from "@/lib/areas";
+import { areaRefForTemplate, taskInAreaWhere } from "@/lib/areas";
+import {
+  bucketProjectIdForArea,
+  getMemberContext,
+  isMemberArea,
+} from "@/lib/areas/server";
+import { isLibraryBinderSystemKey } from "@/features/research/status-sync";
 export interface ActionResult {
   success: boolean;
   error?: string;
@@ -58,13 +65,34 @@ async function assertProjectMember(
       projectId,
       userId,
       project: {
-        area: { in: LIFE_AREAS },
         status: { not: "ARCHIVED" },
       },
     },
     select: { id: true },
   });
   return !!row;
+}
+
+/** Resolve a doc's area: explicit member area, else the template's area, else default. */
+async function resolveDocArea(
+  userId: string,
+  areaId?: string | null,
+  templateArea?: AreaTemplateKey | null,
+) {
+  const ctx = await getMemberContext(userId);
+  const byId = areaId ? ctx.areas.find(a => a.id === areaId) : undefined;
+  const byTemplate = templateArea
+    ? areaRefForTemplate(ctx.areas.filter(a => !a.archived), templateArea)
+    : null;
+  return byId ?? byTemplate ?? ctx.defaultArea;
+}
+
+async function isResearchArea(areaId: string): Promise<boolean> {
+  const row = await db.userArea.findUnique({
+    where: { id: areaId },
+    select: { hubFor: true },
+  });
+  return row?.hubFor === "RESEARCH";
 }
 
 function htmlToText(html: string): string {
@@ -130,7 +158,7 @@ async function maybeCreateAutoVersion(
 }
 
 export async function listDocsAction(opts?: {
-  area?: LifeArea | "ALL";
+  areaId?: string | "ALL";
   search?: string;
   archived?: boolean;
   trash?: boolean;
@@ -150,7 +178,7 @@ export async function getDocAction(id: string): Promise<DocDetail | null> {
 
 export async function createDoc(input?: {
   title?: string;
-  area?: LifeArea;
+  areaId?: string;
   content?: string;
   templateKey?: DocTemplateKey;
   status?: DocStatus;
@@ -170,12 +198,16 @@ export async function createDoc(input?: {
       : "بدون عنوان");
   const rawContent = input?.content ?? template?.content ?? "<p></p>";
   const content = ensureHeadingIds(rawContent);
-  const area = input?.area ?? template?.area ?? DEFAULT_AREA;
+  const areaRef = await resolveDocArea(
+    session.user.id,
+    input?.areaId,
+    template?.areaTemplate,
+  );
 
-  // Research templates / PHD docs need Research; any doc needs Docs.
+  // Research-area docs need Research; any doc needs Docs.
   const blocked = await moduleGuardError(
     session.user.id,
-    area === RESEARCH_AREA ? "research" : "docs",
+    areaRef.hubFor === "research" ? "research" : "docs",
   );
   if (blocked) return { success: false, error: blocked };
 
@@ -189,7 +221,7 @@ export async function createDoc(input?: {
       title,
       content,
       contentText: htmlToText(content),
-      area,
+      areaId: areaRef.id,
       status: input?.status ?? "DRAFTING",
       wordGoal: input?.wordGoal ?? null,
       templateKey: input?.templateKey ?? template?.key ?? null,
@@ -200,8 +232,8 @@ export async function createDoc(input?: {
   });
 
   revalidateDocs(doc.id, {
-    research: area === RESEARCH_AREA,
-    language: area === LANGUAGE_AREA,
+    research: areaRef.hubFor === "research",
+    language: areaRef.hubFor === "language",
   });
   return { success: true, data: { id: doc.id } };
 }
@@ -217,7 +249,7 @@ export async function updateDoc(
   input: {
     title?: string;
     content?: string;
-    area?: LifeArea;
+    areaId?: string;
     status?: DocStatus;
     wordGoal?: number | null;
     pinned?: boolean;
@@ -236,11 +268,15 @@ export async function updateDoc(
       title: true,
       content: true,
       contentText: true,
-      area: true,
+      areaId: true,
       projectId: true,
     },
   });
   if (!existing) return { success: false, error: "سند پیدا نشد" };
+
+  if (input.areaId && !(await isMemberArea(session.user.id, input.areaId))) {
+    return { success: false, error: "حوزه پیدا نشد" };
+  }
 
   if (input.folderId) {
     const folder = await db.docFolder.findFirst({
@@ -259,7 +295,7 @@ export async function updateDoc(
     title?: string;
     content?: string;
     contentText?: string;
-    area?: LifeArea;
+    areaId?: string;
     status?: DocStatus;
     wordGoal?: number | null;
     pinned?: boolean;
@@ -276,7 +312,7 @@ export async function updateDoc(
     data.content = content;
     data.contentText = htmlToText(content);
   }
-  if (input.area !== undefined) data.area = input.area;
+  if (input.areaId !== undefined) data.areaId = input.areaId;
   if (input.status !== undefined) data.status = input.status;
   if (input.wordGoal !== undefined) data.wordGoal = input.wordGoal;
   if (input.pinned !== undefined) data.pinned = input.pinned;
@@ -286,12 +322,11 @@ export async function updateDoc(
 
   // Area chip alone must not leave a path from another area attached.
   if (
-    input.area !== undefined &&
+    input.areaId !== undefined &&
     input.projectId === undefined &&
-    input.area !== existing.area
+    input.areaId !== existing.areaId
   ) {
-    const { projectIdForArea } = await import("@/features/life/workspace");
-    data.projectId = projectIdForArea(session.user.id, input.area);
+    data.projectId = await bucketProjectIdForArea(session.user.id, input.areaId);
   }
 
   if (data.content !== undefined && data.content !== existing.content) {
@@ -376,10 +411,9 @@ export async function linkDocTask(
     where: { id: taskId },
     select: {
       id: true,
-      area: true,
+      areaId: true,
       assignedToId: true,
       createdById: true,
-      project: { select: { area: true } },
     },
   });
   if (!task) return { success: false, error: "کار پیدا نشد" };
@@ -391,8 +425,7 @@ export async function linkDocTask(
     return { success: false, error: "کار پیدا نشد" };
   }
 
-  const area = task.area ?? task.project?.area ?? null;
-  if (area === RESEARCH_AREA && doc.templateKey === "sourceNote") {
+  if (doc.templateKey === "sourceNote" && (await isResearchArea(task.areaId))) {
     const { replacePhdDocTaskLinks } = await import(
       "@/features/research/doc-task-links"
     );
@@ -451,7 +484,7 @@ export async function searchLinkableTasks(
 export async function createTaskFromDoc(input: {
   docId: string;
   title: string;
-  area?: LifeArea;
+  areaId?: string;
 }): Promise<ActionResult> {
   const session = await auth();
   if (!session?.user) return { success: false, error: "غیرمجاز" };
@@ -461,24 +494,25 @@ export async function createTaskFromDoc(input: {
 
   const doc = await db.doc.findFirst({
     where: { id: input.docId, userId: session.user.id },
-    select: { id: true, area: true, templateKey: true },
+    select: { id: true, areaId: true, templateKey: true },
   });
   if (!doc) return { success: false, error: "سند پیدا نشد" };
 
-  const { ensurePersonalWorkspace, projectIdForArea } = await import(
-    "@/features/life/workspace"
-  );
+  const { ensurePersonalWorkspace } = await import("@/features/life/workspace");
   const { teamId } = await ensurePersonalWorkspace(session.user.id);
-  const area = input.area ?? doc.area;
+  const areaId =
+    input.areaId && (await isMemberArea(session.user.id, input.areaId))
+      ? input.areaId
+      : doc.areaId;
+  const inResearch =
+    doc.templateKey === "sourceNote" && (await isResearchArea(areaId));
 
   // Reuse the single PhD reading card when linking from a source note.
-  if (area === RESEARCH_AREA && doc.templateKey === "sourceNote") {
+  if (inResearch) {
     const existingLink = await db.docTask.findFirst({
       where: {
         docId: doc.id,
-        task: {
-          OR: [{ area: RESEARCH_AREA }, { project: { area: RESEARCH_AREA } }],
-        },
+        task: taskInAreaWhere(areaId),
       },
       orderBy: { taskId: "asc" },
       select: { taskId: true },
@@ -501,8 +535,8 @@ export async function createTaskFromDoc(input: {
       status: "BACKLOG",
       priority: "NONE",
       type: "TASK",
-      area,
-      projectId: projectIdForArea(session.user.id, area),
+      areaId,
+      projectId: await bucketProjectIdForArea(session.user.id, areaId),
       teamId,
       createdById: session.user.id,
       assignedToId: session.user.id,
@@ -510,7 +544,7 @@ export async function createTaskFromDoc(input: {
     select: { id: true },
   });
 
-  if (area === RESEARCH_AREA && doc.templateKey === "sourceNote") {
+  if (inResearch) {
     const { replacePhdDocTaskLinks } = await import(
       "@/features/research/doc-task-links"
     );
@@ -785,10 +819,11 @@ export async function deleteDocSource(id: string): Promise<ActionResult> {
   await db.docSource.delete({ where: { id } });
 
   // Per-paper source notes exist only for this vault row — trash the shell too.
+  // Library binders use `library:` (and legacy `phd-library:`) — never trash those.
   const host = source.doc;
   const isPaperNote =
     host.templateKey === "sourceNote" &&
-    (!host.systemKey || !host.systemKey.startsWith("phd-library:"));
+    !isLibraryBinderSystemKey(host.systemKey);
   if (isPaperNote && host._count.sources <= 1) {
     await db.doc.update({
       where: { id: host.id },
@@ -905,14 +940,14 @@ export async function updateDocQuote(
 export async function createTaskFromSelection(input: {
   docId: string;
   title: string;
-  area?: LifeArea;
+  areaId?: string;
 }): Promise<ActionResult> {
   return createTaskFromDoc(input);
 }
 
 export async function listRecentDocsAction(opts?: {
   limit?: number;
-  area?: LifeArea;
+  areaId?: string;
 }): Promise<DocListItem[]> {
   const session = await auth();
   if (!session?.user) return [];
@@ -921,7 +956,7 @@ export async function listRecentDocsAction(opts?: {
 
 export async function listDocsForTaskAction(
   taskId: string,
-): Promise<{ id: string; title: string; area: LifeArea }[]> {
+): Promise<{ id: string; title: string; areaId: string }[]> {
   const session = await auth();
   if (!session?.user) return [];
   return getDocsForTask(session.user.id, taskId);
@@ -985,7 +1020,7 @@ export async function listDocTagsAction(): Promise<DocTagItem[]> {
 export async function createDocFolder(input: {
   name: string;
   description?: string | null;
-  area?: LifeArea | null;
+  areaId?: string | null;
   parentId?: string | null;
 }): Promise<ActionResult> {
   const session = await auth();
@@ -1001,11 +1036,14 @@ export async function createDocFolder(input: {
     });
     if (!parent) return { success: false, error: "پوشهٔ والد پیدا نشد" };
   }
+  if (input.areaId && !(await isMemberArea(session.user.id, input.areaId))) {
+    return { success: false, error: "حوزه پیدا نشد" };
+  }
   const folder = await db.docFolder.create({
     data: {
       name,
       description,
-      area: input.area ?? null,
+      areaId: input.areaId ?? null,
       parentId,
       userId: session.user.id,
     },
@@ -1020,7 +1058,7 @@ export async function updateDocFolder(
   input: {
     name?: string;
     description?: string | null;
-    area?: LifeArea | null;
+    areaId?: string | null;
     parentId?: string | null;
   },
 ): Promise<ActionResult> {
@@ -1056,7 +1094,7 @@ export async function updateDocFolder(
   const data: {
     name?: string;
     description?: string | null;
-    area?: LifeArea | null;
+    areaId?: string | null;
     parentId?: string | null;
   } = {};
   if (input.name !== undefined) {
@@ -1067,7 +1105,12 @@ export async function updateDocFolder(
   if (input.description !== undefined) {
     data.description = input.description?.trim() || null;
   }
-  if (input.area !== undefined) data.area = input.area;
+  if (input.areaId !== undefined) {
+    if (input.areaId && !(await isMemberArea(session.user.id, input.areaId))) {
+      return { success: false, error: "حوزه پیدا نشد" };
+    }
+    data.areaId = input.areaId;
+  }
   if (input.parentId !== undefined) data.parentId = input.parentId;
 
   await db.docFolder.update({ where: { id }, data });
@@ -1283,7 +1326,7 @@ export async function createTasksFromDocChecklist(
 
   const doc = await db.doc.findFirst({
     where: { id: docId, userId: session.user.id, deletedAt: null },
-    select: { id: true, area: true, content: true },
+    select: { id: true, areaId: true, content: true },
   });
   if (!doc) return { success: false, error: "سند پیدا نشد" };
 
@@ -1301,10 +1344,9 @@ export async function createTasksFromDocChecklist(
     return { success: false, error: "چک‌لیست یا بولتی برای تبدیل نیست" };
   }
 
-  const { ensurePersonalWorkspace, projectIdForArea } = await import(
-    "@/features/life/workspace"
-  );
+  const { ensurePersonalWorkspace } = await import("@/features/life/workspace");
   const { teamId } = await ensurePersonalWorkspace(session.user.id);
+  const bucketId = await bucketProjectIdForArea(session.user.id, doc.areaId);
 
   let count = 0;
   for (const title of finalTitles) {
@@ -1314,8 +1356,8 @@ export async function createTasksFromDocChecklist(
         status: "BACKLOG",
         priority: "NONE",
         type: "TASK",
-        area: doc.area,
-        projectId: projectIdForArea(session.user.id, doc.area),
+        areaId: doc.areaId,
+        projectId: bucketId,
         teamId,
         createdById: session.user.id,
         assignedToId: session.user.id,

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
@@ -36,7 +36,7 @@ import { MembersTab } from "../ui/members-tab";
 import { InviteMemberDrawer } from "../ui/invite-member-drawer";
 import { RemoveMemberDialog } from "../ui/remove-member-dialog";
 import { ChangeRoleDialog } from "../ui/change-role-dialog";
-import { RESEARCH_AREA, LANGUAGE_AREA } from "@/lib/areas";
+import { useAreaHelpers } from "@/components/member-areas-provider";
 
 interface InviteUser {
   id: string;
@@ -62,6 +62,7 @@ export function ProjectDetailCC({
 }: ProjectDetailCCProps) {
   const t = useTranslation();
   const router = useRouter();
+  const { isHub } = useAreaHelpers();
 
   const membership = members.find(m => m.userId === currentUserId);
   const isAdmin =
@@ -123,11 +124,11 @@ export function ProjectDetailCC({
   }
 
   function openBoardForEdit(task?: ProjectTaskRow) {
-    if (project.area === RESEARCH_AREA) {
+    if (isHub(project.areaId, "research")) {
       router.push(`/research?project=${project.id}`);
       return;
     }
-    if (project.area === LANGUAGE_AREA) {
+    if (isHub(project.areaId, "language")) {
       router.push(`/language?project=${project.id}`);
       return;
     }

@@ -1,6 +1,7 @@
 import { prisma as db } from "@/lib/db";
 import { endOfDay, isOverdueTask, startOfDay, toDateKey } from "@/lib/life";
 import { taskWhereExcludeHub } from "@/lib/project-namespace";
+import { getMemberContext } from "@/lib/areas/server";
 import { personalTaskOwnership } from "@/lib/task-access";
 import { getEffectiveFlagsForUser } from "@/lib/module-guard";
 import { getBaleRuntime } from "./config";
@@ -44,6 +45,7 @@ export async function ensureBaleDigest(userId: string): Promise<void> {
   if (!flags.tasks && !flags.habits) return;
 
   const mine = personalTaskOwnership(userId);
+  const memberCtx = await getMemberContext(userId);
   const today = startOfDay(now);
   const focusIds =
     user.preferences?.todayFocusDate === todayKey
@@ -67,7 +69,7 @@ export async function ensureBaleDigest(userId: string): Promise<void> {
       where: {
         AND: [
           mine,
-          taskWhereExcludeHub(),
+          taskWhereExcludeHub(memberCtx),
           { status: { not: "DONE" } },
           { dueDate: { lt: today } },
         ],
@@ -80,7 +82,7 @@ export async function ensureBaleDigest(userId: string): Promise<void> {
       where: {
         AND: [
           mine,
-          taskWhereExcludeHub(),
+          taskWhereExcludeHub(memberCtx),
           { status: { not: "DONE" } },
           { dueDate: { gte: today, lte: endOfDay(today) } },
         ],

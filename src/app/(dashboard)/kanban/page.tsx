@@ -12,6 +12,7 @@ import {
 import { KanbanCC } from "./components/client";
 import type { TaskPriority } from "@/types/db";
 import { scopeFromFilters } from "@/lib/project-namespace";
+import { getMemberContext } from "@/lib/areas/server";
 import { localizedTitle } from "@/lib/page-title";
 
 export function generateMetadata(): Promise<Metadata> {
@@ -45,8 +46,16 @@ export default async function KanbanPage({
     area = "",
   } = await searchParams;
 
-  const userProjects = await getUserProjects(session.user.id, "assignable");
-  const scope = scopeFromFilters(area, project, userProjects);
+  const [userProjects, memberCtx] = await Promise.all([
+    getUserProjects(session.user.id, "assignable"),
+    getMemberContext(session.user.id),
+  ]);
+  const scope = scopeFromFilters(
+    area,
+    project,
+    userProjects,
+    memberCtx.areas,
+  );
 
   await syncPlanningStatusesCached(session.user.id);
 

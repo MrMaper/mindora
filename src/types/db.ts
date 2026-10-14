@@ -22,7 +22,6 @@ export type {
   NotificationType,
   Language,
   Theme,
-  LifeArea,
   ProjectStatus,
   RecurrenceInterval,
   DocStatus,

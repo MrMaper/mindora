@@ -13,6 +13,7 @@ import { TasksCC } from "./components/client";
 import { SelectProvider } from "@/components/ui-kit/forms/common";
 import type { TaskStatus, TaskPriority } from "@/types/db";
 import { scopeFromFilters } from "@/lib/project-namespace";
+import { getMemberContext } from "@/lib/areas/server";
 import { localizedTitle } from "@/lib/page-title";
 import { parseTaskGroup, parseTaskOrder, parseTaskSort } from "@/features/tasks/view";
 
@@ -68,14 +69,21 @@ export default async function TasksPage({
   const ownerId = isAdmin ? undefined : session.user.id;
   const assigneeId = isAdmin ? assignee || undefined : undefined;
 
-  const [users, labelRows, preferences, userProjects] = await Promise.all([
-    getAssignableUsers(session.user.id),
-    getLabels(),
-    getUserPreferencesCached(session.user.id),
-    getUserProjects(session.user.id, "assignable"),
-  ]);
+  const [users, labelRows, preferences, userProjects, memberCtx] =
+    await Promise.all([
+      getAssignableUsers(session.user.id),
+      getLabels(),
+      getUserPreferencesCached(session.user.id),
+      getUserProjects(session.user.id, "assignable"),
+      getMemberContext(session.user.id),
+    ]);
 
-  const scope = scopeFromFilters(area, project, userProjects);
+  const scope = scopeFromFilters(
+    area,
+    project,
+    userProjects,
+    memberCtx.areas,
+  );
   const projectIds = scope.projectId ? [scope.projectId] : undefined;
 
   const data = await getTasks({

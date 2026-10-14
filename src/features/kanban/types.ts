@@ -1,4 +1,4 @@
-import type { LifeArea, TaskPriority } from "@/types/db";
+import type { TaskPriority } from "@/types/db";
 import type { TaskRow } from "@/features/tasks/types";
 
 /** Active personal-board columns (Mindora). */
@@ -30,7 +30,7 @@ export interface BoardFilters {
   labelId?: string;
   priority?: TaskPriority;
   projectIds?: string[];
-  /** Legacy enum or UserArea id. */
+  /** UserArea id. */
   area?: string;
   /** When true (default for /kanban), hide research/language hub tasks. */
   excludeHub?: boolean;

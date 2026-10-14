@@ -109,14 +109,9 @@ export type TeamMember = Prisma.TeamMemberModel
 export type Project = Prisma.ProjectModel
 /**
  * Model UserArea
- * Per-member life area (docs/AREAS.md §9.1). Replaces the global LifeArea enum over P4–P7.
+ * Per-member life area (docs/AREAS.md §9.1). The global LifeArea enum was removed in P7.
  */
 export type UserArea = Prisma.UserAreaModel
-/**
- * Model UserAreaPreference
- * Per-user overrides for the four fixed LifeArea buckets (color, icon, order, hide).
- */
-export type UserAreaPreference = Prisma.UserAreaPreferenceModel
 /**
  * Model ProjectMember
  * 

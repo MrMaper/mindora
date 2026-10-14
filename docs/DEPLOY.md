@@ -125,18 +125,17 @@ docker compose up -d --build
 
 Restore the database from a dump only if data was damaged. Destructive changes (dropping legacy area columns) happen only in the final cleanup phase described in [`AREAS.md`](./AREAS.md), after a soak period and with a fresh dump.
 
-### Backfill scripts
+### Areas verification
 
-Backfills are separate, idempotent scripts, not migrations. Run them by hand after the migration is deployed and before reads are switched, then run the matching verification script:
+After deploying an areas-related migration, run the verifier (not a backfill — P7 retired `backfill-modules` / `backfill-areas`):
 
 ```bash
-docker compose exec app npx tsx scripts/areas/backfill-modules.ts
 docker compose exec app npx tsx scripts/areas/verify-areas.ts
 ```
 
-The first one (`backfill-modules.ts`, areas phase P0) makes every existing member's module policy explicit; run it with `--dry` first to see the count. Invite links need `NEXT_PUBLIC_APP_URL` to be your public origin when SMTP is configured; without SMTP the admin copies the link from the UI.
+If `modulePolicy` keys are missing for a member, fix them in admin Users (or re-provision). Optional one-shot for library binders still on the old prefix: `npx tsx scripts/areas/backfill-hub-keys.ts`. Invite links need `NEXT_PUBLIC_APP_URL` to be your public origin when SMTP is configured; without SMTP the admin copies the link from the UI.
 
-Each script can be re-run safely. A non-zero exit from `verify-areas.ts` means do not proceed to the next phase.
+A non-zero exit from `verify-areas.ts` means do not proceed.
 
 ## Notes
 

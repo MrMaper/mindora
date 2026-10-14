@@ -5,8 +5,9 @@ import { auth } from "@/auth";
 import { prisma as db } from "@/lib/db";
 import { getModuleAccess } from "@/lib/module-guard";
 import { canAccessPersonalTask } from "@/lib/task-access";
-import { isHubArea, personalAreaProjectId } from "@/lib/areas";
-import { areaForLifePart, isLifePartChip, isUiProfile } from "@/lib/ui-profile";
+import { areaRefForTemplate } from "@/lib/areas";
+import { getMemberContext } from "@/lib/areas/server";
+import { templateKeyForLifePart, isLifePartChip, isUiProfile } from "@/lib/ui-profile";
 import { markLifecycleOnce } from "./lifecycle";
 
 export interface ActionResult {
@@ -87,17 +88,21 @@ export async function chooseLifePartAction(input: {
   }
 
   const access = await getModuleAccess(session.user.id);
-  const area = areaForLifePart(input.chip, {
+  const templateKey = templateKeyForLifePart(input.chip, {
     research: access?.flags.research ?? false,
     language: access?.flags.language ?? false,
   });
+  const ctx = await getMemberContext(session.user.id);
+  const area =
+    areaRefForTemplate(ctx.areas.filter(a => !a.archived), templateKey) ??
+    ctx.defaultArea;
 
   await db.task.update({
     where: { id: task.id },
     data: {
-      area,
-      projectId: personalAreaProjectId(session.user.id, area),
-      ...(isHubArea(area) ? { status: "BACKLOG" as const } : {}),
+      areaId: area.id,
+      projectId: area.bucketProjectId || undefined,
+      ...(area.hubFor ? { status: "BACKLOG" as const } : {}),
     },
   });
   await markLifecycleOnce(session.user.id, "firstAreaChosenAt");

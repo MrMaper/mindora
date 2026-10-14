@@ -2,7 +2,6 @@ import type { TaskPriority, TaskStatus } from "@/types/db";
 import type { TaskRow } from "./types";
 import { isAreaBucketId } from "@/lib/area-projects";
 import { toDateKey } from "@/lib/life";
-import { AREA_ORDER } from "@/lib/areas";
 
 export const TASK_SORT_FIELDS = [
   "title",
@@ -39,8 +38,6 @@ const PRIORITY_RANK: Record<TaskPriority, number> = {
   LOW: 3,
   NONE: 4,
 };
-
-const AREA_RANK: Record<string, number> = AREA_ORDER;
 
 export function parseTaskSort(value: string | undefined): TaskSortField {
   if (value && (TASK_SORT_FIELDS as readonly string[]).includes(value)) {
@@ -137,7 +134,7 @@ export function taskGroupKey(task: TaskRow, group: TaskGroupField): string {
     case "status":
       return task.status;
     case "area":
-      return task.area ?? TASK_GROUP_NONE;
+      return task.areaId || TASK_GROUP_NONE;
   }
 }
 
@@ -146,6 +143,7 @@ function compareGroupKeys(
   b: string,
   group: TaskGroupField,
   names: Map<string, string>,
+  areaOrder?: ReadonlyMap<string, number>,
 ): number {
   if (a === TASK_GROUP_NONE && b === TASK_GROUP_NONE) return 0;
   if (a === TASK_GROUP_NONE) return 1;
@@ -154,7 +152,7 @@ function compareGroupKeys(
     return (STATUS_RANK[a as TaskStatus] ?? 99) - (STATUS_RANK[b as TaskStatus] ?? 99);
   }
   if (group === "area") {
-    return (AREA_RANK[a] ?? 99) - (AREA_RANK[b] ?? 99);
+    return (areaOrder?.get(a) ?? 99) - (areaOrder?.get(b) ?? 99) || a.localeCompare(b);
   }
   if (group === "date") return a.localeCompare(b);
   return (names.get(a) ?? a).localeCompare(names.get(b) ?? b, "fa");
@@ -165,7 +163,15 @@ export interface TaskGroup {
   tasks: TaskRow[];
 }
 
-export function groupTasks(tasks: TaskRow[], group: TaskGroupField): TaskGroup[] {
+/**
+ * Group tasks. For `area` grouping pass `areaOrder` (UserArea id → sortOrder) so
+ * groups follow the member's own area order.
+ */
+export function groupTasks(
+  tasks: TaskRow[],
+  group: TaskGroupField,
+  areaOrder?: ReadonlyMap<string, number>,
+): TaskGroup[] {
   const buckets = new Map<string, TaskRow[]>();
   const names = new Map<string, string>();
   for (const task of tasks) {
@@ -178,6 +184,6 @@ export function groupTasks(tasks: TaskRow[], group: TaskGroupField): TaskGroup[]
     }
   }
   return [...buckets.keys()]
-    .sort((a, b) => compareGroupKeys(a, b, group, names))
+    .sort((a, b) => compareGroupKeys(a, b, group, names, areaOrder))
     .map(key => ({ key, tasks: buckets.get(key) ?? [] }));
 }

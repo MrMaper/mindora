@@ -1,4 +1,4 @@
-import type { DocStatus, LifeArea, SourceReadingStatus } from "@/types/db";
+import type { DocStatus, SourceReadingStatus } from "@/types/db";
 
 export interface DocTaskRef {
   id: string;
@@ -51,7 +51,7 @@ export interface DocFolderItem {
   id: string;
   name: string;
   description: string | null;
-  area: LifeArea | null;
+  areaId: string | null;
   parentId: string | null;
   docCount: number;
 }
@@ -59,7 +59,7 @@ export interface DocFolderItem {
 export interface DocListItem {
   id: string;
   title: string;
-  area: LifeArea;
+  areaId: string;
   status: DocStatus;
   pinned: boolean;
   archived: boolean;
@@ -81,7 +81,7 @@ export interface DocDetail {
   title: string;
   content: string;
   contentText: string;
-  area: LifeArea;
+  areaId: string;
   status: DocStatus;
   wordGoal: number | null;
   templateKey: string | null;
@@ -104,7 +104,7 @@ export interface DocDetail {
 export interface WritingPulseItem {
   id: string;
   title: string;
-  area: LifeArea;
+  areaId: string;
   status: DocStatus;
   daysIdle: number;
   wordCount: number;

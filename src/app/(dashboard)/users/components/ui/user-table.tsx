@@ -381,7 +381,7 @@ function UserModulesCell({
     );
   }
 
-  const enabled = PRIMARY_MODULES.filter(key => user.enabledModules[key]);
+  const enabled = PRIMARY_MODULES.filter(key => user.allowedModules[key]);
   if (enabled.length === 0) {
     return <span className="text-xs text-muted-foreground">—</span>;
   }

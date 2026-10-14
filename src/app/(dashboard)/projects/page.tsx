@@ -26,7 +26,7 @@ export default async function ProjectsPage({
     <ProjectsCC
       initialData={data}
       search={search}
-      initialCreateArea={create?.toUpperCase()}
+      initialCreateArea={create}
     />
   );
 }

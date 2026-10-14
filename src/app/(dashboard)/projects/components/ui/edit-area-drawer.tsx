@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import * as React from "react";
 import { Controller, type Control } from "react-hook-form";
@@ -9,7 +9,6 @@ import { Input } from "@/components/ui-kit/forms/input";
 import { useLanguage, useTranslation } from "@/i18n/provider";
 import type { UpdateAreaBucketInput } from "@/schemas/projects";
 import type { AreaPrefRow } from "@/features/projects/types";
-import type { LifeArea } from "@/types/db";
 import {
   AREA_COLOR_PRESETS,
   AREA_ICON_PRESETS,
@@ -24,7 +23,6 @@ interface EditAreaDrawerProps {
     isPending: boolean;
   };
   areaName: string | null;
-  area: LifeArea;
   pref: AreaPrefRow;
   onPrefChange: (patch: {
     color?: string | null;

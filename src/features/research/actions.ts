@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { authForModule } from "@/lib/module-guard";
 import { prisma as db } from "@/lib/db";
 import type {
-  LifeArea,
   RecurrenceInterval,
   SourceReadingStatus,
   TaskStatus,
@@ -23,7 +22,9 @@ import type {
   ResearchSourceItem,
 } from "./types";
 import { formatApaLike, normalizeDoi } from "./cite";
-import { dueFromWallClock, isUserAreaBucket, personalAreaProjectId } from "@/lib/life";
+import { dueFromWallClock } from "@/lib/life";
+import { isAreaBucketId, taskInAreaWhere } from "@/lib/areas";
+import { ensureHubAreaForModule } from "@/lib/areas/server";
 import {
   ensurePersonalWorkspace,
 } from "@/features/life/workspace";
@@ -36,7 +37,6 @@ import {
   SOURCE_READING_TO_TASK,
 } from "./status-sync";
 import { replacePhdDocTaskLinks } from "./doc-task-links";
-import { RESEARCH_AREA } from "@/lib/areas";
 
 export interface ActionResult {
   success: boolean;
@@ -81,12 +81,13 @@ export async function createResearchProjectAction(input: {
   const name = input.name.trim();
   if (!name) return { success: false, error: "نام مسیر لازم است" };
 
+  const hub = await ensureHubAreaForModule(session.user.id, "research");
   const project = await db.project.create({
     data: {
       name,
       description: input.description?.trim() || null,
       status: "ACTIVE",
-      area: RESEARCH_AREA,
+      areaId: hub.id,
       members: {
         create: {
           userId: session.user.id,
@@ -127,10 +128,9 @@ export async function createDocLinkedToTask(input: {
       title: true,
       projectId: true,
       status: true,
-      area: true,
+      areaId: true,
       assignedToId: true,
       createdById: true,
-      project: { select: { area: true } },
     },
   });
   if (!task) return { success: false, error: "کار پیدا نشد" };
@@ -139,8 +139,8 @@ export async function createDocLinkedToTask(input: {
   ) {
     return { success: false, error: "کار پیدا نشد" };
   }
-  const taskArea = task.area ?? task.project?.area ?? null;
-  if (taskArea !== RESEARCH_AREA) {
+  const hub = await ensureHubAreaForModule(session.user.id, "research");
+  if (task.areaId !== hub.id) {
     return { success: false, error: "فقط کارت‌های پژوهش" };
   }
 
@@ -154,13 +154,13 @@ export async function createDocLinkedToTask(input: {
   if (
     !projectId &&
     task.projectId &&
-    !isUserAreaBucket(task.projectId, session.user.id, RESEARCH_AREA)
+    !isAreaBucketId(task.projectId)
   ) {
     const member = await db.projectMember.findFirst({
       where: {
         userId: session.user.id,
         projectId: task.projectId,
-        project: { area: RESEARCH_AREA },
+        project: { areaId: hub.id },
       },
       select: { id: true },
     });
@@ -175,7 +175,7 @@ export async function createDocLinkedToTask(input: {
       title,
       content,
       contentText: htmlToPlainText(content),
-      area: RESEARCH_AREA,
+      areaId: hub.id,
       status: docStatus,
       templateKey: template.key,
       projectId,
@@ -215,6 +215,7 @@ export async function ensurePhdFolderTreeAction(opts?: {
   const session = await authForModule("research");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
   const lang = opts?.language ?? "FA";
+  const hub = await ensureHubAreaForModule(session.user.id, "research");
 
   async function ensureFolder(
     name: string,
@@ -225,7 +226,7 @@ export async function ensurePhdFolderTreeAction(opts?: {
         userId: session!.user!.id,
         parentId,
         name,
-        area: RESEARCH_AREA,
+        areaId: hub.id,
       },
       select: { id: true },
     });
@@ -233,7 +234,7 @@ export async function ensurePhdFolderTreeAction(opts?: {
     const created = await db.docFolder.create({
       data: {
         name,
-        area: RESEARCH_AREA,
+        areaId: hub.id,
         parentId,
         userId: session!.user!.id,
         description:
@@ -320,12 +321,13 @@ async function createPerPaperSourceNoteDoc(
 ): Promise<string> {
   const template = getDocTemplate("sourceNote");
   const content = buildSourceNoteHtml(source);
+  const hub = await ensureHubAreaForModule(userId, "research");
   const doc = await db.doc.create({
     data: {
       title: `${template.titleFa}: ${source.title}`.slice(0, 120),
       content,
       contentText: htmlToPlainText(content),
-      area: RESEARCH_AREA,
+      areaId: hub.id,
       status: SOURCE_READING_TO_DOC[readingStatus] ?? "IDEA",
       templateKey: "sourceNote",
       projectId,
@@ -347,17 +349,14 @@ async function ensureReadingTaskForSourceNote(input: {
   recurrence?: RecurrenceInterval;
 }): Promise<{ taskId: string; created: boolean }> {
   const { teamId } = await ensurePersonalWorkspace(input.userId);
-  const taskProjectId =
-    input.researchProjectId ?? personalAreaProjectId(input.userId, RESEARCH_AREA);
+  const hub = await ensureHubAreaForModule(input.userId, "research");
+  const taskProjectId = input.researchProjectId ?? hub.bucketProjectId;
 
   const existing = await db.docTask.findFirst({
     where: {
       docId: input.noteDocId,
       task: {
-        OR: [
-          { area: RESEARCH_AREA },
-          { project: { area: RESEARCH_AREA } },
-        ],
+        ...taskInAreaWhere(hub.id),
         AND: [
           {
             OR: [
@@ -407,7 +406,7 @@ async function ensureReadingTaskForSourceNote(input: {
       status,
       priority: "NONE",
       type: "TASK",
-      area: RESEARCH_AREA,
+      areaId: hub.id,
       projectId: taskProjectId,
       teamId,
       createdById: input.userId,
@@ -660,14 +659,15 @@ export async function addPhdSourceAction(input: {
     };
   }
   const projectId = input.projectId;
+  const hub = await ensureHubAreaForModule(session.user.id, "research");
   if (projectId !== null) {
-    const okBucket = isUserAreaBucket(projectId, session.user.id, RESEARCH_AREA);
+    const okBucket = isAreaBucketId(projectId);
     if (!okBucket) {
       const member = await db.projectMember.findFirst({
         where: {
           projectId,
           userId: session.user.id,
-          project: { area: RESEARCH_AREA, status: { not: "ARCHIVED" } },
+          project: { areaId: hub.id, status: { not: "ARCHIVED" } },
         },
         select: { id: true },
       });
@@ -769,7 +769,7 @@ export async function addPhdSourceAction(input: {
         title: `${template.titleFa}: ${title}`.slice(0, 120),
         content: "<p></p>",
         contentText: "",
-        area: RESEARCH_AREA,
+        areaId: hub.id,
         status: SOURCE_READING_TO_DOC[readingStatus] ?? "IDEA",
         templateKey: "sourceNote",
         projectId,
@@ -871,10 +871,9 @@ export async function linkSourceToTaskAction(input: {
     select: {
       id: true,
       status: true,
-      area: true,
+      areaId: true,
       assignedToId: true,
       createdById: true,
-      project: { select: { area: true } },
     },
   });
   if (!task) return { success: false, error: "کار پیدا نشد" };
@@ -883,7 +882,8 @@ export async function linkSourceToTaskAction(input: {
   ) {
     return { success: false, error: "کار پیدا نشد" };
   }
-  if ((task.area ?? task.project?.area ?? null) !== RESEARCH_AREA) {
+  const researchHub = await ensureHubAreaForModule(session.user.id, "research");
+  if (task.areaId !== researchHub.id) {
     return { success: false, error: "فقط کارت‌های پژوهش" };
   }
 
@@ -947,9 +947,10 @@ export async function searchPhdTasksForLinkAction(
   const q = query.trim();
   if (q.length < 1) return [];
 
+  const hub = await ensureHubAreaForModule(session.user.id, "research");
   return db.task.findMany({
     where: {
-      area: RESEARCH_AREA,
+      areaId: hub.id,
       status: { not: "DONE" },
       title: { contains: q, mode: "insensitive" },
       OR: [

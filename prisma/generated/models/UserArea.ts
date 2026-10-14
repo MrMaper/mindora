@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model UserArea
- * Per-member life area (docs/AREAS.md §9.1). Replaces the global LifeArea enum over P4–P7.
+ * Per-member life area (docs/AREAS.md §9.1). The global LifeArea enum was removed in P7.
  */
 export type UserAreaModel = runtime.Types.Result.DefaultSelection<Prisma.$UserAreaPayload>
 
@@ -47,7 +47,6 @@ export type UserAreaMinAggregateOutputType = {
   isDefault: boolean | null
   hubFor: $Enums.AreaHubFor | null
   bucketProjectId: string | null
-  legacyEnum: $Enums.LifeArea | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -65,7 +64,6 @@ export type UserAreaMaxAggregateOutputType = {
   isDefault: boolean | null
   hubFor: $Enums.AreaHubFor | null
   bucketProjectId: string | null
-  legacyEnum: $Enums.LifeArea | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -83,7 +81,6 @@ export type UserAreaCountAggregateOutputType = {
   isDefault: number
   hubFor: number
   bucketProjectId: number
-  legacyEnum: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -111,7 +108,6 @@ export type UserAreaMinAggregateInputType = {
   isDefault?: true
   hubFor?: true
   bucketProjectId?: true
-  legacyEnum?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -129,7 +125,6 @@ export type UserAreaMaxAggregateInputType = {
   isDefault?: true
   hubFor?: true
   bucketProjectId?: true
-  legacyEnum?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -147,7 +142,6 @@ export type UserAreaCountAggregateInputType = {
   isDefault?: true
   hubFor?: true
   bucketProjectId?: true
-  legacyEnum?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -252,7 +246,6 @@ export type UserAreaGroupByOutputType = {
   isDefault: boolean
   hubFor: $Enums.AreaHubFor | null
   bucketProjectId: string | null
-  legacyEnum: $Enums.LifeArea | null
   createdAt: Date
   updatedAt: Date
   _count: UserAreaCountAggregateOutputType | null
@@ -293,7 +286,6 @@ export type UserAreaWhereInput = {
   isDefault?: Prisma.BoolFilter<"UserArea"> | boolean
   hubFor?: Prisma.EnumAreaHubForNullableFilter<"UserArea"> | $Enums.AreaHubFor | null
   bucketProjectId?: Prisma.StringNullableFilter<"UserArea"> | string | null
-  legacyEnum?: Prisma.EnumLifeAreaNullableFilter<"UserArea"> | $Enums.LifeArea | null
   createdAt?: Prisma.DateTimeFilter<"UserArea"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"UserArea"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -318,7 +310,6 @@ export type UserAreaOrderByWithRelationInput = {
   isDefault?: Prisma.SortOrder
   hubFor?: Prisma.SortOrderInput | Prisma.SortOrder
   bucketProjectId?: Prisma.SortOrderInput | Prisma.SortOrder
-  legacyEnum?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
@@ -333,7 +324,6 @@ export type UserAreaOrderByWithRelationInput = {
 export type UserAreaWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   bucketProjectId?: string
-  userId_legacyEnum?: Prisma.UserAreaUserIdLegacyEnumCompoundUniqueInput
   AND?: Prisma.UserAreaWhereInput | Prisma.UserAreaWhereInput[]
   OR?: Prisma.UserAreaWhereInput[]
   NOT?: Prisma.UserAreaWhereInput | Prisma.UserAreaWhereInput[]
@@ -347,7 +337,6 @@ export type UserAreaWhereUniqueInput = Prisma.AtLeast<{
   archived?: Prisma.BoolFilter<"UserArea"> | boolean
   isDefault?: Prisma.BoolFilter<"UserArea"> | boolean
   hubFor?: Prisma.EnumAreaHubForNullableFilter<"UserArea"> | $Enums.AreaHubFor | null
-  legacyEnum?: Prisma.EnumLifeAreaNullableFilter<"UserArea"> | $Enums.LifeArea | null
   createdAt?: Prisma.DateTimeFilter<"UserArea"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"UserArea"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -357,7 +346,7 @@ export type UserAreaWhereUniqueInput = Prisma.AtLeast<{
   docs?: Prisma.DocListRelationFilter
   habits?: Prisma.HabitListRelationFilter
   folders?: Prisma.DocFolderListRelationFilter
-}, "id" | "bucketProjectId" | "userId_legacyEnum">
+}, "id" | "bucketProjectId">
 
 export type UserAreaOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -372,7 +361,6 @@ export type UserAreaOrderByWithAggregationInput = {
   isDefault?: Prisma.SortOrder
   hubFor?: Prisma.SortOrderInput | Prisma.SortOrder
   bucketProjectId?: Prisma.SortOrderInput | Prisma.SortOrder
-  legacyEnum?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserAreaCountOrderByAggregateInput
@@ -398,7 +386,6 @@ export type UserAreaScalarWhereWithAggregatesInput = {
   isDefault?: Prisma.BoolWithAggregatesFilter<"UserArea"> | boolean
   hubFor?: Prisma.EnumAreaHubForNullableWithAggregatesFilter<"UserArea"> | $Enums.AreaHubFor | null
   bucketProjectId?: Prisma.StringNullableWithAggregatesFilter<"UserArea"> | string | null
-  legacyEnum?: Prisma.EnumLifeAreaNullableWithAggregatesFilter<"UserArea"> | $Enums.LifeArea | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"UserArea"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"UserArea"> | Date | string
 }
@@ -414,7 +401,6 @@ export type UserAreaCreateInput = {
   archived?: boolean
   isDefault?: boolean
   hubFor?: $Enums.AreaHubFor | null
-  legacyEnum?: $Enums.LifeArea | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutAreasInput
@@ -439,7 +425,6 @@ export type UserAreaUncheckedCreateInput = {
   isDefault?: boolean
   hubFor?: $Enums.AreaHubFor | null
   bucketProjectId?: string | null
-  legacyEnum?: $Enums.LifeArea | null
   createdAt?: Date | string
   updatedAt?: Date | string
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserAreaInput
@@ -460,7 +445,6 @@ export type UserAreaUpdateInput = {
   archived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hubFor?: Prisma.NullableEnumAreaHubForFieldUpdateOperationsInput | $Enums.AreaHubFor | null
-  legacyEnum?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutAreasNestedInput
@@ -485,7 +469,6 @@ export type UserAreaUncheckedUpdateInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hubFor?: Prisma.NullableEnumAreaHubForFieldUpdateOperationsInput | $Enums.AreaHubFor | null
   bucketProjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legacyEnum?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserAreaNestedInput
@@ -508,7 +491,6 @@ export type UserAreaCreateManyInput = {
   isDefault?: boolean
   hubFor?: $Enums.AreaHubFor | null
   bucketProjectId?: string | null
-  legacyEnum?: $Enums.LifeArea | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -524,7 +506,6 @@ export type UserAreaUpdateManyMutationInput = {
   archived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hubFor?: Prisma.NullableEnumAreaHubForFieldUpdateOperationsInput | $Enums.AreaHubFor | null
-  legacyEnum?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -542,7 +523,6 @@ export type UserAreaUncheckedUpdateManyInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hubFor?: Prisma.NullableEnumAreaHubForFieldUpdateOperationsInput | $Enums.AreaHubFor | null
   bucketProjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legacyEnum?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -557,14 +537,14 @@ export type UserAreaOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type UserAreaScalarRelationFilter = {
+  is?: Prisma.UserAreaWhereInput
+  isNot?: Prisma.UserAreaWhereInput
+}
+
 export type UserAreaNullableScalarRelationFilter = {
   is?: Prisma.UserAreaWhereInput | null
   isNot?: Prisma.UserAreaWhereInput | null
-}
-
-export type UserAreaUserIdLegacyEnumCompoundUniqueInput = {
-  userId: string
-  legacyEnum: $Enums.LifeArea
 }
 
 export type UserAreaCountOrderByAggregateInput = {
@@ -580,7 +560,6 @@ export type UserAreaCountOrderByAggregateInput = {
   isDefault?: Prisma.SortOrder
   hubFor?: Prisma.SortOrder
   bucketProjectId?: Prisma.SortOrder
-  legacyEnum?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -602,7 +581,6 @@ export type UserAreaMaxOrderByAggregateInput = {
   isDefault?: Prisma.SortOrder
   hubFor?: Prisma.SortOrder
   bucketProjectId?: Prisma.SortOrder
-  legacyEnum?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -620,7 +598,6 @@ export type UserAreaMinOrderByAggregateInput = {
   isDefault?: Prisma.SortOrder
   hubFor?: Prisma.SortOrder
   bucketProjectId?: Prisma.SortOrder
-  legacyEnum?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -689,12 +666,10 @@ export type UserAreaUncheckedCreateNestedOneWithoutBucketProjectInput = {
   connect?: Prisma.UserAreaWhereUniqueInput
 }
 
-export type UserAreaUpdateOneWithoutProjectsNestedInput = {
+export type UserAreaUpdateOneRequiredWithoutProjectsNestedInput = {
   create?: Prisma.XOR<Prisma.UserAreaCreateWithoutProjectsInput, Prisma.UserAreaUncheckedCreateWithoutProjectsInput>
   connectOrCreate?: Prisma.UserAreaCreateOrConnectWithoutProjectsInput
   upsert?: Prisma.UserAreaUpsertWithoutProjectsInput
-  disconnect?: Prisma.UserAreaWhereInput | boolean
-  delete?: Prisma.UserAreaWhereInput | boolean
   connect?: Prisma.UserAreaWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserAreaUpdateToOneWithWhereWithoutProjectsInput, Prisma.UserAreaUpdateWithoutProjectsInput>, Prisma.UserAreaUncheckedUpdateWithoutProjectsInput>
 }
@@ -723,22 +698,16 @@ export type NullableEnumAreaHubForFieldUpdateOperationsInput = {
   set?: $Enums.AreaHubFor | null
 }
 
-export type NullableEnumLifeAreaFieldUpdateOperationsInput = {
-  set?: $Enums.LifeArea | null
-}
-
 export type UserAreaCreateNestedOneWithoutTasksInput = {
   create?: Prisma.XOR<Prisma.UserAreaCreateWithoutTasksInput, Prisma.UserAreaUncheckedCreateWithoutTasksInput>
   connectOrCreate?: Prisma.UserAreaCreateOrConnectWithoutTasksInput
   connect?: Prisma.UserAreaWhereUniqueInput
 }
 
-export type UserAreaUpdateOneWithoutTasksNestedInput = {
+export type UserAreaUpdateOneRequiredWithoutTasksNestedInput = {
   create?: Prisma.XOR<Prisma.UserAreaCreateWithoutTasksInput, Prisma.UserAreaUncheckedCreateWithoutTasksInput>
   connectOrCreate?: Prisma.UserAreaCreateOrConnectWithoutTasksInput
   upsert?: Prisma.UserAreaUpsertWithoutTasksInput
-  disconnect?: Prisma.UserAreaWhereInput | boolean
-  delete?: Prisma.UserAreaWhereInput | boolean
   connect?: Prisma.UserAreaWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserAreaUpdateToOneWithWhereWithoutTasksInput, Prisma.UserAreaUpdateWithoutTasksInput>, Prisma.UserAreaUncheckedUpdateWithoutTasksInput>
 }
@@ -749,12 +718,10 @@ export type UserAreaCreateNestedOneWithoutHabitsInput = {
   connect?: Prisma.UserAreaWhereUniqueInput
 }
 
-export type UserAreaUpdateOneWithoutHabitsNestedInput = {
+export type UserAreaUpdateOneRequiredWithoutHabitsNestedInput = {
   create?: Prisma.XOR<Prisma.UserAreaCreateWithoutHabitsInput, Prisma.UserAreaUncheckedCreateWithoutHabitsInput>
   connectOrCreate?: Prisma.UserAreaCreateOrConnectWithoutHabitsInput
   upsert?: Prisma.UserAreaUpsertWithoutHabitsInput
-  disconnect?: Prisma.UserAreaWhereInput | boolean
-  delete?: Prisma.UserAreaWhereInput | boolean
   connect?: Prisma.UserAreaWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserAreaUpdateToOneWithWhereWithoutHabitsInput, Prisma.UserAreaUpdateWithoutHabitsInput>, Prisma.UserAreaUncheckedUpdateWithoutHabitsInput>
 }
@@ -765,12 +732,10 @@ export type UserAreaCreateNestedOneWithoutDocsInput = {
   connect?: Prisma.UserAreaWhereUniqueInput
 }
 
-export type UserAreaUpdateOneWithoutDocsNestedInput = {
+export type UserAreaUpdateOneRequiredWithoutDocsNestedInput = {
   create?: Prisma.XOR<Prisma.UserAreaCreateWithoutDocsInput, Prisma.UserAreaUncheckedCreateWithoutDocsInput>
   connectOrCreate?: Prisma.UserAreaCreateOrConnectWithoutDocsInput
   upsert?: Prisma.UserAreaUpsertWithoutDocsInput
-  disconnect?: Prisma.UserAreaWhereInput | boolean
-  delete?: Prisma.UserAreaWhereInput | boolean
   connect?: Prisma.UserAreaWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserAreaUpdateToOneWithWhereWithoutDocsInput, Prisma.UserAreaUpdateWithoutDocsInput>, Prisma.UserAreaUncheckedUpdateWithoutDocsInput>
 }
@@ -802,7 +767,6 @@ export type UserAreaCreateWithoutUserInput = {
   archived?: boolean
   isDefault?: boolean
   hubFor?: $Enums.AreaHubFor | null
-  legacyEnum?: $Enums.LifeArea | null
   createdAt?: Date | string
   updatedAt?: Date | string
   bucketProject?: Prisma.ProjectCreateNestedOneWithoutBucketForInput
@@ -825,7 +789,6 @@ export type UserAreaUncheckedCreateWithoutUserInput = {
   isDefault?: boolean
   hubFor?: $Enums.AreaHubFor | null
   bucketProjectId?: string | null
-  legacyEnum?: $Enums.LifeArea | null
   createdAt?: Date | string
   updatedAt?: Date | string
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserAreaInput
@@ -877,7 +840,6 @@ export type UserAreaScalarWhereInput = {
   isDefault?: Prisma.BoolFilter<"UserArea"> | boolean
   hubFor?: Prisma.EnumAreaHubForNullableFilter<"UserArea"> | $Enums.AreaHubFor | null
   bucketProjectId?: Prisma.StringNullableFilter<"UserArea"> | string | null
-  legacyEnum?: Prisma.EnumLifeAreaNullableFilter<"UserArea"> | $Enums.LifeArea | null
   createdAt?: Prisma.DateTimeFilter<"UserArea"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"UserArea"> | Date | string
 }
@@ -893,7 +855,6 @@ export type UserAreaCreateWithoutProjectsInput = {
   archived?: boolean
   isDefault?: boolean
   hubFor?: $Enums.AreaHubFor | null
-  legacyEnum?: $Enums.LifeArea | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutAreasInput
@@ -917,7 +878,6 @@ export type UserAreaUncheckedCreateWithoutProjectsInput = {
   isDefault?: boolean
   hubFor?: $Enums.AreaHubFor | null
   bucketProjectId?: string | null
-  legacyEnum?: $Enums.LifeArea | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserAreaInput
@@ -942,7 +902,6 @@ export type UserAreaCreateWithoutBucketProjectInput = {
   archived?: boolean
   isDefault?: boolean
   hubFor?: $Enums.AreaHubFor | null
-  legacyEnum?: $Enums.LifeArea | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutAreasInput
@@ -965,7 +924,6 @@ export type UserAreaUncheckedCreateWithoutBucketProjectInput = {
   archived?: boolean
   isDefault?: boolean
   hubFor?: $Enums.AreaHubFor | null
-  legacyEnum?: $Enums.LifeArea | null
   createdAt?: Date | string
   updatedAt?: Date | string
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserAreaInput
@@ -1002,7 +960,6 @@ export type UserAreaUpdateWithoutProjectsInput = {
   archived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hubFor?: Prisma.NullableEnumAreaHubForFieldUpdateOperationsInput | $Enums.AreaHubFor | null
-  legacyEnum?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutAreasNestedInput
@@ -1026,7 +983,6 @@ export type UserAreaUncheckedUpdateWithoutProjectsInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hubFor?: Prisma.NullableEnumAreaHubForFieldUpdateOperationsInput | $Enums.AreaHubFor | null
   bucketProjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legacyEnum?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserAreaNestedInput
@@ -1057,7 +1013,6 @@ export type UserAreaUpdateWithoutBucketProjectInput = {
   archived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hubFor?: Prisma.NullableEnumAreaHubForFieldUpdateOperationsInput | $Enums.AreaHubFor | null
-  legacyEnum?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutAreasNestedInput
@@ -1080,7 +1035,6 @@ export type UserAreaUncheckedUpdateWithoutBucketProjectInput = {
   archived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hubFor?: Prisma.NullableEnumAreaHubForFieldUpdateOperationsInput | $Enums.AreaHubFor | null
-  legacyEnum?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserAreaNestedInput
@@ -1101,7 +1055,6 @@ export type UserAreaCreateWithoutTasksInput = {
   archived?: boolean
   isDefault?: boolean
   hubFor?: $Enums.AreaHubFor | null
-  legacyEnum?: $Enums.LifeArea | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutAreasInput
@@ -1125,7 +1078,6 @@ export type UserAreaUncheckedCreateWithoutTasksInput = {
   isDefault?: boolean
   hubFor?: $Enums.AreaHubFor | null
   bucketProjectId?: string | null
-  legacyEnum?: $Enums.LifeArea | null
   createdAt?: Date | string
   updatedAt?: Date | string
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserAreaInput
@@ -1161,7 +1113,6 @@ export type UserAreaUpdateWithoutTasksInput = {
   archived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hubFor?: Prisma.NullableEnumAreaHubForFieldUpdateOperationsInput | $Enums.AreaHubFor | null
-  legacyEnum?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutAreasNestedInput
@@ -1185,7 +1136,6 @@ export type UserAreaUncheckedUpdateWithoutTasksInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hubFor?: Prisma.NullableEnumAreaHubForFieldUpdateOperationsInput | $Enums.AreaHubFor | null
   bucketProjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legacyEnum?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserAreaNestedInput
@@ -1205,7 +1155,6 @@ export type UserAreaCreateWithoutHabitsInput = {
   archived?: boolean
   isDefault?: boolean
   hubFor?: $Enums.AreaHubFor | null
-  legacyEnum?: $Enums.LifeArea | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutAreasInput
@@ -1229,7 +1178,6 @@ export type UserAreaUncheckedCreateWithoutHabitsInput = {
   isDefault?: boolean
   hubFor?: $Enums.AreaHubFor | null
   bucketProjectId?: string | null
-  legacyEnum?: $Enums.LifeArea | null
   createdAt?: Date | string
   updatedAt?: Date | string
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserAreaInput
@@ -1265,7 +1213,6 @@ export type UserAreaUpdateWithoutHabitsInput = {
   archived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hubFor?: Prisma.NullableEnumAreaHubForFieldUpdateOperationsInput | $Enums.AreaHubFor | null
-  legacyEnum?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutAreasNestedInput
@@ -1289,7 +1236,6 @@ export type UserAreaUncheckedUpdateWithoutHabitsInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hubFor?: Prisma.NullableEnumAreaHubForFieldUpdateOperationsInput | $Enums.AreaHubFor | null
   bucketProjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legacyEnum?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserAreaNestedInput
@@ -1309,7 +1255,6 @@ export type UserAreaCreateWithoutDocsInput = {
   archived?: boolean
   isDefault?: boolean
   hubFor?: $Enums.AreaHubFor | null
-  legacyEnum?: $Enums.LifeArea | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutAreasInput
@@ -1333,7 +1278,6 @@ export type UserAreaUncheckedCreateWithoutDocsInput = {
   isDefault?: boolean
   hubFor?: $Enums.AreaHubFor | null
   bucketProjectId?: string | null
-  legacyEnum?: $Enums.LifeArea | null
   createdAt?: Date | string
   updatedAt?: Date | string
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserAreaInput
@@ -1369,7 +1313,6 @@ export type UserAreaUpdateWithoutDocsInput = {
   archived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hubFor?: Prisma.NullableEnumAreaHubForFieldUpdateOperationsInput | $Enums.AreaHubFor | null
-  legacyEnum?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutAreasNestedInput
@@ -1393,7 +1336,6 @@ export type UserAreaUncheckedUpdateWithoutDocsInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hubFor?: Prisma.NullableEnumAreaHubForFieldUpdateOperationsInput | $Enums.AreaHubFor | null
   bucketProjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legacyEnum?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserAreaNestedInput
@@ -1413,7 +1355,6 @@ export type UserAreaCreateWithoutFoldersInput = {
   archived?: boolean
   isDefault?: boolean
   hubFor?: $Enums.AreaHubFor | null
-  legacyEnum?: $Enums.LifeArea | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutAreasInput
@@ -1437,7 +1378,6 @@ export type UserAreaUncheckedCreateWithoutFoldersInput = {
   isDefault?: boolean
   hubFor?: $Enums.AreaHubFor | null
   bucketProjectId?: string | null
-  legacyEnum?: $Enums.LifeArea | null
   createdAt?: Date | string
   updatedAt?: Date | string
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserAreaInput
@@ -1473,7 +1413,6 @@ export type UserAreaUpdateWithoutFoldersInput = {
   archived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hubFor?: Prisma.NullableEnumAreaHubForFieldUpdateOperationsInput | $Enums.AreaHubFor | null
-  legacyEnum?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutAreasNestedInput
@@ -1497,7 +1436,6 @@ export type UserAreaUncheckedUpdateWithoutFoldersInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hubFor?: Prisma.NullableEnumAreaHubForFieldUpdateOperationsInput | $Enums.AreaHubFor | null
   bucketProjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legacyEnum?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserAreaNestedInput
@@ -1518,7 +1456,6 @@ export type UserAreaCreateManyUserInput = {
   isDefault?: boolean
   hubFor?: $Enums.AreaHubFor | null
   bucketProjectId?: string | null
-  legacyEnum?: $Enums.LifeArea | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1534,7 +1471,6 @@ export type UserAreaUpdateWithoutUserInput = {
   archived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hubFor?: Prisma.NullableEnumAreaHubForFieldUpdateOperationsInput | $Enums.AreaHubFor | null
-  legacyEnum?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bucketProject?: Prisma.ProjectUpdateOneWithoutBucketForNestedInput
@@ -1557,7 +1493,6 @@ export type UserAreaUncheckedUpdateWithoutUserInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hubFor?: Prisma.NullableEnumAreaHubForFieldUpdateOperationsInput | $Enums.AreaHubFor | null
   bucketProjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legacyEnum?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserAreaNestedInput
@@ -1579,7 +1514,6 @@ export type UserAreaUncheckedUpdateManyWithoutUserInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hubFor?: Prisma.NullableEnumAreaHubForFieldUpdateOperationsInput | $Enums.AreaHubFor | null
   bucketProjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legacyEnum?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1664,7 +1598,6 @@ export type UserAreaSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   isDefault?: boolean
   hubFor?: boolean
   bucketProjectId?: boolean
-  legacyEnum?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1690,7 +1623,6 @@ export type UserAreaSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   isDefault?: boolean
   hubFor?: boolean
   bucketProjectId?: boolean
-  legacyEnum?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1710,7 +1642,6 @@ export type UserAreaSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   isDefault?: boolean
   hubFor?: boolean
   bucketProjectId?: boolean
-  legacyEnum?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1730,12 +1661,11 @@ export type UserAreaSelectScalar = {
   isDefault?: boolean
   hubFor?: boolean
   bucketProjectId?: boolean
-  legacyEnum?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserAreaOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "name" | "nameIsDefault" | "templateKey" | "color" | "icon" | "sortOrder" | "archived" | "isDefault" | "hubFor" | "bucketProjectId" | "legacyEnum" | "createdAt" | "updatedAt", ExtArgs["result"]["userArea"]>
+export type UserAreaOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "name" | "nameIsDefault" | "templateKey" | "color" | "icon" | "sortOrder" | "archived" | "isDefault" | "hubFor" | "bucketProjectId" | "createdAt" | "updatedAt", ExtArgs["result"]["userArea"]>
 export type UserAreaInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   bucketProject?: boolean | Prisma.UserArea$bucketProjectArgs<ExtArgs>
@@ -1785,10 +1715,6 @@ export type $UserAreaPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     isDefault: boolean
     hubFor: $Enums.AreaHubFor | null
     bucketProjectId: string | null
-    /**
-     * Old PHD/WORK/LIFE/LANG for dual-write and permanent redirects.
-     */
-    legacyEnum: $Enums.LifeArea | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["userArea"]>
@@ -2233,7 +2159,6 @@ export interface UserAreaFieldRefs {
   readonly isDefault: Prisma.FieldRef<"UserArea", 'Boolean'>
   readonly hubFor: Prisma.FieldRef<"UserArea", 'AreaHubFor'>
   readonly bucketProjectId: Prisma.FieldRef<"UserArea", 'String'>
-  readonly legacyEnum: Prisma.FieldRef<"UserArea", 'LifeArea'>
   readonly createdAt: Prisma.FieldRef<"UserArea", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"UserArea", 'DateTime'>
 }

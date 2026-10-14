@@ -1,4 +1,4 @@
-import type { LifeArea, TaskStatus, TaskPriority, TaskType } from "@/types/db";
+import type { TaskStatus, TaskPriority, TaskType } from "@/types/db";
 import type { TaskStatus as DisplayStatus } from "@/components/ui-kit/agile/status-badge";
 import type { Priority as DisplayPriority } from "@/components/ui-kit/agile/priority-icon";
 
@@ -31,8 +31,8 @@ export interface TaskRow {
   labels: TaskLabelRef[];
   projectId: string | null;
   projectName: string | null;
-  area?: LifeArea | null;
-  areaId?: string | null;
+  /** UserArea id the task belongs to. */
+  areaId: string;
   recurrence?: "NONE" | "DAILY" | "WEEKLY" | "MONTHLY";
   recurrenceSeriesId?: string | null;
   recurrenceEndsAt?: Date | null;
@@ -64,7 +64,7 @@ export interface GetTasksParams {
    */
   ownerId?: string;
   projectIds?: string[];
-  /** Legacy enum or UserArea id. */
+  /** UserArea id. */
   area?: string;
   labelId?: string;
   /** Default true: hide research/language hub tasks on /tasks. */

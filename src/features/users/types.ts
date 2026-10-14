@@ -11,7 +11,7 @@ export interface UserRow {
   status: UserStatus;
   createdAt: Date;
   /** Modules the admin allows (policy != off). */
-  enabledModules: ModuleFlags;
+  allowedModules: ModuleFlags;
   modulePolicy: ModulePolicy;
   /** "starter" | "full" (UserPreferences.uiProfile). */
   uiProfile: UiProfile;

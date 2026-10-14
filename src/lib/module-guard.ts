@@ -54,7 +54,6 @@ async function loadModuleAccess(userId: string): Promise<ModuleAccess | null> {
     where: { id: userId },
     select: {
       role: true,
-      enabledModules: true,
       modulePolicy: true,
       preferences: { select: { moduleMemberPrefs: true } },
     },
@@ -64,7 +63,7 @@ async function loadModuleAccess(userId: string): Promise<ModuleAccess | null> {
     return {
       role: "ADMIN",
       flags: ALL_ON,
-      policy: parseModulePolicy({}, {}),
+      policy: parseModulePolicy({}),
       prefs: {},
     };
   }
@@ -74,9 +73,8 @@ async function loadModuleAccess(userId: string): Promise<ModuleAccess | null> {
     flags: resolveEffectiveFlags({
       policy: user.modulePolicy,
       prefs: prefsRaw,
-      legacy: user.enabledModules,
     }),
-    policy: parseModulePolicy(user.modulePolicy, user.enabledModules),
+    policy: parseModulePolicy(user.modulePolicy),
     prefs: parseMemberPrefs(prefsRaw),
   };
 }

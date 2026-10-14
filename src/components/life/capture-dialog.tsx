@@ -21,7 +21,7 @@ import { captureProduct, parseCapture } from "@/features/capture/parse";
 import { formatDurationLabel } from "@/components/ui-kit/forms/time-roller";
 import { RESEARCH_SCOPE_STORAGE } from "@/features/research/scope-cookie";
 import { useActiveMemberAreas } from "@/components/member-areas-provider";
-import { areaDisplayName } from "@/lib/areas";
+import { areaDisplayName, areaRefForGuess } from "@/lib/areas";
 
 export function CaptureDialog({
   fallbackDate,
@@ -43,7 +43,7 @@ export function CaptureDialog({
     ? memberAreas.find(a => a.id === areaLockId) ?? null
     : null;
   const guessedRef =
-    memberAreas.find(a => a.legacyEnum === parsed.area) ??
+    areaRefForGuess(memberAreas, parsed.area) ??
     memberAreas.find(a => a.isDefault) ??
     null;
   const areaRef = lockedRef ?? guessedRef;
@@ -127,7 +127,6 @@ export function CaptureDialog({
     startTransition(async () => {
       const result = await universalCapture({
         text,
-        areaOverride: lockedRef?.legacyEnum ?? null,
         areaIdOverride: areaLockId,
         dueDateFallback: showSchedule ? fallbackDate : undefined,
         timezoneOffsetMinutes: new Date().getTimezoneOffset(),

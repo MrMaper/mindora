@@ -16,7 +16,7 @@ function row(partial: Partial<TaskRow> & Pick<TaskRow, "id" | "title">): TaskRow
     labels: [],
     projectId: null,
     projectName: null,
-    area: "LIFE",
+    areaId: "a-life",
     ...partial,
   };
 }
@@ -52,16 +52,16 @@ describe("compareTasks", () => {
 
 describe("groupTasks", () => {
   const tasks = [
-    row({ id: "1", title: "sleep", status: "TODO", area: "LIFE", dueDate: new Date("2026-09-28T12:00:00") }),
+    row({ id: "1", title: "sleep", status: "TODO", areaId: "a-life", dueDate: new Date("2026-09-28T12:00:00") }),
     row({
       id: "2",
       title: "paper",
       status: "BACKLOG",
-      area: "PHD",
+      areaId: "a-phd",
       projectId: "path-1",
       projectName: "فصل ۳",
     }),
-    row({ id: "3", title: "inbox", status: "BACKLOG", area: "LIFE", projectId: "area-life-u1", projectName: "زندگی" }),
+    row({ id: "3", title: "inbox", status: "BACKLOG", areaId: "a-life", projectId: "area-life-u1", projectName: "زندگی" }),
   ];
 
   it("groups by status in workflow order", () => {
@@ -75,8 +75,12 @@ describe("groupTasks", () => {
     expect(groups.map(group => group.key)).toEqual(["path-1", TASK_GROUP_NONE]);
   });
 
-  it("groups by area with the fixed area order", () => {
-    const groups = groupTasks(tasks, "area");
-    expect(groups.map(group => group.key)).toEqual(["PHD", "LIFE"]);
+  it("groups by area id following the member's area order", () => {
+    const areaOrder = new Map([
+      ["a-life", 0],
+      ["a-phd", 2],
+    ]);
+    const groups = groupTasks(tasks, "area", areaOrder);
+    expect(groups.map(group => group.key)).toEqual(["a-life", "a-phd"]);
   });
 });

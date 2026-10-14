@@ -48,7 +48,6 @@ import type { TaskRow } from "@/features/tasks/types";
 import type { UserRow } from "@/features/users/types";
 import type { LabelRow } from "@/features/labels/types";
 import type { ProjectRow } from "@/features/projects/types";
-import type { LifeArea } from "@/types/db";
 
 type SideTab = "inbox" | "waiting" | "overdue" | "week";
 
@@ -97,8 +96,7 @@ interface DashboardCCProps {
   areas: {
     id: string;
     name: string;
-    area: LifeArea | null;
-    areaId?: string | null;
+    areaId: string;
     openTasks: number;
   }[];
   overdue: TaskRow[];
@@ -418,11 +416,7 @@ function WeekBalanceCard({
             return (
               <Link
                 key={area.id}
-                href={
-                  area.area
-                    ? `/projects/areas/${area.areaId ?? String(area.area).toLowerCase()}`
-                    : `/projects`
-                }
+                href={`/projects/areas/${area.areaId}`}
                 className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
               >
                 <span className="font-medium text-foreground">{area.name}</span>

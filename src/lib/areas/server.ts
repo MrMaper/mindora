@@ -2,8 +2,6 @@
 export {
   getMemberContext,
   listUserAreas,
-  buildMemberContext,
-  buildAreaRefs,
   buildAreaRefsFromRows,
   buildMemberContextFromRows,
   type AreaRef,
@@ -14,16 +12,16 @@ export {
 export {
   ensureDefaultArea,
   ensurePersonalWorkspace,
-  ensureUserAreas,
   ensureHubAreaForModule,
-  projectIdForArea,
+  bucketProjectIdForArea,
 } from "./ensure";
 export {
-  areaIdForLegacy,
-  dualAreaFields,
-  dualAreaRequired,
-  clearAreaIdCache,
-} from "./dual-write";
+  areaIdForGuess,
+  areaIdForTemplate,
+  defaultAreaId,
+  isMemberArea,
+  resolveMemberAreaId,
+} from "./resolve";
 export { getEffectiveFlagsForUser } from "@/lib/module-guard";
 export {
   getHubScope,

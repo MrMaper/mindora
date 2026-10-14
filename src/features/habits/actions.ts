@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { authForModule } from "@/lib/module-guard";
 import { prisma as db } from "@/lib/db";
 import { toDateKey } from "@/lib/life";
-import type { LifeArea, RecurrenceInterval } from "@/types/db";
+import type { RecurrenceInterval } from "@/types/db";
 import { computeHabitStreaks } from "@/features/habits/streaks";
 import {
   getHabitHeatmapForUser,
@@ -12,7 +12,7 @@ import {
   type HabitHeatDay,
   type HabitItem,
 } from "@/features/habits/queries";
-import { RESEARCH_AREA, LANGUAGE_AREA, isLifeAreaValue } from "@/lib/areas";
+import { resolveMemberAreaId } from "@/lib/areas/server";
 
 export interface ActionResult {
   success: boolean;
@@ -44,7 +44,8 @@ export async function getHabitHeatmapAction(input?: {
 
 export async function createHabitAction(input: {
   title: string;
-  area?: LifeArea | null;
+  /** UserArea id; defaults to the member's default area. */
+  areaId?: string | null;
   cadence?: RecurrenceInterval;
 }): Promise<ActionResult> {
   const session = await authForModule("habits");
@@ -56,11 +57,14 @@ export async function createHabitAction(input: {
       ? input.cadence
       : "DAILY";
 
+  const areaId = await resolveMemberAreaId(session.user.id, {
+    areaId: input.areaId,
+  });
   const habit = await db.habit.create({
     data: {
       userId: session.user.id,
       title,
-      area: input.area ?? null,
+      areaId,
       cadence,
     },
     select: { id: true },
@@ -108,7 +112,8 @@ export async function restoreHabitAction(habitId: string): Promise<ActionResult>
 export async function updateHabitAction(input: {
   habitId: string;
   title: string;
-  area?: LifeArea | null;
+  /** UserArea id; defaults to the member's default area. */
+  areaId?: string | null;
   cadence?: RecurrenceInterval;
 }): Promise<ActionResult> {
   const session = await authForModule("habits");
@@ -125,20 +130,20 @@ export async function updateHabitAction(input: {
     input.cadence === "WEEKLY" || input.cadence === "DAILY"
       ? input.cadence
       : undefined;
-  let area: LifeArea | null | undefined = undefined;
-  if (input.area !== undefined) {
-    area = isLifeAreaValue(input.area) ? input.area : null;
+  let areaId: string | undefined = undefined;
+  if (input.areaId) {
+    areaId = await resolveMemberAreaId(session.user.id, { areaId: input.areaId });
   }
 
   const data: {
     title: string;
     cadence?: RecurrenceInterval;
-    area?: LifeArea | null;
+    areaId?: string;
     streak?: number;
     bestStreak?: number;
   } = { title };
   if (cadence) data.cadence = cadence;
-  if (area !== undefined) data.area = area;
+  if (areaId !== undefined) data.areaId = areaId;
 
   if (cadence && cadence !== habit.cadence) {
     const todayKey = toDateKey(new Date());

@@ -94,7 +94,6 @@ export type UserCountAggregateOutputType = {
   avatar: number
   role: number
   status: number
-  enabledModules: number
   modulePolicy: number
   createdVia: number
   mustChangePassword: number
@@ -182,7 +181,6 @@ export type UserCountAggregateInputType = {
   avatar?: true
   role?: true
   status?: true
-  enabledModules?: true
   modulePolicy?: true
   createdVia?: true
   mustChangePassword?: true
@@ -295,7 +293,6 @@ export type UserGroupByOutputType = {
   avatar: string | null
   role: $Enums.UserRole
   status: $Enums.UserStatus
-  enabledModules: runtime.JsonValue
   modulePolicy: runtime.JsonValue
   createdVia: $Enums.UserCreatedVia
   mustChangePassword: boolean
@@ -344,7 +341,6 @@ export type UserWhereInput = {
   avatar?: Prisma.StringNullableFilter<"User"> | string | null
   role?: Prisma.EnumUserRoleFilter<"User"> | $Enums.UserRole
   status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
-  enabledModules?: Prisma.JsonFilter<"User">
   modulePolicy?: Prisma.JsonFilter<"User">
   createdVia?: Prisma.EnumUserCreatedViaFilter<"User"> | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFilter<"User"> | boolean
@@ -386,7 +382,6 @@ export type UserWhereInput = {
   examTracks?: Prisma.ExamTrackListRelationFilter
   mockAttempts?: Prisma.MockAttemptListRelationFilter
   habits?: Prisma.HabitListRelationFilter
-  areaPreferences?: Prisma.UserAreaPreferenceListRelationFilter
   areas?: Prisma.UserAreaListRelationFilter
 }
 
@@ -398,7 +393,6 @@ export type UserOrderByWithRelationInput = {
   avatar?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  enabledModules?: Prisma.SortOrder
   modulePolicy?: Prisma.SortOrder
   createdVia?: Prisma.SortOrder
   mustChangePassword?: Prisma.SortOrder
@@ -440,7 +434,6 @@ export type UserOrderByWithRelationInput = {
   examTracks?: Prisma.ExamTrackOrderByRelationAggregateInput
   mockAttempts?: Prisma.MockAttemptOrderByRelationAggregateInput
   habits?: Prisma.HabitOrderByRelationAggregateInput
-  areaPreferences?: Prisma.UserAreaPreferenceOrderByRelationAggregateInput
   areas?: Prisma.UserAreaOrderByRelationAggregateInput
 }
 
@@ -456,7 +449,6 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   avatar?: Prisma.StringNullableFilter<"User"> | string | null
   role?: Prisma.EnumUserRoleFilter<"User"> | $Enums.UserRole
   status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
-  enabledModules?: Prisma.JsonFilter<"User">
   modulePolicy?: Prisma.JsonFilter<"User">
   createdVia?: Prisma.EnumUserCreatedViaFilter<"User"> | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFilter<"User"> | boolean
@@ -497,7 +489,6 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   examTracks?: Prisma.ExamTrackListRelationFilter
   mockAttempts?: Prisma.MockAttemptListRelationFilter
   habits?: Prisma.HabitListRelationFilter
-  areaPreferences?: Prisma.UserAreaPreferenceListRelationFilter
   areas?: Prisma.UserAreaListRelationFilter
 }, "id" | "email" | "baleUserId">
 
@@ -509,7 +500,6 @@ export type UserOrderByWithAggregationInput = {
   avatar?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  enabledModules?: Prisma.SortOrder
   modulePolicy?: Prisma.SortOrder
   createdVia?: Prisma.SortOrder
   mustChangePassword?: Prisma.SortOrder
@@ -543,7 +533,6 @@ export type UserScalarWhereWithAggregatesInput = {
   avatar?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   role?: Prisma.EnumUserRoleWithAggregatesFilter<"User"> | $Enums.UserRole
   status?: Prisma.EnumUserStatusWithAggregatesFilter<"User"> | $Enums.UserStatus
-  enabledModules?: Prisma.JsonWithAggregatesFilter<"User">
   modulePolicy?: Prisma.JsonWithAggregatesFilter<"User">
   createdVia?: Prisma.EnumUserCreatedViaWithAggregatesFilter<"User"> | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
@@ -569,7 +558,6 @@ export type UserCreateInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -611,7 +599,6 @@ export type UserCreateInput = {
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
@@ -623,7 +610,6 @@ export type UserUncheckedCreateInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -665,7 +651,6 @@ export type UserUncheckedCreateInput = {
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -677,7 +662,6 @@ export type UserUpdateInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -719,7 +703,6 @@ export type UserUpdateInput = {
   examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
@@ -731,7 +714,6 @@ export type UserUncheckedUpdateInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -773,7 +755,6 @@ export type UserUncheckedUpdateInput = {
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -785,7 +766,6 @@ export type UserCreateManyInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -811,7 +791,6 @@ export type UserUpdateManyMutationInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -837,7 +816,6 @@ export type UserUncheckedUpdateManyInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -863,7 +841,6 @@ export type UserCountOrderByAggregateInput = {
   avatar?: Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  enabledModules?: Prisma.SortOrder
   modulePolicy?: Prisma.SortOrder
   createdVia?: Prisma.SortOrder
   mustChangePassword?: Prisma.SortOrder
@@ -1117,20 +1094,6 @@ export type UserUpdateOneRequiredWithoutAreasNestedInput = {
   upsert?: Prisma.UserUpsertWithoutAreasInput
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAreasInput, Prisma.UserUpdateWithoutAreasInput>, Prisma.UserUncheckedUpdateWithoutAreasInput>
-}
-
-export type UserCreateNestedOneWithoutAreaPreferencesInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutAreaPreferencesInput, Prisma.UserUncheckedCreateWithoutAreaPreferencesInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAreaPreferencesInput
-  connect?: Prisma.UserWhereUniqueInput
-}
-
-export type UserUpdateOneRequiredWithoutAreaPreferencesNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutAreaPreferencesInput, Prisma.UserUncheckedCreateWithoutAreaPreferencesInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAreaPreferencesInput
-  upsert?: Prisma.UserUpsertWithoutAreaPreferencesInput
-  connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAreaPreferencesInput, Prisma.UserUpdateWithoutAreaPreferencesInput>, Prisma.UserUncheckedUpdateWithoutAreaPreferencesInput>
 }
 
 export type UserCreateNestedOneWithoutProjectMembersInput = {
@@ -1395,7 +1358,6 @@ export type UserCreateWithoutLoginEventsInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -1436,7 +1398,6 @@ export type UserCreateWithoutLoginEventsInput = {
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
@@ -1448,7 +1409,6 @@ export type UserUncheckedCreateWithoutLoginEventsInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -1489,7 +1449,6 @@ export type UserUncheckedCreateWithoutLoginEventsInput = {
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -1517,7 +1476,6 @@ export type UserUpdateWithoutLoginEventsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1558,7 +1516,6 @@ export type UserUpdateWithoutLoginEventsInput = {
   examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
@@ -1570,7 +1527,6 @@ export type UserUncheckedUpdateWithoutLoginEventsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1611,7 +1567,6 @@ export type UserUncheckedUpdateWithoutLoginEventsInput = {
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -1623,7 +1578,6 @@ export type UserCreateWithoutAdminAuditsAsActorInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -1664,7 +1618,6 @@ export type UserCreateWithoutAdminAuditsAsActorInput = {
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
@@ -1676,7 +1629,6 @@ export type UserUncheckedCreateWithoutAdminAuditsAsActorInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -1717,7 +1669,6 @@ export type UserUncheckedCreateWithoutAdminAuditsAsActorInput = {
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -1734,7 +1685,6 @@ export type UserCreateWithoutAdminAuditsAsTargetInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -1775,7 +1725,6 @@ export type UserCreateWithoutAdminAuditsAsTargetInput = {
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
@@ -1787,7 +1736,6 @@ export type UserUncheckedCreateWithoutAdminAuditsAsTargetInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -1828,7 +1776,6 @@ export type UserUncheckedCreateWithoutAdminAuditsAsTargetInput = {
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -1856,7 +1803,6 @@ export type UserUpdateWithoutAdminAuditsAsActorInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1897,7 +1843,6 @@ export type UserUpdateWithoutAdminAuditsAsActorInput = {
   examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
@@ -1909,7 +1854,6 @@ export type UserUncheckedUpdateWithoutAdminAuditsAsActorInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1950,7 +1894,6 @@ export type UserUncheckedUpdateWithoutAdminAuditsAsActorInput = {
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -1973,7 +1916,6 @@ export type UserUpdateWithoutAdminAuditsAsTargetInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2014,7 +1956,6 @@ export type UserUpdateWithoutAdminAuditsAsTargetInput = {
   examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
@@ -2026,7 +1967,6 @@ export type UserUncheckedUpdateWithoutAdminAuditsAsTargetInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2067,7 +2007,6 @@ export type UserUncheckedUpdateWithoutAdminAuditsAsTargetInput = {
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -2079,7 +2018,6 @@ export type UserCreateWithoutAccountsInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -2120,7 +2058,6 @@ export type UserCreateWithoutAccountsInput = {
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
@@ -2132,7 +2069,6 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -2173,7 +2109,6 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -2201,7 +2136,6 @@ export type UserUpdateWithoutAccountsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2242,7 +2176,6 @@ export type UserUpdateWithoutAccountsInput = {
   examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
@@ -2254,7 +2187,6 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2295,7 +2227,6 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -2307,7 +2238,6 @@ export type UserCreateWithoutSessionsInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -2348,7 +2278,6 @@ export type UserCreateWithoutSessionsInput = {
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
@@ -2360,7 +2289,6 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -2401,7 +2329,6 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -2429,7 +2356,6 @@ export type UserUpdateWithoutSessionsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2470,7 +2396,6 @@ export type UserUpdateWithoutSessionsInput = {
   examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
@@ -2482,7 +2407,6 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2523,7 +2447,6 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -2535,7 +2458,6 @@ export type UserCreateWithoutPasswordResetTokensInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -2576,7 +2498,6 @@ export type UserCreateWithoutPasswordResetTokensInput = {
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
@@ -2588,7 +2509,6 @@ export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -2629,7 +2549,6 @@ export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -2657,7 +2576,6 @@ export type UserUpdateWithoutPasswordResetTokensInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2698,7 +2616,6 @@ export type UserUpdateWithoutPasswordResetTokensInput = {
   examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
@@ -2710,7 +2627,6 @@ export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2751,7 +2667,6 @@ export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -2763,7 +2678,6 @@ export type UserCreateWithoutPreferencesInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -2804,7 +2718,6 @@ export type UserCreateWithoutPreferencesInput = {
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
@@ -2816,7 +2729,6 @@ export type UserUncheckedCreateWithoutPreferencesInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -2857,7 +2769,6 @@ export type UserUncheckedCreateWithoutPreferencesInput = {
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -2885,7 +2796,6 @@ export type UserUpdateWithoutPreferencesInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2926,7 +2836,6 @@ export type UserUpdateWithoutPreferencesInput = {
   examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
@@ -2938,7 +2847,6 @@ export type UserUncheckedUpdateWithoutPreferencesInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2979,7 +2887,6 @@ export type UserUncheckedUpdateWithoutPreferencesInput = {
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -2991,7 +2898,6 @@ export type UserCreateWithoutTeamMembersInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -3032,7 +2938,6 @@ export type UserCreateWithoutTeamMembersInput = {
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
@@ -3044,7 +2949,6 @@ export type UserUncheckedCreateWithoutTeamMembersInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -3085,7 +2989,6 @@ export type UserUncheckedCreateWithoutTeamMembersInput = {
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -3113,7 +3016,6 @@ export type UserUpdateWithoutTeamMembersInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3154,7 +3056,6 @@ export type UserUpdateWithoutTeamMembersInput = {
   examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
@@ -3166,7 +3067,6 @@ export type UserUncheckedUpdateWithoutTeamMembersInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3207,7 +3107,6 @@ export type UserUncheckedUpdateWithoutTeamMembersInput = {
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -3219,7 +3118,6 @@ export type UserCreateWithoutAreasInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -3261,7 +3159,6 @@ export type UserCreateWithoutAreasInput = {
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAreasInput = {
@@ -3272,7 +3169,6 @@ export type UserUncheckedCreateWithoutAreasInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -3314,7 +3210,6 @@ export type UserUncheckedCreateWithoutAreasInput = {
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAreasInput = {
@@ -3341,7 +3236,6 @@ export type UserUpdateWithoutAreasInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3383,7 +3277,6 @@ export type UserUpdateWithoutAreasInput = {
   examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAreasInput = {
@@ -3394,7 +3287,6 @@ export type UserUncheckedUpdateWithoutAreasInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3436,235 +3328,6 @@ export type UserUncheckedUpdateWithoutAreasInput = {
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
-}
-
-export type UserCreateWithoutAreaPreferencesInput = {
-  id?: string
-  name: string
-  email: string
-  password?: string | null
-  avatar?: string | null
-  role?: $Enums.UserRole
-  status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  createdVia?: $Enums.UserCreatedVia
-  mustChangePassword?: boolean
-  baleUserId?: string | null
-  baleLinkCode?: string | null
-  baleLinkChatId?: string | null
-  baleLinkExpires?: Date | string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  sessionVersion?: number
-  lastLoginAt?: Date | string | null
-  lastSeenAt?: Date | string | null
-  totalOnlineSeconds?: number
-  failedLoginCount?: number
-  lockedUntil?: Date | string | null
-  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
-  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
-  comments?: Prisma.CommentCreateNestedManyWithoutUserInput
-  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
-  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
-  loginEvents?: Prisma.UserLoginEventCreateNestedManyWithoutUserInput
-  adminAuditsAsActor?: Prisma.AdminAuditLogCreateNestedManyWithoutActorInput
-  adminAuditsAsTarget?: Prisma.AdminAuditLogCreateNestedManyWithoutTargetUserInput
-  assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssignedToInput
-  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
-  teamMembers?: Prisma.TeamMemberCreateNestedManyWithoutUserInput
-  projectMembers?: Prisma.ProjectMemberCreateNestedManyWithoutUserInput
-  preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
-  workLogs?: Prisma.WorkLogCreateNestedManyWithoutUserInput
-  docs?: Prisma.DocCreateNestedManyWithoutUserInput
-  docFolders?: Prisma.DocFolderCreateNestedManyWithoutUserInput
-  docTags?: Prisma.DocTagCreateNestedManyWithoutUserInput
-  langSessions?: Prisma.LangSessionCreateNestedManyWithoutUserInput
-  langProfile?: Prisma.LangProfileCreateNestedOneWithoutUserInput
-  langCards?: Prisma.LangCardCreateNestedManyWithoutUserInput
-  langVocabDays?: Prisma.LangVocabDayCreateNestedManyWithoutUserInput
-  langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutUserInput
-  examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
-  mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
-  habits?: Prisma.HabitCreateNestedManyWithoutUserInput
-  areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
-}
-
-export type UserUncheckedCreateWithoutAreaPreferencesInput = {
-  id?: string
-  name: string
-  email: string
-  password?: string | null
-  avatar?: string | null
-  role?: $Enums.UserRole
-  status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  createdVia?: $Enums.UserCreatedVia
-  mustChangePassword?: boolean
-  baleUserId?: string | null
-  baleLinkCode?: string | null
-  baleLinkChatId?: string | null
-  baleLinkExpires?: Date | string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  sessionVersion?: number
-  lastLoginAt?: Date | string | null
-  lastSeenAt?: Date | string | null
-  totalOnlineSeconds?: number
-  failedLoginCount?: number
-  lockedUntil?: Date | string | null
-  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
-  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
-  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
-  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
-  loginEvents?: Prisma.UserLoginEventUncheckedCreateNestedManyWithoutUserInput
-  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutActorInput
-  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedCreateNestedManyWithoutTargetUserInput
-  assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssignedToInput
-  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
-  teamMembers?: Prisma.TeamMemberUncheckedCreateNestedManyWithoutUserInput
-  projectMembers?: Prisma.ProjectMemberUncheckedCreateNestedManyWithoutUserInput
-  preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
-  workLogs?: Prisma.WorkLogUncheckedCreateNestedManyWithoutUserInput
-  docs?: Prisma.DocUncheckedCreateNestedManyWithoutUserInput
-  docFolders?: Prisma.DocFolderUncheckedCreateNestedManyWithoutUserInput
-  docTags?: Prisma.DocTagUncheckedCreateNestedManyWithoutUserInput
-  langSessions?: Prisma.LangSessionUncheckedCreateNestedManyWithoutUserInput
-  langProfile?: Prisma.LangProfileUncheckedCreateNestedOneWithoutUserInput
-  langCards?: Prisma.LangCardUncheckedCreateNestedManyWithoutUserInput
-  langVocabDays?: Prisma.LangVocabDayUncheckedCreateNestedManyWithoutUserInput
-  langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutUserInput
-  examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
-  mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
-  habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
-  areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
-}
-
-export type UserCreateOrConnectWithoutAreaPreferencesInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutAreaPreferencesInput, Prisma.UserUncheckedCreateWithoutAreaPreferencesInput>
-}
-
-export type UserUpsertWithoutAreaPreferencesInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutAreaPreferencesInput, Prisma.UserUncheckedUpdateWithoutAreaPreferencesInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutAreaPreferencesInput, Prisma.UserUncheckedCreateWithoutAreaPreferencesInput>
-  where?: Prisma.UserWhereInput
-}
-
-export type UserUpdateToOneWithWhereWithoutAreaPreferencesInput = {
-  where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutAreaPreferencesInput, Prisma.UserUncheckedUpdateWithoutAreaPreferencesInput>
-}
-
-export type UserUpdateWithoutAreaPreferencesInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
-  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
-  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
-  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
-  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
-  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
-  comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
-  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
-  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
-  loginEvents?: Prisma.UserLoginEventUpdateManyWithoutUserNestedInput
-  adminAuditsAsActor?: Prisma.AdminAuditLogUpdateManyWithoutActorNestedInput
-  adminAuditsAsTarget?: Prisma.AdminAuditLogUpdateManyWithoutTargetUserNestedInput
-  assignedTasks?: Prisma.TaskUpdateManyWithoutAssignedToNestedInput
-  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
-  teamMembers?: Prisma.TeamMemberUpdateManyWithoutUserNestedInput
-  projectMembers?: Prisma.ProjectMemberUpdateManyWithoutUserNestedInput
-  preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
-  workLogs?: Prisma.WorkLogUpdateManyWithoutUserNestedInput
-  docs?: Prisma.DocUpdateManyWithoutUserNestedInput
-  docFolders?: Prisma.DocFolderUpdateManyWithoutUserNestedInput
-  docTags?: Prisma.DocTagUpdateManyWithoutUserNestedInput
-  langSessions?: Prisma.LangSessionUpdateManyWithoutUserNestedInput
-  langProfile?: Prisma.LangProfileUpdateOneWithoutUserNestedInput
-  langCards?: Prisma.LangCardUpdateManyWithoutUserNestedInput
-  langVocabDays?: Prisma.LangVocabDayUpdateManyWithoutUserNestedInput
-  langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutUserNestedInput
-  examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
-  mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
-  habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
-  areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
-}
-
-export type UserUncheckedUpdateWithoutAreaPreferencesInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
-  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
-  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  baleLinkExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  lastSeenAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  totalOnlineSeconds?: Prisma.IntFieldUpdateOperationsInput | number
-  failedLoginCount?: Prisma.IntFieldUpdateOperationsInput | number
-  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
-  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
-  comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
-  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
-  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
-  loginEvents?: Prisma.UserLoginEventUncheckedUpdateManyWithoutUserNestedInput
-  adminAuditsAsActor?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutActorNestedInput
-  adminAuditsAsTarget?: Prisma.AdminAuditLogUncheckedUpdateManyWithoutTargetUserNestedInput
-  assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssignedToNestedInput
-  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
-  teamMembers?: Prisma.TeamMemberUncheckedUpdateManyWithoutUserNestedInput
-  projectMembers?: Prisma.ProjectMemberUncheckedUpdateManyWithoutUserNestedInput
-  preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
-  workLogs?: Prisma.WorkLogUncheckedUpdateManyWithoutUserNestedInput
-  docs?: Prisma.DocUncheckedUpdateManyWithoutUserNestedInput
-  docFolders?: Prisma.DocFolderUncheckedUpdateManyWithoutUserNestedInput
-  docTags?: Prisma.DocTagUncheckedUpdateManyWithoutUserNestedInput
-  langSessions?: Prisma.LangSessionUncheckedUpdateManyWithoutUserNestedInput
-  langProfile?: Prisma.LangProfileUncheckedUpdateOneWithoutUserNestedInput
-  langCards?: Prisma.LangCardUncheckedUpdateManyWithoutUserNestedInput
-  langVocabDays?: Prisma.LangVocabDayUncheckedUpdateManyWithoutUserNestedInput
-  langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutUserNestedInput
-  examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
-  mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
-  habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
-  areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutProjectMembersInput = {
@@ -3675,7 +3338,6 @@ export type UserCreateWithoutProjectMembersInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -3716,7 +3378,6 @@ export type UserCreateWithoutProjectMembersInput = {
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
@@ -3728,7 +3389,6 @@ export type UserUncheckedCreateWithoutProjectMembersInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -3769,7 +3429,6 @@ export type UserUncheckedCreateWithoutProjectMembersInput = {
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -3797,7 +3456,6 @@ export type UserUpdateWithoutProjectMembersInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3838,7 +3496,6 @@ export type UserUpdateWithoutProjectMembersInput = {
   examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
@@ -3850,7 +3507,6 @@ export type UserUncheckedUpdateWithoutProjectMembersInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3891,7 +3547,6 @@ export type UserUncheckedUpdateWithoutProjectMembersInput = {
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -3903,7 +3558,6 @@ export type UserCreateWithoutAssignedTasksInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -3944,7 +3598,6 @@ export type UserCreateWithoutAssignedTasksInput = {
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
@@ -3956,7 +3609,6 @@ export type UserUncheckedCreateWithoutAssignedTasksInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -3997,7 +3649,6 @@ export type UserUncheckedCreateWithoutAssignedTasksInput = {
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -4014,7 +3665,6 @@ export type UserCreateWithoutCreatedTasksInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -4055,7 +3705,6 @@ export type UserCreateWithoutCreatedTasksInput = {
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
@@ -4067,7 +3716,6 @@ export type UserUncheckedCreateWithoutCreatedTasksInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -4108,7 +3756,6 @@ export type UserUncheckedCreateWithoutCreatedTasksInput = {
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -4136,7 +3783,6 @@ export type UserUpdateWithoutAssignedTasksInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4177,7 +3823,6 @@ export type UserUpdateWithoutAssignedTasksInput = {
   examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
@@ -4189,7 +3834,6 @@ export type UserUncheckedUpdateWithoutAssignedTasksInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4230,7 +3874,6 @@ export type UserUncheckedUpdateWithoutAssignedTasksInput = {
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -4253,7 +3896,6 @@ export type UserUpdateWithoutCreatedTasksInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4294,7 +3936,6 @@ export type UserUpdateWithoutCreatedTasksInput = {
   examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
@@ -4306,7 +3947,6 @@ export type UserUncheckedUpdateWithoutCreatedTasksInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4347,7 +3987,6 @@ export type UserUncheckedUpdateWithoutCreatedTasksInput = {
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -4359,7 +3998,6 @@ export type UserCreateWithoutCommentsInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -4400,7 +4038,6 @@ export type UserCreateWithoutCommentsInput = {
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
@@ -4412,7 +4049,6 @@ export type UserUncheckedCreateWithoutCommentsInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -4453,7 +4089,6 @@ export type UserUncheckedCreateWithoutCommentsInput = {
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -4481,7 +4116,6 @@ export type UserUpdateWithoutCommentsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4522,7 +4156,6 @@ export type UserUpdateWithoutCommentsInput = {
   examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
@@ -4534,7 +4167,6 @@ export type UserUncheckedUpdateWithoutCommentsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4575,7 +4207,6 @@ export type UserUncheckedUpdateWithoutCommentsInput = {
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -4587,7 +4218,6 @@ export type UserCreateWithoutNotificationsInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -4628,7 +4258,6 @@ export type UserCreateWithoutNotificationsInput = {
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
@@ -4640,7 +4269,6 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -4681,7 +4309,6 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -4709,7 +4336,6 @@ export type UserUpdateWithoutNotificationsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4750,7 +4376,6 @@ export type UserUpdateWithoutNotificationsInput = {
   examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
@@ -4762,7 +4387,6 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4803,7 +4427,6 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -4815,7 +4438,6 @@ export type UserCreateWithoutActivityLogsInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -4856,7 +4478,6 @@ export type UserCreateWithoutActivityLogsInput = {
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
@@ -4868,7 +4489,6 @@ export type UserUncheckedCreateWithoutActivityLogsInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -4909,7 +4529,6 @@ export type UserUncheckedCreateWithoutActivityLogsInput = {
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -4937,7 +4556,6 @@ export type UserUpdateWithoutActivityLogsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4978,7 +4596,6 @@ export type UserUpdateWithoutActivityLogsInput = {
   examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
@@ -4990,7 +4607,6 @@ export type UserUncheckedUpdateWithoutActivityLogsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5031,7 +4647,6 @@ export type UserUncheckedUpdateWithoutActivityLogsInput = {
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -5043,7 +4658,6 @@ export type UserCreateWithoutWorkLogsInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -5084,7 +4698,6 @@ export type UserCreateWithoutWorkLogsInput = {
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
@@ -5096,7 +4709,6 @@ export type UserUncheckedCreateWithoutWorkLogsInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -5137,7 +4749,6 @@ export type UserUncheckedCreateWithoutWorkLogsInput = {
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -5165,7 +4776,6 @@ export type UserUpdateWithoutWorkLogsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5206,7 +4816,6 @@ export type UserUpdateWithoutWorkLogsInput = {
   examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
@@ -5218,7 +4827,6 @@ export type UserUncheckedUpdateWithoutWorkLogsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5259,7 +4867,6 @@ export type UserUncheckedUpdateWithoutWorkLogsInput = {
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -5271,7 +4878,6 @@ export type UserCreateWithoutHabitsInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -5312,7 +4918,6 @@ export type UserCreateWithoutHabitsInput = {
   langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutUserInput
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
@@ -5324,7 +4929,6 @@ export type UserUncheckedCreateWithoutHabitsInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -5365,7 +4969,6 @@ export type UserUncheckedCreateWithoutHabitsInput = {
   langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutUserInput
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -5393,7 +4996,6 @@ export type UserUpdateWithoutHabitsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5434,7 +5036,6 @@ export type UserUpdateWithoutHabitsInput = {
   langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutUserNestedInput
   examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
@@ -5446,7 +5047,6 @@ export type UserUncheckedUpdateWithoutHabitsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5487,7 +5087,6 @@ export type UserUncheckedUpdateWithoutHabitsInput = {
   langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutUserNestedInput
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -5499,7 +5098,6 @@ export type UserCreateWithoutDocsInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -5540,7 +5138,6 @@ export type UserCreateWithoutDocsInput = {
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
@@ -5552,7 +5149,6 @@ export type UserUncheckedCreateWithoutDocsInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -5593,7 +5189,6 @@ export type UserUncheckedCreateWithoutDocsInput = {
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -5621,7 +5216,6 @@ export type UserUpdateWithoutDocsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5662,7 +5256,6 @@ export type UserUpdateWithoutDocsInput = {
   examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
@@ -5674,7 +5267,6 @@ export type UserUncheckedUpdateWithoutDocsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5715,7 +5307,6 @@ export type UserUncheckedUpdateWithoutDocsInput = {
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -5727,7 +5318,6 @@ export type UserCreateWithoutDocFoldersInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -5768,7 +5358,6 @@ export type UserCreateWithoutDocFoldersInput = {
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
@@ -5780,7 +5369,6 @@ export type UserUncheckedCreateWithoutDocFoldersInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -5821,7 +5409,6 @@ export type UserUncheckedCreateWithoutDocFoldersInput = {
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -5849,7 +5436,6 @@ export type UserUpdateWithoutDocFoldersInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5890,7 +5476,6 @@ export type UserUpdateWithoutDocFoldersInput = {
   examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
@@ -5902,7 +5487,6 @@ export type UserUncheckedUpdateWithoutDocFoldersInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5943,7 +5527,6 @@ export type UserUncheckedUpdateWithoutDocFoldersInput = {
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -5955,7 +5538,6 @@ export type UserCreateWithoutDocTagsInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -5996,7 +5578,6 @@ export type UserCreateWithoutDocTagsInput = {
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
@@ -6008,7 +5589,6 @@ export type UserUncheckedCreateWithoutDocTagsInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -6049,7 +5629,6 @@ export type UserUncheckedCreateWithoutDocTagsInput = {
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -6077,7 +5656,6 @@ export type UserUpdateWithoutDocTagsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6118,7 +5696,6 @@ export type UserUpdateWithoutDocTagsInput = {
   examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
@@ -6130,7 +5707,6 @@ export type UserUncheckedUpdateWithoutDocTagsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6171,7 +5747,6 @@ export type UserUncheckedUpdateWithoutDocTagsInput = {
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -6183,7 +5758,6 @@ export type UserCreateWithoutLangProfileInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -6224,7 +5798,6 @@ export type UserCreateWithoutLangProfileInput = {
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
@@ -6236,7 +5809,6 @@ export type UserUncheckedCreateWithoutLangProfileInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -6277,7 +5849,6 @@ export type UserUncheckedCreateWithoutLangProfileInput = {
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -6305,7 +5876,6 @@ export type UserUpdateWithoutLangProfileInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6346,7 +5916,6 @@ export type UserUpdateWithoutLangProfileInput = {
   examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
@@ -6358,7 +5927,6 @@ export type UserUncheckedUpdateWithoutLangProfileInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6399,7 +5967,6 @@ export type UserUncheckedUpdateWithoutLangProfileInput = {
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -6411,7 +5978,6 @@ export type UserCreateWithoutLangSessionsInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -6452,7 +6018,6 @@ export type UserCreateWithoutLangSessionsInput = {
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
@@ -6464,7 +6029,6 @@ export type UserUncheckedCreateWithoutLangSessionsInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -6505,7 +6069,6 @@ export type UserUncheckedCreateWithoutLangSessionsInput = {
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -6533,7 +6096,6 @@ export type UserUpdateWithoutLangSessionsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6574,7 +6136,6 @@ export type UserUpdateWithoutLangSessionsInput = {
   examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
@@ -6586,7 +6147,6 @@ export type UserUncheckedUpdateWithoutLangSessionsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6627,7 +6187,6 @@ export type UserUncheckedUpdateWithoutLangSessionsInput = {
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -6639,7 +6198,6 @@ export type UserCreateWithoutLangListeningClipsInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -6680,7 +6238,6 @@ export type UserCreateWithoutLangListeningClipsInput = {
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
@@ -6692,7 +6249,6 @@ export type UserUncheckedCreateWithoutLangListeningClipsInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -6733,7 +6289,6 @@ export type UserUncheckedCreateWithoutLangListeningClipsInput = {
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -6761,7 +6316,6 @@ export type UserUpdateWithoutLangListeningClipsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6802,7 +6356,6 @@ export type UserUpdateWithoutLangListeningClipsInput = {
   examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
@@ -6814,7 +6367,6 @@ export type UserUncheckedUpdateWithoutLangListeningClipsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6855,7 +6407,6 @@ export type UserUncheckedUpdateWithoutLangListeningClipsInput = {
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -6867,7 +6418,6 @@ export type UserCreateWithoutLangCardsInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -6908,7 +6458,6 @@ export type UserCreateWithoutLangCardsInput = {
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
@@ -6920,7 +6469,6 @@ export type UserUncheckedCreateWithoutLangCardsInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -6961,7 +6509,6 @@ export type UserUncheckedCreateWithoutLangCardsInput = {
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -6989,7 +6536,6 @@ export type UserUpdateWithoutLangCardsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7030,7 +6576,6 @@ export type UserUpdateWithoutLangCardsInput = {
   examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
@@ -7042,7 +6587,6 @@ export type UserUncheckedUpdateWithoutLangCardsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7083,7 +6627,6 @@ export type UserUncheckedUpdateWithoutLangCardsInput = {
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -7095,7 +6638,6 @@ export type UserCreateWithoutLangVocabDaysInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -7136,7 +6678,6 @@ export type UserCreateWithoutLangVocabDaysInput = {
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
@@ -7148,7 +6689,6 @@ export type UserUncheckedCreateWithoutLangVocabDaysInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -7189,7 +6729,6 @@ export type UserUncheckedCreateWithoutLangVocabDaysInput = {
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -7217,7 +6756,6 @@ export type UserUpdateWithoutLangVocabDaysInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7258,7 +6796,6 @@ export type UserUpdateWithoutLangVocabDaysInput = {
   examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
@@ -7270,7 +6807,6 @@ export type UserUncheckedUpdateWithoutLangVocabDaysInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7311,7 +6847,6 @@ export type UserUncheckedUpdateWithoutLangVocabDaysInput = {
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -7323,7 +6858,6 @@ export type UserCreateWithoutExamTracksInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -7364,7 +6898,6 @@ export type UserCreateWithoutExamTracksInput = {
   langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
@@ -7376,7 +6909,6 @@ export type UserUncheckedCreateWithoutExamTracksInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -7417,7 +6949,6 @@ export type UserUncheckedCreateWithoutExamTracksInput = {
   langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutUserInput
   mockAttempts?: Prisma.MockAttemptUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -7445,7 +6976,6 @@ export type UserUpdateWithoutExamTracksInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7486,7 +7016,6 @@ export type UserUpdateWithoutExamTracksInput = {
   langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
@@ -7498,7 +7027,6 @@ export type UserUncheckedUpdateWithoutExamTracksInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7539,7 +7067,6 @@ export type UserUncheckedUpdateWithoutExamTracksInput = {
   langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutUserNestedInput
   mockAttempts?: Prisma.MockAttemptUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -7551,7 +7078,6 @@ export type UserCreateWithoutMockAttemptsInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -7592,7 +7118,6 @@ export type UserCreateWithoutMockAttemptsInput = {
   langListeningClips?: Prisma.LangListeningClipCreateNestedManyWithoutUserInput
   examTracks?: Prisma.ExamTrackCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaCreateNestedManyWithoutUserInput
 }
 
@@ -7604,7 +7129,6 @@ export type UserUncheckedCreateWithoutMockAttemptsInput = {
   avatar?: string | null
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: $Enums.UserCreatedVia
   mustChangePassword?: boolean
@@ -7645,7 +7169,6 @@ export type UserUncheckedCreateWithoutMockAttemptsInput = {
   langListeningClips?: Prisma.LangListeningClipUncheckedCreateNestedManyWithoutUserInput
   examTracks?: Prisma.ExamTrackUncheckedCreateNestedManyWithoutUserInput
   habits?: Prisma.HabitUncheckedCreateNestedManyWithoutUserInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedCreateNestedManyWithoutUserInput
   areas?: Prisma.UserAreaUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -7673,7 +7196,6 @@ export type UserUpdateWithoutMockAttemptsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7714,7 +7236,6 @@ export type UserUpdateWithoutMockAttemptsInput = {
   langListeningClips?: Prisma.LangListeningClipUpdateManyWithoutUserNestedInput
   examTracks?: Prisma.ExamTrackUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUpdateManyWithoutUserNestedInput
 }
 
@@ -7726,7 +7247,6 @@ export type UserUncheckedUpdateWithoutMockAttemptsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7767,7 +7287,6 @@ export type UserUncheckedUpdateWithoutMockAttemptsInput = {
   langListeningClips?: Prisma.LangListeningClipUncheckedUpdateManyWithoutUserNestedInput
   examTracks?: Prisma.ExamTrackUncheckedUpdateManyWithoutUserNestedInput
   habits?: Prisma.HabitUncheckedUpdateManyWithoutUserNestedInput
-  areaPreferences?: Prisma.UserAreaPreferenceUncheckedUpdateManyWithoutUserNestedInput
   areas?: Prisma.UserAreaUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -7801,7 +7320,6 @@ export type UserCountOutputType = {
   examTracks: number
   mockAttempts: number
   habits: number
-  areaPreferences: number
   areas: number
 }
 
@@ -7830,7 +7348,6 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   examTracks?: boolean | UserCountOutputTypeCountExamTracksArgs
   mockAttempts?: boolean | UserCountOutputTypeCountMockAttemptsArgs
   habits?: boolean | UserCountOutputTypeCountHabitsArgs
-  areaPreferences?: boolean | UserCountOutputTypeCountAreaPreferencesArgs
   areas?: boolean | UserCountOutputTypeCountAreasArgs
 }
 
@@ -8015,13 +7532,6 @@ export type UserCountOutputTypeCountHabitsArgs<ExtArgs extends runtime.Types.Ext
 /**
  * UserCountOutputType without action
  */
-export type UserCountOutputTypeCountAreaPreferencesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.UserAreaPreferenceWhereInput
-}
-
-/**
- * UserCountOutputType without action
- */
 export type UserCountOutputTypeCountAreasArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.UserAreaWhereInput
 }
@@ -8035,7 +7545,6 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   avatar?: boolean
   role?: boolean
   status?: boolean
-  enabledModules?: boolean
   modulePolicy?: boolean
   createdVia?: boolean
   mustChangePassword?: boolean
@@ -8077,7 +7586,6 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   examTracks?: boolean | Prisma.User$examTracksArgs<ExtArgs>
   mockAttempts?: boolean | Prisma.User$mockAttemptsArgs<ExtArgs>
   habits?: boolean | Prisma.User$habitsArgs<ExtArgs>
-  areaPreferences?: boolean | Prisma.User$areaPreferencesArgs<ExtArgs>
   areas?: boolean | Prisma.User$areasArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
@@ -8090,7 +7598,6 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   avatar?: boolean
   role?: boolean
   status?: boolean
-  enabledModules?: boolean
   modulePolicy?: boolean
   createdVia?: boolean
   mustChangePassword?: boolean
@@ -8116,7 +7623,6 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   avatar?: boolean
   role?: boolean
   status?: boolean
-  enabledModules?: boolean
   modulePolicy?: boolean
   createdVia?: boolean
   mustChangePassword?: boolean
@@ -8142,7 +7648,6 @@ export type UserSelectScalar = {
   avatar?: boolean
   role?: boolean
   status?: boolean
-  enabledModules?: boolean
   modulePolicy?: boolean
   createdVia?: boolean
   mustChangePassword?: boolean
@@ -8160,7 +7665,7 @@ export type UserSelectScalar = {
   lockedUntil?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "password" | "avatar" | "role" | "status" | "enabledModules" | "modulePolicy" | "createdVia" | "mustChangePassword" | "baleUserId" | "baleLinkCode" | "baleLinkChatId" | "baleLinkExpires" | "createdAt" | "updatedAt" | "sessionVersion" | "lastLoginAt" | "lastSeenAt" | "totalOnlineSeconds" | "failedLoginCount" | "lockedUntil", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "password" | "avatar" | "role" | "status" | "modulePolicy" | "createdVia" | "mustChangePassword" | "baleUserId" | "baleLinkCode" | "baleLinkChatId" | "baleLinkExpires" | "createdAt" | "updatedAt" | "sessionVersion" | "lastLoginAt" | "lastSeenAt" | "totalOnlineSeconds" | "failedLoginCount" | "lockedUntil", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   activityLogs?: boolean | Prisma.User$activityLogsArgs<ExtArgs>
@@ -8188,7 +7693,6 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   examTracks?: boolean | Prisma.User$examTracksArgs<ExtArgs>
   mockAttempts?: boolean | Prisma.User$mockAttemptsArgs<ExtArgs>
   habits?: boolean | Prisma.User$habitsArgs<ExtArgs>
-  areaPreferences?: boolean | Prisma.User$areaPreferencesArgs<ExtArgs>
   areas?: boolean | Prisma.User$areasArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -8224,7 +7728,6 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     examTracks: Prisma.$ExamTrackPayload<ExtArgs>[]
     mockAttempts: Prisma.$MockAttemptPayload<ExtArgs>[]
     habits: Prisma.$HabitPayload<ExtArgs>[]
-    areaPreferences: Prisma.$UserAreaPreferencePayload<ExtArgs>[]
     areas: Prisma.$UserAreaPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -8236,13 +7739,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     role: $Enums.UserRole
     status: $Enums.UserStatus
     /**
-     * Toggleable product modules for MEMBER accounts (ADMIN ignores; management-only).
-     * Shape: { tasks, docs, research, language, habits, projects, workLogs, reporting }
-     */
-    enabledModules: runtime.JsonValue
-    /**
      * Admin policy per module: { [module]: "off" | "on" | "member_choice" }.
-     * Missing keys fall back to the legacy `enabledModules` flag (see src/lib/modules.ts).
+     * Missing keys fall back to code defaults (see src/lib/modules.ts).
      */
     modulePolicy: runtime.JsonValue
     /**
@@ -8703,7 +8201,6 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   examTracks<T extends Prisma.User$examTracksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$examTracksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExamTrackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   mockAttempts<T extends Prisma.User$mockAttemptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$mockAttemptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MockAttemptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   habits<T extends Prisma.User$habitsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$habitsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$HabitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  areaPreferences<T extends Prisma.User$areaPreferencesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$areaPreferencesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserAreaPreferencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   areas<T extends Prisma.User$areasArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$areasArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserAreaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -8741,7 +8238,6 @@ export interface UserFieldRefs {
   readonly avatar: Prisma.FieldRef<"User", 'String'>
   readonly role: Prisma.FieldRef<"User", 'UserRole'>
   readonly status: Prisma.FieldRef<"User", 'UserStatus'>
-  readonly enabledModules: Prisma.FieldRef<"User", 'Json'>
   readonly modulePolicy: Prisma.FieldRef<"User", 'Json'>
   readonly createdVia: Prisma.FieldRef<"User", 'UserCreatedVia'>
   readonly mustChangePassword: Prisma.FieldRef<"User", 'Boolean'>
@@ -9761,30 +9257,6 @@ export type User$habitsArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   distinct?: Prisma.HabitScalarFieldEnum | Prisma.HabitScalarFieldEnum[]
-}
-
-/**
- * User.areaPreferences
- */
-export type User$areaPreferencesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the UserAreaPreference
-   */
-  select?: Prisma.UserAreaPreferenceSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the UserAreaPreference
-   */
-  omit?: Prisma.UserAreaPreferenceOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.UserAreaPreferenceInclude<ExtArgs> | null
-  where?: Prisma.UserAreaPreferenceWhereInput
-  orderBy?: Prisma.UserAreaPreferenceOrderByWithRelationInput | Prisma.UserAreaPreferenceOrderByWithRelationInput[]
-  cursor?: Prisma.UserAreaPreferenceWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.UserAreaPreferenceScalarFieldEnum | Prisma.UserAreaPreferenceScalarFieldEnum[]
 }
 
 /**

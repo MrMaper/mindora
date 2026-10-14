@@ -85,7 +85,7 @@ function SortablePathRow({
     isDragging,
   } = useSortable({
     id: path.id,
-    data: { type: "path", path, area: path.area },
+    data: { type: "path", path, areaId: path.areaId },
   });
 
   const open = path.openTaskCount ?? 0;
@@ -193,7 +193,7 @@ export function AreaSection({
   const router = useRouter();
   const {
     areaId,
-    area,
+    templateKey,
     hubFor,
     displayName,
     bucket,
@@ -201,11 +201,10 @@ export function AreaSection({
     openTaskCount,
     activePathCount,
     pref,
-    legacyEnum,
     isDefault,
   } = section;
   const visual = resolveAreaVisualFromRef({
-    legacyEnum,
+    templateKey,
     color: pref.color,
     icon: pref.icon,
     hubFor,
@@ -219,7 +218,7 @@ export function AreaSection({
 
   const { setNodeRef, isOver } = useDroppable({
     id: `area-drop-${areaId}`,
-    data: { type: "area", area, areaId },
+    data: { type: "area", areaId },
   });
 
   const relatedLabels: Record<(typeof related)[number]["labelKey"], string> = {

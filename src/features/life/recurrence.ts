@@ -7,7 +7,6 @@ import {
 } from "@/lib/life";
 import type { RecurrenceInterval } from "@/types/db";
 import { randomUUID } from "crypto";
-import { isHubArea } from "@/lib/areas";
 
 export function newRecurrenceSeriesId(): string {
   return randomUUID();
@@ -29,7 +28,8 @@ export async function spawnNextIfRecurring(taskId: string, userId: string) {
       description: true,
       priority: true,
       type: true,
-      area: true,
+      areaId: true,
+      userArea: { select: { hubFor: true } },
       recurrence: true,
       recurrenceSeriesId: true,
       recurrenceEndsAt: true,
@@ -67,11 +67,11 @@ export async function spawnNextIfRecurring(taskId: string, userId: string) {
 
   // Hub pipeline stages must not be derived from due (Idea stays BACKLOG).
   const status = resolvePersonalTaskPlanningStatus(
-    isHubArea(task.area)
+    task.userArea.hubFor
       ? "BACKLOG"
       : planningStatusFromDue(nextDue),
     nextDue,
-    { area: task.area },
+    { isHub: !!task.userArea.hubFor },
   );
 
   await db.$transaction(async tx => {
@@ -82,7 +82,7 @@ export async function spawnNextIfRecurring(taskId: string, userId: string) {
         status,
         priority: task.priority,
         type: task.type,
-        area: task.area,
+        areaId: task.areaId,
         recurrence: task.recurrence,
         recurrenceSeriesId: seriesId,
         recurrenceEndsAt: task.recurrenceEndsAt,
@@ -129,7 +129,7 @@ export async function skipRecurrenceOccurrence(
       assignedToId: true,
       createdById: true,
       status: true,
-      area: true,
+      userArea: { select: { hubFor: true } },
       waitingOn: true,
     },
   });
@@ -157,7 +157,7 @@ export async function skipRecurrenceOccurrence(
   }
 
   const status = resolvePersonalTaskPlanningStatus(task.status, nextDue, {
-    area: task.area,
+    isHub: !!task.userArea.hubFor,
     waitingOn: task.waitingOn,
   });
 

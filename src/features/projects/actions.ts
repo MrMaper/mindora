@@ -15,12 +15,8 @@ import {
   archiveProjectSchema,
   deleteProjectSchema,
 } from "@/schemas/projects";
-import { personalAreaProjectId } from "@/lib/area-projects";
 import { isAreaBucketId } from "@/lib/project-namespace";
-import { ensurePersonalWorkspace } from "@/features/life/workspace";
-import { LIFE_AREAS } from "@/lib/life";
-import type { LifeArea } from "@/types/db";
-import { DEFAULT_AREA, RESEARCH_AREA, LANGUAGE_AREA } from "@/lib/areas";
+import { ensurePersonalWorkspace, bucketProjectIdForArea } from "@/features/life/workspace";
 import {
   reorderUserAreasAction,
   updateUserAreaAction,
@@ -72,8 +68,6 @@ export async function createProject(formData: FormData): Promise<ActionResult> {
   }
 
   const { name, description, teamId } = parsed.data;
-  let area = parsed.data.area as LifeArea | undefined;
-  let areaId = parsed.data.areaId || null;
 
   // Never create a project with a reserved area-bucket id
   if (isAreaBucketId(name)) {
@@ -82,27 +76,16 @@ export async function createProject(formData: FormData): Promise<ActionResult> {
 
   await ensurePersonalWorkspace(session.user.id);
 
-  if (areaId) {
-    const ua = await db.userArea.findFirst({
-      where: { id: areaId, userId: session.user.id, archived: false },
-      select: { id: true, legacyEnum: true },
-    });
-    if (!ua) return { success: false, error: "حوزه پیدا نشد" };
-    areaId = ua.id;
-    area = (ua.legacyEnum as LifeArea | null) ?? DEFAULT_AREA;
-  } else if (area) {
-    const ua = await db.userArea.findFirst({
-      where: { userId: session.user.id, legacyEnum: area },
-      select: { id: true },
-    });
-    areaId = ua?.id ?? null;
-  } else {
-    return { success: false, error: "حوزه لازم است" };
-  }
+  const area = await db.userArea.findFirst({
+    where: { id: parsed.data.areaId, userId: session.user.id, archived: false },
+    select: { id: true },
+  });
+  if (!area) return { success: false, error: "حوزه پیدا نشد" };
+  const areaId = area.id;
 
   const maxSort = await db.project.aggregate({
     where: {
-      ...(areaId ? { areaId } : { area }),
+      areaId,
       members: { some: { userId: session.user.id } },
       id: { not: { startsWith: "area-" } },
     },
@@ -117,7 +100,6 @@ export async function createProject(formData: FormData): Promise<ActionResult> {
       name: name.trim(),
       description: description?.trim() || null,
       status: "ACTIVE",
-      area: area!,
       areaId,
       sortOrder: (maxSort._max.sortOrder ?? -1) + 1,
       members: {
@@ -131,9 +113,7 @@ export async function createProject(formData: FormData): Promise<ActionResult> {
   });
 
   revalidatePath("/projects");
-  revalidatePath(`/projects/areas/${areaId ?? area}`);
-  if (area === RESEARCH_AREA) revalidatePath("/research");
-  if (area === LANGUAGE_AREA) revalidatePath("/language");
+  await revalidateAreaSurfaces(areaId);
   return { success: true, data: { projectId: project.id } };
 }
 
@@ -148,10 +128,15 @@ export async function updateAreaBucket(formData: FormData): Promise<ActionResult
     return { success: false, error: parsed.error.issues[0]?.message };
   }
 
-  const { area, name, description } = parsed.data;
-  const bucketId = personalAreaProjectId(session.user.id, area as LifeArea);
+  const { areaId, name, description } = parsed.data;
 
   await ensurePersonalWorkspace(session.user.id);
+  const area = await db.userArea.findFirst({
+    where: { id: areaId, userId: session.user.id },
+    select: { bucketProjectId: true },
+  });
+  const bucketId = area?.bucketProjectId;
+  if (!bucketId) return { success: false, error: "حوزه پیدا نشد" };
 
   const isAdmin = await requireProjectAdmin(bucketId, session.user.id);
   if (!isAdmin) {
@@ -168,24 +153,27 @@ export async function updateAreaBucket(formData: FormData): Promise<ActionResult
 
   revalidatePath("/projects");
   revalidatePath(`/projects/${bucketId}`);
-  revalidatePath(`/projects/areas/${area}`);
+  revalidatePath(`/projects/areas/${areaId}`);
   revalidatePath("/tasks");
   revalidatePath("/kanban");
   revalidatePath("/dashboard");
   return { success: true };
 }
 
-function revalidateAreaSurfaces(area?: LifeArea) {
+async function revalidateAreaSurfaces(areaId?: string) {
   revalidatePath("/projects");
   revalidatePath("/dashboard");
-  if (area) {
-    revalidatePath(`/projects/areas/${area}`);
-    if (area === RESEARCH_AREA) revalidatePath("/research");
-    if (area === LANGUAGE_AREA) revalidatePath("/language");
-  }
+  if (!areaId) return;
+  revalidatePath(`/projects/areas/${areaId}`);
+  const area = await db.userArea.findUnique({
+    where: { id: areaId },
+    select: { hubFor: true },
+  });
+  if (area?.hubFor === "RESEARCH") revalidatePath("/research");
+  if (area?.hubFor === "LANGUAGE") revalidatePath("/language");
 }
 
-// ─── Area preference (color / icon / archive / sort) ─────────────────────────
+// ─── Area preference (color / icon / archive) ────────────────────────────────
 
 export async function updateAreaPreference(
   input: unknown,
@@ -198,104 +186,32 @@ export async function updateAreaPreference(
     return { success: false, error: parsed.error.issues[0]?.message };
   }
 
-  const { area, areaId, color, icon, sortOrder, archived } = parsed.data;
+  const { areaId, color, icon, archived } = parsed.data;
   await ensurePersonalWorkspace(session.user.id);
-
-  if (areaId) {
-    return updateUserAreaAction({ areaId, color, icon, archived });
-  }
-  if (!area) return { success: false, error: "areaId required" };
-
-  await db.userAreaPreference.upsert({
-    where: {
-      userId_area: { userId: session.user.id, area },
-    },
-    create: {
-      userId: session.user.id,
-      area,
-      color: color === undefined ? null : color,
-      icon: icon === undefined ? null : icon,
-      sortOrder: sortOrder ?? LIFE_AREAS.indexOf(area),
-      archived: archived ?? false,
-    },
-    update: {
-      ...(color !== undefined ? { color } : {}),
-      ...(icon !== undefined ? { icon } : {}),
-      ...(sortOrder !== undefined ? { sortOrder } : {}),
-      ...(archived !== undefined ? { archived } : {}),
-    },
-  });
-
-  // Mirror onto UserArea when present.
-  await db.userArea.updateMany({
-    where: { userId: session.user.id, legacyEnum: area },
-    data: {
-      ...(color !== undefined ? { color } : {}),
-      ...(icon !== undefined ? { icon } : {}),
-      ...(sortOrder !== undefined ? { sortOrder } : {}),
-      ...(archived !== undefined ? { archived } : {}),
-    },
-  });
-
-  revalidateAreaSurfaces(area);
-  return { success: true };
+  return updateUserAreaAction({ areaId, color, icon, archived });
 }
 
-export async function reorderAreas(
-  ordered: LifeArea[] | string[],
-): Promise<ActionResult> {
+/** Reorder the member's areas by UserArea id. */
+export async function reorderAreas(orderedIds: string[]): Promise<ActionResult> {
   const session = await requireAuth();
   if (!session?.user) return { success: false, error: "Unauthorized" };
 
-  // UserArea ids (P5) — prefer this path.
-  if (ordered.length > 0 && typeof ordered[0] === "string" && !LIFE_AREAS.includes(ordered[0] as LifeArea)) {
-    return reorderUserAreasAction(ordered as string[]);
-  }
-
-  const orderedAreas = ordered as LifeArea[];
-  const parsed = reorderAreasSchema.safeParse({ orderedAreas });
+  const parsed = reorderAreasSchema.safeParse({ orderedIds });
   if (!parsed.success) {
     return { success: false, error: "ترتیب حوزه‌ها نامعتبر است" };
   }
-
   await ensurePersonalWorkspace(session.user.id);
-  const list = parsed.data.orderedAreas ?? [];
-  await db.$transaction(
-    list.map((area, index) =>
-      db.userAreaPreference.upsert({
-        where: {
-          userId_area: { userId: session.user.id, area },
-        },
-        create: {
-          userId: session.user.id,
-          area,
-          sortOrder: index,
-        },
-        update: { sortOrder: index },
-      }),
-    ),
-  );
-  await db.$transaction(
-    list.map((area, index) =>
-      db.userArea.updateMany({
-        where: { userId: session.user.id, legacyEnum: area },
-        data: { sortOrder: index },
-      }),
-    ),
-  );
-
-  revalidateAreaSurfaces();
-  return { success: true };
+  return reorderUserAreasAction(parsed.data.orderedIds);
 }
 
 export async function reorderPathsInArea(
-  area: LifeArea,
+  areaId: string,
   orderedIds: string[],
 ): Promise<ActionResult> {
   const session = await requireAuth();
   if (!session?.user) return { success: false, error: "Unauthorized" };
 
-  const parsed = reorderPathsSchema.safeParse({ area, orderedIds });
+  const parsed = reorderPathsSchema.safeParse({ areaId, orderedIds });
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0]?.message };
   }
@@ -308,7 +224,7 @@ export async function reorderPathsInArea(
     where: {
       userId: session.user.id,
       projectId: { in: parsed.data.orderedIds },
-      project: { area },
+      project: { areaId: parsed.data.areaId },
     },
     select: { projectId: true },
   });
@@ -325,14 +241,13 @@ export async function reorderPathsInArea(
     ),
   );
 
-  revalidateAreaSurfaces(area);
+  await revalidateAreaSurfaces(parsed.data.areaId);
   return { success: true };
 }
 
 export async function movePathToArea(input: {
   pathId: string;
-  toArea?: LifeArea;
-  toAreaId?: string;
+  toAreaId: string;
   toIndex?: number;
 }): Promise<ActionResult> {
   const session = await requireAuth();
@@ -348,41 +263,29 @@ export async function movePathToArea(input: {
     return { success: false, error: "Cannot move area buckets" };
   }
 
-  let toAreaId = parsed.data.toAreaId ?? null;
-  let toArea: LifeArea | null = parsed.data.toArea ?? null;
-  if (toAreaId) {
-    const ua = await db.userArea.findFirst({
-      where: { id: toAreaId, userId: session.user.id },
-      select: { id: true, legacyEnum: true },
-    });
-    if (!ua) return { success: false, error: "حوزه پیدا نشد" };
-    toArea = ua.legacyEnum ?? DEFAULT_AREA;
-    toAreaId = ua.id;
-  } else if (toArea) {
-    const ua = await db.userArea.findFirst({
-      where: { userId: session.user.id, legacyEnum: toArea },
-      select: { id: true },
-    });
-    toAreaId = ua?.id ?? null;
-  }
-  if (!toArea) return { success: false, error: "حوزه پیدا نشد" };
+  const target = await db.userArea.findFirst({
+    where: { id: parsed.data.toAreaId, userId: session.user.id },
+    select: { id: true },
+  });
+  if (!target) return { success: false, error: "حوزه پیدا نشد" };
+  const toAreaId = target.id;
 
   const isAdmin = await requireProjectAdmin(pathId, session.user.id);
   if (!isAdmin) return { success: false, error: "اجازه جابه‌جایی ندارید" };
 
   const existing = await db.project.findUnique({
     where: { id: pathId },
-    select: { area: true, areaId: true },
+    select: { areaId: true },
   });
   if (!existing) return { success: false, error: "مسیر پیدا نشد" };
 
-  const fromArea = existing.area;
+  const fromAreaId = existing.areaId;
 
   let sortOrder = toIndex;
   if (sortOrder === undefined) {
     const maxSort = await db.project.aggregate({
       where: {
-        ...(toAreaId ? { areaId: toAreaId } : { area: toArea }),
+        areaId: toAreaId,
         members: { some: { userId: session.user.id } },
         id: { not: { startsWith: "area-" } },
       },
@@ -394,20 +297,20 @@ export async function movePathToArea(input: {
   await db.$transaction([
     db.project.update({
       where: { id: pathId },
-      data: { area: toArea, areaId: toAreaId, sortOrder },
+      data: { areaId: toAreaId, sortOrder },
     }),
     db.task.updateMany({
       where: { projectId: pathId },
-      data: { area: toArea, areaId: toAreaId },
+      data: { areaId: toAreaId },
     }),
     db.doc.updateMany({
       where: { projectId: pathId, deletedAt: null },
-      data: { area: toArea, areaId: toAreaId },
+      data: { areaId: toAreaId },
     }),
   ]);
 
-  revalidateAreaSurfaces(fromArea);
-  revalidateAreaSurfaces(toArea);
+  await revalidateAreaSurfaces(fromAreaId);
+  await revalidateAreaSurfaces(toAreaId);
   revalidatePath(`/projects/${pathId}`);
   revalidatePath("/tasks");
   revalidatePath("/kanban");
@@ -436,10 +339,10 @@ export async function togglePathPin(
   const project = await db.project.update({
     where: { id: pathId },
     data: { pinned },
-    select: { area: true },
+    select: { areaId: true },
   });
 
-  revalidateAreaSurfaces(project.area);
+  await revalidateAreaSurfaces(project.areaId);
   revalidatePath(`/projects/${pathId}`);
   revalidatePath("/dashboard");
   return { success: true };
@@ -559,7 +462,7 @@ export async function deleteProject(id: string): Promise<ActionResult> {
 
   const project = await db.project.findUnique({
     where: { id },
-    select: { area: true },
+    select: { areaId: true },
   });
   if (!project) return { success: false, error: "مسیر پیدا نشد" };
 
@@ -572,7 +475,7 @@ export async function deleteProject(id: string): Promise<ActionResult> {
 
   // DONE (and any leftover) rows keep continuity — rehome to the area bucket
   // so FKs do not block delete and research library is not orphaned.
-  const bucketId = personalAreaProjectId(session.user.id, project.area);
+  const bucketId = await bucketProjectIdForArea(session.user.id, project.areaId);
   await db.$transaction([
     db.task.updateMany({
       where: { projectId: id },

@@ -1,81 +1,66 @@
 /**
- * Legacy area identity (enum-backed). This is the ONLY place outside Prisma
- * migrations / backfill scripts where the `PHD | WORK | LIFE | LANG` literals
- * may appear. See docs/AREAS.md §13.
+ * Legacy area *strings* (no longer a database enum since P7).
  *
- * P4 replaces the enum with per-user `UserArea` rows; callers must go through
- * `@/lib/areas` so that swap stays local to this directory.
+ * This is the ONLY place outside Prisma migrations / retired backfill scripts
+ * where the `PHD | WORK | LIFE | LANG` literals may appear. They survive as:
+ *
+ *   - `AreaGuess`: what Capture's text parser guesses (`parse.ts`). It is input
+ *     only — it is resolved to a member's `areaId` through `templateKey` /
+ *     `hubFor` (see `areaRefForGuess`, server `areaIdForGuess`) and never stored.
+ *   - URL slugs for permanent redirects (`/projects/areas/phd|work|life|lang`,
+ *     docs/AREAS.md §16) mapped to `templateKey` via `templateKeyForSlug`.
+ *
+ * See docs/AREAS.md §13.
  */
-import type { LifeArea } from "@/types/db";
+import type { AreaTemplateKey } from "./templates";
 
-export const LIFE_AREAS: LifeArea[] = ["PHD", "WORK", "LIFE", "LANG"];
+export type AreaGuess = "PHD" | "WORK" | "LIFE" | "LANG";
 
-/** Area used when a task/project has none. */
-export const DEFAULT_AREA = "LIFE" as const satisfies LifeArea;
+export const AREA_GUESSES: readonly AreaGuess[] = ["PHD", "WORK", "LIFE", "LANG"];
 
-/** Hub identities: Research and Language are bound to these areas today. */
-export const RESEARCH_AREA = "PHD" as const satisfies LifeArea;
-export const LANGUAGE_AREA = "LANG" as const satisfies LifeArea;
+/** Named guesses for the capture parser. */
+export const GUESS_RESEARCH = "PHD" as const satisfies AreaGuess;
+export const GUESS_LANGUAGE = "LANG" as const satisfies AreaGuess;
+export const GUESS_WORK = "WORK" as const satisfies AreaGuess;
+export const GUESS_LIFE = "LIFE" as const satisfies AreaGuess;
 
-export const WORK_AREA = "WORK" as const satisfies LifeArea;
-
-/** Canonical display order (index per area). */
-export const AREA_ORDER: Record<LifeArea, number> = Object.fromEntries(
-  LIFE_AREAS.map((a, i) => [a, i]),
-) as Record<LifeArea, number>;
-
-/** A zeroed counter per area, e.g. for open-task tallies. */
-export function emptyAreaCounts(): Record<LifeArea, number> {
-  return Object.fromEntries(LIFE_AREAS.map(a => [a, 0])) as Record<LifeArea, number>;
-}
-
-export const HUB_AREAS: LifeArea[] = [RESEARCH_AREA, LANGUAGE_AREA];
-export const WORKSPACE_AREAS: LifeArea[] = ["WORK", "LIFE"];
-
-export function isLifeAreaValue(
-  value: string | null | undefined,
-): value is LifeArea {
-  return !!value && (LIFE_AREAS as string[]).includes(value);
-}
-
-export function coerceLifeArea(area: string | null | undefined): LifeArea {
-  return isLifeAreaValue(area) ? area : DEFAULT_AREA;
-}
-
-export const AREA_META: Record<
-  LifeArea,
-  { nameFa: string; nameEn: string; descriptionFa: string; descriptionEn: string }
-> = {
-  PHD: {
-    nameFa: "دکتری",
-    nameEn: "PhD",
-    descriptionFa: "تحصیل، پژوهش و نوشتن",
-    descriptionEn: "Study, research and writing",
-  },
-  WORK: {
-    nameFa: "کار",
-    nameEn: "Work",
-    descriptionFa: "شغل و کارهای حرفه‌ای",
-    descriptionEn: "Job and professional projects",
-  },
-  LIFE: {
-    nameFa: "زندگی",
-    nameEn: "Life",
-    descriptionFa: "خانه، سلامت و امور شخصی",
-    descriptionEn: "Home, health and personal matters",
-  },
-  LANG: {
-    nameFa: "زبان",
-    nameEn: "Language",
-    descriptionFa: "مهارت‌ها، واژگان و آمادگی آزمون",
-    descriptionEn: "Skills, vocab and exam prep",
-  },
+const GUESS_TEMPLATE: Record<AreaGuess, AreaTemplateKey> = {
+  PHD: "research",
+  WORK: "work",
+  LIFE: "life",
+  LANG: "language",
 };
 
-/** Legacy shared bucket IDs (pre multi-tenant workspace). */
-export const LEGACY_AREA_PROJECT_IDS = {
-  PHD: "area-phd",
-  WORK: "area-work",
-  LIFE: "area-life",
-  LANG: "area-lang",
-} as const satisfies Record<LifeArea, string>;
+export function isAreaGuess(value: string | null | undefined): value is AreaGuess {
+  return !!value && (AREA_GUESSES as readonly string[]).includes(value);
+}
+
+/** Template key a capture guess maps to (junk falls back to `life`). */
+export function templateKeyForGuess(
+  guess: string | null | undefined,
+): AreaTemplateKey {
+  return isAreaGuess(guess) ? GUESS_TEMPLATE[guess] : "life";
+}
+
+/**
+ * Legacy URL slug (`phd|work|life|lang`, also `research|language`, any case)
+ * to a template key; `null` when it is not a legacy slug.
+ */
+export function templateKeyForSlug(
+  slug: string | null | undefined,
+): AreaTemplateKey | null {
+  switch ((slug ?? "").trim().toLowerCase()) {
+    case "life":
+      return "life";
+    case "work":
+      return "work";
+    case "phd":
+    case "research":
+      return "research";
+    case "lang":
+    case "language":
+      return "language";
+    default:
+      return null;
+  }
+}

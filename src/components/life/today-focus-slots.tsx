@@ -7,6 +7,7 @@ import { IconButton } from "@/components/ui-kit/forms/icon-button";
 import { useLanguage, useTranslation } from "@/i18n/provider";
 import { formatNumber, cn } from "@/lib/utils";
 import { focusPickGroup } from "@/features/life/focus-slots";
+import { useAreaHelpers } from "@/components/member-areas-provider";
 import type { TaskRow } from "@/features/tasks/types";
 
 export function TodayFocusSlots({
@@ -250,17 +251,6 @@ function FilledSlot({
   );
 }
 
-function pickAreaLabel(
-  area: TaskRow["area"],
-  labels: { phd: string; lang: string; work: string; life: string },
-): string | null {
-  if (area === "PHD") return labels.phd;
-  if (area === "LANG") return labels.lang;
-  if (area === "WORK") return labels.work;
-  if (area === "LIFE") return labels.life;
-  return null;
-}
-
 function Picker({
   candidates,
   todayKey,
@@ -282,12 +272,7 @@ function Picker({
 }) {
   const t = useTranslation();
   const ref = React.useRef<HTMLDivElement>(null);
-  const areaLabels = {
-    phd: t.dashboard.areaPhd,
-    lang: t.dashboard.areaLang,
-    work: t.dashboard.areaWork,
-    life: t.dashboard.areaLife,
-  };
+  const { nameFor } = useAreaHelpers();
 
   React.useEffect(() => {
     function onPointer(event: MouseEvent) {
@@ -316,7 +301,7 @@ function Picker({
                 {group.label}
               </p>
               {group.tasks.map(task => {
-                const area = pickAreaLabel(task.area, areaLabels);
+                const area = nameFor(task.areaId);
                 return (
                   <button
                     key={task.id}

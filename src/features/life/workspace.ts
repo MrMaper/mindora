@@ -2,5 +2,5 @@
 export {
   ensurePersonalWorkspace,
   ensureDefaultArea,
-  projectIdForArea,
+  bucketProjectIdForArea,
 } from "@/lib/areas/ensure";

@@ -1,12 +1,11 @@
-import type { LifeArea } from "@/types/db";
 import type { IconName } from "@/components/ui-kit/foundation/icon";
 import type { AreaPrefRow } from "@/features/projects/types";
 import type { AreaRef, HubKind } from "@/lib/areas";
-import { DEFAULT_AREA } from "@/lib/areas";
 
 /**
  * Shared area identity for hub, calendar, tasks, etc.
- * PHD purple · WORK orange · LIFE blue · LANG green
+ * research purple · work orange · life blue · language green
+ * (palette keyed by hubFor / templateKey; everything else uses the life palette)
  */
 export type AreaVisual = {
   emoji: string;
@@ -25,8 +24,10 @@ export type AreaVisual = {
   cssVar: string;
 };
 
-export const AREA_VISUAL: Record<LifeArea, AreaVisual> = {
-  PHD: {
+export type AreaVisualKey = "research" | "work" | "life" | "language";
+
+export const AREA_VISUAL: Record<AreaVisualKey, AreaVisual> = {
+  research: {
     emoji: "🎓",
     icon: "file-text",
     chip: "bg-[var(--status-review)] text-white",
@@ -36,7 +37,7 @@ export const AREA_VISUAL: Record<LifeArea, AreaVisual> = {
     dot: "bg-[var(--status-review)]",
     cssVar: "var(--status-review)",
   },
-  WORK: {
+  work: {
     emoji: "💼",
     icon: "columns",
     chip: "bg-[var(--status-in-progress)] text-white",
@@ -46,7 +47,7 @@ export const AREA_VISUAL: Record<LifeArea, AreaVisual> = {
     dot: "bg-[var(--status-in-progress)]",
     cssVar: "var(--status-in-progress)",
   },
-  LIFE: {
+  life: {
     emoji: "🏠",
     icon: "home",
     chip: "bg-[var(--status-todo)] text-white",
@@ -56,7 +57,7 @@ export const AREA_VISUAL: Record<LifeArea, AreaVisual> = {
     dot: "bg-[var(--status-todo)]",
     cssVar: "var(--status-todo)",
   },
-  LANG: {
+  language: {
     emoji: "🗣️",
     icon: "language",
     chip: "bg-emerald-600 text-white",
@@ -109,11 +110,22 @@ function resolveCssColor(color: string | null | undefined, fallback: string): st
 }
 
 /** Merge defaults with per-user prefs (color / emoji icon). */
+/** Palette key for an area: hub first, then template, else the life palette. */
+export function areaVisualKey(
+  ref: Pick<AreaRef, "templateKey" | "hubFor">,
+): AreaVisualKey {
+  if (ref.hubFor) return ref.hubFor;
+  if (ref.templateKey === "work") return "work";
+  if (ref.templateKey === "research") return "research";
+  if (ref.templateKey === "language") return "language";
+  return "life";
+}
+
 export function resolveAreaVisual(
-  area: LifeArea,
+  key: AreaVisualKey,
   pref?: Pick<AreaPrefRow, "color" | "icon"> | null,
 ): AreaVisual {
-  const base = AREA_VISUAL[area] ?? AREA_VISUAL[DEFAULT_AREA];
+  const base = AREA_VISUAL[key] ?? AREA_VISUAL.life;
   const cssVar = resolveCssColor(pref?.color, base.cssVar);
   const customColor = Boolean(pref?.color);
   const emoji =
@@ -135,18 +147,11 @@ export function resolveAreaVisual(
   };
 }
 
-/** Prefer UserArea color/icon; fall back to legacy enum palette. */
+/** UserArea color/icon over the template palette. */
 export function resolveAreaVisualFromRef(
-  ref: Pick<AreaRef, "legacyEnum" | "color" | "icon" | "hubFor">,
+  ref: Pick<AreaRef, "templateKey" | "hubFor" | "color" | "icon">,
 ): AreaVisual {
-  const area =
-    ref.legacyEnum ??
-    (ref.hubFor === "research"
-      ? ("PHD" as LifeArea)
-      : ref.hubFor === "language"
-        ? ("LANG" as LifeArea)
-        : DEFAULT_AREA);
-  return resolveAreaVisual(area, { color: ref.color, icon: ref.icon });
+  return resolveAreaVisual(areaVisualKey(ref), { color: ref.color, icon: ref.icon });
 }
 
 /** Inline styles when user overrode color (Tailwind can't know the hex). */
@@ -192,26 +197,4 @@ export function areaRelatedLinksFromHub(
     { href: "/tasks", labelKey: "relatedTasks" },
     { href: "/calendar", labelKey: "relatedCalendar" },
   ];
-}
-
-/** @deprecated Prefer areaRelatedLinksFromHub. */
-export function areaRelatedLinks(area: LifeArea): AreaRelatedLink[] {
-  if (area === "PHD") return areaRelatedLinksFromHub("research");
-  if (area === "LANG") return areaRelatedLinksFromHub("language");
-  return areaRelatedLinksFromHub(null);
-}
-
-export function defaultAreaPref(
-  area: LifeArea,
-  sortOrder: number,
-  areaId = area,
-): AreaPrefRow {
-  return {
-    areaId,
-    area,
-    color: null,
-    icon: null,
-    sortOrder,
-    archived: false,
-  };
 }

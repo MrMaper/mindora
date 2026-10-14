@@ -2,16 +2,16 @@
  * Server helpers to resolve a member's Research / Language hub scope (P6).
  */
 import { getMemberContext } from "./context";
-import { personalAreaProjectId } from "./buckets";
-import { LANGUAGE_AREA, RESEARCH_AREA } from "./legacy";
 import { hubProjectWhere } from "./hub";
 import type { HubKind } from "./member-context";
-import type { LifeArea } from "@/types/db";
 
 export type HubScope = {
+  /** Hub UserArea id; null while the member has no hub area for this kind. */
   areaId: string | null;
-  legacyEnum: LifeArea;
+  /** Hub inbox project id ("" while unbound). */
   bucketProjectId: string;
+  /** `templateKey` of the hub area (for legacy shared-bucket detection). */
+  templateKey: string | null;
   /** True when UserArea.hubFor is set for this kind. */
   bound: boolean;
 };
@@ -22,12 +22,10 @@ export async function getHubScope(
 ): Promise<HubScope> {
   const ctx = await getMemberContext(userId);
   const hub = ctx.hubAreas[kind];
-  const legacy = kind === "research" ? RESEARCH_AREA : LANGUAGE_AREA;
   return {
     areaId: hub?.id ?? null,
-    legacyEnum: hub?.legacyEnum ?? legacy,
-    bucketProjectId:
-      hub?.bucketProjectId || personalAreaProjectId(userId, legacy),
+    bucketProjectId: hub?.bucketProjectId ?? "",
+    templateKey: hub?.templateKey ?? null,
     bound: Boolean(hub),
   };
 }
@@ -38,9 +36,9 @@ export function hubNamedProjectsWhere(
   scope: HubScope,
 ): Record<string, unknown> {
   return {
-    ...hubProjectWhere(scope.areaId, scope.legacyEnum),
+    ...hubProjectWhere(scope.areaId),
     status: { not: "ARCHIVED" },
-    id: { not: scope.bucketProjectId },
+    ...(scope.bucketProjectId ? { id: { not: scope.bucketProjectId } } : {}),
     members: { some: { userId } },
   };
 }

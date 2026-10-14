@@ -9,8 +9,6 @@ import {
   toDueDateKey,
   zonedDateKey,
   zonedWeekCells,
-  areaProjectIdsForUser,
-  LIFE_AREAS,
 } from "@/lib/life";
 import {
   personalLifeTaskWhere,
@@ -18,12 +16,7 @@ import {
 } from "@/lib/task-access";
 import { normalizeFocusSlots } from "@/features/life/focus-slots";
 import type { TaskRow } from "@/features/tasks/types";
-import type { LifeArea } from "@/types/db";
-import {
-  RESEARCH_AREA,
-  emptyAreaCounts,
-  isLifeAreaValue,
-} from "@/lib/areas";
+import { areaDisplayName } from "@/lib/areas";
 import { getMemberContext } from "@/lib/areas/server";
 
 const userRefSelect = { id: true, name: true, avatar: true } as const;
@@ -41,12 +34,11 @@ const taskSelect = {
   createdAt: true,
   updatedAt: true,
   projectId: true,
-  area: true,
   areaId: true,
   recurrence: true,
   recurrenceSeriesId: true,
   recurrenceEndsAt: true,
-  project: { select: { name: true, area: true, areaId: true } },
+  project: { select: { name: true } },
   createdBy: { select: userRefSelect },
   assignedTo: { select: userRefSelect },
   labels: {
@@ -58,17 +50,8 @@ function isOpenStatus(status: string) {
   return status !== "DONE";
 }
 
-function withArea(task: Parameters<typeof toTaskRow>[0] & {
-  area?: LifeArea | null;
-  project?: { name: string; area?: LifeArea } | null;
-  recurrence?: string;
-}): TaskRow & { area: LifeArea | null; recurrence: string } {
-  return {
-    ...toTaskRow(task),
-    area: (task.area ?? task.project?.area ?? null) as LifeArea | null,
-    areaId: (task as { areaId?: string | null }).areaId ?? null,
-    recurrence: task.recurrence ?? "NONE",
-  };
+function withArea(task: Parameters<typeof toTaskRow>[0]): TaskRow {
+  return toTaskRow(task);
 }
 
 export type WeekDayStripItem = {
@@ -95,9 +78,9 @@ export async function getPersonalDashboard(
   const ctx = await getMemberContext(userId);
   const mine = personalTaskOwnership(userId);
   const lifeOnly = personalLifeTaskWhere(userId, ctx);
-  const personalAreaIds = Object.values(areaProjectIdsForUser(userId));
   const wantLanguage = modules?.language !== false && ctx.flags.language;
   const wantResearch = modules?.research !== false && ctx.flags.research;
+  const researchAreaId = ctx.hubAreas.research?.id ?? "__none__";
 
   const [
     overdue,
@@ -111,7 +94,6 @@ export async function getPersonalDashboard(
     weekOpenTasks,
     prefs,
     focusPickRows,
-    areaRows,
     vocabDue,
     langWeekAgg,
     langProfile,
@@ -216,8 +198,7 @@ export async function getPersonalDashboard(
       select: {
         dueDate: true,
         durationMinutes: true,
-        area: true,
-        project: { select: { area: true } },
+        areaId: true,
       },
     }),
     db.userPreferences.findUnique({
@@ -268,15 +249,6 @@ export async function getPersonalDashboard(
         select: taskSelect,
       }),
     ]).then(([dueToday, undated, pastDue]) => [...dueToday, ...undated, ...pastDue]),
-    db.project.findMany({
-      where: { id: { in: personalAreaIds } },
-      select: {
-        id: true,
-        name: true,
-        area: true,
-        areaId: true,
-      },
-    }),
     wantLanguage
       ? db.langCard.count({
           where: {
@@ -307,12 +279,7 @@ export async function getPersonalDashboard(
             doc: {
               userId,
               deletedAt: null,
-              OR: [
-                ...(ctx.hubAreas.research
-                  ? [{ areaId: ctx.hubAreas.research.id }]
-                  : []),
-                { area: RESEARCH_AREA },
-              ],
+              areaId: researchAreaId,
             },
             readingStatus: { in: ["TO_READ", "READING"] },
           },
@@ -326,14 +293,7 @@ export async function getPersonalDashboard(
             archived: false,
             status: { in: ["IDEA", "DRAFTING", "REVIEW"] },
             AND: [
-              {
-                OR: [
-                  ...(ctx.hubAreas.research
-                    ? [{ areaId: ctx.hubAreas.research.id }]
-                    : []),
-                  { area: RESEARCH_AREA },
-                ],
-              },
+              { areaId: researchAreaId },
               {
                 OR: [
                   { systemKey: null },
@@ -358,13 +318,12 @@ export async function getPersonalDashboard(
   ]);
 
   const countByDay = new Map<string, number>();
-  const openByArea: Record<LifeArea, number> = emptyAreaCounts();
+  const openByArea = new Map<string, number>();
   for (const task of weekOpenTasks) {
     if (!task.dueDate) continue;
     const key = toDueDateKey(new Date(task.dueDate), task.durationMinutes);
     countByDay.set(key, (countByDay.get(key) ?? 0) + 1);
-    const area = (task.area ?? task.project?.area ?? null) as LifeArea | null;
-    if (area && isLifeAreaValue(area)) openByArea[area] += 1;
+    openByArea.set(task.areaId, (openByArea.get(task.areaId) ?? 0) + 1);
   }
 
   const weekDays: WeekDayStripItem[] = zonedWeekCells().map(date => {
@@ -426,13 +385,14 @@ export async function getPersonalDashboard(
     doneThisWeek,
     openCount:
       overdueRows.length + todayRows.length + inbox.length + waiting.length,
-    areas: areaRows.map(row => ({
-      id: row.id,
-      name: row.name,
-      area: row.area,
-      areaId: row.areaId,
-      openTasks: row.area ? openByArea[row.area as LifeArea] ?? 0 : 0,
-    })),
+    areas: ctx.areas
+      .filter(a => !a.archived)
+      .map(a => ({
+        id: a.bucketProjectId,
+        name: areaDisplayName(a, "FA"),
+        areaId: a.id,
+        openTasks: openByArea.get(a.id) ?? 0,
+      })),
     attention: {
       vocabDue,
       langWeekMinutes: langWeekAgg._sum.minutes ?? 0,

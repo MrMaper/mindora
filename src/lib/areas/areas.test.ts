@@ -1,183 +1,234 @@
 import { describe, expect, it } from "vitest";
 import {
-  AREA_ORDER,
-  DEFAULT_AREA,
-  HUB_AREAS,
-  LANGUAGE_AREA,
-  LIFE_AREAS,
-  RESEARCH_AREA,
-  WORKSPACE_AREAS,
+  SEED_AREA_KEYS,
+  SEED_AREA_TEMPLATES,
   areaBucketIdsToExclude,
   areaProjectIdsForUser,
+  areaRefForGuess,
+  areaRefForTemplate,
   areaWhere,
-  coerceLifeArea,
-  emptyAreaCounts,
+  hubContentWhere,
+  hubKindForAreaId,
   hubTaskExclusion,
   isAreaBucketId,
-  isHubArea,
+  isAreaBucketOf,
+  isHubAreaId,
   isHubTask,
   isLanguageTask,
-  isLifeAreaValue,
   isResearchTask,
-  isUserAreaBucket,
-  lifeAreaFromBucketId,
   personalAreaProjectId,
-  resolveTaskArea,
+  seedKeyFromBucketId,
   taskAreaOrNull,
+  templateKeyForGuess,
+  templateKeyForSlug,
 } from "./index";
-import { taskWhereExcludeHub } from "@/lib/project-namespace";
-import { buildAreaRefs, buildMemberContext } from "./member-context";
+import { buildMemberContextFromRows, type UserAreaRow } from "./member-context";
 import { parseModuleFlags } from "@/lib/modules";
 
-type Task = {
-  area?: string | null;
-  project?: { area?: string | null } | null;
-};
-
-/** Tiny evaluator for the exact Prisma shape `hubTaskExclusion()` returns. */
-function matchesExclusion(task: Task): boolean {
-  const where = hubTaskExclusion() as {
-    NOT: { OR: [{ area: { in: string[] } }, { project: { area: { in: string[] } } }] };
-  };
-  const [byTask, byProject] = where.NOT.OR;
-  const hit =
-    (task.area != null && byTask.area.in.includes(task.area)) ||
-    (task.project?.area != null && byProject.project.area.in.includes(task.project.area));
-  return !hit;
+function seedRows(userId: string): UserAreaRow[] {
+  return SEED_AREA_TEMPLATES.map(t => ({
+    id: `ua-${t.templateKey}`,
+    name: t.nameFa,
+    nameIsDefault: true,
+    templateKey: t.templateKey,
+    color: null,
+    icon: null,
+    sortOrder: t.sortOrder,
+    archived: false,
+    isDefault: t.isDefault,
+    hubFor:
+      t.hubFor === "research"
+        ? "RESEARCH"
+        : t.hubFor === "language"
+          ? "LANGUAGE"
+          : null,
+    bucketProjectId: personalAreaProjectId(
+      userId,
+      t.templateKey as (typeof SEED_AREA_KEYS)[number],
+    ),
+  }));
 }
 
-const SAMPLES: Task[] = [
-  {},
-  { area: null, project: null },
-  { area: "LIFE" },
-  { area: "WORK", project: { area: "PHD" } },
-  { area: null, project: { area: "LANG" } },
-  { area: "PHD", project: { area: "LIFE" } },
-  { area: "LANG" },
-  { project: { area: "WORK" } },
-];
+const flagsOn = parseModuleFlags({});
+const flagsOff = { ...flagsOn, research: false, language: false };
 
 describe("hub predicates", () => {
-  it("hub areas are research + language only", () => {
-    expect(HUB_AREAS).toEqual([RESEARCH_AREA, LANGUAGE_AREA]);
-    expect(isHubArea("PHD")).toBe(true);
-    expect(isHubArea("LANG")).toBe(true);
-    expect(isHubArea("WORK")).toBe(false);
-    expect(isHubArea(null)).toBe(false);
-    expect(WORKSPACE_AREAS.some(isHubArea)).toBe(false);
+  const ctx = buildMemberContextFromRows("u1", flagsOn, seedRows("u1"));
+
+  it("hub kind comes from hubFor, not from names", () => {
+    expect(hubKindForAreaId("ua-research", ctx)).toBe("research");
+    expect(hubKindForAreaId("ua-language", ctx)).toBe("language");
+    expect(hubKindForAreaId("ua-work", ctx)).toBeNull();
+    expect(isHubAreaId("ua-life", ctx)).toBe(false);
+    expect(isHubAreaId(null, ctx)).toBe(false);
   });
 
-  it("isHubTask agrees with the Prisma exclusion fragment on every sample", () => {
-    for (const task of SAMPLES) {
-      expect(isHubTask(task)).toBe(!matchesExclusion(task));
-    }
+  it("isHubTask resolves the task area, then its project's area", () => {
+    const hubIds = ["ua-research", "ua-language"];
+    expect(isHubTask({ areaId: "ua-research" }, hubIds)).toBe(true);
+    expect(isHubTask({ areaId: null, project: { areaId: "ua-language" } }, hubIds)).toBe(true);
+    expect(isHubTask({ areaId: "ua-work", project: { areaId: "ua-research" } }, hubIds)).toBe(false);
+    expect(isHubTask({}, hubIds)).toBe(false);
+    expect(isHubTask({ areaId: "ua-research" })).toBe(false);
   });
 
-  it("taskWhereExcludeHub (legacy export) is the same fragment", () => {
-    expect(taskWhereExcludeHub()).toEqual(hubTaskExclusion());
+  it("hubTaskExclusion excludes only active hubs, by area id", () => {
+    expect(hubTaskExclusion(ctx)).toEqual({
+      NOT: {
+        OR: [
+          { areaId: { in: ["ua-research", "ua-language"] } },
+          { project: { areaId: { in: ["ua-research", "ua-language"] } } },
+        ],
+      },
+    });
   });
 
   it("hubTaskExclusion with modules off excludes nothing", () => {
-    expect(
-      hubTaskExclusion({
-        flags: {
-          tasks: true,
-          docs: true,
-          research: false,
-          language: false,
-          habits: true,
-          projects: true,
-          workLogs: false,
-          reporting: false,
-        },
-        hubAreas: { research: null, language: null },
-      }),
-    ).toEqual({});
+    const off = buildMemberContextFromRows("u1", flagsOff, seedRows("u1"));
+    expect(hubTaskExclusion(off)).toEqual({});
   });
 
-  it("research/language task checks look at area and project area", () => {
-    expect(isResearchTask({ area: "PHD" })).toBe(true);
-    expect(isResearchTask({ project: { area: "PHD" } })).toBe(true);
-    expect(isResearchTask({ area: "LANG" })).toBe(false);
-    expect(isLanguageTask({ project: { area: "LANG" } })).toBe(true);
+  it("research/language task checks use the hub area id", () => {
+    expect(isResearchTask({ areaId: "ua-research" }, "ua-research")).toBe(true);
+    expect(isResearchTask({ project: { areaId: "ua-research" } }, "ua-research")).toBe(true);
+    expect(isResearchTask({ areaId: "ua-language" }, "ua-research")).toBe(false);
+    expect(isResearchTask({ areaId: "ua-research" }, null)).toBe(false);
+    expect(isLanguageTask({ project: { areaId: "ua-language" } }, "ua-language")).toBe(true);
+  });
+
+  it("hubContentWhere never matches when there is no hub", () => {
+    expect(hubContentWhere(null)).toEqual({ id: "__never__" });
+    expect(hubContentWhere("h")).toEqual({
+      OR: [{ areaId: "h" }, { project: { areaId: "h" } }],
+    });
   });
 });
 
 describe("task area resolution", () => {
   it("prefers the task area, then the project area", () => {
-    expect(resolveTaskArea({ area: "WORK", project: { area: "PHD" } })).toBe("WORK");
-    expect(resolveTaskArea({ area: null, project: { area: "PHD" } })).toBe("PHD");
-  });
-
-  it("falls back to the default area, null variant stays null", () => {
-    expect(resolveTaskArea({})).toBe(DEFAULT_AREA);
+    expect(taskAreaOrNull({ areaId: "a", project: { areaId: "b" } })).toBe("a");
+    expect(taskAreaOrNull({ areaId: null, project: { areaId: "b" } })).toBe("b");
     expect(taskAreaOrNull({})).toBeNull();
-    expect(taskAreaOrNull({ project: { area: "LANG" } })).toBe("LANG");
-  });
-
-  it("coerces junk to the default area", () => {
-    expect(coerceLifeArea("nope")).toBe(DEFAULT_AREA);
-    expect(isLifeAreaValue("PHD")).toBe(true);
-    expect(isLifeAreaValue("phd")).toBe(false);
-    expect(isLifeAreaValue("")).toBe(false);
   });
 
   it("areaWhere matches the task area or its project area", () => {
-    expect(areaWhere("PHD")).toEqual({
-      OR: [{ area: "PHD" }, { project: { area: "PHD" } }],
+    expect(areaWhere("a")).toEqual({
+      OR: [{ areaId: "a" }, { project: { areaId: "a" } }],
     });
   });
 });
 
-describe("area constants", () => {
-  it("order and counters cover every area", () => {
-    expect(Object.keys(AREA_ORDER).sort()).toEqual([...LIFE_AREAS].sort());
-    expect(AREA_ORDER).toEqual({ PHD: 0, WORK: 1, LIFE: 2, LANG: 3 });
-    expect(emptyAreaCounts()).toEqual({ PHD: 0, WORK: 0, LIFE: 0, LANG: 0 });
+describe("capture guesses and legacy slugs map through templateKey", () => {
+  it("guess → templateKey", () => {
+    expect(templateKeyForGuess("PHD")).toBe("research");
+    expect(templateKeyForGuess("LANG")).toBe("language");
+    expect(templateKeyForGuess("WORK")).toBe("work");
+    expect(templateKeyForGuess("LIFE")).toBe("life");
+    expect(templateKeyForGuess("nope")).toBe("life");
+    expect(templateKeyForGuess(null)).toBe("life");
+  });
+
+  it("URL slug → templateKey (phd→research, lang→language)", () => {
+    expect(templateKeyForSlug("phd")).toBe("research");
+    expect(templateKeyForSlug("research")).toBe("research");
+    expect(templateKeyForSlug("LANG")).toBe("language");
+    expect(templateKeyForSlug("language")).toBe("language");
+    expect(templateKeyForSlug("life")).toBe("life");
+    expect(templateKeyForSlug("work")).toBe("work");
+    expect(templateKeyForSlug("some-cuid")).toBeNull();
+  });
+
+  const ctx = buildMemberContextFromRows("u1", flagsOn, seedRows("u1"));
+
+  it("resolves a guess to the member's area, hubs by hubFor", () => {
+    expect(areaRefForGuess(ctx.areas, "PHD")?.id).toBe("ua-research");
+    expect(areaRefForGuess(ctx.areas, "LANG")?.id).toBe("ua-language");
+    expect(areaRefForGuess(ctx.areas, "WORK")?.id).toBe("ua-work");
+    expect(areaRefForGuess(ctx.areas, "LIFE")?.id).toBe("ua-life");
+    expect(areaRefForTemplate(ctx.areas, "research")?.id).toBe("ua-research");
+  });
+
+  it("falls back to the default area when the guessed area is archived", () => {
+    const rows = seedRows("u1").map(r =>
+      r.templateKey === "work" ? { ...r, archived: true } : r,
+    );
+    const c = buildMemberContextFromRows("u1", flagsOn, rows);
+    expect(areaRefForGuess(c.areas, "WORK")?.id).toBe("ua-life");
+  });
+
+  it("renamed hub areas still resolve (no name matching)", () => {
+    const rows = seedRows("u1").map(r =>
+      r.templateKey === "research" ? { ...r, name: "Thesis", nameIsDefault: false } : r,
+    );
+    const c = buildMemberContextFromRows("u1", flagsOn, rows);
+    expect(areaRefForGuess(c.areas, "PHD")?.id).toBe("ua-research");
+    expect(c.areas.find(a => a.id === "ua-research")?.nameFa).toBe("Thesis");
   });
 });
 
 describe("area buckets", () => {
-  it("round-trips personal bucket ids", () => {
-    for (const area of LIFE_AREAS) {
-      const id = personalAreaProjectId("u1", area);
+  it("round-trips personal bucket ids for the seeded areas", () => {
+    for (const key of SEED_AREA_KEYS) {
+      const id = personalAreaProjectId("u1", key);
       expect(isAreaBucketId(id)).toBe(true);
-      expect(lifeAreaFromBucketId(id)).toBe(area);
-      expect(isUserAreaBucket(id, "u1", area)).toBe(true);
-      expect(isUserAreaBucket(id, "u2", area)).toBe(false);
+      expect(seedKeyFromBucketId(id)).toBe(key);
     }
-    expect(areaProjectIdsForUser("u1").PHD).toBe("area-phd-u1");
+    expect(areaProjectIdsForUser("u1").research).toBe("area-phd-u1");
+    expect(areaProjectIdsForUser("u1").language).toBe("area-lang-u1");
   });
 
-  it("recognises legacy shared ids and excludes both forms", () => {
+  it("recognises legacy shared ids and custom inbox buckets", () => {
     expect(isAreaBucketId("area-lang")).toBe(true);
-    expect(lifeAreaFromBucketId("area-lang")).toBe("LANG");
-    expect(areaBucketIdsToExclude("u1", "LANG")).toEqual(["area-lang-u1", "area-lang"]);
+    expect(seedKeyFromBucketId("area-lang")).toBe("language");
+    expect(isAreaBucketId("area-inbox-abc")).toBe(true);
     expect(isAreaBucketId("some-project")).toBe(false);
+  });
+
+  it("matches a bucket against its area, including the legacy shared id", () => {
+    const area = { bucketProjectId: "area-lang-u1", templateKey: "language" };
+    expect(isAreaBucketOf("area-lang-u1", area)).toBe(true);
+    expect(isAreaBucketOf("area-lang", area)).toBe(true);
+    expect(isAreaBucketOf("area-work-u1", area)).toBe(false);
+    expect(areaBucketIdsToExclude(area)).toEqual(["area-lang-u1", "area-lang"]);
+    const custom = { bucketProjectId: "area-inbox-x", templateKey: "custom" };
+    expect(areaBucketIdsToExclude(custom)).toEqual(["area-inbox-x"]);
   });
 });
 
 describe("member context (pure)", () => {
-  const flags = parseModuleFlags({});
-
-  it("defaults to the four enum areas with research/language hubs", () => {
-    const ctx = buildMemberContext("u1", flags, []);
-    expect(ctx.areas.map(a => a.legacyEnum)).toEqual([...LIFE_AREAS]);
-    expect(ctx.defaultArea.legacyEnum).toBe(DEFAULT_AREA);
-    expect(ctx.hubAreas.research?.legacyEnum).toBe(RESEARCH_AREA);
-    expect(ctx.hubAreas.language?.legacyEnum).toBe(LANGUAGE_AREA);
-    expect(ctx.areas.find(a => a.legacyEnum === "WORK")?.hubFor).toBeNull();
+  it("builds the four seeded areas with research/language hubs", () => {
+    const ctx = buildMemberContextFromRows("u1", flagsOn, seedRows("u1"));
+    expect(ctx.areas.map(a => a.templateKey)).toEqual([
+      "life",
+      "work",
+      "research",
+      "language",
+    ]);
+    expect(ctx.defaultArea.templateKey).toBe("life");
+    expect(ctx.hubAreas.research?.id).toBe("ua-research");
+    expect(ctx.hubAreas.language?.id).toBe("ua-language");
+    expect(ctx.areas.find(a => a.templateKey === "work")?.hubFor).toBeNull();
     expect(ctx.areas.every(a => a.bucketProjectId.endsWith("-u1"))).toBe(true);
   });
 
-  it("applies stored preferences (order, color, archived)", () => {
-    const refs = buildAreaRefs("u1", [
-      { area: "LIFE", color: "orange", icon: "home", sortOrder: -1, archived: false },
-      { area: "WORK", color: null, icon: null, sortOrder: 9, archived: true },
+  it("renders template names while nameIsDefault, typed names otherwise", () => {
+    const rows = seedRows("u1");
+    const ctx = buildMemberContextFromRows("u1", flagsOn, rows);
+    const research = ctx.areas.find(a => a.templateKey === "research")!;
+    expect(research.nameEn).toBe("PhD");
+    const custom = buildMemberContextFromRows("u1", flagsOn, [
+      { ...rows[0]!, name: "Home", nameIsDefault: false },
+      ...rows.slice(1),
     ]);
-    expect(refs[0]!.legacyEnum).toBe("LIFE");
-    expect(refs[0]!.color).toBe("orange");
-    expect(refs.at(-1)!.legacyEnum).toBe("WORK");
-    expect(refs.at(-1)!.archived).toBe(true);
+    expect(custom.areas.find(a => a.id === "ua-life")?.nameFa).toBe("Home");
+  });
+
+  it("applies stored order and archived flags", () => {
+    const rows = seedRows("u1").map(r =>
+      r.templateKey === "work" ? { ...r, sortOrder: 9, archived: true } : r,
+    );
+    const ctx = buildMemberContextFromRows("u1", flagsOn, rows);
+    expect(ctx.areas.at(-1)!.templateKey).toBe("work");
+    expect(ctx.areas.at(-1)!.archived).toBe(true);
   });
 });

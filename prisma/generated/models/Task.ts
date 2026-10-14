@@ -57,7 +57,6 @@ export type TaskMinAggregateOutputType = {
   durationMinutes: number | null
   waitingOn: boolean | null
   position: number | null
-  area: $Enums.LifeArea | null
   areaId: string | null
   recurrence: $Enums.RecurrenceInterval | null
   recurrenceSeriesId: string | null
@@ -86,7 +85,6 @@ export type TaskMaxAggregateOutputType = {
   durationMinutes: number | null
   waitingOn: boolean | null
   position: number | null
-  area: $Enums.LifeArea | null
   areaId: string | null
   recurrence: $Enums.RecurrenceInterval | null
   recurrenceSeriesId: string | null
@@ -115,7 +113,6 @@ export type TaskCountAggregateOutputType = {
   durationMinutes: number
   waitingOn: number
   position: number
-  area: number
   areaId: number
   recurrence: number
   recurrenceSeriesId: number
@@ -160,7 +157,6 @@ export type TaskMinAggregateInputType = {
   durationMinutes?: true
   waitingOn?: true
   position?: true
-  area?: true
   areaId?: true
   recurrence?: true
   recurrenceSeriesId?: true
@@ -189,7 +185,6 @@ export type TaskMaxAggregateInputType = {
   durationMinutes?: true
   waitingOn?: true
   position?: true
-  area?: true
   areaId?: true
   recurrence?: true
   recurrenceSeriesId?: true
@@ -218,7 +213,6 @@ export type TaskCountAggregateInputType = {
   durationMinutes?: true
   waitingOn?: true
   position?: true
-  area?: true
   areaId?: true
   recurrence?: true
   recurrenceSeriesId?: true
@@ -334,8 +328,7 @@ export type TaskGroupByOutputType = {
   durationMinutes: number | null
   waitingOn: boolean
   position: number
-  area: $Enums.LifeArea | null
-  areaId: string | null
+  areaId: string
   recurrence: $Enums.RecurrenceInterval
   recurrenceSeriesId: string | null
   recurrenceEndsAt: Date | null
@@ -386,8 +379,7 @@ export type TaskWhereInput = {
   durationMinutes?: Prisma.IntNullableFilter<"Task"> | number | null
   waitingOn?: Prisma.BoolFilter<"Task"> | boolean
   position?: Prisma.IntFilter<"Task"> | number
-  area?: Prisma.EnumLifeAreaNullableFilter<"Task"> | $Enums.LifeArea | null
-  areaId?: Prisma.StringNullableFilter<"Task"> | string | null
+  areaId?: Prisma.StringFilter<"Task"> | string
   recurrence?: Prisma.EnumRecurrenceIntervalFilter<"Task"> | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.StringNullableFilter<"Task"> | string | null
   recurrenceEndsAt?: Prisma.DateTimeNullableFilter<"Task"> | Date | string | null
@@ -408,7 +400,7 @@ export type TaskWhereInput = {
   project?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
   sprint?: Prisma.XOR<Prisma.SprintNullableScalarRelationFilter, Prisma.SprintWhereInput> | null
   team?: Prisma.XOR<Prisma.TeamNullableScalarRelationFilter, Prisma.TeamWhereInput> | null
-  userArea?: Prisma.XOR<Prisma.UserAreaNullableScalarRelationFilter, Prisma.UserAreaWhereInput> | null
+  userArea?: Prisma.XOR<Prisma.UserAreaScalarRelationFilter, Prisma.UserAreaWhereInput>
   docs?: Prisma.DocTaskListRelationFilter
 }
 
@@ -429,8 +421,7 @@ export type TaskOrderByWithRelationInput = {
   durationMinutes?: Prisma.SortOrderInput | Prisma.SortOrder
   waitingOn?: Prisma.SortOrder
   position?: Prisma.SortOrder
-  area?: Prisma.SortOrderInput | Prisma.SortOrder
-  areaId?: Prisma.SortOrderInput | Prisma.SortOrder
+  areaId?: Prisma.SortOrder
   recurrence?: Prisma.SortOrder
   recurrenceSeriesId?: Prisma.SortOrderInput | Prisma.SortOrder
   recurrenceEndsAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -475,8 +466,7 @@ export type TaskWhereUniqueInput = Prisma.AtLeast<{
   durationMinutes?: Prisma.IntNullableFilter<"Task"> | number | null
   waitingOn?: Prisma.BoolFilter<"Task"> | boolean
   position?: Prisma.IntFilter<"Task"> | number
-  area?: Prisma.EnumLifeAreaNullableFilter<"Task"> | $Enums.LifeArea | null
-  areaId?: Prisma.StringNullableFilter<"Task"> | string | null
+  areaId?: Prisma.StringFilter<"Task"> | string
   recurrence?: Prisma.EnumRecurrenceIntervalFilter<"Task"> | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.StringNullableFilter<"Task"> | string | null
   recurrenceEndsAt?: Prisma.DateTimeNullableFilter<"Task"> | Date | string | null
@@ -497,7 +487,7 @@ export type TaskWhereUniqueInput = Prisma.AtLeast<{
   project?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
   sprint?: Prisma.XOR<Prisma.SprintNullableScalarRelationFilter, Prisma.SprintWhereInput> | null
   team?: Prisma.XOR<Prisma.TeamNullableScalarRelationFilter, Prisma.TeamWhereInput> | null
-  userArea?: Prisma.XOR<Prisma.UserAreaNullableScalarRelationFilter, Prisma.UserAreaWhereInput> | null
+  userArea?: Prisma.XOR<Prisma.UserAreaScalarRelationFilter, Prisma.UserAreaWhereInput>
   docs?: Prisma.DocTaskListRelationFilter
 }, "id">
 
@@ -518,8 +508,7 @@ export type TaskOrderByWithAggregationInput = {
   durationMinutes?: Prisma.SortOrderInput | Prisma.SortOrder
   waitingOn?: Prisma.SortOrder
   position?: Prisma.SortOrder
-  area?: Prisma.SortOrderInput | Prisma.SortOrder
-  areaId?: Prisma.SortOrderInput | Prisma.SortOrder
+  areaId?: Prisma.SortOrder
   recurrence?: Prisma.SortOrder
   recurrenceSeriesId?: Prisma.SortOrderInput | Prisma.SortOrder
   recurrenceEndsAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -555,8 +544,7 @@ export type TaskScalarWhereWithAggregatesInput = {
   durationMinutes?: Prisma.IntNullableWithAggregatesFilter<"Task"> | number | null
   waitingOn?: Prisma.BoolWithAggregatesFilter<"Task"> | boolean
   position?: Prisma.IntWithAggregatesFilter<"Task"> | number
-  area?: Prisma.EnumLifeAreaNullableWithAggregatesFilter<"Task"> | $Enums.LifeArea | null
-  areaId?: Prisma.StringNullableWithAggregatesFilter<"Task"> | string | null
+  areaId?: Prisma.StringWithAggregatesFilter<"Task"> | string
   recurrence?: Prisma.EnumRecurrenceIntervalWithAggregatesFilter<"Task"> | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.StringNullableWithAggregatesFilter<"Task"> | string | null
   recurrenceEndsAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Task"> | Date | string | null
@@ -580,7 +568,6 @@ export type TaskCreateInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -599,7 +586,7 @@ export type TaskCreateInput = {
   project?: Prisma.ProjectCreateNestedOneWithoutTasksInput
   sprint?: Prisma.SprintCreateNestedOneWithoutTasksInput
   team?: Prisma.TeamCreateNestedOneWithoutTasksInput
-  userArea?: Prisma.UserAreaCreateNestedOneWithoutTasksInput
+  userArea: Prisma.UserAreaCreateNestedOneWithoutTasksInput
   docs?: Prisma.DocTaskCreateNestedManyWithoutTaskInput
 }
 
@@ -620,8 +607,7 @@ export type TaskUncheckedCreateInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
-  areaId?: string | null
+  areaId: string
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -652,7 +638,6 @@ export type TaskUpdateInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -671,7 +656,7 @@ export type TaskUpdateInput = {
   project?: Prisma.ProjectUpdateOneWithoutTasksNestedInput
   sprint?: Prisma.SprintUpdateOneWithoutTasksNestedInput
   team?: Prisma.TeamUpdateOneWithoutTasksNestedInput
-  userArea?: Prisma.UserAreaUpdateOneWithoutTasksNestedInput
+  userArea?: Prisma.UserAreaUpdateOneRequiredWithoutTasksNestedInput
   docs?: Prisma.DocTaskUpdateManyWithoutTaskNestedInput
 }
 
@@ -692,8 +677,7 @@ export type TaskUncheckedUpdateInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -728,8 +712,7 @@ export type TaskCreateManyInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
-  areaId?: string | null
+  areaId: string
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -753,7 +736,6 @@ export type TaskUpdateManyMutationInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -779,8 +761,7 @@ export type TaskUncheckedUpdateManyInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -823,7 +804,6 @@ export type TaskCountOrderByAggregateInput = {
   durationMinutes?: Prisma.SortOrder
   waitingOn?: Prisma.SortOrder
   position?: Prisma.SortOrder
-  area?: Prisma.SortOrder
   areaId?: Prisma.SortOrder
   recurrence?: Prisma.SortOrder
   recurrenceSeriesId?: Prisma.SortOrder
@@ -859,7 +839,6 @@ export type TaskMaxOrderByAggregateInput = {
   durationMinutes?: Prisma.SortOrder
   waitingOn?: Prisma.SortOrder
   position?: Prisma.SortOrder
-  area?: Prisma.SortOrder
   areaId?: Prisma.SortOrder
   recurrence?: Prisma.SortOrder
   recurrenceSeriesId?: Prisma.SortOrder
@@ -888,7 +867,6 @@ export type TaskMinOrderByAggregateInput = {
   durationMinutes?: Prisma.SortOrder
   waitingOn?: Prisma.SortOrder
   position?: Prisma.SortOrder
-  area?: Prisma.SortOrder
   areaId?: Prisma.SortOrder
   recurrence?: Prisma.SortOrder
   recurrenceSeriesId?: Prisma.SortOrder
@@ -1335,7 +1313,6 @@ export type TaskCreateWithoutAssignedToInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -1353,7 +1330,7 @@ export type TaskCreateWithoutAssignedToInput = {
   project?: Prisma.ProjectCreateNestedOneWithoutTasksInput
   sprint?: Prisma.SprintCreateNestedOneWithoutTasksInput
   team?: Prisma.TeamCreateNestedOneWithoutTasksInput
-  userArea?: Prisma.UserAreaCreateNestedOneWithoutTasksInput
+  userArea: Prisma.UserAreaCreateNestedOneWithoutTasksInput
   docs?: Prisma.DocTaskCreateNestedManyWithoutTaskInput
 }
 
@@ -1374,8 +1351,7 @@ export type TaskUncheckedCreateWithoutAssignedToInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
-  areaId?: string | null
+  areaId: string
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -1415,7 +1391,6 @@ export type TaskCreateWithoutCreatedByInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -1433,7 +1408,7 @@ export type TaskCreateWithoutCreatedByInput = {
   project?: Prisma.ProjectCreateNestedOneWithoutTasksInput
   sprint?: Prisma.SprintCreateNestedOneWithoutTasksInput
   team?: Prisma.TeamCreateNestedOneWithoutTasksInput
-  userArea?: Prisma.UserAreaCreateNestedOneWithoutTasksInput
+  userArea: Prisma.UserAreaCreateNestedOneWithoutTasksInput
   docs?: Prisma.DocTaskCreateNestedManyWithoutTaskInput
 }
 
@@ -1454,8 +1429,7 @@ export type TaskUncheckedCreateWithoutCreatedByInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
-  areaId?: string | null
+  areaId: string
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -1518,8 +1492,7 @@ export type TaskScalarWhereInput = {
   durationMinutes?: Prisma.IntNullableFilter<"Task"> | number | null
   waitingOn?: Prisma.BoolFilter<"Task"> | boolean
   position?: Prisma.IntFilter<"Task"> | number
-  area?: Prisma.EnumLifeAreaNullableFilter<"Task"> | $Enums.LifeArea | null
-  areaId?: Prisma.StringNullableFilter<"Task"> | string | null
+  areaId?: Prisma.StringFilter<"Task"> | string
   recurrence?: Prisma.EnumRecurrenceIntervalFilter<"Task"> | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.StringNullableFilter<"Task"> | string | null
   recurrenceEndsAt?: Prisma.DateTimeNullableFilter<"Task"> | Date | string | null
@@ -1559,7 +1532,6 @@ export type TaskCreateWithoutTeamInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -1577,7 +1549,7 @@ export type TaskCreateWithoutTeamInput = {
   subTasks?: Prisma.TaskCreateNestedManyWithoutParentInput
   project?: Prisma.ProjectCreateNestedOneWithoutTasksInput
   sprint?: Prisma.SprintCreateNestedOneWithoutTasksInput
-  userArea?: Prisma.UserAreaCreateNestedOneWithoutTasksInput
+  userArea: Prisma.UserAreaCreateNestedOneWithoutTasksInput
   docs?: Prisma.DocTaskCreateNestedManyWithoutTaskInput
 }
 
@@ -1597,8 +1569,7 @@ export type TaskUncheckedCreateWithoutTeamInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
-  areaId?: string | null
+  areaId: string
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -1655,7 +1626,6 @@ export type TaskCreateWithoutProjectInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -1673,7 +1643,7 @@ export type TaskCreateWithoutProjectInput = {
   subTasks?: Prisma.TaskCreateNestedManyWithoutParentInput
   sprint?: Prisma.SprintCreateNestedOneWithoutTasksInput
   team?: Prisma.TeamCreateNestedOneWithoutTasksInput
-  userArea?: Prisma.UserAreaCreateNestedOneWithoutTasksInput
+  userArea: Prisma.UserAreaCreateNestedOneWithoutTasksInput
   docs?: Prisma.DocTaskCreateNestedManyWithoutTaskInput
 }
 
@@ -1693,8 +1663,7 @@ export type TaskUncheckedCreateWithoutProjectInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
-  areaId?: string | null
+  areaId: string
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -1751,7 +1720,6 @@ export type TaskCreateWithoutUserAreaInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -1790,7 +1758,6 @@ export type TaskUncheckedCreateWithoutUserAreaInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -1847,7 +1814,6 @@ export type TaskCreateWithoutSprintInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -1865,7 +1831,7 @@ export type TaskCreateWithoutSprintInput = {
   subTasks?: Prisma.TaskCreateNestedManyWithoutParentInput
   project?: Prisma.ProjectCreateNestedOneWithoutTasksInput
   team?: Prisma.TeamCreateNestedOneWithoutTasksInput
-  userArea?: Prisma.UserAreaCreateNestedOneWithoutTasksInput
+  userArea: Prisma.UserAreaCreateNestedOneWithoutTasksInput
   docs?: Prisma.DocTaskCreateNestedManyWithoutTaskInput
 }
 
@@ -1885,8 +1851,7 @@ export type TaskUncheckedCreateWithoutSprintInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
-  areaId?: string | null
+  areaId: string
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -1943,7 +1908,6 @@ export type TaskCreateWithoutSubTasksInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -1961,7 +1925,7 @@ export type TaskCreateWithoutSubTasksInput = {
   project?: Prisma.ProjectCreateNestedOneWithoutTasksInput
   sprint?: Prisma.SprintCreateNestedOneWithoutTasksInput
   team?: Prisma.TeamCreateNestedOneWithoutTasksInput
-  userArea?: Prisma.UserAreaCreateNestedOneWithoutTasksInput
+  userArea: Prisma.UserAreaCreateNestedOneWithoutTasksInput
   docs?: Prisma.DocTaskCreateNestedManyWithoutTaskInput
 }
 
@@ -1982,8 +1946,7 @@ export type TaskUncheckedCreateWithoutSubTasksInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
-  areaId?: string | null
+  areaId: string
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -2018,7 +1981,6 @@ export type TaskCreateWithoutParentInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -2036,7 +1998,7 @@ export type TaskCreateWithoutParentInput = {
   project?: Prisma.ProjectCreateNestedOneWithoutTasksInput
   sprint?: Prisma.SprintCreateNestedOneWithoutTasksInput
   team?: Prisma.TeamCreateNestedOneWithoutTasksInput
-  userArea?: Prisma.UserAreaCreateNestedOneWithoutTasksInput
+  userArea: Prisma.UserAreaCreateNestedOneWithoutTasksInput
   docs?: Prisma.DocTaskCreateNestedManyWithoutTaskInput
 }
 
@@ -2056,8 +2018,7 @@ export type TaskUncheckedCreateWithoutParentInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
-  areaId?: string | null
+  areaId: string
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -2109,7 +2070,6 @@ export type TaskUpdateWithoutSubTasksInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2127,7 +2087,7 @@ export type TaskUpdateWithoutSubTasksInput = {
   project?: Prisma.ProjectUpdateOneWithoutTasksNestedInput
   sprint?: Prisma.SprintUpdateOneWithoutTasksNestedInput
   team?: Prisma.TeamUpdateOneWithoutTasksNestedInput
-  userArea?: Prisma.UserAreaUpdateOneWithoutTasksNestedInput
+  userArea?: Prisma.UserAreaUpdateOneRequiredWithoutTasksNestedInput
   docs?: Prisma.DocTaskUpdateManyWithoutTaskNestedInput
 }
 
@@ -2148,8 +2108,7 @@ export type TaskUncheckedUpdateWithoutSubTasksInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2195,7 +2154,6 @@ export type TaskCreateWithoutLabelsInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -2213,7 +2171,7 @@ export type TaskCreateWithoutLabelsInput = {
   project?: Prisma.ProjectCreateNestedOneWithoutTasksInput
   sprint?: Prisma.SprintCreateNestedOneWithoutTasksInput
   team?: Prisma.TeamCreateNestedOneWithoutTasksInput
-  userArea?: Prisma.UserAreaCreateNestedOneWithoutTasksInput
+  userArea: Prisma.UserAreaCreateNestedOneWithoutTasksInput
   docs?: Prisma.DocTaskCreateNestedManyWithoutTaskInput
 }
 
@@ -2234,8 +2192,7 @@ export type TaskUncheckedCreateWithoutLabelsInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
-  areaId?: string | null
+  areaId: string
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -2281,7 +2238,6 @@ export type TaskUpdateWithoutLabelsInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2299,7 +2255,7 @@ export type TaskUpdateWithoutLabelsInput = {
   project?: Prisma.ProjectUpdateOneWithoutTasksNestedInput
   sprint?: Prisma.SprintUpdateOneWithoutTasksNestedInput
   team?: Prisma.TeamUpdateOneWithoutTasksNestedInput
-  userArea?: Prisma.UserAreaUpdateOneWithoutTasksNestedInput
+  userArea?: Prisma.UserAreaUpdateOneRequiredWithoutTasksNestedInput
   docs?: Prisma.DocTaskUpdateManyWithoutTaskNestedInput
 }
 
@@ -2320,8 +2276,7 @@ export type TaskUncheckedUpdateWithoutLabelsInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2351,7 +2306,6 @@ export type TaskCreateWithoutCommentsInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -2369,7 +2323,7 @@ export type TaskCreateWithoutCommentsInput = {
   project?: Prisma.ProjectCreateNestedOneWithoutTasksInput
   sprint?: Prisma.SprintCreateNestedOneWithoutTasksInput
   team?: Prisma.TeamCreateNestedOneWithoutTasksInput
-  userArea?: Prisma.UserAreaCreateNestedOneWithoutTasksInput
+  userArea: Prisma.UserAreaCreateNestedOneWithoutTasksInput
   docs?: Prisma.DocTaskCreateNestedManyWithoutTaskInput
 }
 
@@ -2390,8 +2344,7 @@ export type TaskUncheckedCreateWithoutCommentsInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
-  areaId?: string | null
+  areaId: string
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -2437,7 +2390,6 @@ export type TaskUpdateWithoutCommentsInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2455,7 +2407,7 @@ export type TaskUpdateWithoutCommentsInput = {
   project?: Prisma.ProjectUpdateOneWithoutTasksNestedInput
   sprint?: Prisma.SprintUpdateOneWithoutTasksNestedInput
   team?: Prisma.TeamUpdateOneWithoutTasksNestedInput
-  userArea?: Prisma.UserAreaUpdateOneWithoutTasksNestedInput
+  userArea?: Prisma.UserAreaUpdateOneRequiredWithoutTasksNestedInput
   docs?: Prisma.DocTaskUpdateManyWithoutTaskNestedInput
 }
 
@@ -2476,8 +2428,7 @@ export type TaskUncheckedUpdateWithoutCommentsInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2507,7 +2458,6 @@ export type TaskCreateWithoutAttachmentsInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -2525,7 +2475,7 @@ export type TaskCreateWithoutAttachmentsInput = {
   project?: Prisma.ProjectCreateNestedOneWithoutTasksInput
   sprint?: Prisma.SprintCreateNestedOneWithoutTasksInput
   team?: Prisma.TeamCreateNestedOneWithoutTasksInput
-  userArea?: Prisma.UserAreaCreateNestedOneWithoutTasksInput
+  userArea: Prisma.UserAreaCreateNestedOneWithoutTasksInput
   docs?: Prisma.DocTaskCreateNestedManyWithoutTaskInput
 }
 
@@ -2546,8 +2496,7 @@ export type TaskUncheckedCreateWithoutAttachmentsInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
-  areaId?: string | null
+  areaId: string
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -2593,7 +2542,6 @@ export type TaskUpdateWithoutAttachmentsInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2611,7 +2559,7 @@ export type TaskUpdateWithoutAttachmentsInput = {
   project?: Prisma.ProjectUpdateOneWithoutTasksNestedInput
   sprint?: Prisma.SprintUpdateOneWithoutTasksNestedInput
   team?: Prisma.TeamUpdateOneWithoutTasksNestedInput
-  userArea?: Prisma.UserAreaUpdateOneWithoutTasksNestedInput
+  userArea?: Prisma.UserAreaUpdateOneRequiredWithoutTasksNestedInput
   docs?: Prisma.DocTaskUpdateManyWithoutTaskNestedInput
 }
 
@@ -2632,8 +2580,7 @@ export type TaskUncheckedUpdateWithoutAttachmentsInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2663,7 +2610,6 @@ export type TaskCreateWithoutChecklistsInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -2681,7 +2627,7 @@ export type TaskCreateWithoutChecklistsInput = {
   project?: Prisma.ProjectCreateNestedOneWithoutTasksInput
   sprint?: Prisma.SprintCreateNestedOneWithoutTasksInput
   team?: Prisma.TeamCreateNestedOneWithoutTasksInput
-  userArea?: Prisma.UserAreaCreateNestedOneWithoutTasksInput
+  userArea: Prisma.UserAreaCreateNestedOneWithoutTasksInput
   docs?: Prisma.DocTaskCreateNestedManyWithoutTaskInput
 }
 
@@ -2702,8 +2648,7 @@ export type TaskUncheckedCreateWithoutChecklistsInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
-  areaId?: string | null
+  areaId: string
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -2749,7 +2694,6 @@ export type TaskUpdateWithoutChecklistsInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2767,7 +2711,7 @@ export type TaskUpdateWithoutChecklistsInput = {
   project?: Prisma.ProjectUpdateOneWithoutTasksNestedInput
   sprint?: Prisma.SprintUpdateOneWithoutTasksNestedInput
   team?: Prisma.TeamUpdateOneWithoutTasksNestedInput
-  userArea?: Prisma.UserAreaUpdateOneWithoutTasksNestedInput
+  userArea?: Prisma.UserAreaUpdateOneRequiredWithoutTasksNestedInput
   docs?: Prisma.DocTaskUpdateManyWithoutTaskNestedInput
 }
 
@@ -2788,8 +2732,7 @@ export type TaskUncheckedUpdateWithoutChecklistsInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2819,7 +2762,6 @@ export type TaskCreateWithoutWorkLogsInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -2837,7 +2779,7 @@ export type TaskCreateWithoutWorkLogsInput = {
   project?: Prisma.ProjectCreateNestedOneWithoutTasksInput
   sprint?: Prisma.SprintCreateNestedOneWithoutTasksInput
   team?: Prisma.TeamCreateNestedOneWithoutTasksInput
-  userArea?: Prisma.UserAreaCreateNestedOneWithoutTasksInput
+  userArea: Prisma.UserAreaCreateNestedOneWithoutTasksInput
   docs?: Prisma.DocTaskCreateNestedManyWithoutTaskInput
 }
 
@@ -2858,8 +2800,7 @@ export type TaskUncheckedCreateWithoutWorkLogsInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
-  areaId?: string | null
+  areaId: string
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -2905,7 +2846,6 @@ export type TaskUpdateWithoutWorkLogsInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2923,7 +2863,7 @@ export type TaskUpdateWithoutWorkLogsInput = {
   project?: Prisma.ProjectUpdateOneWithoutTasksNestedInput
   sprint?: Prisma.SprintUpdateOneWithoutTasksNestedInput
   team?: Prisma.TeamUpdateOneWithoutTasksNestedInput
-  userArea?: Prisma.UserAreaUpdateOneWithoutTasksNestedInput
+  userArea?: Prisma.UserAreaUpdateOneRequiredWithoutTasksNestedInput
   docs?: Prisma.DocTaskUpdateManyWithoutTaskNestedInput
 }
 
@@ -2944,8 +2884,7 @@ export type TaskUncheckedUpdateWithoutWorkLogsInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2975,7 +2914,6 @@ export type TaskCreateWithoutDocsInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -2994,7 +2932,7 @@ export type TaskCreateWithoutDocsInput = {
   project?: Prisma.ProjectCreateNestedOneWithoutTasksInput
   sprint?: Prisma.SprintCreateNestedOneWithoutTasksInput
   team?: Prisma.TeamCreateNestedOneWithoutTasksInput
-  userArea?: Prisma.UserAreaCreateNestedOneWithoutTasksInput
+  userArea: Prisma.UserAreaCreateNestedOneWithoutTasksInput
 }
 
 export type TaskUncheckedCreateWithoutDocsInput = {
@@ -3014,8 +2952,7 @@ export type TaskUncheckedCreateWithoutDocsInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
-  areaId?: string | null
+  areaId: string
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -3061,7 +2998,6 @@ export type TaskUpdateWithoutDocsInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3080,7 +3016,7 @@ export type TaskUpdateWithoutDocsInput = {
   project?: Prisma.ProjectUpdateOneWithoutTasksNestedInput
   sprint?: Prisma.SprintUpdateOneWithoutTasksNestedInput
   team?: Prisma.TeamUpdateOneWithoutTasksNestedInput
-  userArea?: Prisma.UserAreaUpdateOneWithoutTasksNestedInput
+  userArea?: Prisma.UserAreaUpdateOneRequiredWithoutTasksNestedInput
 }
 
 export type TaskUncheckedUpdateWithoutDocsInput = {
@@ -3100,8 +3036,7 @@ export type TaskUncheckedUpdateWithoutDocsInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3135,8 +3070,7 @@ export type TaskCreateManyAssignedToInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
-  areaId?: string | null
+  areaId: string
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -3163,8 +3097,7 @@ export type TaskCreateManyCreatedByInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
-  areaId?: string | null
+  areaId: string
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -3187,7 +3120,6 @@ export type TaskUpdateWithoutAssignedToInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3205,7 +3137,7 @@ export type TaskUpdateWithoutAssignedToInput = {
   project?: Prisma.ProjectUpdateOneWithoutTasksNestedInput
   sprint?: Prisma.SprintUpdateOneWithoutTasksNestedInput
   team?: Prisma.TeamUpdateOneWithoutTasksNestedInput
-  userArea?: Prisma.UserAreaUpdateOneWithoutTasksNestedInput
+  userArea?: Prisma.UserAreaUpdateOneRequiredWithoutTasksNestedInput
   docs?: Prisma.DocTaskUpdateManyWithoutTaskNestedInput
 }
 
@@ -3226,8 +3158,7 @@ export type TaskUncheckedUpdateWithoutAssignedToInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3261,8 +3192,7 @@ export type TaskUncheckedUpdateManyWithoutAssignedToInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3285,7 +3215,6 @@ export type TaskUpdateWithoutCreatedByInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3303,7 +3232,7 @@ export type TaskUpdateWithoutCreatedByInput = {
   project?: Prisma.ProjectUpdateOneWithoutTasksNestedInput
   sprint?: Prisma.SprintUpdateOneWithoutTasksNestedInput
   team?: Prisma.TeamUpdateOneWithoutTasksNestedInput
-  userArea?: Prisma.UserAreaUpdateOneWithoutTasksNestedInput
+  userArea?: Prisma.UserAreaUpdateOneRequiredWithoutTasksNestedInput
   docs?: Prisma.DocTaskUpdateManyWithoutTaskNestedInput
 }
 
@@ -3324,8 +3253,7 @@ export type TaskUncheckedUpdateWithoutCreatedByInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3359,8 +3287,7 @@ export type TaskUncheckedUpdateManyWithoutCreatedByInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3386,8 +3313,7 @@ export type TaskCreateManyTeamInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
-  areaId?: string | null
+  areaId: string
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -3411,7 +3337,6 @@ export type TaskUpdateWithoutTeamInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3429,7 +3354,7 @@ export type TaskUpdateWithoutTeamInput = {
   subTasks?: Prisma.TaskUpdateManyWithoutParentNestedInput
   project?: Prisma.ProjectUpdateOneWithoutTasksNestedInput
   sprint?: Prisma.SprintUpdateOneWithoutTasksNestedInput
-  userArea?: Prisma.UserAreaUpdateOneWithoutTasksNestedInput
+  userArea?: Prisma.UserAreaUpdateOneRequiredWithoutTasksNestedInput
   docs?: Prisma.DocTaskUpdateManyWithoutTaskNestedInput
 }
 
@@ -3449,8 +3374,7 @@ export type TaskUncheckedUpdateWithoutTeamInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3484,8 +3408,7 @@ export type TaskUncheckedUpdateManyWithoutTeamInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3512,8 +3435,7 @@ export type TaskCreateManyProjectInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
-  areaId?: string | null
+  areaId: string
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -3537,7 +3459,6 @@ export type TaskUpdateWithoutProjectInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3555,7 +3476,7 @@ export type TaskUpdateWithoutProjectInput = {
   subTasks?: Prisma.TaskUpdateManyWithoutParentNestedInput
   sprint?: Prisma.SprintUpdateOneWithoutTasksNestedInput
   team?: Prisma.TeamUpdateOneWithoutTasksNestedInput
-  userArea?: Prisma.UserAreaUpdateOneWithoutTasksNestedInput
+  userArea?: Prisma.UserAreaUpdateOneRequiredWithoutTasksNestedInput
   docs?: Prisma.DocTaskUpdateManyWithoutTaskNestedInput
 }
 
@@ -3575,8 +3496,7 @@ export type TaskUncheckedUpdateWithoutProjectInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3610,8 +3530,7 @@ export type TaskUncheckedUpdateManyWithoutProjectInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3639,7 +3558,6 @@ export type TaskCreateManyUserAreaInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -3663,7 +3581,6 @@ export type TaskUpdateWithoutUserAreaInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3702,7 +3619,6 @@ export type TaskUncheckedUpdateWithoutUserAreaInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3737,7 +3653,6 @@ export type TaskUncheckedUpdateManyWithoutUserAreaInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3764,8 +3679,7 @@ export type TaskCreateManySprintInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
-  areaId?: string | null
+  areaId: string
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -3789,7 +3703,6 @@ export type TaskUpdateWithoutSprintInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3807,7 +3720,7 @@ export type TaskUpdateWithoutSprintInput = {
   subTasks?: Prisma.TaskUpdateManyWithoutParentNestedInput
   project?: Prisma.ProjectUpdateOneWithoutTasksNestedInput
   team?: Prisma.TeamUpdateOneWithoutTasksNestedInput
-  userArea?: Prisma.UserAreaUpdateOneWithoutTasksNestedInput
+  userArea?: Prisma.UserAreaUpdateOneRequiredWithoutTasksNestedInput
   docs?: Prisma.DocTaskUpdateManyWithoutTaskNestedInput
 }
 
@@ -3827,8 +3740,7 @@ export type TaskUncheckedUpdateWithoutSprintInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3862,8 +3774,7 @@ export type TaskUncheckedUpdateManyWithoutSprintInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3890,8 +3801,7 @@ export type TaskCreateManyParentInput = {
   durationMinutes?: number | null
   waitingOn?: boolean
   position?: number
-  area?: $Enums.LifeArea | null
-  areaId?: string | null
+  areaId: string
   recurrence?: $Enums.RecurrenceInterval
   recurrenceSeriesId?: string | null
   recurrenceEndsAt?: Date | string | null
@@ -3915,7 +3825,6 @@ export type TaskUpdateWithoutParentInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3933,7 +3842,7 @@ export type TaskUpdateWithoutParentInput = {
   project?: Prisma.ProjectUpdateOneWithoutTasksNestedInput
   sprint?: Prisma.SprintUpdateOneWithoutTasksNestedInput
   team?: Prisma.TeamUpdateOneWithoutTasksNestedInput
-  userArea?: Prisma.UserAreaUpdateOneWithoutTasksNestedInput
+  userArea?: Prisma.UserAreaUpdateOneRequiredWithoutTasksNestedInput
   docs?: Prisma.DocTaskUpdateManyWithoutTaskNestedInput
 }
 
@@ -3953,8 +3862,7 @@ export type TaskUncheckedUpdateWithoutParentInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3988,8 +3896,7 @@ export type TaskUncheckedUpdateManyWithoutParentInput = {
   durationMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   waitingOn?: Prisma.BoolFieldUpdateOperationsInput | boolean
   position?: Prisma.IntFieldUpdateOperationsInput | number
-  area?: Prisma.NullableEnumLifeAreaFieldUpdateOperationsInput | $Enums.LifeArea | null
-  areaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  areaId?: Prisma.StringFieldUpdateOperationsInput | string
   recurrence?: Prisma.EnumRecurrenceIntervalFieldUpdateOperationsInput | $Enums.RecurrenceInterval
   recurrenceSeriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4102,7 +4009,6 @@ export type TaskSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   durationMinutes?: boolean
   waitingOn?: boolean
   position?: boolean
-  area?: boolean
   areaId?: boolean
   recurrence?: boolean
   recurrenceSeriesId?: boolean
@@ -4124,7 +4030,7 @@ export type TaskSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   project?: boolean | Prisma.Task$projectArgs<ExtArgs>
   sprint?: boolean | Prisma.Task$sprintArgs<ExtArgs>
   team?: boolean | Prisma.Task$teamArgs<ExtArgs>
-  userArea?: boolean | Prisma.Task$userAreaArgs<ExtArgs>
+  userArea?: boolean | Prisma.UserAreaDefaultArgs<ExtArgs>
   docs?: boolean | Prisma.Task$docsArgs<ExtArgs>
   _count?: boolean | Prisma.TaskCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["task"]>
@@ -4146,7 +4052,6 @@ export type TaskSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   durationMinutes?: boolean
   waitingOn?: boolean
   position?: boolean
-  area?: boolean
   areaId?: boolean
   recurrence?: boolean
   recurrenceSeriesId?: boolean
@@ -4162,7 +4067,7 @@ export type TaskSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   project?: boolean | Prisma.Task$projectArgs<ExtArgs>
   sprint?: boolean | Prisma.Task$sprintArgs<ExtArgs>
   team?: boolean | Prisma.Task$teamArgs<ExtArgs>
-  userArea?: boolean | Prisma.Task$userAreaArgs<ExtArgs>
+  userArea?: boolean | Prisma.UserAreaDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["task"]>
 
 export type TaskSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -4182,7 +4087,6 @@ export type TaskSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   durationMinutes?: boolean
   waitingOn?: boolean
   position?: boolean
-  area?: boolean
   areaId?: boolean
   recurrence?: boolean
   recurrenceSeriesId?: boolean
@@ -4198,7 +4102,7 @@ export type TaskSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   project?: boolean | Prisma.Task$projectArgs<ExtArgs>
   sprint?: boolean | Prisma.Task$sprintArgs<ExtArgs>
   team?: boolean | Prisma.Task$teamArgs<ExtArgs>
-  userArea?: boolean | Prisma.Task$userAreaArgs<ExtArgs>
+  userArea?: boolean | Prisma.UserAreaDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["task"]>
 
 export type TaskSelectScalar = {
@@ -4218,7 +4122,6 @@ export type TaskSelectScalar = {
   durationMinutes?: boolean
   waitingOn?: boolean
   position?: boolean
-  area?: boolean
   areaId?: boolean
   recurrence?: boolean
   recurrenceSeriesId?: boolean
@@ -4230,7 +4133,7 @@ export type TaskSelectScalar = {
   updatedAt?: boolean
 }
 
-export type TaskOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "projectId" | "sprintId" | "parentTaskId" | "teamId" | "title" | "description" | "status" | "priority" | "type" | "storyPoints" | "estimate" | "dueDate" | "durationMinutes" | "waitingOn" | "position" | "area" | "areaId" | "recurrence" | "recurrenceSeriesId" | "recurrenceEndsAt" | "createdById" | "assignedToId" | "completedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["task"]>
+export type TaskOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "projectId" | "sprintId" | "parentTaskId" | "teamId" | "title" | "description" | "status" | "priority" | "type" | "storyPoints" | "estimate" | "dueDate" | "durationMinutes" | "waitingOn" | "position" | "areaId" | "recurrence" | "recurrenceSeriesId" | "recurrenceEndsAt" | "createdById" | "assignedToId" | "completedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["task"]>
 export type TaskInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   attachments?: boolean | Prisma.Task$attachmentsArgs<ExtArgs>
   checklists?: boolean | Prisma.Task$checklistsArgs<ExtArgs>
@@ -4244,7 +4147,7 @@ export type TaskInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   project?: boolean | Prisma.Task$projectArgs<ExtArgs>
   sprint?: boolean | Prisma.Task$sprintArgs<ExtArgs>
   team?: boolean | Prisma.Task$teamArgs<ExtArgs>
-  userArea?: boolean | Prisma.Task$userAreaArgs<ExtArgs>
+  userArea?: boolean | Prisma.UserAreaDefaultArgs<ExtArgs>
   docs?: boolean | Prisma.Task$docsArgs<ExtArgs>
   _count?: boolean | Prisma.TaskCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -4255,7 +4158,7 @@ export type TaskIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   project?: boolean | Prisma.Task$projectArgs<ExtArgs>
   sprint?: boolean | Prisma.Task$sprintArgs<ExtArgs>
   team?: boolean | Prisma.Task$teamArgs<ExtArgs>
-  userArea?: boolean | Prisma.Task$userAreaArgs<ExtArgs>
+  userArea?: boolean | Prisma.UserAreaDefaultArgs<ExtArgs>
 }
 export type TaskIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignedTo?: boolean | Prisma.Task$assignedToArgs<ExtArgs>
@@ -4264,7 +4167,7 @@ export type TaskIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   project?: boolean | Prisma.Task$projectArgs<ExtArgs>
   sprint?: boolean | Prisma.Task$sprintArgs<ExtArgs>
   team?: boolean | Prisma.Task$teamArgs<ExtArgs>
-  userArea?: boolean | Prisma.Task$userAreaArgs<ExtArgs>
+  userArea?: boolean | Prisma.UserAreaDefaultArgs<ExtArgs>
 }
 
 export type $TaskPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -4282,7 +4185,7 @@ export type $TaskPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     project: Prisma.$ProjectPayload<ExtArgs> | null
     sprint: Prisma.$SprintPayload<ExtArgs> | null
     team: Prisma.$TeamPayload<ExtArgs> | null
-    userArea: Prisma.$UserAreaPayload<ExtArgs> | null
+    userArea: Prisma.$UserAreaPayload<ExtArgs>
     docs: Prisma.$DocTaskPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -4308,11 +4211,10 @@ export type $TaskPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
      */
     waitingOn: boolean
     position: number
-    area: $Enums.LifeArea | null
     /**
-     * Per-user area (P4). Dual-written with `area` until P7.
+     * Task's own area (required since P7; same owner rule as before).
      */
-    areaId: string | null
+    areaId: string
     recurrence: $Enums.RecurrenceInterval
     /**
      * Shared id across spawned occurrences of the same series
@@ -4736,7 +4638,7 @@ export interface Prisma__TaskClient<T, Null = never, ExtArgs extends runtime.Typ
   project<T extends Prisma.Task$projectArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Task$projectArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   sprint<T extends Prisma.Task$sprintArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Task$sprintArgs<ExtArgs>>): Prisma.Prisma__SprintClient<runtime.Types.Result.GetResult<Prisma.$SprintPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   team<T extends Prisma.Task$teamArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Task$teamArgs<ExtArgs>>): Prisma.Prisma__TeamClient<runtime.Types.Result.GetResult<Prisma.$TeamPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  userArea<T extends Prisma.Task$userAreaArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Task$userAreaArgs<ExtArgs>>): Prisma.Prisma__UserAreaClient<runtime.Types.Result.GetResult<Prisma.$UserAreaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  userArea<T extends Prisma.UserAreaDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserAreaDefaultArgs<ExtArgs>>): Prisma.Prisma__UserAreaClient<runtime.Types.Result.GetResult<Prisma.$UserAreaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   docs<T extends Prisma.Task$docsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Task$docsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DocTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -4783,7 +4685,6 @@ export interface TaskFieldRefs {
   readonly durationMinutes: Prisma.FieldRef<"Task", 'Int'>
   readonly waitingOn: Prisma.FieldRef<"Task", 'Boolean'>
   readonly position: Prisma.FieldRef<"Task", 'Int'>
-  readonly area: Prisma.FieldRef<"Task", 'LifeArea'>
   readonly areaId: Prisma.FieldRef<"Task", 'String'>
   readonly recurrence: Prisma.FieldRef<"Task", 'RecurrenceInterval'>
   readonly recurrenceSeriesId: Prisma.FieldRef<"Task", 'String'>
@@ -5430,25 +5331,6 @@ export type Task$teamArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs 
    */
   include?: Prisma.TeamInclude<ExtArgs> | null
   where?: Prisma.TeamWhereInput
-}
-
-/**
- * Task.userArea
- */
-export type Task$userAreaArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the UserArea
-   */
-  select?: Prisma.UserAreaSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the UserArea
-   */
-  omit?: Prisma.UserAreaOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.UserAreaInclude<ExtArgs> | null
-  where?: Prisma.UserAreaWhereInput
 }
 
 /**

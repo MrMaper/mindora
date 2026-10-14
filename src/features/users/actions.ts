@@ -17,7 +17,6 @@ import {
   PRIMARY_MODULES,
   isModulePresetId,
   parseModulePolicy,
-  policyToLegacyFlags,
   type ModulePolicy,
   type ModulePolicyState,
 } from "@/lib/modules";
@@ -96,15 +95,12 @@ async function applyPolicyChange(
   adminId: string,
   userId: string,
   nextPolicy: ModulePolicy,
-  current: { enabledModules: unknown; modulePolicy: unknown },
+  current: { modulePolicy: unknown },
 ) {
-  const before = parseModulePolicy(current.modulePolicy, current.enabledModules);
+  const before = parseModulePolicy(current.modulePolicy);
   await db.user.update({
     where: { id: userId },
-    data: {
-      modulePolicy: nextPolicy,
-      enabledModules: policyToLegacyFlags(nextPolicy),
-    },
+    data: { modulePolicy: nextPolicy },
   });
   // P6: when Research/Language become effectively on, bind a hub area.
   const { getEffectiveFlagsForUser, ensureHubAreaForModule } = await import(
@@ -228,7 +224,7 @@ export async function updateUser(
 
   const target = await db.user.findUnique({
     where: { id },
-    select: { role: true, enabledModules: true, modulePolicy: true },
+    select: { role: true, modulePolicy: true },
   });
   if (!target) return { success: false, error: "کاربر یافت نشد" };
 
@@ -256,10 +252,7 @@ export async function updateUser(
     return { success: false, error: "فقط یک مدیر سیستم مجاز است" };
   }
 
-  const currentPolicy = parseModulePolicy(
-    target.modulePolicy,
-    target.enabledModules,
-  );
+  const currentPolicy = parseModulePolicy(target.modulePolicy);
   const nextPolicy = policyFromForm(formData, currentPolicy);
 
   await db.user.update({
@@ -291,14 +284,14 @@ export async function updateUserModules(
 
   const target = await db.user.findUnique({
     where: { id },
-    select: { role: true, enabledModules: true, modulePolicy: true },
+    select: { role: true, modulePolicy: true },
   });
   if (!target) return { success: false, error: "کاربر یافت نشد" };
   if (target.role === "ADMIN") {
     return { success: false, error: "ماژول‌ها برای مدیر سیستم معنا ندارد" };
   }
 
-  const next = parseModulePolicy(policy, {});
+  const next = parseModulePolicy(policy);
   await applyPolicyChange(session.user.id, id, next, target);
   revalidatePath("/users");
   revalidatePath("/admin");
@@ -506,6 +499,118 @@ export async function deleteUser(id: string): Promise<ActionResult> {
       await tx.task.deleteMany({ where: { createdById: id } });
 
       await tx.project.deleteMany({ where: { teamId: personalTeamId } });
+
+      // P7: `areaId` is required (onDelete NoAction). Anything other members
+      // keep inside this member's areas must move to one of their own first.
+      const ownedAreaIds = (
+        await tx.userArea.findMany({ where: { userId: id }, select: { id: true } })
+      ).map(a => a.id);
+      if (ownedAreaIds.length > 0) {
+        const defaultAreaOf = async (memberId: string) =>
+          (
+            await tx.userArea.findFirst({
+              where: { userId: memberId, archived: false },
+              orderBy: [{ isDefault: "desc" }, { sortOrder: "asc" }],
+              select: { id: true },
+            })
+          )?.id ?? null;
+
+        const strayProjects = await tx.project.findMany({
+          where: { areaId: { in: ownedAreaIds } },
+          select: { id: true, members: { select: { userId: true, role: true } } },
+        });
+        for (const project of strayProjects) {
+          const heir = [...project.members]
+            .filter(m => m.userId !== id)
+            .sort((a, b) => Number(b.role === "OWNER") - Number(a.role === "OWNER"))[0];
+          const nextAreaId = heir ? await defaultAreaOf(heir.userId) : null;
+          if (nextAreaId) {
+            await tx.project.update({
+              where: { id: project.id },
+              data: { areaId: nextAreaId },
+            });
+          } else {
+            await tx.task.deleteMany({ where: { projectId: project.id } });
+            await tx.project.delete({ where: { id: project.id } });
+          }
+        }
+
+        const strayTasks = await tx.task.findMany({
+          where: { areaId: { in: ownedAreaIds } },
+          select: { id: true, createdById: true },
+        });
+        const byCreator = new Map<string, string[]>();
+        for (const task of strayTasks) {
+          byCreator.set(task.createdById, [
+            ...(byCreator.get(task.createdById) ?? []),
+            task.id,
+          ]);
+        }
+        for (const [creatorId, taskIds] of byCreator) {
+          const nextAreaId = await defaultAreaOf(creatorId);
+          if (nextAreaId) {
+            await tx.task.updateMany({
+              where: { id: { in: taskIds } },
+              data: { areaId: nextAreaId },
+            });
+          } else {
+            await tx.task.deleteMany({ where: { id: { in: taskIds } } });
+          }
+        }
+
+        // Docs/habits use areaId NoAction → UserArea. Clear or rehome before
+        // User cascade would delete UserArea rows (Postgres may order that first).
+        const strayDocs = await tx.doc.findMany({
+          where: { areaId: { in: ownedAreaIds }, NOT: { userId: id } },
+          select: { id: true, userId: true },
+        });
+        const docsByOwner = new Map<string, string[]>();
+        for (const doc of strayDocs) {
+          docsByOwner.set(doc.userId, [
+            ...(docsByOwner.get(doc.userId) ?? []),
+            doc.id,
+          ]);
+        }
+        for (const [ownerId, docIds] of docsByOwner) {
+          const nextAreaId = await defaultAreaOf(ownerId);
+          if (nextAreaId) {
+            await tx.doc.updateMany({
+              where: { id: { in: docIds } },
+              data: { areaId: nextAreaId },
+            });
+          } else {
+            await tx.doc.deleteMany({ where: { id: { in: docIds } } });
+          }
+        }
+
+        const strayHabits = await tx.habit.findMany({
+          where: { areaId: { in: ownedAreaIds }, NOT: { userId: id } },
+          select: { id: true, userId: true },
+        });
+        const habitsByOwner = new Map<string, string[]>();
+        for (const habit of strayHabits) {
+          habitsByOwner.set(habit.userId, [
+            ...(habitsByOwner.get(habit.userId) ?? []),
+            habit.id,
+          ]);
+        }
+        for (const [ownerId, habitIds] of habitsByOwner) {
+          const nextAreaId = await defaultAreaOf(ownerId);
+          if (nextAreaId) {
+            await tx.habit.updateMany({
+              where: { id: { in: habitIds } },
+              data: { areaId: nextAreaId },
+            });
+          } else {
+            await tx.habit.deleteMany({ where: { id: { in: habitIds } } });
+          }
+        }
+      }
+
+      // Own docs/habits (and habit logs via cascade) before UserArea rows vanish.
+      await tx.habit.deleteMany({ where: { userId: id } });
+      await tx.doc.deleteMany({ where: { userId: id } });
+
       await tx.projectMember.deleteMany({ where: { userId: id } });
       await tx.teamMember.deleteMany({ where: { userId: id } });
       await tx.team.deleteMany({ where: { id: personalTeamId } });

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireActiveSession } from "@/lib/active-session";
 import { prisma as db } from "@/lib/db";
 import { taskWhereExcludeHub } from "@/lib/project-namespace";
+import { getMemberContext } from "@/lib/areas/server";
+import { areaDisplayName } from "@/lib/areas";
 import { getUserPreferencesCached } from "@/lib/request-cache";
 import { formatHours } from "@/lib/utils";
 import { getEffectiveFlagsForUser } from "@/lib/module-guard";
@@ -23,8 +25,13 @@ export async function GET(request: NextRequest) {
     session.user.role === "ADMIN"
       ? parseModuleFlags({})
       : await getEffectiveFlagsForUser(uid);
+  const memberCtx = await getMemberContext(uid);
   const prefs = await getUserPreferencesCached(uid);
   const language = prefs?.language === "EN" ? "EN" : "FA";
+  const areaName = (areaId: string) => {
+    const ref = memberCtx.areas.find(a => a.id === areaId);
+    return ref ? areaDisplayName(ref, language) : undefined;
+  };
   const searchParams = request.nextUrl.searchParams;
   const query = (searchParams.get("q") ?? "").trim();
   const limit = Math.min(parseInt(searchParams.get("limit") ?? "8", 10), 15);
@@ -61,7 +68,7 @@ export async function GET(request: NextRequest) {
         where: {
           AND: [
             mine,
-            taskWhereExcludeHub(),
+            taskWhereExcludeHub(memberCtx),
             {
               OR: [
                 { title: { contains: query, mode: "insensitive" } },
@@ -90,7 +97,7 @@ export async function GET(request: NextRequest) {
             { contentText: { contains: query, mode: "insensitive" } },
           ],
         },
-        select: { id: true, title: true, area: true },
+        select: { id: true, title: true, areaId: true },
         take: limit,
         orderBy: { updatedAt: "desc" },
       })),
@@ -100,7 +107,7 @@ export async function GET(request: NextRequest) {
           members: { some: { userId: uid } },
           name: { contains: query, mode: "insensitive" },
         },
-        select: { id: true, name: true, area: true },
+        select: { id: true, name: true, areaId: true },
         take: limit,
         orderBy: { name: "asc" },
       })),
@@ -198,13 +205,13 @@ export async function GET(request: NextRequest) {
       docs: docs.map(d => ({
         id: d.id,
         title: d.title,
-        meta: d.area,
+        meta: areaName(d.areaId),
         href: `/docs?id=${d.id}`,
       })),
       projects: projects.map(p => ({
         id: p.id,
         name: p.name,
-        meta: p.area,
+        meta: areaName(p.areaId),
         href: `/projects/${p.id}`,
       })),
       users: users.map(u => ({

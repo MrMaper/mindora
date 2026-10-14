@@ -13,7 +13,7 @@ import { ResearchWritingPanel } from "@/components/research/research-writing";
 import { ResearchProjectSwitcher } from "@/components/research/research-project-switcher";
 import { PageHeaderBar } from "@/components/ui-kit/layout/page-header-bar";
 import { Button } from "@/components/ui-kit/forms/button";
-import { useAreaBuckets } from "@/components/area-buckets-provider";
+import { useAreaHelpers } from "@/components/member-areas-provider";
 import type {
   ResearchHubData,
   ResearchProjectItem,
@@ -25,7 +25,6 @@ import type { UserRow } from "@/features/users/types";
 import type { LabelRow } from "@/features/labels/types";
 import type { ProjectRow } from "@/features/projects/types";
 import { useTranslation } from "@/i18n/provider";
-import { RESEARCH_AREA } from "@/lib/areas";
 
 interface ResearchCCProps {
   hub: ResearchHubData;
@@ -85,7 +84,8 @@ function ResearchCCInner({
   initialTab = "pipeline",
 }: ResearchCCProps) {
   const t = useTranslation();
-  const areaIds = useAreaBuckets();
+  const { hubArea } = useAreaHelpers();
+  const researchArea = hubArea("research");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -157,8 +157,10 @@ function ResearchCCInner({
               formPreset="research"
               createDefaults={{
                 projectId:
-                  scope === "all" || scope === "inbox" ? areaIds[RESEARCH_AREA] : scope,
-                area: RESEARCH_AREA,
+                  scope === "all" || scope === "inbox"
+                    ? (researchArea?.bucketProjectId ?? "")
+                    : scope,
+                areaId: researchArea?.id ?? "",
                 status: "BACKLOG",
               }}
             />

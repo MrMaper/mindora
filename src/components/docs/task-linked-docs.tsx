@@ -14,20 +14,14 @@ import { Icon } from "@/components/ui-kit/foundation/icon";
 import { Button } from "@/components/ui-kit/forms/button";
 import { Input } from "@/components/ui-kit/forms/input";
 import { cn } from "@/lib/utils";
-import type { LifeArea } from "@/types/db";
-
-const AREA_DOT: Record<LifeArea, string> = {
-  PHD: "bg-[var(--status-review)]",
-  WORK: "bg-[var(--status-in-progress)]",
-  LIFE: "bg-[var(--status-todo)]",
-  LANG: "bg-emerald-600",
-};
+import { useAreaHelpers } from "@/components/member-areas-provider";
 
 export function TaskLinkedDocs({ taskId }: { taskId: string }) {
   const t = useTranslation();
   const router = useRouter();
+  const { dotFor } = useAreaHelpers();
   const [docs, setDocs] = React.useState<
-    { id: string; title: string; area: LifeArea }[]
+    { id: string; title: string; areaId: string }[]
   >([]);
   const [pending, setPending] = React.useState(false);
   const [attachOpen, setAttachOpen] = React.useState(false);
@@ -160,7 +154,7 @@ export function TaskLinkedDocs({ taskId }: { taskId: string }) {
                 href={`/docs?id=${doc.id}`}
                 className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm hover:bg-accent"
               >
-                <span className={cn("size-2 rounded-full", AREA_DOT[doc.area])} />
+                <span className={cn("size-2 rounded-full", dotFor(doc.areaId))} />
                 <span className="min-w-0 flex-1 truncate font-medium">
                   {doc.title}
                 </span>

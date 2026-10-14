@@ -5,7 +5,6 @@ import { buildInviteEmail, sendMail } from "@/lib/mail";
 import {
   MODULE_PRESETS,
   isModulePresetId,
-  policyToLegacyFlags,
   type ModulePolicy,
   type ModulePresetId,
 } from "@/lib/modules";
@@ -104,8 +103,6 @@ export async function provisionMember(
       status: "ACTIVE",
       createdVia: input.createdVia,
       modulePolicy: policy,
-      // Mirror so an older build still reads the right flags.
-      enabledModules: policyToLegacyFlags(policy),
       mustChangePassword: !!input.tempPassword,
     },
   });

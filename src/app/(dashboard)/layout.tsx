@@ -28,8 +28,6 @@ import {
   parseUiProfile,
 } from "@/lib/ui-profile";
 import { ensureUserPreferencesRow } from "@/features/onboarding/lifecycle";
-import { areaProjectIdsForUser } from "@/lib/area-projects";
-import { AreaBucketsProvider } from "@/components/area-buckets-provider";
 import { MemberAreasProvider } from "@/components/member-areas-provider";
 import { getMemberContext } from "@/lib/areas/server";
 import { CaptureProvider } from "@/components/life/capture-provider";
@@ -169,7 +167,6 @@ export default async function DashboardLayout({
     researchScope = rawResearchScope;
   }
   const researchHref = researchHrefForScope(researchScope);
-  const areaIds = areaProjectIdsForUser(session.user.id);
   const memberCtx = await getMemberContext(session.user.id);
 
   const dailyItems: NavItem[] = [
@@ -258,7 +255,6 @@ export default async function DashboardLayout({
     >
       <DirectionSync language={language} />
       <PresenceBeacon />
-      <AreaBucketsProvider ids={areaIds}>
       <MemberAreasProvider areas={memberCtx.areas}>
         <CaptureProvider
           plain={uiProfile === "starter"}
@@ -284,7 +280,6 @@ export default async function DashboardLayout({
           <CommandPaletteLazy />
         </CaptureProvider>
       </MemberAreasProvider>
-      </AreaBucketsProvider>
     </div>
   );
 }

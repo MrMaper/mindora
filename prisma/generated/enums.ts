@@ -138,16 +138,6 @@ export const Theme = {
 export type Theme = (typeof Theme)[keyof typeof Theme]
 
 
-export const LifeArea = {
-  PHD: 'PHD',
-  WORK: 'WORK',
-  LIFE: 'LIFE',
-  LANG: 'LANG'
-} as const
-
-export type LifeArea = (typeof LifeArea)[keyof typeof LifeArea]
-
-
 export const AreaHubFor = {
   RESEARCH: 'RESEARCH',
   LANGUAGE: 'LANGUAGE'

@@ -11,6 +11,7 @@ import { WorkLogsCC } from "./work-logs-cc";
 import { SelectProvider } from "@/components/ui-kit/forms/common";
 import type { Language } from "@/types/db";
 import { scopeFromFilters } from "@/lib/project-namespace";
+import { getMemberContext } from "@/lib/areas/server";
 import { localizedTitle } from "@/lib/page-title";
 
 export function generateMetadata(): Promise<Metadata> {
@@ -49,14 +50,20 @@ export default async function WorkLogsPage({
   // For non-admins, force filter by their own user ID
   const effectiveUserId = isAdmin ? (userId || undefined) : session.user.id;
 
-  const [users, userProjects, preferences] = await Promise.all([
+  const [users, userProjects, preferences, memberCtx] = await Promise.all([
     getAssignableUsers(session.user.id),
     getUserProjects(session.user.id, "assignable"),
     getUserPreferences(session.user.id),
+    getMemberContext(session.user.id),
   ]);
 
   const language = preferences?.language ?? "FA";
-  const scope = scopeFromFilters(area, projectId, userProjects);
+  const scope = scopeFromFilters(
+    area,
+    projectId,
+    userProjects,
+    memberCtx.areas,
+  );
 
   const isDateKey = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value);
   let fromKey = isDateKey(dateFrom) ? dateFrom : "";

@@ -1,4 +1,4 @@
-import type { LifeArea, TaskStatus, TaskPriority, TaskType } from "@/types/db";
+import type { TaskStatus, TaskPriority, TaskType } from "@/types/db";
 
 export interface WorkLogUserRef {
   id: string;

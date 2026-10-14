@@ -1300,7 +1300,7 @@ export function CalendarCC({
             {memberAreas.map(ref => {
               const active = effectiveAreaFilter.has(ref.id);
               const visual = visualForTask(
-                { area: ref.legacyEnum, areaId: ref.id },
+                { areaId: ref.id },
                 memberAreas,
               );
               return (

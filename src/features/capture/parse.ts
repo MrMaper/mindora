@@ -1,6 +1,12 @@
 import { addDays, startOfDay, toDateKey } from "@/lib/life";
-import type { LifeArea, RecurrenceInterval } from "@/types/db";
-import { RESEARCH_AREA, LANGUAGE_AREA, WORK_AREA, DEFAULT_AREA } from "@/lib/areas";
+import type { RecurrenceInterval } from "@/types/db";
+import {
+  GUESS_LANGUAGE,
+  GUESS_LIFE,
+  GUESS_RESEARCH,
+  GUESS_WORK,
+  type AreaGuess,
+} from "@/lib/areas";
 
 export type CaptureKind = "task" | "note" | "habit";
 export type CaptureCommand = "task" | "note" | "research" | "source" | "habit";
@@ -9,7 +15,8 @@ export interface ParsedCapture {
   kind: CaptureKind;
   command: CaptureCommand | null;
   title: string;
-  area: LifeArea;
+  /** Guess only; resolved to one of the member's areas on write (never stored). */
+  area: AreaGuess;
   /** Local calendar day, YYYY-MM-DD. Null when the sentence names no day. */
   dateKey: string | null;
   /** 24-hour HH:mm. Null when the sentence names no clock time. */
@@ -338,18 +345,18 @@ function takeDate(pair: Pair, now: Date): { pair: Pair; dateKey: string | null; 
   return { pair, dateKey: null, night: false };
 }
 
-function detectArea(scan: string): LifeArea {
+function detectArea(scan: string): AreaGuess {
   if (
     /پژوهش|تحقیق|مقاله|مقالات|دکتری|پایان[\u200c\s-]*نامه|\bphd\b|\bresearch\b|\bpaper\b|\bthesis\b|\bdissertation\b/i.test(
       scan,
     )
   ) {
-    return RESEARCH_AREA;
+    return GUESS_RESEARCH;
   }
-  if (/زبان|واژه|لغت|\blanguage\b|\bvocab(?:ulary)?\b/i.test(scan)) return LANGUAGE_AREA;
-  if (/(?:^|\s)(?:شغل|اداره|دفتر)(?=\s|$)|\bwork\b|\bjob\b/i.test(scan)) return WORK_AREA;
-  if (/زندگی|\blife\b/i.test(scan)) return DEFAULT_AREA;
-  return DEFAULT_AREA;
+  if (/زبان|واژه|لغت|\blanguage\b|\bvocab(?:ulary)?\b/i.test(scan)) return GUESS_LANGUAGE;
+  if (/(?:^|\s)(?:شغل|اداره|دفتر)(?=\s|$)|\bwork\b|\bjob\b/i.test(scan)) return GUESS_WORK;
+  if (/زندگی|\blife\b/i.test(scan)) return GUESS_LIFE;
+  return GUESS_LIFE;
 }
 
 function takeCommand(pair: Pair): { pair: Pair; command: CaptureCommand | null } {
@@ -435,7 +442,7 @@ export function parseCapture(input: string, now = new Date()): ParsedCapture {
 
   const area =
     command === "research" || command === "source"
-      ? RESEARCH_AREA
+      ? GUESS_RESEARCH
       : detectArea(pair.scan);
 
   const doiMatch = pair.scan.match(

@@ -2,8 +2,9 @@ import { requireModule } from "@/lib/require-role";
 import type { Metadata } from "next";
 import { redirect, notFound } from "next/navigation";
 import { auth } from "@/auth";
-import { isLifeAreaValue } from "@/lib/areas";
 import { getMemberContext } from "@/lib/areas/server";
+import { areaDashboardHref, areaDisplayName } from "@/lib/areas";
+import { normalizeAreaParam } from "@/lib/project-namespace";
 import { getAreaDashboard } from "@/features/projects/queries";
 import { AreaDashboardCC } from "../../components/client/area-dashboard-cc";
 import { localizedTitle } from "@/lib/page-title";
@@ -17,16 +18,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return localizedTitle("حوزه", "Area");
   }
   const ctx = await getMemberContext(session.user.id);
-  const upper = raw.toUpperCase();
-  const ref =
-    ctx.areas.find(a => a.id === raw) ??
-    ctx.areas.find(a => a.legacyEnum === upper) ??
-    null;
-  const name = ref
-    ? ref.nameFa
-    : isLifeAreaValue(upper)
-      ? upper
-      : "حوزه";
+  const id = normalizeAreaParam(raw, ctx.areas);
+  const ref = ctx.areas.find(a => a.id === id) ?? null;
+  const name = ref ? areaDisplayName(ref, "FA") : "حوزه";
   return localizedTitle(`داشبورد ${name}`, `${name} area`);
 }
 
@@ -37,13 +31,12 @@ export default async function AreaDashboardPage({ params }: Props) {
 
   const { area: raw } = await params;
 
-  // Legacy slug → permanent redirect to UserArea id.
-  if (isLifeAreaValue(raw.toUpperCase())) {
-    const ctx = await getMemberContext(session.user.id);
-    const match = ctx.areas.find(a => a.legacyEnum === raw.toUpperCase());
-    if (match && match.id !== raw) {
-      redirect(`/projects/areas/${match.id}`);
-    }
+  // Legacy slugs (phd/research · work · life · lang/language) resolve through
+  // templateKey / hubFor to the member's own UserArea id.
+  const ctx = await getMemberContext(session.user.id);
+  const id = normalizeAreaParam(raw, ctx.areas);
+  if (id !== raw && ctx.areas.some(a => a.id === id)) {
+    redirect(areaDashboardHref(id));
   }
 
   const data = await getAreaDashboard(session.user.id, raw);

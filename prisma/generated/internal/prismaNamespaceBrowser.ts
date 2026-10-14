@@ -70,7 +70,6 @@ export const ModelName = {
   TeamMember: 'TeamMember',
   Project: 'Project',
   UserArea: 'UserArea',
-  UserAreaPreference: 'UserAreaPreference',
   ProjectMember: 'ProjectMember',
   Sprint: 'Sprint',
   Task: 'Task',
@@ -129,7 +128,6 @@ export const UserScalarFieldEnum = {
   avatar: 'avatar',
   role: 'role',
   status: 'status',
-  enabledModules: 'enabledModules',
   modulePolicy: 'modulePolicy',
   createdVia: 'createdVia',
   mustChangePassword: 'mustChangePassword',
@@ -363,7 +361,6 @@ export const ProjectScalarFieldEnum = {
   name: 'name',
   description: 'description',
   status: 'status',
-  area: 'area',
   areaId: 'areaId',
   pinned: 'pinned',
   sortOrder: 'sortOrder',
@@ -387,27 +384,11 @@ export const UserAreaScalarFieldEnum = {
   isDefault: 'isDefault',
   hubFor: 'hubFor',
   bucketProjectId: 'bucketProjectId',
-  legacyEnum: 'legacyEnum',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type UserAreaScalarFieldEnum = (typeof UserAreaScalarFieldEnum)[keyof typeof UserAreaScalarFieldEnum]
-
-
-export const UserAreaPreferenceScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  area: 'area',
-  color: 'color',
-  icon: 'icon',
-  sortOrder: 'sortOrder',
-  archived: 'archived',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type UserAreaPreferenceScalarFieldEnum = (typeof UserAreaPreferenceScalarFieldEnum)[keyof typeof UserAreaPreferenceScalarFieldEnum]
 
 
 export const ProjectMemberScalarFieldEnum = {
@@ -452,7 +433,6 @@ export const TaskScalarFieldEnum = {
   durationMinutes: 'durationMinutes',
   waitingOn: 'waitingOn',
   position: 'position',
-  area: 'area',
   areaId: 'areaId',
   recurrence: 'recurrence',
   recurrenceSeriesId: 'recurrenceSeriesId',
@@ -572,7 +552,6 @@ export const HabitScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   title: 'title',
-  area: 'area',
   areaId: 'areaId',
   cadence: 'cadence',
   streak: 'streak',
@@ -601,7 +580,6 @@ export const DocScalarFieldEnum = {
   title: 'title',
   content: 'content',
   contentText: 'contentText',
-  area: 'area',
   areaId: 'areaId',
   status: 'status',
   wordGoal: 'wordGoal',
@@ -624,7 +602,6 @@ export const DocFolderScalarFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
-  area: 'area',
   areaId: 'areaId',
   userId: 'userId',
   parentId: 'parentId',

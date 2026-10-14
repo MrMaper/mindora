@@ -26,7 +26,6 @@ import type { BoardColumns, BoardStatus } from "@/features/kanban/types";
 import type { UserRow } from "@/features/users/types";
 import type { LabelRow } from "@/features/labels/types";
 import type { ProjectRow } from "@/features/projects/types";
-import type { LifeArea } from "@/types/db";
 import { Separator } from "@/components/ui/separator";
 import { listDocsByTaskIdsAction } from "@/features/docs/actions";
 
@@ -154,15 +153,15 @@ export function KanbanCC({
         createDefaults?.projectId ||
         (filters.project.includes(",") ? "" : filters.project) ||
         undefined,
-      area: createDefaults?.area,
+      areaId: createDefaults?.areaId,
       status: createDefaults?.status ?? "BACKLOG",
     };
-    if (!defaults.area && filters.area) {
-      defaults.area = filters.area as LifeArea;
+    if (!defaults.areaId && filters.area) {
+      defaults.areaId = filters.area;
     }
-    if (!defaults.area && defaults.projectId) {
+    if (!defaults.areaId && defaults.projectId) {
       const proj = userProjects.find(p => p.id === defaults.projectId);
-      if (proj?.area) defaults.area = proj.area as LifeArea;
+      if (proj?.areaId) defaults.areaId = proj.areaId;
     }
     k.openCreate(defaults);
   }

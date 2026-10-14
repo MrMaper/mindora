@@ -1,192 +1,183 @@
-﻿import { prisma as db } from "@/lib/db";
-import type { LifeArea } from "@/types/db";
-import { AREA_META, LIFE_AREAS } from "./legacy";
-import { personalAreaProjectId, areaProjectIdsForUser } from "./buckets";
-import { clearAreaIdCache } from "./dual-write";
-import { LEGACY_AREA_TEMPLATES, hubForToDb } from "./templates";
+import { prisma as db } from "@/lib/db";
+import { personalAreaProjectId, type SeedAreaKey } from "./buckets";
+import {
+  AREA_TEMPLATE_META,
+  SEED_AREA_TEMPLATES,
+  hubForToDb,
+} from "./templates";
+
+function isUniqueViolation(err: unknown): boolean {
+  return (
+    typeof err === "object" &&
+    err !== null &&
+    (err as { code?: string }).code === "P2002"
+  );
+}
 
 /**
- * Ensure the member has a private workspace: one personal team + four area
- * bucket projects + four UserArea rows (P4). Callers use `ensureDefaultArea`.
+ * Ensure the member has a private workspace: one personal team and, on first
+ * provisioning only, the four seeded areas with their bucket projects.
+ * Callers use `ensureDefaultArea`.
  */
 export async function ensurePersonalWorkspace(userId: string) {
   const teamId = `personal-${userId}`;
-  const areaIds = areaProjectIdsForUser(userId);
 
   const existing = await db.teamMember.findUnique({
     where: { teamId_userId: { teamId, userId } },
     select: { teamId: true },
   });
 
-  if (existing) {
-    await ensureAreaBuckets(userId, teamId, areaIds);
-    await ensureUserAreas(userId, areaIds);
-    return { teamId, areaIds };
+  if (!existing) {
+    const org =
+      (await db.organization.findFirst()) ??
+      (await db.organization.create({
+        data: { id: "default-org", name: "Mindora", ownerId: userId },
+      }));
+
+    const role = await db.role.upsert({
+      where: { name: "MEMBER" },
+      create: { name: "MEMBER" },
+      update: {},
+    });
+
+    await db.team.upsert({
+      where: { id: teamId },
+      create: {
+        id: teamId,
+        name: "فضای شخصی",
+        description: "Workspace خصوصی کاربر",
+        organizationId: org.id,
+      },
+      update: {},
+    });
+
+    await db.teamMember.upsert({
+      where: { teamId_userId: { teamId, userId } },
+      create: { teamId, userId, roleId: role.id },
+      update: {},
+    });
   }
 
-  const org =
-    (await db.organization.findFirst()) ??
-    (await db.organization.create({
-      data: { id: "default-org", name: "Mindora", ownerId: userId },
-    }));
+  // Seed only a member with no areas: later deletes/merges must stick.
+  const areaCount = await db.userArea.count({ where: { userId } });
+  if (areaCount === 0) {
+    try {
+      await seedUserAreas(userId, teamId);
+    } catch (err) {
+      // A concurrent request seeded first (partial unique index / fixed bucket ids).
+      if (!isUniqueViolation(err)) throw err;
+    }
+  }
 
-  const role = await db.role.upsert({
-    where: { name: "MEMBER" },
-    create: { name: "MEMBER" },
-    update: {},
-  });
-
-  await db.team.upsert({
-    where: { id: teamId },
-    create: {
-      id: teamId,
-      name: "فضای شخصی",
-      description: "Workspace خصوصی کاربر",
-      organizationId: org.id,
-    },
-    update: {},
-  });
-
-  await db.teamMember.upsert({
-    where: { teamId_userId: { teamId, userId } },
-    create: { teamId, userId, roleId: role.id },
-    update: {},
-  });
-
-  await ensureAreaBuckets(userId, teamId, areaIds, true);
-  await ensureUserAreas(userId, areaIds);
-  return { teamId, areaIds };
+  return { teamId };
 }
 
 /** Seam name from docs/AREAS.md §13. */
 export const ensureDefaultArea = ensurePersonalWorkspace;
 
-async function ensureAreaBuckets(
-  userId: string,
-  teamId: string,
-  areaIds: Record<LifeArea, string>,
-  force = false,
-) {
-  const ids = LIFE_AREAS.map(area => areaIds[area]);
-  if (!force) {
-    const existing = await db.project.findMany({
-      where: { id: { in: ids } },
+/** Create one area plus its bucket project, atomically. */
+async function createAreaWithBucket(args: {
+  userId: string;
+  teamId: string;
+  bucketId: string;
+  area: {
+    name: string;
+    templateKey: string;
+    sortOrder: number;
+    isDefault: boolean;
+    hubFor: "RESEARCH" | "LANGUAGE" | null;
+  };
+  description?: string | null;
+}): Promise<{ id: string; bucketProjectId: string }> {
+  const { userId, teamId, bucketId, area, description } = args;
+  const created = await db.$transaction(async tx => {
+    const row = await tx.userArea.create({
+      data: {
+        userId,
+        name: area.name,
+        nameIsDefault: true,
+        templateKey: area.templateKey,
+        sortOrder: area.sortOrder,
+        archived: false,
+        isDefault: area.isDefault,
+        hubFor: area.hubFor,
+      },
       select: { id: true },
     });
-    if (existing.length === ids.length) {
-      const members = await db.projectMember.count({
-        where: { userId, projectId: { in: ids } },
-      });
-      if (members === ids.length) return;
-    }
-  }
-
-  for (const area of LIFE_AREAS) {
-    const id = areaIds[area];
-    const meta = AREA_META[area];
-    await db.project.upsert({
-      where: { id },
-      create: {
-        id,
-        name: meta.nameFa,
-        description: meta.descriptionFa,
+    await tx.project.create({
+      data: {
+        id: bucketId,
+        name: area.name,
+        description: description ?? null,
         status: "ACTIVE",
-        area,
+        areaId: row.id,
         teamId,
         members: { create: { userId, role: "OWNER" } },
       },
-      update: { area, teamId },
     });
-    await db.projectMember.upsert({
-      where: { projectId_userId: { projectId: id, userId } },
-      create: { projectId: id, userId, role: "OWNER" },
-      update: {},
+    await tx.userArea.update({
+      where: { id: row.id },
+      data: { bucketProjectId: bucketId },
+    });
+    return row;
+  });
+  return { id: created.id, bucketProjectId: bucketId };
+}
+
+async function seedUserAreas(userId: string, teamId: string) {
+  for (const tmpl of SEED_AREA_TEMPLATES) {
+    const meta = AREA_TEMPLATE_META[tmpl.templateKey];
+    await createAreaWithBucket({
+      userId,
+      teamId,
+      bucketId: personalAreaProjectId(userId, tmpl.templateKey as SeedAreaKey),
+      area: {
+        name: tmpl.nameFa,
+        templateKey: tmpl.templateKey,
+        sortOrder: tmpl.sortOrder,
+        isDefault: tmpl.isDefault,
+        hubFor: hubForToDb(tmpl.hubFor),
+      },
+      description: meta?.descriptionFa ?? null,
     });
   }
 }
 
 /**
- * Create the four UserArea rows for a member and link each to its bucket.
- * Idempotent. Copies color/icon/order/archived from UserAreaPreference when present.
+ * Inbox bucket project id for one of the member's areas (by `UserArea.id`).
+ * Falls back to the default area's bucket when the id is unknown.
  */
-export async function ensureUserAreas(
+export async function bucketProjectIdForArea(
   userId: string,
-  areaIds: Record<LifeArea, string> = areaProjectIdsForUser(userId),
-) {
-  const prefs = await db.userAreaPreference.findMany({
-    where: { userId },
-    select: {
-      area: true,
-      color: true,
-      icon: true,
-      sortOrder: true,
-      archived: true,
-    },
+  areaId: string | null | undefined,
+): Promise<string> {
+  const own = areaId
+    ? await db.userArea.findFirst({
+        where: { id: areaId, userId },
+        select: { bucketProjectId: true },
+      })
+    : null;
+  if (own?.bucketProjectId) return own.bucketProjectId;
+  const fallback = await db.userArea.findFirst({
+    where: { userId, isDefault: true, archived: false },
+    select: { bucketProjectId: true },
   });
-  const prefBy = new Map(prefs.map(p => [p.area, p]));
-
-  for (const tmpl of LEGACY_AREA_TEMPLATES) {
-    const pref = prefBy.get(tmpl.legacyEnum);
-    const bucketId = areaIds[tmpl.legacyEnum];
-    const hubFor = hubForToDb(tmpl.hubFor);
-    const row = await db.userArea.upsert({
-      where: {
-        userId_legacyEnum: { userId, legacyEnum: tmpl.legacyEnum },
-      },
-      create: {
-        userId,
-        name: tmpl.nameFa,
-        nameIsDefault: true,
-        templateKey: tmpl.templateKey,
-        color: pref?.color ?? null,
-        icon: pref?.icon ?? null,
-        sortOrder: pref?.sortOrder ?? tmpl.sortOrder,
-        archived: pref?.archived ?? false,
-        isDefault: tmpl.isDefault,
-        hubFor,
-        bucketProjectId: bucketId,
-        legacyEnum: tmpl.legacyEnum,
-      },
-      update: {
-        // Keep bucket link and hub/default flags stable; prefs may refresh visuals.
-        bucketProjectId: bucketId,
-        hubFor,
-        isDefault: tmpl.isDefault,
-        ...(pref
-          ? {
-              color: pref.color,
-              icon: pref.icon,
-              sortOrder: pref.sortOrder,
-              archived: tmpl.isDefault ? false : pref.archived,
-            }
-          : {}),
-      },
-      select: { id: true },
-    });
-
-    await db.project.update({
-      where: { id: bucketId },
-      data: { area: tmpl.legacyEnum, areaId: row.id },
-    });
+  if (!fallback?.bucketProjectId) {
+    throw new Error(`member ${userId} has no default area bucket`);
   }
-
-  clearAreaIdCache(userId);
-}
-
-export function projectIdForArea(userId: string, area: LifeArea): string {
-  return personalAreaProjectId(userId, area);
+  return fallback.bucketProjectId;
 }
 
 /**
  * P6: ensure the member has a dedicated hub area for Research or Language.
- * Idempotent. Creates from the legacy template when missing (docs/AREAS.md §10.1).
+ * Idempotent. Creates from the template when missing (docs/AREAS.md §10.1).
  */
 export async function ensureHubAreaForModule(
   userId: string,
   kind: "research" | "language",
 ): Promise<{ id: string; bucketProjectId: string }> {
-  await ensurePersonalWorkspace(userId);
-  const dbHub = hubForToDb(kind);
+  const { teamId } = await ensurePersonalWorkspace(userId);
+  const dbHub = hubForToDb(kind)!;
   const existing = await db.userArea.findFirst({
     where: { userId, hubFor: dbHub, archived: false },
     select: { id: true, bucketProjectId: true },
@@ -195,19 +186,43 @@ export async function ensureHubAreaForModule(
     return { id: existing.id, bucketProjectId: existing.bucketProjectId };
   }
 
-  const tmpl = LEGACY_AREA_TEMPLATES.find(t => t.hubFor === kind);
+  const tmpl = SEED_AREA_TEMPLATES.find(t => t.hubFor === kind);
   if (!tmpl) throw new Error(`missing template for ${kind}`);
 
-  // Prefer the seeded legacy row (may have hubFor cleared somehow).
-  const legacy = await db.userArea.findFirst({
-    where: { userId, legacyEnum: tmpl.legacyEnum },
-    select: { id: true, bucketProjectId: true },
-  });
-  if (legacy) {
-    const bucketId =
-      legacy.bucketProjectId ?? personalAreaProjectId(userId, tmpl.legacyEnum);
+  // Prefer an existing row for this hub (archived) or the seeded template row.
+  const reusable =
+    existing ??
+    (await db.userArea.findFirst({
+      where: { userId, hubFor: dbHub },
+      select: { id: true, bucketProjectId: true },
+    })) ??
+    (await db.userArea.findFirst({
+      where: {
+        userId,
+        templateKey: tmpl.templateKey,
+        hubFor: null,
+        isDefault: false,
+      },
+      select: { id: true, bucketProjectId: true },
+    }));
+
+  if (reusable) {
+    let bucketId = reusable.bucketProjectId;
+    if (!bucketId) {
+      bucketId = `area-inbox-${reusable.id}`;
+      await db.project.create({
+        data: {
+          id: bucketId,
+          name: tmpl.nameFa,
+          status: "ACTIVE",
+          areaId: reusable.id,
+          teamId,
+          members: { create: { userId, role: "OWNER" } },
+        },
+      });
+    }
     await db.userArea.update({
-      where: { id: legacy.id },
+      where: { id: reusable.id },
       data: {
         hubFor: dbHub,
         archived: false,
@@ -215,20 +230,17 @@ export async function ensureHubAreaForModule(
         bucketProjectId: bucketId,
       },
     });
-    await db.project.update({
-      where: { id: bucketId },
-      data: { area: tmpl.legacyEnum, areaId: legacy.id },
-    });
-    clearAreaIdCache(userId);
-    return { id: legacy.id, bucketProjectId: bucketId };
+      return { id: reusable.id, bucketProjectId: bucketId };
   }
 
-  // Fresh dedicated area (no legacy enum).
+  // Fresh dedicated area.
   const maxSort = await db.userArea.aggregate({
     where: { userId },
     _max: { sortOrder: true },
   });
   const sortOrder = (maxSort._max.sortOrder ?? -1) + 1;
+
+  // Bucket id embeds the new area id, so create the area first.
   const area = await db.userArea.create({
     data: {
       userId,
@@ -239,19 +251,16 @@ export async function ensureHubAreaForModule(
       archived: false,
       isDefault: false,
       hubFor: dbHub,
-      legacyEnum: null,
     },
     select: { id: true },
   });
   const bucketId = `area-inbox-${area.id}`;
-  const teamId = `personal-${userId}`;
   await db.project.create({
     data: {
       id: bucketId,
       name: tmpl.nameFa,
       description: null,
       status: "ACTIVE",
-      area: tmpl.legacyEnum,
       areaId: area.id,
       teamId,
       members: { create: { userId, role: "OWNER" } },
@@ -261,6 +270,5 @@ export async function ensureHubAreaForModule(
     where: { id: area.id },
     data: { bucketProjectId: bucketId },
   });
-  clearAreaIdCache(userId);
   return { id: area.id, bucketProjectId: bucketId };
 }

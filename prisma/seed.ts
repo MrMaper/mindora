@@ -25,7 +25,6 @@ async function seed() {
       password: adminHashedPassword,
       role: "ADMIN",
       status: "ACTIVE",
-      enabledModules: {},
     },
     update: {},
   });

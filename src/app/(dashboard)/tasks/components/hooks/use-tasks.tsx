@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
@@ -23,9 +23,8 @@ import type {
 } from "@/schemas/tasks";
 import type { TaskRow, TaskDetail } from "@/features/tasks/types";
 import { toFormStatus } from "@/features/tasks/types";
-import { coerceLifeArea, dueDateToFormValue } from "@/lib/life";
-import { useAreaBuckets } from "@/components/area-buckets-provider";
-import { DEFAULT_AREA } from "@/lib/areas";
+import { dueDateToFormValue } from "@/lib/life";
+import { useAreaHelpers } from "@/components/member-areas-provider";
 
 type DrawerMode = "none" | "create" | "edit";
 
@@ -44,7 +43,7 @@ export interface TaskFilters {
 
 export function useTasks(initialFilters: TaskFilters) {
   const router = useRouter();
-  const areaIds = useAreaBuckets();
+  const { bucketFor, defaultAreaId } = useAreaHelpers();
 
   const [drawerMode, setDrawerMode] = React.useState<DrawerMode>("none");
   const [editingTaskId, setEditingTaskId] = React.useState<string | null>(null);
@@ -86,7 +85,7 @@ export function useTasks(initialFilters: TaskFilters) {
       assignedToId: "",
       dueDate: "",
       durationMinutes: "",
-      area: DEFAULT_AREA,
+      areaId: defaultAreaId,
       recurrence: "NONE",
     },
   });
@@ -107,12 +106,12 @@ export function useTasks(initialFilters: TaskFilters) {
       assignedToId: "",
       dueDate: "",
       durationMinutes: "",
-      area: DEFAULT_AREA,
+      areaId: defaultAreaId,
       recurrence: "NONE",
     });
     // Default to life bucket after reset — set explicitly via AREA id in submit if empty
-    createForm.setValue("projectId", areaIds[DEFAULT_AREA]);
-    createForm.setValue("area", DEFAULT_AREA);
+    createForm.setValue("projectId", bucketFor(defaultAreaId));
+    createForm.setValue("areaId", defaultAreaId);
     setSelectedLabelIds([]);
     setActionError(null);
     setDrawerMode("create");
@@ -147,7 +146,7 @@ export function useTasks(initialFilters: TaskFilters) {
         detail.durationMinutes && detail.durationMinutes > 0
           ? String(detail.durationMinutes)
           : "",
-      area: coerceLifeArea(detail.area),
+      areaId: detail.areaId,
       recurrence: detail.recurrence ?? "NONE",
     });
   }
@@ -178,11 +177,11 @@ export function useTasks(initialFilters: TaskFilters) {
       fd.append("status", data.status);
       fd.append("priority", data.priority);
       fd.append("type", "TASK");
-      fd.append("projectId", data.projectId || areaIds[DEFAULT_AREA]);
+      fd.append("projectId", data.projectId || bucketFor(defaultAreaId));
       fd.append("assignedToId", data.assignedToId ?? "");
       fd.append("dueDate", data.dueDate ?? "");
       fd.append("durationMinutes", data.durationMinutes ?? "");
-      fd.append("area", data.area || DEFAULT_AREA);
+      fd.append("areaId", data.areaId || defaultAreaId);
       fd.append("recurrence", data.recurrence ?? "NONE");
       fd.append("labelIds", JSON.stringify(selectedLabelIds));
       const result = await createTask(fd);
@@ -209,7 +208,7 @@ export function useTasks(initialFilters: TaskFilters) {
       fd.append("assignedToId", data.assignedToId ?? "");
       fd.append("dueDate", data.dueDate ?? "");
       fd.append("durationMinutes", data.durationMinutes ?? "");
-      fd.append("area", data.area ?? DEFAULT_AREA);
+      fd.append("areaId", data.areaId || defaultAreaId);
       fd.append("recurrence", data.recurrence ?? "NONE");
       fd.append("labelIds", JSON.stringify(selectedLabelIds));
       const result = await updateTask(editingTaskId, fd);

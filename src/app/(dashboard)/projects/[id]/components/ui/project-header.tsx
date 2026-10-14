@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui-kit/data-display/badge";
 import { useTranslation } from "@/i18n/provider";
 import { isAreaBucketId } from "@/lib/project-namespace";
 import type { ProjectDetail } from "@/features/projects/types";
-import { RESEARCH_AREA, LANGUAGE_AREA } from "@/lib/areas";
+import { useAreaHelpers } from "@/components/member-areas-provider";
 
 interface ProjectHeaderProps {
   project: ProjectDetail;
@@ -16,18 +16,18 @@ interface ProjectHeaderProps {
   onInviteMember: () => void;
 }
 
-function boardHref(project: ProjectDetail): string {
-  if (project.area === RESEARCH_AREA) return `/research?project=${project.id}`;
-  if (project.area === LANGUAGE_AREA) return `/language?project=${project.id}`;
+function boardHref(project: ProjectDetail, hub: "research" | "language" | null): string {
+  if (hub === "research") return `/research?project=${project.id}`;
+  if (hub === "language") return `/language?project=${project.id}`;
   return `/kanban?project=${project.id}`;
 }
 
 function boardLabel(
-  project: ProjectDetail,
+  hub: "research" | "language" | null,
   t: ReturnType<typeof useTranslation>,
 ): string {
-  if (project.area === RESEARCH_AREA) return t.projects.openResearch;
-  if (project.area === LANGUAGE_AREA) return t.projects.openLanguage;
+  if (hub === "research") return t.projects.openResearch;
+  if (hub === "language") return t.projects.openLanguage;
   return t.projects.openBoard;
 }
 
@@ -38,6 +38,12 @@ export function ProjectHeader({
 }: ProjectHeaderProps) {
   const t = useTranslation();
   const router = useRouter();
+  const { isHub } = useAreaHelpers();
+  const hub = isHub(project.areaId, "research")
+    ? "research"
+    : isHub(project.areaId, "language")
+      ? "language"
+      : null;
   const isBucket = isAreaBucketId(project.id);
 
   return (
@@ -103,9 +109,9 @@ export function ProjectHeader({
           <Button
             variant="primary"
             size="sm"
-            onClick={() => router.push(boardHref(project))}
+            onClick={() => router.push(boardHref(project, hub))}
           >
-            {boardLabel(project, t)}
+            {boardLabel(hub, t)}
           </Button>
           {isAdmin && !isBucket ? (
             <Button

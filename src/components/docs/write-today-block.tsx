@@ -8,16 +8,9 @@ import { cn, formatNumber } from "@/lib/utils";
 import { Icon } from "@/components/ui-kit/foundation/icon";
 import { Button } from "@/components/ui-kit/forms/button";
 import type { DocListItem } from "@/features/docs/types";
-import type { LifeArea } from "@/types/db";
 import { openDailyNoteAction, openWeeklyReviewDocAction } from "@/features/docs/actions";
 import { useRouter } from "next/navigation";
-
-const AREA_DOT: Record<LifeArea, string> = {
-  PHD: "bg-[var(--status-review)]",
-  WORK: "bg-[var(--status-in-progress)]",
-  LIFE: "bg-[var(--status-todo)]",
-  LANG: "bg-emerald-600",
-};
+import { useAreaHelpers } from "@/components/member-areas-provider";
 
 export function WriteTodayBlock({
   recent,
@@ -121,11 +114,12 @@ function DocMiniList({
   wordLabel: string;
   showDot?: boolean;
 }) {
+  const { dotFor, hubArea } = useAreaHelpers();
   return (
     <div>
       <h3 className="text-xs font-semibold text-muted-foreground mb-2 flex items-center gap-1.5">
         {showDot && (
-          <span className={cn("size-2 rounded-full", AREA_DOT.PHD)} />
+          <span className={cn("size-2 rounded-full", dotFor(hubArea("research")?.id))} />
         )}
         {title}
       </h3>
@@ -142,7 +136,7 @@ function DocMiniList({
                 <span
                   className={cn(
                     "size-2 rounded-full shrink-0",
-                    AREA_DOT[doc.area],
+                    dotFor(doc.areaId),
                   )}
                 />
                 <span className="min-w-0 flex-1 truncate text-sm font-medium">

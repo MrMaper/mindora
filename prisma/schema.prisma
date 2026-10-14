@@ -15,11 +15,8 @@ model User {
   avatar              String?
   role                UserRole             @default(MEMBER)
   status              UserStatus           @default(ACTIVE)
-  /// Toggleable product modules for MEMBER accounts (ADMIN ignores; management-only).
-  /// Shape: { tasks, docs, research, language, habits, projects, workLogs, reporting }
-  enabledModules      Json                 @default("{}")
   /// Admin policy per module: { [module]: "off" | "on" | "member_choice" }.
-  /// Missing keys fall back to the legacy `enabledModules` flag (see src/lib/modules.ts).
+  /// Missing keys fall back to code defaults (see src/lib/modules.ts).
   modulePolicy        Json                 @default("{}")
   /// How this account was created (invite today, self sign-up later).
   createdVia          UserCreatedVia       @default(ADMIN_INVITE)
@@ -69,7 +66,6 @@ model User {
   examTracks          ExamTrack[]
   mockAttempts        MockAttempt[]
   habits              Habit[]
-  areaPreferences     UserAreaPreference[]
   areas               UserArea[]
 
   @@index([lastSeenAt])
@@ -319,9 +315,8 @@ model Project {
   name        String
   description String?
   status      ProjectStatus   @default(ACTIVE)
-  area        LifeArea        @default(LIFE)
-  /// Per-user area (P4). Dual-written with `area` until P7.
-  areaId      String?
+  /// Owner's UserArea (required since P7).
+  areaId      String
   /// Pin on hub / Today shortcuts
   pinned      Boolean         @default(false)
   /// Order within an area (lower first); pinned still sorts above
@@ -329,7 +324,7 @@ model Project {
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
   team        Team?           @relation(fields: [teamId], references: [id], onDelete: SetNull)
-  userArea    UserArea?       @relation("ProjectUserArea", fields: [areaId], references: [id], onDelete: SetNull)
+  userArea    UserArea        @relation("ProjectUserArea", fields: [areaId], references: [id], onDelete: NoAction)
   bucketFor   UserArea?       @relation("UserAreaBucket")
   sprints     Sprint[]
   tasks       Task[]
@@ -342,12 +337,11 @@ model Project {
   examTracks  ExamTrack[]
   mockAttempts MockAttempt[]
 
-  @@index([area, pinned, sortOrder])
-  @@index([areaId])
+  @@index([areaId, pinned, sortOrder])
   @@map("projects")
 }
 
-/// Per-member life area (docs/AREAS.md §9.1). Replaces the global LifeArea enum over P4–P7.
+/// Per-member life area (docs/AREAS.md §9.1). The global LifeArea enum was removed in P7.
 model UserArea {
   id              String      @id @default(cuid())
   userId          String
@@ -363,8 +357,6 @@ model UserArea {
   isDefault       Boolean     @default(false)
   hubFor          AreaHubFor?
   bucketProjectId String?     @unique
-  /// Old PHD/WORK/LIFE/LANG for dual-write and permanent redirects.
-  legacyEnum      LifeArea?
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
   user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -376,27 +368,7 @@ model UserArea {
   folders         DocFolder[]
 
   @@index([userId, archived, sortOrder])
-  @@unique([userId, legacyEnum])
   @@map("user_areas")
-}
-
-/// Per-user overrides for the four fixed LifeArea buckets (color, icon, order, hide).
-model UserAreaPreference {
-  id        String   @id @default(cuid())
-  userId    String
-  area      LifeArea
-  /// Preset key (review, orange, …) or #hex
-  color     String?
-  /// IconName from the UI kit, or emoji string
-  icon      String?
-  sortOrder Int      @default(0)
-  archived  Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, area])
-  @@map("user_area_preferences")
 }
 
 model ProjectMember {
@@ -446,9 +418,8 @@ model Task {
   /// Parked follow-up (e.g. waiting on a reply) — separate from undated Inbox.
   waitingOn    Boolean      @default(false)
   position     Int          @default(0)
-  area         LifeArea?
-  /// Per-user area (P4). Dual-written with `area` until P7.
-  areaId       String?
+  /// Task's own area (required since P7; same owner rule as before).
+  areaId       String
   recurrence   RecurrenceInterval @default(NONE)
   /// Shared id across spawned occurrences of the same series
   recurrenceSeriesId String?
@@ -472,7 +443,7 @@ model Task {
   project      Project?     @relation(fields: [projectId], references: [id])
   sprint       Sprint?      @relation(fields: [sprintId], references: [id])
   team         Team?        @relation(fields: [teamId], references: [id])
-  userArea     UserArea?    @relation(fields: [areaId], references: [id], onDelete: SetNull)
+  userArea     UserArea     @relation(fields: [areaId], references: [id], onDelete: NoAction)
   docs         DocTask[]
 
   @@index([recurrenceSeriesId])
@@ -676,14 +647,7 @@ enum Theme {
   SYSTEM
 }
 
-enum LifeArea {
-  PHD
-  WORK
-  LIFE
-  LANG
-}
-
-/// Hub binding on UserArea (docs/AREAS.md §10). Distinct from LifeArea.
+/// Hub binding on UserArea (docs/AREAS.md §10).
 enum AreaHubFor {
   RESEARCH
   LANGUAGE
@@ -700,8 +664,7 @@ model Habit {
   id           String             @id @default(cuid())
   userId       String
   title        String
-  area         LifeArea?
-  areaId       String?
+  areaId       String
   /// Habits use DAILY (or WEEKLY); NONE means paused
   cadence      RecurrenceInterval @default(DAILY)
   streak       Int                @default(0)
@@ -711,7 +674,7 @@ model Habit {
   createdAt    DateTime           @default(now())
   updatedAt    DateTime           @updatedAt
   user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userArea     UserArea?          @relation(fields: [areaId], references: [id], onDelete: SetNull)
+  userArea     UserArea           @relation(fields: [areaId], references: [id], onDelete: NoAction)
   logs         HabitLog[]
 
   @@index([userId, archivedAt])
@@ -736,8 +699,7 @@ model Doc {
   title       String     @default("بدون عنوان")
   content     String     @default("") @db.Text
   contentText String     @default("") @db.Text
-  area        LifeArea   @default(LIFE)
-  areaId      String?
+  areaId      String
   status      DocStatus  @default(DRAFTING)
   wordGoal    Int?
   templateKey String?
@@ -753,7 +715,7 @@ model Doc {
   user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   folder      DocFolder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
   project     Project?   @relation(fields: [projectId], references: [id], onDelete: SetNull)
-  userArea    UserArea?  @relation(fields: [areaId], references: [id], onDelete: SetNull)
+  userArea    UserArea   @relation(fields: [areaId], references: [id], onDelete: NoAction)
   tasks       DocTask[]
   versions    DocVersion[]
   sources     DocSource[]
@@ -762,7 +724,7 @@ model Doc {
 
   @@unique([userId, systemKey])
   @@index([userId, updatedAt])
-  @@index([userId, area])
+  @@index([userId, areaId])
   @@index([userId, deletedAt])
   @@index([userId, projectId])
   @@index([folderId])
@@ -774,7 +736,6 @@ model DocFolder {
   id          String      @id @default(cuid())
   name        String
   description String?     @db.Text
-  area        LifeArea?
   areaId      String?
   userId      String
   parentId    String?

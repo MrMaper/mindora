@@ -4,6 +4,7 @@ import { canAccessPersonalTask } from "@/lib/task-access";
 import type { TaskStatus } from "@/types/db";
 import { completedAtWrite } from "@/features/tasks/completed-at";
 import { markLifecycleOnce } from "@/features/onboarding/lifecycle";
+import { hubForFromDb } from "@/lib/areas";
 
 export type ApplyStatusResult =
   | {
@@ -13,7 +14,8 @@ export type ApplyStatusResult =
       nextStatus: TaskStatus;
       title: string;
       assignedToId: string | null;
-      area: string | null;
+      /** Hub kind of the task's area (UserArea.hubFor), if any. */
+      hubKind: "research" | "language" | null;
     }
   | { ok: false; error: string };
 
@@ -36,8 +38,7 @@ export async function applyTaskStatusChange(input: {
       assignedToId: true,
       createdById: true,
       waitingOn: true,
-      area: true,
-      project: { select: { area: true } },
+      userArea: { select: { hubFor: true } },
     },
   });
   if (!existing) return { ok: false, error: "کار پیدا نشد" };
@@ -55,7 +56,7 @@ export async function applyTaskStatusChange(input: {
     nextStatus = "BACKLOG";
   }
 
-  const area = existing.area ?? existing.project?.area ?? null;
+  const hubKind = hubForFromDb(existing.userArea.hubFor);
 
   if (existing.status === nextStatus) {
     return {
@@ -65,7 +66,7 @@ export async function applyTaskStatusChange(input: {
       nextStatus,
       title: existing.title,
       assignedToId: existing.assignedToId,
-      area,
+      hubKind,
     };
   }
 
@@ -109,6 +110,6 @@ export async function applyTaskStatusChange(input: {
     nextStatus,
     title: existing.title,
     assignedToId: existing.assignedToId,
-    area,
+    hubKind,
   };
 }

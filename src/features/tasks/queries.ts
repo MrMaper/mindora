@@ -1,5 +1,5 @@
-import type { LifeArea } from "@/types/db";
 import { prisma as db } from "@/lib/db";
+import { getMemberContext } from "@/lib/areas/server";
 import { areaScopeWhere, taskWhereExcludeHub } from "@/lib/project-namespace";
 import { personalTaskOwnership } from "@/lib/task-access";
 import { compareTasks } from "./view";
@@ -31,9 +31,8 @@ export function toTaskRow(task: {
   assignedTo: { id: string; name: string; avatar: string | null } | null;
   labels: { label: { id: string; name: string; color: string } }[];
   projectId: string | null;
-  project: { name: string; area?: LifeArea } | null;
-  area?: LifeArea | null;
-  areaId?: string | null;
+  project: { name: string } | null;
+  areaId: string;
   recurrence?: "NONE" | "DAILY" | "WEEKLY" | "MONTHLY";
   recurrenceSeriesId?: string | null;
   recurrenceEndsAt?: Date | null;
@@ -55,8 +54,7 @@ export function toTaskRow(task: {
     labels: task.labels.map(l => l.label),
     projectId: task.projectId,
     projectName: task.project?.name ?? null,
-    area: task.area ?? task.project?.area ?? null,
-    areaId: task.areaId ?? null,
+    areaId: task.areaId,
     recurrence: task.recurrence ?? "NONE",
     recurrenceSeriesId: task.recurrenceSeriesId ?? null,
     recurrenceEndsAt: task.recurrenceEndsAt ?? null,
@@ -84,7 +82,9 @@ export async function getTasks(
     ...(params.labelId
       ? { labels: { some: { labelId: params.labelId } } }
       : {}),
-    ...(excludeHub ? taskWhereExcludeHub() : {}),
+    ...(excludeHub && params.ownerId
+      ? taskWhereExcludeHub(await getMemberContext(params.ownerId))
+      : {}),
     AND: [
       {
         OR: [
@@ -135,12 +135,11 @@ export async function getTasks(
     createdAt: true,
     updatedAt: true,
     projectId: true,
-    area: true,
     areaId: true,
     recurrence: true,
     recurrenceSeriesId: true,
     recurrenceEndsAt: true,
-    project: { select: { name: true, area: true, areaId: true } },
+    project: { select: { name: true } },
     createdBy: { select: userRefSelect },
     assignedTo: { select: userRefSelect },
     labels: {
@@ -210,11 +209,11 @@ export async function getTaskById(id: string): Promise<TaskDetail | null> {
       createdAt: true,
       updatedAt: true,
       projectId: true,
-      area: true,
+      areaId: true,
       recurrence: true,
       recurrenceSeriesId: true,
       recurrenceEndsAt: true,
-      project: { select: { name: true, area: true } },
+      project: { select: { name: true } },
       createdBy: { select: userRefSelect },
       assignedTo: { select: userRefSelect },
       labels: {

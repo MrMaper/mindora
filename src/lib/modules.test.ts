@@ -3,55 +3,10 @@ import {
   PRIMARY_MODULES,
   MODULE_PRESETS,
   applyMemberToggle,
-  backfillPolicyFromLegacy,
-  parseModuleFlags,
-  policyToLegacyFlags,
+  policyAllowedFlags,
   resolveEffectiveFlags,
   type ModulePolicy,
 } from "./modules";
-
-const legacyShapes: unknown[] = [
-  {},
-  null,
-  { tasks: true },
-  { research: false, language: false },
-  { docs: false },
-  { tasks: false },
-  { reporting: false, workLogs: true },
-  {
-    tasks: true,
-    docs: true,
-    research: true,
-    language: false,
-    habits: false,
-    projects: true,
-    workLogs: false,
-    reporting: true,
-  },
-];
-
-describe("backfill equivalence (docs/AREAS.md §7.6)", () => {
-  it.each(legacyShapes.map((l, i) => [i, l] as const))(
-    "effective flags are identical before and after backfill (shape %s)",
-    (_i, legacy) => {
-      const before = resolveEffectiveFlags({ policy: {}, prefs: {}, legacy });
-      expect(before).toEqual(parseModuleFlags(legacy));
-
-      const { policy, prefs } = backfillPolicyFromLegacy({}, {}, legacy);
-      const after = resolveEffectiveFlags({ policy, prefs, legacy });
-      expect(after).toEqual(before);
-    },
-  );
-
-  it("is idempotent", () => {
-    const first = backfillPolicyFromLegacy({}, {}, { research: false });
-    const second = backfillPolicyFromLegacy(first.policy, first.prefs, {
-      research: false,
-    });
-    expect(second.changed).toBe(false);
-    expect(second.policy).toEqual(first.policy);
-  });
-});
 
 describe("resolveEffectiveFlags", () => {
   it("off wins over a member preference", () => {
@@ -59,7 +14,6 @@ describe("resolveEffectiveFlags", () => {
     const f = resolveEffectiveFlags({
       policy,
       prefs: { research: true },
-      legacy: {},
     });
     expect(f.research).toBe(false);
   });
@@ -68,7 +22,6 @@ describe("resolveEffectiveFlags", () => {
     const f = resolveEffectiveFlags({
       policy: MODULE_PRESETS.full,
       prefs: { language: false },
-      legacy: {},
     });
     expect(f.language).toBe(true);
   });
@@ -77,7 +30,6 @@ describe("resolveEffectiveFlags", () => {
     const f = resolveEffectiveFlags({
       policy: MODULE_PRESETS.starter,
       prefs: {},
-      legacy: {},
     });
     expect(f.research).toBe(false);
     expect(f.language).toBe(false);
@@ -89,7 +41,6 @@ describe("resolveEffectiveFlags", () => {
     const f = resolveEffectiveFlags({
       policy: MODULE_PRESETS.starter,
       prefs: { research: true, habits: false },
-      legacy: {},
     });
     expect(f.research).toBe(true);
     expect(f.habits).toBe(false);
@@ -101,13 +52,13 @@ describe("resolveEffectiveFlags", () => {
       docs: "off",
     } as ModulePolicy;
     expect(
-      resolveEffectiveFlags({ policy, prefs: {}, legacy: {} }).research,
+      resolveEffectiveFlags({ policy, prefs: {} }).research,
     ).toBe(false);
   });
 
   it("reporting and workLogs turn off with tasks", () => {
     const policy = { ...MODULE_PRESETS.full, tasks: "off" } as ModulePolicy;
-    const f = resolveEffectiveFlags({ policy, prefs: {}, legacy: {} });
+    const f = resolveEffectiveFlags({ policy, prefs: {} });
     expect(f.reporting).toBe(false);
     expect(f.workLogs).toBe(false);
   });
@@ -117,12 +68,10 @@ describe("resolveEffectiveFlags", () => {
     const off = resolveEffectiveFlags({
       policy: { ...MODULE_PRESETS.starter, docs: "off" } as ModulePolicy,
       prefs,
-      legacy: {},
     });
     const back = resolveEffectiveFlags({
       policy: MODULE_PRESETS.starter,
       prefs,
-      legacy: {},
     });
     expect(off.research).toBe(false);
     expect(back.research).toBe(true);
@@ -161,9 +110,9 @@ describe("applyMemberToggle", () => {
   });
 });
 
-describe("policyToLegacyFlags", () => {
-  it("mirrors non-off policies as true", () => {
-    const flags = policyToLegacyFlags({
+describe("policyAllowedFlags", () => {
+  it("is true for every non-off policy", () => {
+    const flags = policyAllowedFlags({
       ...MODULE_PRESETS.starter,
       language: "off",
     } as ModulePolicy);

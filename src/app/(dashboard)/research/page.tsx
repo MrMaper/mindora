@@ -12,7 +12,6 @@ import {
   getUserPreferencesCached,
   syncPlanningStatusesCached,
 } from "@/lib/request-cache";
-import { personalAreaProjectId } from "@/lib/life";
 import { RESEARCH_BOARD_STATUSES } from "@/features/kanban/types";
 import {
   getResearchHubData,
@@ -23,7 +22,6 @@ import {
 import { RESEARCH_SCOPE_COOKIE } from "@/features/research/scope-cookie";
 import { ResearchCC } from "./research-cc";
 import { localizedTitle } from "@/lib/page-title";
-import { RESEARCH_AREA } from "@/lib/areas";
 
 export function generateMetadata(): Promise<Metadata> {
   return localizedTitle("پژوهش", "Research");
@@ -42,10 +40,12 @@ export default async function ResearchPage({
   const { ensureHubAreaForModule, getHubScope } = await import(
     "@/lib/areas/server"
   );
-  const researchHub = await getHubScope(session.user.id, "research");
+  let researchHub = await getHubScope(session.user.id, "research");
   if (!researchHub.bound) {
     await ensureHubAreaForModule(session.user.id, "research");
+    researchHub = await getHubScope(session.user.id, "research");
   }
+  const researchAreaId = researchHub.areaId ?? "";
 
   const prefs = await getUserPreferencesCached(session.user.id);
   const language = prefs?.language ?? "FA";
@@ -104,7 +104,7 @@ export default async function ResearchPage({
     safeScope,
   );
 
-  const phdInbox = personalAreaProjectId(session.user.id, RESEARCH_AREA);
+  const phdInbox = researchHub.bucketProjectId ?? "";
 
   await syncPlanningStatusesCached(session.user.id);
 
@@ -135,7 +135,7 @@ export default async function ResearchPage({
       name: t.life.researchProjectInbox,
       description: null,
       status: "ACTIVE" as const,
-      area: RESEARCH_AREA,
+      areaId: researchAreaId,
       teamId: null,
       teamName: null,
       memberCount: 1,
@@ -148,7 +148,7 @@ export default async function ResearchPage({
       name: p.name,
       description: p.description,
       status: "ACTIVE" as const,
-      area: RESEARCH_AREA,
+      areaId: researchAreaId,
       teamId: null,
       teamName: null,
       memberCount: 1,
