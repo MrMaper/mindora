@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { ResolvedValidationText } from "@/components/ui-kit/forms/action-error";
 
@@ -11,6 +11,7 @@ import {
 } from "@/components/ui-kit/forms/select-utils";
 import type { GetUsersResult } from "@/features/users/types";
 import type { Language } from "@/types/db";
+import type { ModulePresetId } from "@/lib/modules";
 import { UsersHeader } from "../ui/users-header";
 import { UsersActivityStatsBar } from "../ui/users-activity-stats";
 import { UserTable } from "../ui/user-table";
@@ -24,6 +25,7 @@ interface UsersCCProps {
   initialData: GetUsersResult;
   page: number;
   language: Language;
+  defaultPreset?: ModulePresetId;
   filters: Partial<UserFilters>;
 }
 
@@ -31,10 +33,11 @@ export function UsersCC({
   initialData,
   page,
   language,
+  defaultPreset = "starter",
   filters,
 }: UsersCCProps) {
   const t = useTranslation();
-  const u = useUsers(filters.search ?? "");
+  const u = useUsers(filters.search ?? "", defaultPreset);
 
   const { users, total, totalPages, stats } = initialData;
 
@@ -100,7 +103,7 @@ export function UsersCC({
         onModulesChange={u.setCreateModules}
         actionError={u.actionError}
         isPending={u.isPending}
-        createdPassword={u.createdPassword}
+        createdAccess={u.createdAccess}
         onCreateSubmit={u.onCreateSubmit}
       />
 
@@ -116,6 +119,8 @@ export function UsersCC({
         actionError={u.actionError}
         isPending={u.isPending}
         resetPassword={u.resetPassword}
+        inviteLink={u.inviteLink}
+        onCreateInviteLink={u.onCreateInviteLink}
         loginEvents={u.loginEvents}
         onEditSubmit={u.onEditSubmit}
         onResetPassword={u.onResetPassword}

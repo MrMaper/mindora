@@ -110,12 +110,20 @@ export async function syncResearchLinksFromSourceReading(
     return;
   }
 
-  // Writing (IN_PROGRESS) maps forward to READING — never demote the card on
-  // READING re-sync; still align the source-note doc status when needed.
-  if (
-    readingStatus === "READING" &&
-    (primary.status === "IN_PROGRESS" || primary.status === "REVIEW")
-  ) {
+  // Reverse-sync must never demote a pipeline card (e.g. Writing → Inbox when
+  // the library flips back to TO_READ). Still align the source-note doc status.
+  const PIPELINE_RANK: Record<string, number> = {
+    BACKLOG: 0,
+    BLOCKED: 0,
+    TODO: 1,
+    TESTING: 1,
+    IN_PROGRESS: 2,
+    REVIEW: 2,
+    DONE: 3,
+  };
+  const currentRank = PIPELINE_RANK[primary.status] ?? 0;
+  const nextRank = PIPELINE_RANK[nextStatus] ?? 0;
+  if (nextRank < currentRank) {
     if (nextDocStatus) {
       await db.doc.updateMany({
         where: { id: source.docId, area: "PHD", deletedAt: null },

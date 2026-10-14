@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { auth } from "@/auth";
+import { authForModule } from "@/lib/module-guard";
 import { prisma as db } from "@/lib/db";
 import type {
   LifeArea,
@@ -57,7 +57,7 @@ function revalidateResearch(opts?: {
 export async function getResearchHubAction(
   scope: ResearchProjectScope = "all",
 ): Promise<ResearchHubData | null> {
-  const session = await auth();
+  const session = await authForModule("research");
   if (!session?.user) return null;
   return getResearchHubData(session.user.id, scope);
 }
@@ -65,7 +65,7 @@ export async function getResearchHubAction(
 export async function listPhdResearchProjectsAction(): Promise<
   ResearchProjectItem[]
 > {
-  const session = await auth();
+  const session = await authForModule("research");
   if (!session?.user) return [];
   return listPhdResearchProjects(session.user.id);
 }
@@ -74,7 +74,7 @@ export async function createResearchProjectAction(input: {
   name: string;
   description?: string;
 }): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("research");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const name = input.name.trim();
@@ -105,7 +105,7 @@ export async function listResearchSourcesAction(opts?: {
   readingStatus?: SourceReadingStatus | "ALL";
   projectId?: string | null | "NONE";
 }): Promise<ResearchSourceItem[]> {
-  const session = await auth();
+  const session = await authForModule("research");
   if (!session?.user) return [];
   return getAggregatedPhdSources(session.user.id, opts);
 }
@@ -116,7 +116,7 @@ export async function createDocLinkedToTask(input: {
   templateKey?: "researchIdea" | "chapterDraft" | "sourceNote" | "litReview";
   projectId?: string | null;
 }): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("research");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const task = await db.task.findUnique({
@@ -211,7 +211,7 @@ const PHD_FOLDER_TREE: {
 export async function ensurePhdFolderTreeAction(opts?: {
   language?: "FA" | "EN";
 }): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("research");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
   const lang = opts?.language ?? "FA";
 
@@ -431,7 +431,7 @@ export async function ensureSourceContinuityAction(
   sourceId: string,
   opts?: { createReadingCard?: boolean },
 ): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("research");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const noteResult = await createSourceNoteFromSourceAction(sourceId);
@@ -494,7 +494,7 @@ export async function ensureSourceContinuityAction(
 export async function createSourceNoteFromSourceAction(
   sourceId: string,
 ): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("research");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const source = await db.docSource.findFirst({
@@ -554,7 +554,7 @@ export async function createSourceNoteFromSourceAction(
 }
 
 export async function lookupDoiAction(doiRaw: string): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("research");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const doi = normalizeDoi(doiRaw);
@@ -646,7 +646,7 @@ export async function addPhdSourceAction(input: {
   /** Optional recurrence for the reading card (capture). */
   recurrence?: RecurrenceInterval;
 }): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("research");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const title = input.title.trim();
@@ -862,7 +862,7 @@ export async function linkSourceToTaskAction(input: {
   sourceId: string;
   taskId: string;
 }): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("research");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const task = await db.task.findUnique({
@@ -912,7 +912,7 @@ export async function linkSourceToTaskAction(input: {
 export async function createReadingCardForSourceAction(
   sourceId: string,
 ): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("research");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const result = await ensureSourceContinuityAction(sourceId, {
@@ -941,7 +941,7 @@ export async function attachSourceToTaskAction(input: {
 export async function searchPhdTasksForLinkAction(
   query: string,
 ): Promise<{ id: string; title: string }[]> {
-  const session = await auth();
+  const session = await authForModule("research");
   if (!session?.user) return [];
   const q = query.trim();
   if (q.length < 1) return [];
@@ -967,7 +967,7 @@ export async function insertCitationIntoDocAction(input: {
   sourceId: string;
   docId: string;
 }): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("research");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const source = await db.docSource.findFirst({
@@ -1031,7 +1031,7 @@ export async function annotateSourceQuoteAction(input: {
   /** When set, also append the quote into this writing doc. */
   insertIntoDocId?: string;
 }): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("research");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const text = input.text.trim();

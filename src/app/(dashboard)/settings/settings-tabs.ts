@@ -1,12 +1,14 @@
 export type SettingsTab =
   | "profile"
   | "security"
+  | "capabilities"
   | "notifications"
   | "appearance";
 
 const TABS: SettingsTab[] = [
   "profile",
   "security",
+  "capabilities",
   "notifications",
   "appearance",
 ];

@@ -34,14 +34,39 @@ async function main() {
       return;
     }
 
-    const webhookUrl = `${appUrl}/api/bale/webhook`;
+    const secret = (process.env.BALE_WEBHOOK_SECRET ?? "").trim();
+    const webhookUrl = secret
+      ? `${appUrl}/api/bale/webhook?secret=${encodeURIComponent(secret)}`
+      : `${appUrl}/api/bale/webhook`;
+    const body: { url: string; secret_token?: string } = { url: webhookUrl };
+    if (secret) body.secret_token = secret;
+
     const response = await fetch(`${baseUrl}${token}/setWebhook`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url: webhookUrl }),
+      body: JSON.stringify(body),
     });
     const result = (await response.json()) as { ok?: boolean; description?: string };
     if (!response.ok || !result.ok) {
+      // Some Bale builds reject secret_token — retry URL-only with query secret.
+      if (secret && body.secret_token) {
+        const retry = await fetch(`${baseUrl}${token}/setWebhook`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: webhookUrl }),
+        });
+        const retryResult = (await retry.json()) as {
+          ok?: boolean;
+          description?: string;
+        };
+        if (!retry.ok || !retryResult.ok) {
+          throw new Error(
+            retryResult.description || result.description || "Bale rejected setWebhook",
+          );
+        }
+        console.log(`Bale webhook set to: ${webhookUrl} (query secret)`);
+        return;
+      }
       throw new Error(result.description || "Bale rejected setWebhook");
     }
     console.log(`Bale webhook set to: ${webhookUrl}`);

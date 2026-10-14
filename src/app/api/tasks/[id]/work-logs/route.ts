@@ -1,5 +1,6 @@
-import { auth } from "@/auth";
+import { requireActiveSession } from "@/lib/active-session";
 import { prisma as db } from "@/lib/db";
+import { moduleGuardError } from "@/lib/module-guard";
 import {
   getWorkLogsByTaskId,
   getTotalHoursByTask,
@@ -11,12 +12,22 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await auth();
+  const session = await requireActiveSession();
   if (!session?.user) {
     return NextResponse.json(
       { success: false, error: "Unauthorized" },
       { status: 401 },
     );
+  }
+
+  if (session.user.role !== "ADMIN") {
+    const blocked = await moduleGuardError(session.user.id, "workLogs");
+    if (blocked) {
+      return NextResponse.json(
+        { success: false, error: blocked },
+        { status: 403 },
+      );
+    }
   }
 
   const { id } = await params;

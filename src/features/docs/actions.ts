@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma as db } from "@/lib/db";
+import { moduleGuardError } from "@/lib/module-guard";
 import type { DocStatus, LifeArea } from "@/types/db";
 import { getDocTemplate, type DocTemplateKey } from "./templates";
 import {
@@ -169,6 +170,13 @@ export async function createDoc(input?: {
   const rawContent = input?.content ?? template?.content ?? "<p></p>";
   const content = ensureHeadingIds(rawContent);
   const area = input?.area ?? template?.area ?? "LIFE";
+
+  // Research templates / PHD docs need Research; any doc needs Docs.
+  const blocked = await moduleGuardError(
+    session.user.id,
+    area === "PHD" ? "research" : "docs",
+  );
+  if (blocked) return { success: false, error: blocked };
 
   if (input?.projectId) {
     const ok = await assertProjectMember(input.projectId, session.user.id);

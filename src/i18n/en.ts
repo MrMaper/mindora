@@ -115,7 +115,7 @@ export const en = {
     captureGuideArea:
       "Paper and research mean PhD, language means language, job and office mean work. Everything else is life. The area chips override the guess. The word “task” alone does not change the area.",
     captureGuideStore:
-      "The chips below are what gets saved. PhD and language tasks are stored, but they stay off Today and the calendar; they show on All tasks and the board.",
+      "The chips below are what gets saved. PhD and language tasks stay off Today’s inbox/due lists, but they appear on the calendar (when due), All tasks, and the board.",
     captureTomorrow: "Tomorrow",
     captureKindTask: "Task",
     captureKindNote: "Note",

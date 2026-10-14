@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { requireActiveSession } from "@/lib/active-session";
 import { recordUserPresence } from "@/features/users/presence";
 
 export async function POST() {
-  const session = await auth();
+  const session = await requireActiveSession();
   const userId = session?.user?.id;
   if (!userId) {
     return NextResponse.json({ ok: false }, { status: 401 });

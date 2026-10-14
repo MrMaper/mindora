@@ -15,23 +15,15 @@ import {
 import { applyThemeToDocument } from "@/lib/theme";
 import { useTranslation } from "@/i18n/provider";
 import type { Language, Theme } from "@/types/db";
-import type { SettingsTab } from "./settings-tabs";
 
 export type { SettingsTab } from "./settings-tabs";
 
 export function useSettings(
   initialLanguage: Language,
   initialTheme: Theme,
-  initialTab: SettingsTab = "profile",
 ) {
   const router = useRouter();
   const t = useTranslation();
-
-  const [activeTab, setActiveTab] = React.useState<SettingsTab>(initialTab);
-
-  React.useEffect(() => {
-    setActiveTab(initialTab);
-  }, [initialTab]);
 
   const [language, setLanguage] = React.useState<Language>(initialLanguage);
   const [languagePending, startLanguageTransition] = React.useTransition();
@@ -166,8 +158,6 @@ export function useSettings(
   };
 
   return {
-    activeTab,
-    setActiveTab,
     language,
     languagePending,
     languageSuccess,

@@ -1,5 +1,6 @@
 import { prisma as db } from "@/lib/db";
 import { taskWhereExcludeHub } from "@/lib/project-namespace";
+import { personalTaskOwnership } from "@/lib/task-access";
 import { compareTasks } from "./view";
 import type {
   GetTasksParams,
@@ -72,7 +73,11 @@ export async function getTasks(
       : {}),
     ...(params.status ? { status: params.status } : {}),
     ...(params.priority ? { priority: params.priority } : {}),
-    ...(params.assigneeId ? { assignedToId: params.assigneeId } : {}),
+    ...(params.ownerId
+      ? {}
+      : params.assigneeId
+        ? { assignedToId: params.assigneeId }
+        : {}),
     ...(params.labelId
       ? { labels: { some: { labelId: params.labelId } } }
       : {}),
@@ -84,6 +89,7 @@ export async function getTasks(
           { project: { status: { not: "ARCHIVED" as const } } },
         ],
       },
+      ...(params.ownerId ? [personalTaskOwnership(params.ownerId)] : []),
       ...(params.projectIds && params.projectIds.length > 0
         ? [{ projectId: { in: params.projectIds } }]
         : []),

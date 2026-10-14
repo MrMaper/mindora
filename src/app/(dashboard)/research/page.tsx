@@ -109,7 +109,7 @@ export default async function ResearchPage({
   const [columns, users, labels, hub] = await Promise.all([
     getBoardColumns(
       {
-        assigneeId: session.user.id,
+        ownerId: session.user.id,
         projectIds: boardProjectIds,
         excludeHub: false,
       },

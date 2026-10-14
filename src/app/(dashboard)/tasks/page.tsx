@@ -63,8 +63,10 @@ export default async function TasksPage({
   const order = parseTaskOrder(orderRaw);
   const group = parseTaskGroup(groupRaw);
 
-  // For non-admins, force filter by their own user ID
-  const effectiveAssignee = isAdmin ? (assignee || undefined) : session.user.id;
+  // Members: personal ownership (assigned OR unassigned I created) — same as Today.
+  // Admins: optional exact assignee filter from the picker.
+  const ownerId = isAdmin ? undefined : session.user.id;
+  const assigneeId = isAdmin ? assignee || undefined : undefined;
 
   const [users, labelRows, preferences, userProjects] = await Promise.all([
     getAssignableUsers(session.user.id),
@@ -80,7 +82,8 @@ export default async function TasksPage({
     search,
     status: (status || undefined) as TaskStatus | undefined,
     priority: (priority || undefined) as TaskPriority | undefined,
-    assigneeId: effectiveAssignee,
+    ownerId,
+    assigneeId,
     projectIds,
     area: isLifeAreaValue(scope.area) ? scope.area : undefined,
     labelId: label || undefined,

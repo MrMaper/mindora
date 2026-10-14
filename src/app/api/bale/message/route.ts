@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { requireActiveSession } from "@/lib/active-session";
 import { sendMessage } from "@/features/external/bots/bale/actions";
 import { sendMessageSchema } from "@/schemas/bale";
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth();
+    const session = await requireActiveSession();
     if (!session?.user || session.user.role !== "ADMIN") {
       return NextResponse.json({ ok: false, error: "Forbidden" }, { status: 403 });
     }

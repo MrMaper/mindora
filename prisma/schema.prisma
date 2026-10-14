@@ -18,6 +18,13 @@ model User {
   /// Toggleable product modules for MEMBER accounts (ADMIN ignores; management-only).
   /// Shape: { tasks, docs, research, language, habits, projects, workLogs, reporting }
   enabledModules      Json                 @default("{}")
+  /// Admin policy per module: { [module]: "off" | "on" | "member_choice" }.
+  /// Missing keys fall back to the legacy `enabledModules` flag (see src/lib/modules.ts).
+  modulePolicy        Json                 @default("{}")
+  /// How this account was created (invite today, self sign-up later).
+  createdVia          UserCreatedVia       @default(ADMIN_INVITE)
+  /// Set when the admin issued a temporary password; member must choose their own.
+  mustChangePassword  Boolean              @default(false)
   baleUserId          String?              @unique
   baleLinkCode        String?
   baleLinkChatId      String?
@@ -116,6 +123,11 @@ model SystemSettings {
   planLabel         String   @default("Personal")
   storageQuotaBytes BigInt   @default(5368709120)
   maxActiveMembers  Int      @default(25)
+  /// Module preset applied to new members: starter | full
+  defaultModulePresetAdmin  String @default("starter")
+  defaultModulePresetSignup String @default("starter")
+  /// Reserved for the public sign-up track; no sign-up page exists yet.
+  signupEnabled     Boolean  @default(false)
   updatedAt         DateTime @updatedAt
 
   @@map("system_settings")
@@ -176,6 +188,7 @@ model PasswordResetToken {
   id        String   @id @default(cuid())
   userId    String
   token     String   @unique
+  purpose   PasswordTokenPurpose @default(RESET)
   expiresAt DateTime
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -210,6 +223,8 @@ model UserPreferences {
   todayFocusIds             String[] @default([])
   /// When set, first-run onboarding tour is complete
   onboardingCompletedAt     DateTime?
+  /// Member choices for modules whose admin policy is "member_choice": { [module]: boolean }
+  moduleMemberPrefs         Json     @default("{}")
   /// Merge same-day deadline reminders into one notification (optional)
   batchDeadlineReminders    Boolean  @default(false)
   createdAt                 DateTime @default(now())
@@ -524,6 +539,16 @@ enum UserRole {
 enum UserStatus {
   ACTIVE
   INACTIVE
+}
+
+enum UserCreatedVia {
+  ADMIN_INVITE
+  SELF_SIGNUP
+}
+
+enum PasswordTokenPurpose {
+  RESET
+  INVITE
 }
 
 enum TaskStatus {

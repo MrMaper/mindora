@@ -2,6 +2,7 @@ import { prisma as db } from "@/lib/db";
 import { endOfDay, isOverdueTask, startOfDay, toDateKey } from "@/lib/life";
 import { taskWhereExcludeHub } from "@/lib/project-namespace";
 import { personalTaskOwnership } from "@/lib/task-access";
+import { getEffectiveFlagsForUser } from "@/lib/module-guard";
 import { getBaleRuntime } from "./config";
 import { baleAppOrigin, deliverBale } from "./deliver";
 
@@ -38,6 +39,9 @@ export async function ensureBaleDigest(userId: string): Promise<void> {
   const hour = user.preferences?.baleDigestHour ?? 8;
   if (now.getHours() < hour) return;
   if (user.preferences?.baleDigestSentOn === todayKey) return;
+
+  const flags = await getEffectiveFlagsForUser(userId);
+  if (!flags.tasks && !flags.habits) return;
 
   const mine = personalTaskOwnership(userId);
   const today = startOfDay(now);
@@ -84,15 +88,17 @@ export async function ensureBaleDigest(userId: string): Promise<void> {
       select: { title: true, dueDate: true, durationMinutes: true, status: true },
       take: 12,
     }),
-    db.habit.findMany({
-      where: {
-        userId,
-        archivedAt: null,
-        logs: { none: { dateKey: todayKey } },
-      },
-      select: { title: true },
-      take: 8,
-    }),
+    flags.habits
+      ? db.habit.findMany({
+          where: {
+            userId,
+            archivedAt: null,
+            logs: { none: { dateKey: todayKey } },
+          },
+          select: { title: true },
+          take: 8,
+        })
+      : Promise.resolve([] as Array<{ title: string }>),
   ]);
 
   const focusById = new Map(focusTasks.map((task) => [task.id, task.title]));
@@ -165,6 +171,7 @@ export async function ensureBaleHabitNudge(userId: string): Promise<void> {
   const hour = user.preferences?.baleHabitHour ?? 21;
   if (now.getHours() < hour) return;
   if (user.preferences?.baleHabitSentOn === todayKey) return;
+  if (!(await getEffectiveFlagsForUser(userId)).habits) return;
 
   const habits = await db.habit.findMany({
     where: {

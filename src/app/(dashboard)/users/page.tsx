@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/require-role";
 import { getUsers } from "@/features/users/queries";
+import { getSystemSettings } from "@/features/admin/system";
+import { isModulePresetId } from "@/lib/modules";
 import { getUserPreferences } from "@/features/settings/queries";
 import { UsersCC } from "./components/client";
 import { localizedTitle } from "@/lib/page-title";
@@ -34,8 +36,9 @@ export default async function UsersPage({
     order = "desc",
   } = await searchParams;
 
-  const [preferences, users] = await Promise.all([
+  const [preferences, settings, users] = await Promise.all([
     getUserPreferences(session.user.id),
+    getSystemSettings(),
     getUsers(
       search,
       Math.max(1, Number(page)),
@@ -53,6 +56,11 @@ export default async function UsersPage({
       initialData={users}
       page={Math.max(1, Number(page))}
       language={language}
+      defaultPreset={
+        isModulePresetId(settings.defaultModulePresetAdmin)
+          ? settings.defaultModulePresetAdmin
+          : "starter"
+      }
       filters={{ search, role, status }}
     />
   );

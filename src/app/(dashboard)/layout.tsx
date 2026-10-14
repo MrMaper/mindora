@@ -3,6 +3,7 @@ import { prisma as db } from "@/lib/db";
 import { getTranslationsAsync } from "@/i18n";
 import { getUnreadCount } from "@/features/notifications/queries";
 import { DirectionSync } from "@/components/DirectionSync";
+import { ForcePasswordChange } from "@/components/force-password-change";
 import { PresenceBeacon } from "@/components/presence-beacon";
 import { CommandPaletteLazy } from "@/components/CommandPaletteLazy";
 import { DashboardShell } from "./dashboard-shell";
@@ -34,7 +35,12 @@ export default async function DashboardLayout({
 
   const account = await db.user.findUnique({
     where: { id: session.user.id },
-    select: { id: true, status: true, sessionVersion: true },
+    select: {
+      id: true,
+      status: true,
+      sessionVersion: true,
+      mustChangePassword: true,
+    },
   });
   // Stale JWT from another DB still looks logged-in; clear via route handler
   // (RSC render cannot mutate cookies — signOut here throws).
@@ -49,6 +55,15 @@ export default async function DashboardLayout({
   }
 
   const isAdmin = session.user.role === "ADMIN";
+
+  // Temporary password issued by the admin: the member must pick their own
+  // before anything else renders (docs/AREAS.md §8.3).
+  if (account.mustChangePassword && !isAdmin) {
+    const prefs = await getUserPreferencesCached(session.user.id);
+    return (
+      <ForcePasswordChange language={prefs?.language === "EN" ? "EN" : "FA"} />
+    );
+  }
 
   const [preferences, unreadCount, cookieStore, flags] = await Promise.all([
     getUserPreferencesCached(session.user.id),

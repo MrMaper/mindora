@@ -1,17 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { requireActiveSession } from "@/lib/active-session";
 import { prisma as db } from "@/lib/db";
 import { taskWhereExcludeHub } from "@/lib/project-namespace";
 import { getUserPreferencesCached } from "@/lib/request-cache";
 import { formatHours } from "@/lib/utils";
+import { getEffectiveFlagsForUser } from "@/lib/module-guard";
+import { parseModuleFlags } from "@/lib/modules";
+
+function when<T>(on: boolean, run: () => Promise<T[]>): Promise<T[]> {
+  return on ? run() : Promise.resolve([] as T[]);
+}
 
 export async function GET(request: NextRequest) {
-  const session = await auth();
+  const session = await requireActiveSession();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "غیرمجاز" }, { status: 401 });
   }
 
   const uid = session.user.id;
+  // Disabled modules must not leak through search (docs/AREAS.md §7.7).
+  const on =
+    session.user.role === "ADMIN"
+      ? parseModuleFlags({})
+      : await getEffectiveFlagsForUser(uid);
   const prefs = await getUserPreferencesCached(uid);
   const language = prefs?.language === "EN" ? "EN" : "FA";
   const searchParams = request.nextUrl.searchParams;
@@ -46,7 +57,7 @@ export async function GET(request: NextRequest) {
       listening,
       workLogs,
     ] = await Promise.all([
-      db.task.findMany({
+      when(on.tasks, () => db.task.findMany({
         where: {
           AND: [
             mine,
@@ -68,8 +79,8 @@ export async function GET(request: NextRequest) {
         },
         take: limit,
         orderBy: { updatedAt: "desc" },
-      }),
-      db.doc.findMany({
+      })),
+      when(on.docs, () => db.doc.findMany({
         where: {
           userId: uid,
           deletedAt: null,
@@ -82,8 +93,8 @@ export async function GET(request: NextRequest) {
         select: { id: true, title: true, area: true },
         take: limit,
         orderBy: { updatedAt: "desc" },
-      }),
-      db.project.findMany({
+      })),
+      when(on.projects, () => db.project.findMany({
         where: {
           status: { not: "ARCHIVED" },
           members: { some: { userId: uid } },
@@ -92,7 +103,7 @@ export async function GET(request: NextRequest) {
         select: { id: true, name: true, area: true },
         take: limit,
         orderBy: { name: "asc" },
-      }),
+      })),
       session.user.role === "ADMIN"
         ? db.user.findMany({
             where: {
@@ -107,7 +118,7 @@ export async function GET(request: NextRequest) {
             take: Math.min(limit, 5),
           })
         : Promise.resolve([]),
-      db.langCard.findMany({
+      when(on.language, () => db.langCard.findMany({
         where: {
           userId: uid,
           OR: [
@@ -120,8 +131,8 @@ export async function GET(request: NextRequest) {
         select: { id: true, front: true, back: true, deckKey: true },
         take: limit,
         orderBy: { updatedAt: "desc" },
-      }),
-      db.docSource.findMany({
+      })),
+      when(on.research, () => db.docSource.findMany({
         where: {
           doc: { userId: uid, deletedAt: null },
           OR: [
@@ -140,8 +151,8 @@ export async function GET(request: NextRequest) {
         },
         take: limit,
         orderBy: { updatedAt: "desc" },
-      }),
-      db.langListeningClip.findMany({
+      })),
+      when(on.language, () => db.langListeningClip.findMany({
         where: {
           userId: uid,
           OR: [
@@ -154,8 +165,8 @@ export async function GET(request: NextRequest) {
         select: { id: true, title: true, level: true },
         take: limit,
         orderBy: { updatedAt: "desc" },
-      }),
-      db.workLog.findMany({
+      })),
+      when(on.workLogs, () => db.workLog.findMany({
         where: {
           userId: uid,
           OR: [
@@ -172,7 +183,7 @@ export async function GET(request: NextRequest) {
         },
         take: limit,
         orderBy: { date: "desc" },
-      }),
+      })),
     ]);
 
     return NextResponse.json({

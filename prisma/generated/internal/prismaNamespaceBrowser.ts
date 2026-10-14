@@ -129,6 +129,9 @@ export const UserScalarFieldEnum = {
   role: 'role',
   status: 'status',
   enabledModules: 'enabledModules',
+  modulePolicy: 'modulePolicy',
+  createdVia: 'createdVia',
+  mustChangePassword: 'mustChangePassword',
   baleUserId: 'baleUserId',
   baleLinkCode: 'baleLinkCode',
   baleLinkChatId: 'baleLinkChatId',
@@ -187,6 +190,9 @@ export const SystemSettingsScalarFieldEnum = {
   planLabel: 'planLabel',
   storageQuotaBytes: 'storageQuotaBytes',
   maxActiveMembers: 'maxActiveMembers',
+  defaultModulePresetAdmin: 'defaultModulePresetAdmin',
+  defaultModulePresetSignup: 'defaultModulePresetSignup',
+  signupEnabled: 'signupEnabled',
   updatedAt: 'updatedAt'
 } as const
 
@@ -246,6 +252,7 @@ export const PasswordResetTokenScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   token: 'token',
+  purpose: 'purpose',
   expiresAt: 'expiresAt',
   createdAt: 'createdAt'
 } as const
@@ -276,6 +283,7 @@ export const UserPreferencesScalarFieldEnum = {
   todayFocusDate: 'todayFocusDate',
   todayFocusIds: 'todayFocusIds',
   onboardingCompletedAt: 'onboardingCompletedAt',
+  moduleMemberPrefs: 'moduleMemberPrefs',
   batchDeadlineReminders: 'batchDeadlineReminders',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

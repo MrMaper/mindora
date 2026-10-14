@@ -4276,6 +4276,9 @@ export const UserScalarFieldEnum = {
   role: 'role',
   status: 'status',
   enabledModules: 'enabledModules',
+  modulePolicy: 'modulePolicy',
+  createdVia: 'createdVia',
+  mustChangePassword: 'mustChangePassword',
   baleUserId: 'baleUserId',
   baleLinkCode: 'baleLinkCode',
   baleLinkChatId: 'baleLinkChatId',
@@ -4334,6 +4337,9 @@ export const SystemSettingsScalarFieldEnum = {
   planLabel: 'planLabel',
   storageQuotaBytes: 'storageQuotaBytes',
   maxActiveMembers: 'maxActiveMembers',
+  defaultModulePresetAdmin: 'defaultModulePresetAdmin',
+  defaultModulePresetSignup: 'defaultModulePresetSignup',
+  signupEnabled: 'signupEnabled',
   updatedAt: 'updatedAt'
 } as const
 
@@ -4393,6 +4399,7 @@ export const PasswordResetTokenScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   token: 'token',
+  purpose: 'purpose',
   expiresAt: 'expiresAt',
   createdAt: 'createdAt'
 } as const
@@ -4423,6 +4430,7 @@ export const UserPreferencesScalarFieldEnum = {
   todayFocusDate: 'todayFocusDate',
   todayFocusIds: 'todayFocusIds',
   onboardingCompletedAt: 'onboardingCompletedAt',
+  moduleMemberPrefs: 'moduleMemberPrefs',
   batchDeadlineReminders: 'batchDeadlineReminders',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -5097,6 +5105,27 @@ export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$Prisma
 
 
 /**
+ * Reference to a field of type 'UserCreatedVia'
+ */
+export type EnumUserCreatedViaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserCreatedVia'>
+    
+
+
+/**
+ * Reference to a field of type 'UserCreatedVia[]'
+ */
+export type ListEnumUserCreatedViaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserCreatedVia[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+/**
  * Reference to a field of type 'DateTime'
  */
 export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
@@ -5125,13 +5154,6 @@ export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
- * Reference to a field of type 'Boolean'
- */
-export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
-    
-
-
-/**
  * Reference to a field of type 'BigInt'
  */
 export type BigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt'>
@@ -5142,6 +5164,20 @@ export type BigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 
  * Reference to a field of type 'BigInt[]'
  */
 export type ListBigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt[]'>
+    
+
+
+/**
+ * Reference to a field of type 'PasswordTokenPurpose'
+ */
+export type EnumPasswordTokenPurposeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PasswordTokenPurpose'>
+    
+
+
+/**
+ * Reference to a field of type 'PasswordTokenPurpose[]'
+ */
+export type ListEnumPasswordTokenPurposeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PasswordTokenPurpose[]'>
     
 
 

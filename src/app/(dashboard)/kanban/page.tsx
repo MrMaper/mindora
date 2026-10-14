@@ -45,7 +45,6 @@ export default async function KanbanPage({
     area = "",
   } = await searchParams;
 
-  const effectiveAssignee = session.user.id;
   const userProjects = await getUserProjects(session.user.id, "assignable");
   const scope = scopeFromFilters(area, project, userProjects);
 
@@ -54,7 +53,7 @@ export default async function KanbanPage({
   const [columns, users, labels] = await Promise.all([
     getBoardColumns({
       search: search || undefined,
-      assigneeId: effectiveAssignee,
+      ownerId: session.user.id,
       labelId: label || undefined,
       priority: (priority || undefined) as TaskPriority | undefined,
       projectIds: scope.projectId ? [scope.projectId] : undefined,

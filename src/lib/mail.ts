@@ -29,6 +29,22 @@ export async function sendMail({ to, subject, html }: SendMailOptions): Promise<
   });
 }
 
+export function buildInviteEmail(inviteUrl: string, name: string): string {
+  return `
+<div style="font-family:system-ui,sans-serif;max-width:540px;margin:0 auto;padding:40px 24px;color:#1a1f25;direction:rtl">
+  <h2 style="font-size:18px;font-weight:600;margin:0 0 8px">سلام ${name.replace(/[<>&"]/g, "")}</h2>
+  <p style="font-size:14px;color:#626d7b;margin:0 0 28px;line-height:1.55">
+    حساب Mindora تو ساخته شده. برای شروع یک رمز عبور برای خودت انتخاب کن.
+    این لینک در <strong>۷ روز</strong> منقضی می‌شود.
+  </p>
+  <a href="${inviteUrl}"
+    style="display:inline-block;background:#3f4cbb;color:#fff;font-size:14px;font-weight:500;
+           padding:10px 22px;border-radius:5px;text-decoration:none">
+    انتخاب رمز عبور
+  </a>
+</div>`;
+}
+
 export function buildPasswordResetEmail(resetUrl: string): string {
   return `
 <div style="font-family:system-ui,sans-serif;max-width:540px;margin:0 auto;padding:40px 24px;color:#1a1f25;direction:rtl">

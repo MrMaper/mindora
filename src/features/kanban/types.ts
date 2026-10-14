@@ -23,7 +23,10 @@ export type BoardColumns = Record<BoardStatus, TaskRow[]>;
 
 export interface BoardFilters {
   search?: string;
+  /** Exact assignee filter. Ignored when ownerId is set. */
   assigneeId?: string;
+  /** Personal scope: assigned to me OR created by me and unassigned. */
+  ownerId?: string;
   labelId?: string;
   priority?: TaskPriority;
   projectIds?: string[];

@@ -1,14 +1,13 @@
 import { redirect } from "next/navigation";
-import { cache } from "react";
 import { prisma as db } from "@/lib/db";
 import {
-  hasModule,
   isPathAllowed,
-  memberHomePath,
+  moduleForPath,
   parseModuleFlags,
   type AppModule,
   type ModuleFlags,
 } from "@/lib/modules";
+import { getModuleAccess, moduleDisabledReason } from "@/lib/module-guard";
 import { getSessionCached } from "@/lib/request-cache";
 
 export async function requireAdmin() {
@@ -24,28 +23,26 @@ export async function requireAuth() {
   return session;
 }
 
-/** Deduped within a single RSC request (layout + requireModule share one read). */
-export const getUserModuleFlags = cache(
-  async (userId: string): Promise<ModuleFlags> => {
-    const user = await db.user.findUnique({
-      where: { id: userId },
-      select: { enabledModules: true, role: true },
-    });
-    if (!user) return parseModuleFlags({});
-    // Admin does not use member modules
-    if (user.role === "ADMIN") return parseModuleFlags({});
-    return parseModuleFlags(user.enabledModules);
-  },
-);
+/** Effective flags (admin policy ∧ member prefs ∧ dependencies). Deduped per request. */
+export async function getUserModuleFlags(userId: string): Promise<ModuleFlags> {
+  const access = await getModuleAccess(userId);
+  return access?.flags ?? parseModuleFlags({});
+}
+
+function disabledHref(module: AppModule, reason: string): string {
+  return `/module-disabled?m=${encodeURIComponent(module)}&r=${reason}`;
+}
 
 export async function requireModule(module: AppModule) {
   const session = await requireAuth();
   if (session.user.role === "ADMIN") {
     redirect("/admin");
   }
-  const flags = await getUserModuleFlags(session.user.id);
-  if (!hasModule(flags, module)) {
-    redirect(memberHomePath(flags));
+  const access = await getModuleAccess(session.user.id);
+  const flags = access?.flags ?? parseModuleFlags({});
+  if (access) {
+    const reason = moduleDisabledReason(access, module);
+    if (reason) redirect(disabledHref(module, reason));
   }
   return { session, flags };
 }
@@ -66,9 +63,12 @@ export async function requireMemberPath(pathname: string) {
     }
     redirect("/admin");
   }
-  const flags = await getUserModuleFlags(session.user.id);
+  const access = await getModuleAccess(session.user.id);
+  const flags = access?.flags ?? parseModuleFlags({});
   if (!isPathAllowed(flags, pathname)) {
-    redirect(memberHomePath(flags));
+    const mod = moduleForPath(pathname);
+    const reason = access && mod ? moduleDisabledReason(access, mod) : null;
+    redirect(mod && reason ? disabledHref(mod, reason) : "/settings");
   }
   return { session, flags };
 }

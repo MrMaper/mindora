@@ -1,6 +1,7 @@
 import { prisma as db } from "@/lib/db";
 import { toTaskRow } from "@/features/tasks/queries";
 import { taskWhereExcludeHub } from "@/lib/project-namespace";
+import { personalTaskOwnership } from "@/lib/task-access";
 import { BOARD_STATUSES } from "./types";
 import type { BoardColumns, BoardFilters, BoardStatus } from "./types";
 
@@ -17,7 +18,11 @@ export async function getBoardColumns(
     ...(filters.search
       ? { title: { contains: filters.search, mode: "insensitive" as const } }
       : {}),
-    ...(filters.assigneeId ? { assignedToId: filters.assigneeId } : {}),
+    ...(filters.ownerId
+      ? {}
+      : filters.assigneeId
+        ? { assignedToId: filters.assigneeId }
+        : {}),
     ...(filters.priority ? { priority: filters.priority } : {}),
     ...(filters.labelId
       ? { labels: { some: { labelId: filters.labelId } } }
@@ -30,6 +35,7 @@ export async function getBoardColumns(
           { project: { status: { not: "ARCHIVED" as const } } },
         ],
       },
+      ...(filters.ownerId ? [personalTaskOwnership(filters.ownerId)] : []),
       ...(filters.projectIds && filters.projectIds.length > 0
         ? [{ projectId: { in: filters.projectIds } }]
         : []),

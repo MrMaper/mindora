@@ -46,6 +46,8 @@ export type UserMinAggregateOutputType = {
   avatar: string | null
   role: $Enums.UserRole | null
   status: $Enums.UserStatus | null
+  createdVia: $Enums.UserCreatedVia | null
+  mustChangePassword: boolean | null
   baleUserId: string | null
   baleLinkCode: string | null
   baleLinkChatId: string | null
@@ -68,6 +70,8 @@ export type UserMaxAggregateOutputType = {
   avatar: string | null
   role: $Enums.UserRole | null
   status: $Enums.UserStatus | null
+  createdVia: $Enums.UserCreatedVia | null
+  mustChangePassword: boolean | null
   baleUserId: string | null
   baleLinkCode: string | null
   baleLinkChatId: string | null
@@ -91,6 +95,9 @@ export type UserCountAggregateOutputType = {
   role: number
   status: number
   enabledModules: number
+  modulePolicy: number
+  createdVia: number
+  mustChangePassword: number
   baleUserId: number
   baleLinkCode: number
   baleLinkChatId: number
@@ -127,6 +134,8 @@ export type UserMinAggregateInputType = {
   avatar?: true
   role?: true
   status?: true
+  createdVia?: true
+  mustChangePassword?: true
   baleUserId?: true
   baleLinkCode?: true
   baleLinkChatId?: true
@@ -149,6 +158,8 @@ export type UserMaxAggregateInputType = {
   avatar?: true
   role?: true
   status?: true
+  createdVia?: true
+  mustChangePassword?: true
   baleUserId?: true
   baleLinkCode?: true
   baleLinkChatId?: true
@@ -172,6 +183,9 @@ export type UserCountAggregateInputType = {
   role?: true
   status?: true
   enabledModules?: true
+  modulePolicy?: true
+  createdVia?: true
+  mustChangePassword?: true
   baleUserId?: true
   baleLinkCode?: true
   baleLinkChatId?: true
@@ -282,6 +296,9 @@ export type UserGroupByOutputType = {
   role: $Enums.UserRole
   status: $Enums.UserStatus
   enabledModules: runtime.JsonValue
+  modulePolicy: runtime.JsonValue
+  createdVia: $Enums.UserCreatedVia
+  mustChangePassword: boolean
   baleUserId: string | null
   baleLinkCode: string | null
   baleLinkChatId: string | null
@@ -328,6 +345,9 @@ export type UserWhereInput = {
   role?: Prisma.EnumUserRoleFilter<"User"> | $Enums.UserRole
   status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
   enabledModules?: Prisma.JsonFilter<"User">
+  modulePolicy?: Prisma.JsonFilter<"User">
+  createdVia?: Prisma.EnumUserCreatedViaFilter<"User"> | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFilter<"User"> | boolean
   baleUserId?: Prisma.StringNullableFilter<"User"> | string | null
   baleLinkCode?: Prisma.StringNullableFilter<"User"> | string | null
   baleLinkChatId?: Prisma.StringNullableFilter<"User"> | string | null
@@ -378,6 +398,9 @@ export type UserOrderByWithRelationInput = {
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
   enabledModules?: Prisma.SortOrder
+  modulePolicy?: Prisma.SortOrder
+  createdVia?: Prisma.SortOrder
+  mustChangePassword?: Prisma.SortOrder
   baleUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   baleLinkCode?: Prisma.SortOrderInput | Prisma.SortOrder
   baleLinkChatId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -432,6 +455,9 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   role?: Prisma.EnumUserRoleFilter<"User"> | $Enums.UserRole
   status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
   enabledModules?: Prisma.JsonFilter<"User">
+  modulePolicy?: Prisma.JsonFilter<"User">
+  createdVia?: Prisma.EnumUserCreatedViaFilter<"User"> | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFilter<"User"> | boolean
   baleLinkCode?: Prisma.StringNullableFilter<"User"> | string | null
   baleLinkChatId?: Prisma.StringNullableFilter<"User"> | string | null
   baleLinkExpires?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
@@ -481,6 +507,9 @@ export type UserOrderByWithAggregationInput = {
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
   enabledModules?: Prisma.SortOrder
+  modulePolicy?: Prisma.SortOrder
+  createdVia?: Prisma.SortOrder
+  mustChangePassword?: Prisma.SortOrder
   baleUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   baleLinkCode?: Prisma.SortOrderInput | Prisma.SortOrder
   baleLinkChatId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -512,6 +541,9 @@ export type UserScalarWhereWithAggregatesInput = {
   role?: Prisma.EnumUserRoleWithAggregatesFilter<"User"> | $Enums.UserRole
   status?: Prisma.EnumUserStatusWithAggregatesFilter<"User"> | $Enums.UserStatus
   enabledModules?: Prisma.JsonWithAggregatesFilter<"User">
+  modulePolicy?: Prisma.JsonWithAggregatesFilter<"User">
+  createdVia?: Prisma.EnumUserCreatedViaWithAggregatesFilter<"User"> | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   baleUserId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   baleLinkCode?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   baleLinkChatId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
@@ -535,6 +567,9 @@ export type UserCreateInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -585,6 +620,9 @@ export type UserUncheckedCreateInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -635,6 +673,9 @@ export type UserUpdateInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -685,6 +726,9 @@ export type UserUncheckedUpdateInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -735,6 +779,9 @@ export type UserCreateManyInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -758,6 +805,9 @@ export type UserUpdateManyMutationInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -781,6 +831,9 @@ export type UserUncheckedUpdateManyInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -804,6 +857,9 @@ export type UserCountOrderByAggregateInput = {
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
   enabledModules?: Prisma.SortOrder
+  modulePolicy?: Prisma.SortOrder
+  createdVia?: Prisma.SortOrder
+  mustChangePassword?: Prisma.SortOrder
   baleUserId?: Prisma.SortOrder
   baleLinkCode?: Prisma.SortOrder
   baleLinkChatId?: Prisma.SortOrder
@@ -832,6 +888,8 @@ export type UserMaxOrderByAggregateInput = {
   avatar?: Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  createdVia?: Prisma.SortOrder
+  mustChangePassword?: Prisma.SortOrder
   baleUserId?: Prisma.SortOrder
   baleLinkCode?: Prisma.SortOrder
   baleLinkChatId?: Prisma.SortOrder
@@ -854,6 +912,8 @@ export type UserMinOrderByAggregateInput = {
   avatar?: Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  createdVia?: Prisma.SortOrder
+  mustChangePassword?: Prisma.SortOrder
   baleUserId?: Prisma.SortOrder
   baleLinkCode?: Prisma.SortOrder
   baleLinkChatId?: Prisma.SortOrder
@@ -898,6 +958,14 @@ export type EnumUserRoleFieldUpdateOperationsInput = {
 
 export type EnumUserStatusFieldUpdateOperationsInput = {
   set?: $Enums.UserStatus
+}
+
+export type EnumUserCreatedViaFieldUpdateOperationsInput = {
+  set?: $Enums.UserCreatedVia
+}
+
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
 }
 
 export type NullableDateTimeFieldUpdateOperationsInput = {
@@ -1307,6 +1375,9 @@ export type UserCreateWithoutLoginEventsInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -1356,6 +1427,9 @@ export type UserUncheckedCreateWithoutLoginEventsInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -1421,6 +1495,9 @@ export type UserUpdateWithoutLoginEventsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1470,6 +1547,9 @@ export type UserUncheckedUpdateWithoutLoginEventsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1519,6 +1599,9 @@ export type UserCreateWithoutAdminAuditsAsActorInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -1568,6 +1651,9 @@ export type UserUncheckedCreateWithoutAdminAuditsAsActorInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -1622,6 +1708,9 @@ export type UserCreateWithoutAdminAuditsAsTargetInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -1671,6 +1760,9 @@ export type UserUncheckedCreateWithoutAdminAuditsAsTargetInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -1736,6 +1828,9 @@ export type UserUpdateWithoutAdminAuditsAsActorInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1785,6 +1880,9 @@ export type UserUncheckedUpdateWithoutAdminAuditsAsActorInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1845,6 +1943,9 @@ export type UserUpdateWithoutAdminAuditsAsTargetInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1894,6 +1995,9 @@ export type UserUncheckedUpdateWithoutAdminAuditsAsTargetInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1943,6 +2047,9 @@ export type UserCreateWithoutAccountsInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -1992,6 +2099,9 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -2057,6 +2167,9 @@ export type UserUpdateWithoutAccountsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2106,6 +2219,9 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2155,6 +2271,9 @@ export type UserCreateWithoutSessionsInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -2204,6 +2323,9 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -2269,6 +2391,9 @@ export type UserUpdateWithoutSessionsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2318,6 +2443,9 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2367,6 +2495,9 @@ export type UserCreateWithoutPasswordResetTokensInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -2416,6 +2547,9 @@ export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -2481,6 +2615,9 @@ export type UserUpdateWithoutPasswordResetTokensInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2530,6 +2667,9 @@ export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2579,6 +2719,9 @@ export type UserCreateWithoutPreferencesInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -2628,6 +2771,9 @@ export type UserUncheckedCreateWithoutPreferencesInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -2693,6 +2839,9 @@ export type UserUpdateWithoutPreferencesInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2742,6 +2891,9 @@ export type UserUncheckedUpdateWithoutPreferencesInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2791,6 +2943,9 @@ export type UserCreateWithoutTeamMembersInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -2840,6 +2995,9 @@ export type UserUncheckedCreateWithoutTeamMembersInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -2905,6 +3063,9 @@ export type UserUpdateWithoutTeamMembersInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2954,6 +3115,9 @@ export type UserUncheckedUpdateWithoutTeamMembersInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3003,6 +3167,9 @@ export type UserCreateWithoutAreaPreferencesInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -3052,6 +3219,9 @@ export type UserUncheckedCreateWithoutAreaPreferencesInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -3117,6 +3287,9 @@ export type UserUpdateWithoutAreaPreferencesInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3166,6 +3339,9 @@ export type UserUncheckedUpdateWithoutAreaPreferencesInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3215,6 +3391,9 @@ export type UserCreateWithoutProjectMembersInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -3264,6 +3443,9 @@ export type UserUncheckedCreateWithoutProjectMembersInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -3329,6 +3511,9 @@ export type UserUpdateWithoutProjectMembersInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3378,6 +3563,9 @@ export type UserUncheckedUpdateWithoutProjectMembersInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3427,6 +3615,9 @@ export type UserCreateWithoutAssignedTasksInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -3476,6 +3667,9 @@ export type UserUncheckedCreateWithoutAssignedTasksInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -3530,6 +3724,9 @@ export type UserCreateWithoutCreatedTasksInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -3579,6 +3776,9 @@ export type UserUncheckedCreateWithoutCreatedTasksInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -3644,6 +3844,9 @@ export type UserUpdateWithoutAssignedTasksInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3693,6 +3896,9 @@ export type UserUncheckedUpdateWithoutAssignedTasksInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3753,6 +3959,9 @@ export type UserUpdateWithoutCreatedTasksInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3802,6 +4011,9 @@ export type UserUncheckedUpdateWithoutCreatedTasksInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3851,6 +4063,9 @@ export type UserCreateWithoutCommentsInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -3900,6 +4115,9 @@ export type UserUncheckedCreateWithoutCommentsInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -3965,6 +4183,9 @@ export type UserUpdateWithoutCommentsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4014,6 +4235,9 @@ export type UserUncheckedUpdateWithoutCommentsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4063,6 +4287,9 @@ export type UserCreateWithoutNotificationsInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -4112,6 +4339,9 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -4177,6 +4407,9 @@ export type UserUpdateWithoutNotificationsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4226,6 +4459,9 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4275,6 +4511,9 @@ export type UserCreateWithoutActivityLogsInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -4324,6 +4563,9 @@ export type UserUncheckedCreateWithoutActivityLogsInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -4389,6 +4631,9 @@ export type UserUpdateWithoutActivityLogsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4438,6 +4683,9 @@ export type UserUncheckedUpdateWithoutActivityLogsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4487,6 +4735,9 @@ export type UserCreateWithoutWorkLogsInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -4536,6 +4787,9 @@ export type UserUncheckedCreateWithoutWorkLogsInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -4601,6 +4855,9 @@ export type UserUpdateWithoutWorkLogsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4650,6 +4907,9 @@ export type UserUncheckedUpdateWithoutWorkLogsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4699,6 +4959,9 @@ export type UserCreateWithoutHabitsInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -4748,6 +5011,9 @@ export type UserUncheckedCreateWithoutHabitsInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -4813,6 +5079,9 @@ export type UserUpdateWithoutHabitsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4862,6 +5131,9 @@ export type UserUncheckedUpdateWithoutHabitsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4911,6 +5183,9 @@ export type UserCreateWithoutDocsInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -4960,6 +5235,9 @@ export type UserUncheckedCreateWithoutDocsInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -5025,6 +5303,9 @@ export type UserUpdateWithoutDocsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5074,6 +5355,9 @@ export type UserUncheckedUpdateWithoutDocsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5123,6 +5407,9 @@ export type UserCreateWithoutDocFoldersInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -5172,6 +5459,9 @@ export type UserUncheckedCreateWithoutDocFoldersInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -5237,6 +5527,9 @@ export type UserUpdateWithoutDocFoldersInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5286,6 +5579,9 @@ export type UserUncheckedUpdateWithoutDocFoldersInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5335,6 +5631,9 @@ export type UserCreateWithoutDocTagsInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -5384,6 +5683,9 @@ export type UserUncheckedCreateWithoutDocTagsInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -5449,6 +5751,9 @@ export type UserUpdateWithoutDocTagsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5498,6 +5803,9 @@ export type UserUncheckedUpdateWithoutDocTagsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5547,6 +5855,9 @@ export type UserCreateWithoutLangProfileInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -5596,6 +5907,9 @@ export type UserUncheckedCreateWithoutLangProfileInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -5661,6 +5975,9 @@ export type UserUpdateWithoutLangProfileInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5710,6 +6027,9 @@ export type UserUncheckedUpdateWithoutLangProfileInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5759,6 +6079,9 @@ export type UserCreateWithoutLangSessionsInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -5808,6 +6131,9 @@ export type UserUncheckedCreateWithoutLangSessionsInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -5873,6 +6199,9 @@ export type UserUpdateWithoutLangSessionsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5922,6 +6251,9 @@ export type UserUncheckedUpdateWithoutLangSessionsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5971,6 +6303,9 @@ export type UserCreateWithoutLangListeningClipsInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -6020,6 +6355,9 @@ export type UserUncheckedCreateWithoutLangListeningClipsInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -6085,6 +6423,9 @@ export type UserUpdateWithoutLangListeningClipsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6134,6 +6475,9 @@ export type UserUncheckedUpdateWithoutLangListeningClipsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6183,6 +6527,9 @@ export type UserCreateWithoutLangCardsInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -6232,6 +6579,9 @@ export type UserUncheckedCreateWithoutLangCardsInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -6297,6 +6647,9 @@ export type UserUpdateWithoutLangCardsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6346,6 +6699,9 @@ export type UserUncheckedUpdateWithoutLangCardsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6395,6 +6751,9 @@ export type UserCreateWithoutLangVocabDaysInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -6444,6 +6803,9 @@ export type UserUncheckedCreateWithoutLangVocabDaysInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -6509,6 +6871,9 @@ export type UserUpdateWithoutLangVocabDaysInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6558,6 +6923,9 @@ export type UserUncheckedUpdateWithoutLangVocabDaysInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6607,6 +6975,9 @@ export type UserCreateWithoutExamTracksInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -6656,6 +7027,9 @@ export type UserUncheckedCreateWithoutExamTracksInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -6721,6 +7095,9 @@ export type UserUpdateWithoutExamTracksInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6770,6 +7147,9 @@ export type UserUncheckedUpdateWithoutExamTracksInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6819,6 +7199,9 @@ export type UserCreateWithoutMockAttemptsInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -6868,6 +7251,9 @@ export type UserUncheckedCreateWithoutMockAttemptsInput = {
   role?: $Enums.UserRole
   status?: $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: $Enums.UserCreatedVia
+  mustChangePassword?: boolean
   baleUserId?: string | null
   baleLinkCode?: string | null
   baleLinkChatId?: string | null
@@ -6933,6 +7319,9 @@ export type UserUpdateWithoutMockAttemptsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6982,6 +7371,9 @@ export type UserUncheckedUpdateWithoutMockAttemptsInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   enabledModules?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  modulePolicy?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  createdVia?: Prisma.EnumUserCreatedViaFieldUpdateOperationsInput | $Enums.UserCreatedVia
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   baleUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   baleLinkChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7278,6 +7670,9 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   role?: boolean
   status?: boolean
   enabledModules?: boolean
+  modulePolicy?: boolean
+  createdVia?: boolean
+  mustChangePassword?: boolean
   baleUserId?: boolean
   baleLinkCode?: boolean
   baleLinkChatId?: boolean
@@ -7329,6 +7724,9 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   role?: boolean
   status?: boolean
   enabledModules?: boolean
+  modulePolicy?: boolean
+  createdVia?: boolean
+  mustChangePassword?: boolean
   baleUserId?: boolean
   baleLinkCode?: boolean
   baleLinkChatId?: boolean
@@ -7352,6 +7750,9 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   role?: boolean
   status?: boolean
   enabledModules?: boolean
+  modulePolicy?: boolean
+  createdVia?: boolean
+  mustChangePassword?: boolean
   baleUserId?: boolean
   baleLinkCode?: boolean
   baleLinkChatId?: boolean
@@ -7375,6 +7776,9 @@ export type UserSelectScalar = {
   role?: boolean
   status?: boolean
   enabledModules?: boolean
+  modulePolicy?: boolean
+  createdVia?: boolean
+  mustChangePassword?: boolean
   baleUserId?: boolean
   baleLinkCode?: boolean
   baleLinkChatId?: boolean
@@ -7389,7 +7793,7 @@ export type UserSelectScalar = {
   lockedUntil?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "password" | "avatar" | "role" | "status" | "enabledModules" | "baleUserId" | "baleLinkCode" | "baleLinkChatId" | "baleLinkExpires" | "createdAt" | "updatedAt" | "sessionVersion" | "lastLoginAt" | "lastSeenAt" | "totalOnlineSeconds" | "failedLoginCount" | "lockedUntil", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "password" | "avatar" | "role" | "status" | "enabledModules" | "modulePolicy" | "createdVia" | "mustChangePassword" | "baleUserId" | "baleLinkCode" | "baleLinkChatId" | "baleLinkExpires" | "createdAt" | "updatedAt" | "sessionVersion" | "lastLoginAt" | "lastSeenAt" | "totalOnlineSeconds" | "failedLoginCount" | "lockedUntil", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   activityLogs?: boolean | Prisma.User$activityLogsArgs<ExtArgs>
@@ -7467,6 +7871,19 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
      * Shape: { tasks, docs, research, language, habits, projects, workLogs, reporting }
      */
     enabledModules: runtime.JsonValue
+    /**
+     * Admin policy per module: { [module]: "off" | "on" | "member_choice" }.
+     * Missing keys fall back to the legacy `enabledModules` flag (see src/lib/modules.ts).
+     */
+    modulePolicy: runtime.JsonValue
+    /**
+     * How this account was created (invite today, self sign-up later).
+     */
+    createdVia: $Enums.UserCreatedVia
+    /**
+     * Set when the admin issued a temporary password; member must choose their own.
+     */
+    mustChangePassword: boolean
     baleUserId: string | null
     baleLinkCode: string | null
     baleLinkChatId: string | null
@@ -7955,6 +8372,9 @@ export interface UserFieldRefs {
   readonly role: Prisma.FieldRef<"User", 'UserRole'>
   readonly status: Prisma.FieldRef<"User", 'UserStatus'>
   readonly enabledModules: Prisma.FieldRef<"User", 'Json'>
+  readonly modulePolicy: Prisma.FieldRef<"User", 'Json'>
+  readonly createdVia: Prisma.FieldRef<"User", 'UserCreatedVia'>
+  readonly mustChangePassword: Prisma.FieldRef<"User", 'Boolean'>
   readonly baleUserId: Prisma.FieldRef<"User", 'String'>
   readonly baleLinkCode: Prisma.FieldRef<"User", 'String'>
   readonly baleLinkChatId: Prisma.FieldRef<"User", 'String'>

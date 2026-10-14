@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { auth } from "@/auth";
+import { requireModule } from "@/lib/require-role";
 import {
   getProjectById,
   getProjectMembers,
@@ -19,8 +19,7 @@ export default async function ProjectDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const session = await auth();
-  if (!session?.user) redirect("/login");
+  const { session } = await requireModule("projects");
 
   const { id } = await params;
 

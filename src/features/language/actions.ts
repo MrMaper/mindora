@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { auth } from "@/auth";
+import { authForModule } from "@/lib/module-guard";
 import { prisma as db } from "@/lib/db";
 import { isUserAreaBucket } from "@/lib/life";
 import type { LangSkill } from "@/types/db";
@@ -57,7 +57,7 @@ async function assertLangProjectMember(
 }
 
 export async function listLangProjectsAction(): Promise<LanguageProjectItem[]> {
-  const session = await auth();
+  const session = await authForModule("language");
   if (!session?.user) return [];
   return listLangProjects(session.user.id);
 }
@@ -66,7 +66,7 @@ export async function createLangProjectAction(input: {
   name: string;
   description?: string;
 }): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("language");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const name = input.name.trim();
@@ -99,7 +99,7 @@ export async function logLangSessionAction(input: {
   projectId?: string | null;
   practicedAt?: string;
 }): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("language");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   if (!LANG_SKILLS.includes(input.skill)) {
@@ -152,7 +152,7 @@ export async function updateLangProfileAction(input: {
   examDate?: string | null;
   weeklyGoalMin?: number;
 }): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("language");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const weeklyGoalMin =
@@ -234,7 +234,7 @@ export async function createLangDocAction(input?: {
   title?: string;
   projectId?: string | null;
 }): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("language");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   let projectId: string | null | undefined = input?.projectId;
@@ -279,7 +279,7 @@ export async function createLangCardAction(input: {
   lesson?: number | null;
   projectId?: string | null;
 }): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("language");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const front = input.front.trim();
@@ -329,7 +329,7 @@ export async function installVocabDeckAction(input: {
   deckKey: string;
   projectId?: string | null;
 }): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("language");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const deck = await loadVocabDeck(input.deckKey);
@@ -404,7 +404,7 @@ export async function importLessonCardsAction(input: {
   text: string;
   projectId?: string | null;
 }): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("language");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const deck = await loadVocabDeck(input.deckKey);
@@ -490,7 +490,7 @@ export async function listDeckCardsAction(input: {
   lesson?: number;
   projectId?: string | null;
 }): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("language");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const scope =
@@ -525,7 +525,7 @@ export async function listDueCardsAction(input?: {
   /** Focused weak-card queue (ignores due filter). */
   filter?: "all" | "hard";
 }): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("language");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const scope =
@@ -562,7 +562,7 @@ export async function reviewLangCardAction(input: {
   cardId: string;
   rating: VocabRating;
 }): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("language");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const ratings: VocabRating[] = ["again", "hard", "good", "easy"];
@@ -665,7 +665,7 @@ export async function reviewLangCardAction(input: {
 export async function deleteLangCardAction(
   cardId: string,
 ): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("language");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const card = await db.langCard.findFirst({
@@ -686,7 +686,7 @@ export async function createExamTrackAction(input: {
   examDate?: string | null;
   projectId?: string | null;
 }): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("language");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const template = getExamTemplate(input.kind);
@@ -730,7 +730,7 @@ export async function createExamTrackAction(input: {
 export async function ensureDefaultExamTrackAction(input?: {
   projectId?: string | null;
 }): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("language");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const profile = await db.langProfile.findUnique({
@@ -783,7 +783,7 @@ export async function saveMockAttemptAction(input: {
   projectId?: string | null;
   attemptId?: string;
 }): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("language");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const track = await db.examTrack.findFirst({
@@ -892,7 +892,7 @@ export async function startMockAttemptAction(input: {
   trackId: string;
   projectId?: string | null;
 }): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("language");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const track = await db.examTrack.findFirst({
@@ -932,7 +932,7 @@ export async function startMockAttemptAction(input: {
 export async function abandonMockAttemptAction(
   attemptId: string,
 ): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("language");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const mock = await db.mockAttempt.findFirst({
@@ -960,7 +960,7 @@ export async function abandonMockAttemptAction(
 export async function deleteExamTrackAction(
   trackId: string,
 ): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("language");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const track = await db.examTrack.findFirst({
@@ -982,7 +982,7 @@ export async function createListeningClipAction(input: {
   notes?: string;
   projectId?: string | null;
 }): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("language");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const title = input.title.trim();
@@ -1024,7 +1024,7 @@ export async function createListeningClipAction(input: {
 export async function installListeningStartersAction(input?: {
   projectId?: string | null;
 }): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("language");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   let projectId: string | null = null;
@@ -1074,7 +1074,7 @@ export async function installListeningStartersAction(input?: {
 export async function markListeningPlayedAction(
   clipId: string,
 ): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("language");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const clip = await db.langListeningClip.findFirst({
@@ -1100,7 +1100,7 @@ export async function completeListeningSessionAction(input: {
   note?: string;
   dictationScore?: number;
 }): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("language");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const clip = await db.langListeningClip.findFirst({
@@ -1149,7 +1149,7 @@ export async function completeListeningSessionAction(input: {
 export async function deleteListeningClipAction(
   clipId: string,
 ): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("language");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const clip = await db.langListeningClip.findFirst({

@@ -4,7 +4,6 @@ import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma as db } from "@/lib/db";
-import { sendMail } from "@/lib/mail";
 import { uploadAvatar as uploadToStorage } from "@/lib/storage";
 import {
   createUserSchema,
@@ -13,13 +12,21 @@ import {
 } from "@/schemas/users";
 import { changePasswordSchema } from "@/schemas/auth";
 import {
-  DEFAULT_MODULE_FLAGS,
-  normalizeModuleFlags,
-  parseModuleFlags,
-  type ModuleFlags,
+  MODULE_PRESETS,
+  MODULE_META,
   PRIMARY_MODULES,
+  isModulePresetId,
+  parseModulePolicy,
+  policyToLegacyFlags,
+  type ModulePolicy,
+  type ModulePolicyState,
 } from "@/lib/modules";
-import { ensurePersonalWorkspace } from "@/features/life/workspace";
+import {
+  generateTempPassword,
+  inviteUrl,
+  issueInviteToken,
+  provisionMember,
+} from "@/features/users/provision";
 import { revokeUserSessions } from "@/features/users/presence";
 import { writeAdminAudit } from "@/features/admin/audit";
 import { getSystemSettings } from "@/features/admin/system";
@@ -30,31 +37,81 @@ export interface ActionResult {
   data?: Record<string, unknown>;
 }
 
-function generateTempPassword(): string {
-  const chars = "ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
-  let pass = "Tmp@";
-  for (let i = 0; i < 8; i++) {
-    pass += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return pass;
-}
-
 async function requireAdminSession() {
   const session = await auth();
   if (!session?.user || session.user.role !== "ADMIN") return null;
   return session;
 }
 
-function modulesFromForm(formData: FormData): ModuleFlags {
-  const raw: Partial<ModuleFlags> = {};
+const POLICY_STATES: readonly string[] = ["off", "on", "member_choice"];
+
+/**
+ * Per-module policy from form fields `policy_<module>`.
+ * Returns null when the form carries no policy fields (caller keeps stored policy
+ * or applies a preset). Never interprets "no fields" as "everything on".
+ */
+function policyFromForm(
+  formData: FormData,
+  fallback: ModulePolicy,
+): ModulePolicy | null {
+  if (!PRIMARY_MODULES.some(k => formData.has(`policy_${k}`))) return null;
+  const out = { ...fallback };
   for (const key of PRIMARY_MODULES) {
-    const v = formData.get(`module_${key}`);
-    raw[key] = v === "on" || v === "true" || v === "1";
+    const v = formData.get(`policy_${key}`)?.toString();
+    if (v && POLICY_STATES.includes(v)) out[key] = v as ModulePolicyState;
   }
-  // If no module_* fields present, keep defaults (all on)
-  const anyField = PRIMARY_MODULES.some(k => formData.has(`module_${k}`));
-  if (!anyField) return { ...DEFAULT_MODULE_FLAGS };
-  return normalizeModuleFlags(raw);
+  return out;
+}
+
+/** In-app note so a member knows why their sidebar changed (docs/AREAS.md §7.5). */
+async function notifyModulePolicyChange(
+  userId: string,
+  before: ModulePolicy,
+  after: ModulePolicy,
+) {
+  const lines: string[] = [];
+  for (const key of PRIMARY_MODULES) {
+    if (before[key] === after[key]) continue;
+    const name = MODULE_META[key].fa;
+    if (after[key] === "off") lines.push(`ادمین قابلیت «${name}» را غیرفعال کرد`);
+    else if (before[key] === "off") lines.push(`ادمین قابلیت «${name}» را فعال کرد`);
+    else if (after[key] === "on") lines.push(`قابلیت «${name}» توسط ادمین ثابت فعال شد`);
+    else lines.push(`قابلیت «${name}» حالا به انتخاب خودت است`);
+  }
+  if (lines.length === 0) return;
+  await db.notification.create({
+    data: {
+      userId,
+      type: "SYSTEM_BROADCAST",
+      title: "دسترسی‌های حساب تو تغییر کرد",
+      body: lines.join("\n"),
+      data: { fromAdmin: true, kind: "modules" },
+    },
+  });
+}
+
+async function applyPolicyChange(
+  adminId: string,
+  userId: string,
+  nextPolicy: ModulePolicy,
+  current: { enabledModules: unknown; modulePolicy: unknown },
+) {
+  const before = parseModulePolicy(current.modulePolicy, current.enabledModules);
+  await db.user.update({
+    where: { id: userId },
+    data: {
+      modulePolicy: nextPolicy,
+      enabledModules: policyToLegacyFlags(nextPolicy),
+    },
+  });
+  await notifyModulePolicyChange(userId, before, nextPolicy);
+  await writeAdminAudit({
+    actorId: adminId,
+    action: "MODULES_UPDATED",
+    summary: "دسترسی ماژول‌های کاربر تغییر کرد",
+    targetUserId: userId,
+    meta: nextPolicy as unknown as Record<string, unknown>,
+  });
 }
 
 // ─── Admin: create user (MEMBER only) ─────────────────────────────────────
@@ -82,12 +139,20 @@ export async function createUser(formData: FormData): Promise<ActionResult> {
     });
     if (existing) return { success: false, error: "کاربری با این ایمیل قبلاً وجود دارد" };
 
-    const tempPassword = formData.get("password")?.toString().trim() || generateTempPassword();
-    if (tempPassword.length < 6) {
+    // Blank password → one-time invite link; filled → temporary password
+    // (member must change it at first sign-in).
+    const tempPassword = formData.get("password")?.toString().trim() || undefined;
+    if (tempPassword && tempPassword.length < 6) {
       return { success: false, error: "رمز عبور باید حداقل ۶ کاراکتر باشد" };
     }
-    const hashed = await bcrypt.hash(tempPassword, 12);
-    const enabledModules = modulesFromForm(formData);
+
+    const presetRaw = formData.get("preset")?.toString();
+    const customPolicy = policyFromForm(formData, MODULE_PRESETS.starter);
+    const policy =
+      presetRaw === "custom" || (!presetRaw && customPolicy)
+        ? (customPolicy ?? undefined)
+        : undefined;
+    const preset = isModulePresetId(presetRaw) ? presetRaw : null;
 
     const settings = await getSystemSettings();
     const activeMembers = await db.user.count({
@@ -100,39 +165,38 @@ export async function createUser(formData: FormData): Promise<ActionResult> {
       };
     }
 
-    const user = await db.user.create({
-      data: {
-        name: parsed.data.name,
-        email: parsed.data.email,
-        role: "MEMBER",
-        password: hashed,
-        status: "ACTIVE",
-        enabledModules,
-      },
+    const result = await provisionMember({
+      name: parsed.data.name,
+      email: parsed.data.email,
+      createdVia: "ADMIN_INVITE",
+      policy,
+      preset,
+      tempPassword,
     });
 
-    await ensurePersonalWorkspace(user.id);
     await writeAdminAudit({
       actorId: session.user.id,
       action: "USER_CREATED",
-      summary: `کاربر ${user.name} ساخته شد`,
-      targetUserId: user.id,
-      meta: { email: user.email },
+      summary: `کاربر ${parsed.data.name} ساخته شد`,
+      targetUserId: result.userId,
+      meta: {
+        email: parsed.data.email,
+        mode: tempPassword ? "temp_password" : "invite_link",
+      },
     });
 
-    if (process.env.SMTP_HOST) {
-      await sendMail({
-        to: user.email,
-        subject: "حساب کاربری Mindora شما",
-        html: `<p>سلام ${user.name}،</p><p>رمز عبور موقت شما: <strong>${tempPassword}</strong></p><p>لطفاً وارد شوید و رمز عبور را تغییر دهید.</p>`,
-      });
-    } else {
-      console.log(`[users] Temp password for ${user.email}: ${tempPassword}`);
-    }
-
     revalidatePath("/users");
-  revalidatePath("/admin");
-    return { success: true, data: { tempPassword, userId: user.id } };
+    revalidatePath("/admin");
+    return {
+      success: true,
+      data: {
+        userId: result.userId,
+        // Shown once in the admin UI. Never logged.
+        tempPassword: result.tempPassword ?? null,
+        invitePath: result.invitePath ?? null,
+        emailed: result.emailed,
+      },
+    };
   } catch (err) {
     console.error("[users] createUser failed", err);
     return { success: false, error: "ساخت کاربر ممکن نشد" };
@@ -155,7 +219,7 @@ export async function updateUser(
 
   const target = await db.user.findUnique({
     where: { id },
-    select: { role: true, enabledModules: true },
+    select: { role: true, enabledModules: true, modulePolicy: true },
   });
   if (!target) return { success: false, error: "کاربر یافت نشد" };
 
@@ -183,61 +247,80 @@ export async function updateUser(
     return { success: false, error: "فقط یک مدیر سیستم مجاز است" };
   }
 
-  const enabledModules = formData.has("module_tasks")
-    ? modulesFromForm(formData)
-    : parseModuleFlags(target.enabledModules);
+  const currentPolicy = parseModulePolicy(
+    target.modulePolicy,
+    target.enabledModules,
+  );
+  const nextPolicy = policyFromForm(formData, currentPolicy);
 
   await db.user.update({
     where: { id },
-    data: {
-      name: parsed.data.name,
-      role: "MEMBER",
-      enabledModules,
-    },
+    data: { name: parsed.data.name, role: "MEMBER" },
   });
-  await writeAdminAudit({
-    actorId: session.user.id,
-    action: formData.has("module_tasks") ? "MODULES_UPDATED" : "USER_UPDATED",
-    summary: formData.has("module_tasks")
-      ? "پروفایل و ماژول‌های کاربر به‌روز شد"
-      : "پروفایل کاربر به‌روز شد",
-    targetUserId: id,
-  });
+  if (nextPolicy) {
+    await applyPolicyChange(session.user.id, id, nextPolicy, target);
+  } else {
+    await writeAdminAudit({
+      actorId: session.user.id,
+      action: "USER_UPDATED",
+      summary: "پروفایل کاربر به‌روز شد",
+      targetUserId: id,
+    });
+  }
   revalidatePath("/users");
   revalidatePath("/admin");
   return { success: true };
 }
 
+/** Admin sets the full policy for one member (off / on / member_choice per module). */
 export async function updateUserModules(
   id: string,
-  flags: ModuleFlags,
+  policy: ModulePolicy,
 ): Promise<ActionResult> {
   const session = await requireAdminSession();
   if (!session) return { success: false, error: "غیرمجاز" };
 
   const target = await db.user.findUnique({
     where: { id },
-    select: { role: true },
+    select: { role: true, enabledModules: true, modulePolicy: true },
   });
   if (!target) return { success: false, error: "کاربر یافت نشد" };
   if (target.role === "ADMIN") {
     return { success: false, error: "ماژول‌ها برای مدیر سیستم معنا ندارد" };
   }
 
-  await db.user.update({
-    where: { id },
-    data: { enabledModules: normalizeModuleFlags(flags) },
-  });
-  await writeAdminAudit({
-    actorId: session.user.id,
-    action: "MODULES_UPDATED",
-    summary: "ماژول‌های کاربر تغییر کرد",
-    targetUserId: id,
-    meta: flags as unknown as Record<string, unknown>,
-  });
+  const next = parseModulePolicy(policy, {});
+  await applyPolicyChange(session.user.id, id, next, target);
   revalidatePath("/users");
   revalidatePath("/admin");
   return { success: true };
+}
+
+/** Admin issues a fresh one-time invite link (7 days) for a member. */
+export async function createInviteLinkAction(id: string): Promise<ActionResult> {
+  const session = await requireAdminSession();
+  if (!session) return { success: false, error: "غیرمجاز" };
+
+  const user = await db.user.findUnique({
+    where: { id },
+    select: { id: true, role: true, name: true },
+  });
+  if (!user) return { success: false, error: "کاربر یافت نشد" };
+  if (user.role === "ADMIN") {
+    return { success: false, error: "این کار برای مدیر سیستم مجاز نیست" };
+  }
+
+  const token = await issueInviteToken(id);
+  await writeAdminAudit({
+    actorId: session.user.id,
+    action: "INVITE_LINK_CREATED",
+    summary: `لینک دعوت برای ${user.name} ساخته شد`,
+    targetUserId: id,
+  });
+  return {
+    success: true,
+    data: { invitePath: `/accept-invite?token=${token}`, inviteUrl: inviteUrl(token) },
+  };
 }
 
 export async function toggleUserStatus(id: string): Promise<ActionResult> {
@@ -420,7 +503,11 @@ export async function resetUserPassword(id: string): Promise<ActionResult> {
   const hashed = await bcrypt.hash(tempPassword, 12);
   await db.user.update({
     where: { id },
-    data: { password: hashed, sessionVersion: { increment: 1 } },
+    data: {
+      password: hashed,
+      mustChangePassword: true,
+      sessionVersion: { increment: 1 },
+    },
   });
   await writeAdminAudit({
     actorId: session.user.id,
@@ -505,8 +592,8 @@ export async function changePassword(formData: FormData): Promise<ActionResult> 
   const hashed = await bcrypt.hash(parsed.data.password, 12);
   await db.user.update({
     where: { id: session.user.id },
-    data: { password: hashed },
+    data: { password: hashed, mustChangePassword: false },
   });
-  revalidatePath("/settings");
+  revalidatePath("/", "layout");
   return { success: true };
 }

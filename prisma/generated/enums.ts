@@ -25,6 +25,22 @@ export const UserStatus = {
 export type UserStatus = (typeof UserStatus)[keyof typeof UserStatus]
 
 
+export const UserCreatedVia = {
+  ADMIN_INVITE: 'ADMIN_INVITE',
+  SELF_SIGNUP: 'SELF_SIGNUP'
+} as const
+
+export type UserCreatedVia = (typeof UserCreatedVia)[keyof typeof UserCreatedVia]
+
+
+export const PasswordTokenPurpose = {
+  RESET: 'RESET',
+  INVITE: 'INVITE'
+} as const
+
+export type PasswordTokenPurpose = (typeof PasswordTokenPurpose)[keyof typeof PasswordTokenPurpose]
+
+
 export const TaskStatus = {
   BACKLOG: 'BACKLOG',
   TODO: 'TODO',

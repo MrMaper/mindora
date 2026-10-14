@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import * as React from "react";
 import { Controller } from "react-hook-form";
@@ -11,9 +11,9 @@ import type { Translations } from "@/i18n";
 import type { UpdateUserInput } from "@/schemas/users";
 import type { UserLoginEventRow, UserRow } from "@/features/users/types";
 import type { UseFormReturn } from "react-hook-form";
-import type { ModuleFlags } from "@/lib/modules";
+import type { ModulePolicy } from "@/lib/modules";
 import { formatPresenceInstant } from "@/lib/presence";
-import { ModuleToggles } from "./module-toggles";
+import { ModulePolicyEditor } from "./module-toggles";
 
 interface EditUserDrawerProps {
   open: boolean;
@@ -22,11 +22,13 @@ interface EditUserDrawerProps {
   language: "FA" | "EN";
   editForm: UseFormReturn<UpdateUserInput>;
   editingUser: UserRow | null;
-  modules: ModuleFlags;
-  onModulesChange: (next: ModuleFlags) => void;
+  modules: ModulePolicy;
+  onModulesChange: (next: ModulePolicy) => void;
   actionError: string | null;
   isPending: boolean;
   resetPassword: string | null;
+  inviteLink: string | null;
+  onCreateInviteLink: () => void;
   loginEvents: UserLoginEventRow[];
   onEditSubmit: () => void;
   onResetPassword: () => void;
@@ -45,6 +47,8 @@ export function EditUserDrawer({
   actionError,
   isPending,
   resetPassword,
+  inviteLink,
+  onCreateInviteLink,
   loginEvents,
   onEditSubmit,
   onResetPassword,
@@ -113,7 +117,7 @@ export function EditUserDrawer({
           )}
         />
         {!isAdmin && (
-          <ModuleToggles
+          <ModulePolicyEditor
             value={modules}
             onChange={onModulesChange}
             language={language}
@@ -145,7 +149,15 @@ export function EditUserDrawer({
                 onClick={onResetPassword}
                 type="button"
               >
-                {language === "FA" ? "بازنشانی رمز عبور" : "Reset password"}
+                {language === "FA" ? "رمز موقت جدید" : "New temporary password"}
+              </Button>
+              <Button
+                variant="secondary"
+                loading={isPending}
+                onClick={onCreateInviteLink}
+                type="button"
+              >
+                {language === "FA" ? "لینک دعوت جدید" : "New invite link"}
               </Button>
               <Button
                 variant="subtle"
@@ -157,6 +169,17 @@ export function EditUserDrawer({
                 {t.users.forceLogout}
               </Button>
             </div>
+            {inviteLink && (
+              <div className="rounded-md bg-muted/50 px-2 py-1.5">
+                <p className="text-[11px] text-muted-foreground">
+                  {language === "FA" ? "لینک دعوت (۷ روز)" : "Invite link (7 days)"}
+                </p>
+                <p className="break-all font-mono text-xs select-all" dir="ltr">
+                  {typeof window === "undefined" ? "" : window.location.origin}
+                  {inviteLink}
+                </p>
+              </div>
+            )}
             {resetPassword && (
               <div className="rounded-md bg-muted/50 px-2 py-1.5">
                 <p className="text-[11px] text-muted-foreground">

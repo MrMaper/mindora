@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Badge } from "@/components/ui-kit/data-display/badge";
+import { useTranslation } from "@/i18n/provider";
 import { cn } from "@/lib/utils";
 
 export type TaskStatus =
@@ -17,7 +18,6 @@ export type TaskStatus =
 export const STATUSES: Record<
   TaskStatus,
   {
-    label: string;
     tone:
       | "neutral"
       | "brand"
@@ -29,14 +29,37 @@ export const STATUSES: Record<
       | "solid";
   }
 > = {
-  backlog: { label: "اینباکس", tone: "neutral" },
-  todo: { label: "این هفته", tone: "info" },
-  "in-progress": { label: "در حال انجام", tone: "brand" },
-  done: { label: "تمام", tone: "success" },
-  review: { label: "در حال انجام", tone: "brand" },
-  testing: { label: "در حال انجام", tone: "brand" },
-  blocked: { label: "در حال انجام", tone: "brand" },
+  backlog: { tone: "neutral" },
+  todo: { tone: "info" },
+  "in-progress": { tone: "brand" },
+  done: { tone: "success" },
+  review: { tone: "brand" },
+  testing: { tone: "brand" },
+  blocked: { tone: "brand" },
 };
+
+function statusLabel(
+  status: TaskStatus,
+  t: ReturnType<typeof useTranslation>,
+): string {
+  switch (status) {
+    case "todo":
+      return t.tasks.todo;
+    case "in-progress":
+      return t.tasks.inProgress;
+    case "done":
+      return t.tasks.done;
+    case "review":
+      return t.tasks.review;
+    case "testing":
+      return t.tasks.testing;
+    case "blocked":
+      return t.tasks.blocked;
+    case "backlog":
+    default:
+      return t.tasks.backlog;
+  }
+}
 
 export interface StatusBadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   status: TaskStatus;
@@ -51,13 +74,15 @@ export function StatusBadge({
   className = "",
   ...rest
 }: StatusBadgeProps): React.JSX.Element {
+  const t = useTranslation();
   const s = STATUSES[status] ?? STATUSES.backlog;
+  const label = statusLabel(status, t);
 
   if (dotOnly) {
     return (
       <span
         className={cn("flex items-center gap-1", className)}
-        title={s.label}
+        title={label}
         {...rest}
       >
         <span
@@ -75,7 +100,7 @@ export function StatusBadge({
       className={cn("gap-1.5", className)}
       {...rest}
     >
-      {s.label}
+      {label}
     </Badge>
   );
 }

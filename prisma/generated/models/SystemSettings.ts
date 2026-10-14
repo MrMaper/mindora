@@ -42,6 +42,9 @@ export type SystemSettingsMinAggregateOutputType = {
   planLabel: string | null
   storageQuotaBytes: bigint | null
   maxActiveMembers: number | null
+  defaultModulePresetAdmin: string | null
+  defaultModulePresetSignup: string | null
+  signupEnabled: boolean | null
   updatedAt: Date | null
 }
 
@@ -51,6 +54,9 @@ export type SystemSettingsMaxAggregateOutputType = {
   planLabel: string | null
   storageQuotaBytes: bigint | null
   maxActiveMembers: number | null
+  defaultModulePresetAdmin: string | null
+  defaultModulePresetSignup: string | null
+  signupEnabled: boolean | null
   updatedAt: Date | null
 }
 
@@ -60,6 +66,9 @@ export type SystemSettingsCountAggregateOutputType = {
   planLabel: number
   storageQuotaBytes: number
   maxActiveMembers: number
+  defaultModulePresetAdmin: number
+  defaultModulePresetSignup: number
+  signupEnabled: number
   updatedAt: number
   _all: number
 }
@@ -81,6 +90,9 @@ export type SystemSettingsMinAggregateInputType = {
   planLabel?: true
   storageQuotaBytes?: true
   maxActiveMembers?: true
+  defaultModulePresetAdmin?: true
+  defaultModulePresetSignup?: true
+  signupEnabled?: true
   updatedAt?: true
 }
 
@@ -90,6 +102,9 @@ export type SystemSettingsMaxAggregateInputType = {
   planLabel?: true
   storageQuotaBytes?: true
   maxActiveMembers?: true
+  defaultModulePresetAdmin?: true
+  defaultModulePresetSignup?: true
+  signupEnabled?: true
   updatedAt?: true
 }
 
@@ -99,6 +114,9 @@ export type SystemSettingsCountAggregateInputType = {
   planLabel?: true
   storageQuotaBytes?: true
   maxActiveMembers?: true
+  defaultModulePresetAdmin?: true
+  defaultModulePresetSignup?: true
+  signupEnabled?: true
   updatedAt?: true
   _all?: true
 }
@@ -195,6 +213,9 @@ export type SystemSettingsGroupByOutputType = {
   planLabel: string
   storageQuotaBytes: bigint
   maxActiveMembers: number
+  defaultModulePresetAdmin: string
+  defaultModulePresetSignup: string
+  signupEnabled: boolean
   updatedAt: Date
   _count: SystemSettingsCountAggregateOutputType | null
   _avg: SystemSettingsAvgAggregateOutputType | null
@@ -227,6 +248,9 @@ export type SystemSettingsWhereInput = {
   planLabel?: Prisma.StringFilter<"SystemSettings"> | string
   storageQuotaBytes?: Prisma.BigIntFilter<"SystemSettings"> | bigint | number
   maxActiveMembers?: Prisma.IntFilter<"SystemSettings"> | number
+  defaultModulePresetAdmin?: Prisma.StringFilter<"SystemSettings"> | string
+  defaultModulePresetSignup?: Prisma.StringFilter<"SystemSettings"> | string
+  signupEnabled?: Prisma.BoolFilter<"SystemSettings"> | boolean
   updatedAt?: Prisma.DateTimeFilter<"SystemSettings"> | Date | string
 }
 
@@ -236,6 +260,9 @@ export type SystemSettingsOrderByWithRelationInput = {
   planLabel?: Prisma.SortOrder
   storageQuotaBytes?: Prisma.SortOrder
   maxActiveMembers?: Prisma.SortOrder
+  defaultModulePresetAdmin?: Prisma.SortOrder
+  defaultModulePresetSignup?: Prisma.SortOrder
+  signupEnabled?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -248,6 +275,9 @@ export type SystemSettingsWhereUniqueInput = Prisma.AtLeast<{
   planLabel?: Prisma.StringFilter<"SystemSettings"> | string
   storageQuotaBytes?: Prisma.BigIntFilter<"SystemSettings"> | bigint | number
   maxActiveMembers?: Prisma.IntFilter<"SystemSettings"> | number
+  defaultModulePresetAdmin?: Prisma.StringFilter<"SystemSettings"> | string
+  defaultModulePresetSignup?: Prisma.StringFilter<"SystemSettings"> | string
+  signupEnabled?: Prisma.BoolFilter<"SystemSettings"> | boolean
   updatedAt?: Prisma.DateTimeFilter<"SystemSettings"> | Date | string
 }, "id">
 
@@ -257,6 +287,9 @@ export type SystemSettingsOrderByWithAggregationInput = {
   planLabel?: Prisma.SortOrder
   storageQuotaBytes?: Prisma.SortOrder
   maxActiveMembers?: Prisma.SortOrder
+  defaultModulePresetAdmin?: Prisma.SortOrder
+  defaultModulePresetSignup?: Prisma.SortOrder
+  signupEnabled?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.SystemSettingsCountOrderByAggregateInput
   _avg?: Prisma.SystemSettingsAvgOrderByAggregateInput
@@ -274,6 +307,9 @@ export type SystemSettingsScalarWhereWithAggregatesInput = {
   planLabel?: Prisma.StringWithAggregatesFilter<"SystemSettings"> | string
   storageQuotaBytes?: Prisma.BigIntWithAggregatesFilter<"SystemSettings"> | bigint | number
   maxActiveMembers?: Prisma.IntWithAggregatesFilter<"SystemSettings"> | number
+  defaultModulePresetAdmin?: Prisma.StringWithAggregatesFilter<"SystemSettings"> | string
+  defaultModulePresetSignup?: Prisma.StringWithAggregatesFilter<"SystemSettings"> | string
+  signupEnabled?: Prisma.BoolWithAggregatesFilter<"SystemSettings"> | boolean
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SystemSettings"> | Date | string
 }
 
@@ -283,6 +319,9 @@ export type SystemSettingsCreateInput = {
   planLabel?: string
   storageQuotaBytes?: bigint | number
   maxActiveMembers?: number
+  defaultModulePresetAdmin?: string
+  defaultModulePresetSignup?: string
+  signupEnabled?: boolean
   updatedAt?: Date | string
 }
 
@@ -292,6 +331,9 @@ export type SystemSettingsUncheckedCreateInput = {
   planLabel?: string
   storageQuotaBytes?: bigint | number
   maxActiveMembers?: number
+  defaultModulePresetAdmin?: string
+  defaultModulePresetSignup?: string
+  signupEnabled?: boolean
   updatedAt?: Date | string
 }
 
@@ -301,6 +343,9 @@ export type SystemSettingsUpdateInput = {
   planLabel?: Prisma.StringFieldUpdateOperationsInput | string
   storageQuotaBytes?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   maxActiveMembers?: Prisma.IntFieldUpdateOperationsInput | number
+  defaultModulePresetAdmin?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultModulePresetSignup?: Prisma.StringFieldUpdateOperationsInput | string
+  signupEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -310,6 +355,9 @@ export type SystemSettingsUncheckedUpdateInput = {
   planLabel?: Prisma.StringFieldUpdateOperationsInput | string
   storageQuotaBytes?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   maxActiveMembers?: Prisma.IntFieldUpdateOperationsInput | number
+  defaultModulePresetAdmin?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultModulePresetSignup?: Prisma.StringFieldUpdateOperationsInput | string
+  signupEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -319,6 +367,9 @@ export type SystemSettingsCreateManyInput = {
   planLabel?: string
   storageQuotaBytes?: bigint | number
   maxActiveMembers?: number
+  defaultModulePresetAdmin?: string
+  defaultModulePresetSignup?: string
+  signupEnabled?: boolean
   updatedAt?: Date | string
 }
 
@@ -328,6 +379,9 @@ export type SystemSettingsUpdateManyMutationInput = {
   planLabel?: Prisma.StringFieldUpdateOperationsInput | string
   storageQuotaBytes?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   maxActiveMembers?: Prisma.IntFieldUpdateOperationsInput | number
+  defaultModulePresetAdmin?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultModulePresetSignup?: Prisma.StringFieldUpdateOperationsInput | string
+  signupEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -337,6 +391,9 @@ export type SystemSettingsUncheckedUpdateManyInput = {
   planLabel?: Prisma.StringFieldUpdateOperationsInput | string
   storageQuotaBytes?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   maxActiveMembers?: Prisma.IntFieldUpdateOperationsInput | number
+  defaultModulePresetAdmin?: Prisma.StringFieldUpdateOperationsInput | string
+  defaultModulePresetSignup?: Prisma.StringFieldUpdateOperationsInput | string
+  signupEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -346,6 +403,9 @@ export type SystemSettingsCountOrderByAggregateInput = {
   planLabel?: Prisma.SortOrder
   storageQuotaBytes?: Prisma.SortOrder
   maxActiveMembers?: Prisma.SortOrder
+  defaultModulePresetAdmin?: Prisma.SortOrder
+  defaultModulePresetSignup?: Prisma.SortOrder
+  signupEnabled?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -360,6 +420,9 @@ export type SystemSettingsMaxOrderByAggregateInput = {
   planLabel?: Prisma.SortOrder
   storageQuotaBytes?: Prisma.SortOrder
   maxActiveMembers?: Prisma.SortOrder
+  defaultModulePresetAdmin?: Prisma.SortOrder
+  defaultModulePresetSignup?: Prisma.SortOrder
+  signupEnabled?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -369,6 +432,9 @@ export type SystemSettingsMinOrderByAggregateInput = {
   planLabel?: Prisma.SortOrder
   storageQuotaBytes?: Prisma.SortOrder
   maxActiveMembers?: Prisma.SortOrder
+  defaultModulePresetAdmin?: Prisma.SortOrder
+  defaultModulePresetSignup?: Prisma.SortOrder
+  signupEnabled?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -393,6 +459,9 @@ export type SystemSettingsSelect<ExtArgs extends runtime.Types.Extensions.Intern
   planLabel?: boolean
   storageQuotaBytes?: boolean
   maxActiveMembers?: boolean
+  defaultModulePresetAdmin?: boolean
+  defaultModulePresetSignup?: boolean
+  signupEnabled?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["systemSettings"]>
 
@@ -402,6 +471,9 @@ export type SystemSettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   planLabel?: boolean
   storageQuotaBytes?: boolean
   maxActiveMembers?: boolean
+  defaultModulePresetAdmin?: boolean
+  defaultModulePresetSignup?: boolean
+  signupEnabled?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["systemSettings"]>
 
@@ -411,6 +483,9 @@ export type SystemSettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   planLabel?: boolean
   storageQuotaBytes?: boolean
   maxActiveMembers?: boolean
+  defaultModulePresetAdmin?: boolean
+  defaultModulePresetSignup?: boolean
+  signupEnabled?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["systemSettings"]>
 
@@ -420,10 +495,13 @@ export type SystemSettingsSelectScalar = {
   planLabel?: boolean
   storageQuotaBytes?: boolean
   maxActiveMembers?: boolean
+  defaultModulePresetAdmin?: boolean
+  defaultModulePresetSignup?: boolean
+  signupEnabled?: boolean
   updatedAt?: boolean
 }
 
-export type SystemSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "planCode" | "planLabel" | "storageQuotaBytes" | "maxActiveMembers" | "updatedAt", ExtArgs["result"]["systemSettings"]>
+export type SystemSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "planCode" | "planLabel" | "storageQuotaBytes" | "maxActiveMembers" | "defaultModulePresetAdmin" | "defaultModulePresetSignup" | "signupEnabled" | "updatedAt", ExtArgs["result"]["systemSettings"]>
 
 export type $SystemSettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "SystemSettings"
@@ -434,6 +512,15 @@ export type $SystemSettingsPayload<ExtArgs extends runtime.Types.Extensions.Inte
     planLabel: string
     storageQuotaBytes: bigint
     maxActiveMembers: number
+    /**
+     * Module preset applied to new members: starter | full
+     */
+    defaultModulePresetAdmin: string
+    defaultModulePresetSignup: string
+    /**
+     * Reserved for the public sign-up track; no sign-up page exists yet.
+     */
+    signupEnabled: boolean
     updatedAt: Date
   }, ExtArgs["result"]["systemSettings"]>
   composites: {}
@@ -863,6 +950,9 @@ export interface SystemSettingsFieldRefs {
   readonly planLabel: Prisma.FieldRef<"SystemSettings", 'String'>
   readonly storageQuotaBytes: Prisma.FieldRef<"SystemSettings", 'BigInt'>
   readonly maxActiveMembers: Prisma.FieldRef<"SystemSettings", 'Int'>
+  readonly defaultModulePresetAdmin: Prisma.FieldRef<"SystemSettings", 'String'>
+  readonly defaultModulePresetSignup: Prisma.FieldRef<"SystemSettings", 'String'>
+  readonly signupEnabled: Prisma.FieldRef<"SystemSettings", 'Boolean'>
   readonly updatedAt: Prisma.FieldRef<"SystemSettings", 'DateTime'>
 }
     

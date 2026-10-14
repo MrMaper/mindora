@@ -12,6 +12,7 @@ export const ADMIN_AUDIT_ACTIONS = [
   "BROADCAST_SENT",
   "PLAN_UPDATED",
   "LOGIN_UNLOCKED",
+  "INVITE_LINK_CREATED",
 ] as const;
 
 export type AdminAuditAction = (typeof ADMIN_AUDIT_ACTIONS)[number];

@@ -55,7 +55,13 @@ export interface GetTasksParams {
   search?: string;
   status?: TaskStatus;
   priority?: TaskPriority;
+  /** Exact assignee filter (admin picker). Ignored when ownerId is set. */
   assigneeId?: string;
+  /**
+   * Personal scope: assigned to me OR created by me and unassigned
+   * (same as Today / life lists).
+   */
+  ownerId?: string;
   projectIds?: string[];
   area?: LifeArea;
   labelId?: string;

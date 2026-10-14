@@ -11,14 +11,18 @@ import {
   toggleUserStatus,
   deleteUser,
   resetUserPassword,
+  createInviteLinkAction,
   forceLogoutUser,
   listUserLoginEventsAction,
 } from "@/features/users/actions";
 import type { CreateUserInput, UpdateUserInput } from "@/schemas/users";
 import type { UserLoginEventRow, UserRow } from "@/features/users/types";
 import {
-  DEFAULT_MODULE_FLAGS,
-  type ModuleFlags,
+  MODULE_PRESETS,
+  PRIMARY_MODULES,
+  isModulePresetId,
+  type ModulePolicy,
+  type ModulePresetId,
 } from "@/lib/modules";
 
 type DrawerMode = "none" | "create" | "edit";
@@ -31,27 +35,39 @@ export interface UserFilters {
   order: string;
 }
 
-export function useUsers(initialSearch: string) {
+export interface CreatedAccess {
+  tempPassword: string | null;
+  invitePath: string | null;
+  emailed: boolean;
+}
+
+export function useUsers(
+  initialSearch: string,
+  defaultPreset: ModulePresetId = "starter",
+) {
   const router = useRouter();
+  const presetPolicy = () => ({
+    ...MODULE_PRESETS[isModulePresetId(defaultPreset) ? defaultPreset : "starter"],
+  });
 
   const [drawerMode, setDrawerMode] = React.useState<DrawerMode>("none");
   const [editingUser, setEditingUser] = React.useState<UserRow | null>(null);
   const [deleteTarget, setDeleteTarget] = React.useState<UserRow | null>(null);
   const [actionError, setActionError] = React.useState<string | null>(null);
-  const [createdPassword, setCreatedPassword] = React.useState<string | null>(
-    null,
-  );
+  const [createdAccess, setCreatedAccess] =
+    React.useState<CreatedAccess | null>(null);
   const [resetPassword, setResetPassword] = React.useState<string | null>(null);
+  const [inviteLink, setInviteLink] = React.useState<string | null>(null);
   const [loginEvents, setLoginEvents] = React.useState<UserLoginEventRow[]>(
     [],
   );
   const [isPending, startTransition] = React.useTransition();
-  const [createModules, setCreateModules] = React.useState<ModuleFlags>({
-    ...DEFAULT_MODULE_FLAGS,
-  });
-  const [editModules, setEditModules] = React.useState<ModuleFlags>({
-    ...DEFAULT_MODULE_FLAGS,
-  });
+  const [createModules, setCreateModules] = React.useState<ModulePolicy>(
+    presetPolicy,
+  );
+  const [editModules, setEditModules] = React.useState<ModulePolicy>(
+    presetPolicy,
+  );
 
   const [search, setSearch] = React.useState(initialSearch);
 
@@ -75,18 +91,19 @@ export function useUsers(initialSearch: string) {
 
   function openCreate() {
     createForm.reset({ name: "", email: "", role: "MEMBER", password: "" });
-    setCreateModules({ ...DEFAULT_MODULE_FLAGS });
+    setCreateModules(presetPolicy());
     setActionError(null);
-    setCreatedPassword(null);
+    setCreatedAccess(null);
     setDrawerMode("create");
   }
 
   function openEdit(user: UserRow) {
     editForm.reset({ name: user.name, role: user.role });
-    setEditModules({ ...user.enabledModules });
+    setEditModules({ ...user.modulePolicy });
     setEditingUser(user);
     setActionError(null);
     setResetPassword(null);
+    setInviteLink(null);
     setLoginEvents([]);
     setDrawerMode("edit");
     startTransition(async () => {
@@ -99,14 +116,15 @@ export function useUsers(initialSearch: string) {
     setDrawerMode("none");
     setEditingUser(null);
     setActionError(null);
-    setCreatedPassword(null);
+    setCreatedAccess(null);
     setResetPassword(null);
+    setInviteLink(null);
     setLoginEvents([]);
   }
 
-  function appendModules(fd: FormData, flags: ModuleFlags) {
-    for (const [k, v] of Object.entries(flags)) {
-      fd.append(`module_${k}`, v ? "true" : "false");
+  function appendModules(fd: FormData, policy: ModulePolicy) {
+    for (const key of PRIMARY_MODULES) {
+      fd.append(`policy_${key}`, policy[key]);
     }
   }
 
@@ -118,13 +136,18 @@ export function useUsers(initialSearch: string) {
       fd.append("email", data.email);
       fd.append("role", "MEMBER");
       if (data.password) fd.append("password", data.password);
+      fd.append("preset", "custom");
       appendModules(fd, createModules);
       const result = await createUser(fd);
       if (!result.success) {
         setActionError(result.error ?? "Failed to create user.");
         return;
       }
-      setCreatedPassword((result.data?.tempPassword as string) ?? null);
+      setCreatedAccess({
+        tempPassword: (result.data?.tempPassword as string | null) ?? null,
+        invitePath: (result.data?.invitePath as string | null) ?? null,
+        emailed: result.data?.emailed === true,
+      });
       router.refresh();
     });
   });
@@ -174,6 +197,18 @@ export function useUsers(initialSearch: string) {
         return;
       }
       setResetPassword((result.data?.tempPassword as string) ?? null);
+    });
+  }
+
+  function onCreateInviteLink() {
+    if (!editingUser) return;
+    startTransition(async () => {
+      const result = await createInviteLinkAction(editingUser.id);
+      if (!result.success) {
+        setActionError(result.error ?? "Failed to create invite link.");
+        return;
+      }
+      setInviteLink((result.data?.invitePath as string) ?? null);
     });
   }
 
@@ -235,8 +270,10 @@ export function useUsers(initialSearch: string) {
     setDeleteTarget,
     actionError,
     setActionError,
-    createdPassword,
+    createdAccess,
     resetPassword,
+    inviteLink,
+    onCreateInviteLink,
     loginEvents,
     isPending,
     search,

@@ -1,5 +1,5 @@
 import type { UserRole, UserStatus } from "@/types/db";
-import type { ModuleFlags } from "@/lib/modules";
+import type { ModuleFlags, ModulePolicy } from "@/lib/modules";
 
 export interface UserRow {
   id: string;
@@ -9,7 +9,9 @@ export interface UserRow {
   role: UserRole;
   status: UserStatus;
   createdAt: Date;
+  /** Modules the admin allows (policy != off). */
   enabledModules: ModuleFlags;
+  modulePolicy: ModulePolicy;
   lastLoginAt: Date | null;
   lastSeenAt: Date | null;
   totalOnlineSeconds: number;

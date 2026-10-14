@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import * as React from "react";
 import { Controller } from "react-hook-form";
@@ -9,8 +9,9 @@ import { Drawer } from "@/components/ui-kit/overlays/drawer";
 import type { Translations } from "@/i18n";
 import type { CreateUserInput } from "@/schemas/users";
 import type { UseFormReturn } from "react-hook-form";
-import type { ModuleFlags } from "@/lib/modules";
-import { ModuleToggles } from "./module-toggles";
+import type { ModulePolicy } from "@/lib/modules";
+import type { CreatedAccess } from "../hooks/use-users";
+import { ModulePolicyEditor } from "./module-toggles";
 
 interface CreateUserDrawerProps {
   open: boolean;
@@ -18,11 +19,11 @@ interface CreateUserDrawerProps {
   t: Translations;
   language: "FA" | "EN";
   createForm: UseFormReturn<CreateUserInput>;
-  modules: ModuleFlags;
-  onModulesChange: (next: ModuleFlags) => void;
+  modules: ModulePolicy;
+  onModulesChange: (next: ModulePolicy) => void;
   actionError: string | null;
   isPending: boolean;
-  createdPassword: string | null;
+  createdAccess: CreatedAccess | null;
   onCreateSubmit: () => void;
 }
 
@@ -36,7 +37,7 @@ export function CreateUserDrawer({
   onModulesChange,
   actionError,
   isPending,
-  createdPassword,
+  createdAccess,
   onCreateSubmit,
 }: CreateUserDrawerProps) {
   return (
@@ -49,7 +50,7 @@ export function CreateUserDrawer({
         </span>
       }
       footer={
-        createdPassword ? (
+        createdAccess ? (
           <Button variant="primary" onClick={onClose}>
             {t.users.done}
           </Button>
@@ -66,8 +67,8 @@ export function CreateUserDrawer({
       }
     >
       <div className="p-4 flex flex-col gap-4">
-        {createdPassword ? (
-          <CreatedPasswordView t={t} createdPassword={createdPassword} />
+        {createdAccess ? (
+          <CreatedAccessView t={t} language={language} access={createdAccess} />
         ) : (
           <>
             {actionError && (
@@ -113,19 +114,19 @@ export function CreateUserDrawer({
                   label={
                     language === "FA"
                       ? "رمز موقت (اختیاری)"
-                      : "Temp password (optional)"
+                      : "Temporary password (optional)"
                   }
                   type="text"
                   placeholder={
                     language === "FA"
-                      ? "خالی = تولید خودکار"
-                      : "Empty = auto-generate"
+                      ? "خالی = لینک دعوت یک‌بارمصرف"
+                      : "Empty = one-time invite link"
                   }
                   error={fieldState.error?.message}
                 />
               )}
             />
-            <ModuleToggles
+            <ModulePolicyEditor
               value={modules}
               onChange={onModulesChange}
               language={language}
@@ -137,23 +138,75 @@ export function CreateUserDrawer({
   );
 }
 
-function CreatedPasswordView({
+function CreatedAccessView({
   t,
-  createdPassword,
+  language,
+  access,
 }: {
   t: Translations;
-  createdPassword: string;
+  language: "FA" | "EN";
+  access: CreatedAccess;
 }) {
+  const fa = language === "FA";
+  const [copied, setCopied] = React.useState(false);
+  const link = access.invitePath
+    ? `${typeof window === "undefined" ? "" : window.location.origin}${access.invitePath}`
+    : null;
+
+  async function copy() {
+    if (!link) return;
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
+  }
+
   return (
     <div className="flex flex-col gap-3">
       <p className="text-sm text-foreground">{t.users.userCreated}</p>
-      <div className="rounded-lg border bg-muted/40 px-3 py-2">
-        <p className="text-xs text-muted-foreground">{t.users.temporaryPassword}</p>
-        <p className="mt-1 font-mono text-sm font-semibold select-all">
-          {createdPassword}
-        </p>
-      </div>
-      <p className="text-xs text-muted-foreground">{t.users.sharePassword}</p>
+      {link ? (
+        <>
+          <div className="rounded-lg border bg-muted/40 px-3 py-2">
+            <p className="text-xs text-muted-foreground">
+              {fa ? "لینک دعوت (۷ روز، یک‌بارمصرف)" : "Invite link (7 days, single use)"}
+            </p>
+            <p className="mt-1 break-all font-mono text-xs select-all" dir="ltr">
+              {link}
+            </p>
+          </div>
+          <Button variant="secondary" size="sm" onClick={() => void copy()}>
+            {copied ? (fa ? "کپی شد" : "Copied") : fa ? "کپی لینک" : "Copy link"}
+          </Button>
+          <p className="text-xs text-muted-foreground">
+            {access.emailed
+              ? fa
+                ? "لینک به ایمیل کاربر هم ارسال شد."
+                : "The link was also emailed to the member."
+              : fa
+                ? "این لینک فقط همین یک‌بار نمایش داده می‌شود؛ آن را برای کاربر بفرست."
+                : "This link is shown once only; send it to the member."}
+          </p>
+        </>
+      ) : null}
+      {access.tempPassword ? (
+        <>
+          <div className="rounded-lg border bg-muted/40 px-3 py-2">
+            <p className="text-xs text-muted-foreground">{t.users.temporaryPassword}</p>
+            <p className="mt-1 font-mono text-sm font-semibold select-all">
+              {access.tempPassword}
+            </p>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {t.users.sharePassword}{" "}
+            {fa
+              ? "کاربر در اولین ورود باید رمز خودش را انتخاب کند."
+              : "The member must choose their own password at first sign-in."}
+          </p>
+        </>
+      ) : null}
     </div>
   );
 }

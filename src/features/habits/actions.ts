@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { auth } from "@/auth";
+import { authForModule } from "@/lib/module-guard";
 import { prisma as db } from "@/lib/db";
 import { toDateKey } from "@/lib/life";
 import type { LifeArea, RecurrenceInterval } from "@/types/db";
@@ -27,7 +27,7 @@ function revalidateHabits() {
 export async function listHabitsAction(input?: {
   archived?: boolean;
 }): Promise<HabitItem[]> {
-  const session = await auth();
+  const session = await authForModule("habits");
   if (!session?.user) return [];
   return listHabitsForUser(session.user.id, input);
 }
@@ -36,7 +36,7 @@ export async function getHabitHeatmapAction(input?: {
   habitId?: string | null;
   weeks?: number;
 }): Promise<HabitHeatDay[]> {
-  const session = await auth();
+  const session = await authForModule("habits");
   if (!session?.user) return [];
   return getHabitHeatmapForUser(session.user.id, input);
 }
@@ -46,7 +46,7 @@ export async function createHabitAction(input: {
   area?: LifeArea | null;
   cadence?: RecurrenceInterval;
 }): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("habits");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
   const title = input.title.trim();
   if (!title) return { success: false, error: "عنوان لازم است" };
@@ -69,7 +69,7 @@ export async function createHabitAction(input: {
 }
 
 export async function archiveHabitAction(habitId: string): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("habits");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
   const habit = await db.habit.findFirst({
     where: { id: habitId, userId: session.user.id },
@@ -85,7 +85,7 @@ export async function archiveHabitAction(habitId: string): Promise<ActionResult>
 }
 
 export async function restoreHabitAction(habitId: string): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("habits");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
   const habit = await db.habit.findFirst({
     where: {
@@ -110,7 +110,7 @@ export async function updateHabitAction(input: {
   area?: LifeArea | null;
   cadence?: RecurrenceInterval;
 }): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("habits");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
   const title = input.title.trim();
   if (!title) return { success: false, error: "عنوان لازم است" };
@@ -176,7 +176,7 @@ export async function updateHabitAction(input: {
 }
 
 export async function deleteHabitAction(habitId: string): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("habits");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
   const habit = await db.habit.findFirst({
     where: { id: habitId, userId: session.user.id },
@@ -191,7 +191,7 @@ export async function deleteHabitAction(habitId: string): Promise<ActionResult> 
 export async function toggleHabitDoneAction(
   habitId: string,
 ): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("habits");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const habit = await db.habit.findFirst({

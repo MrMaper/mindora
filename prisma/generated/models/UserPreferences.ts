@@ -113,6 +113,7 @@ export type UserPreferencesCountAggregateOutputType = {
   todayFocusDate: number
   todayFocusIds: number
   onboardingCompletedAt: number
+  moduleMemberPrefs: number
   batchDeadlineReminders: number
   createdAt: number
   updatedAt: number
@@ -207,6 +208,7 @@ export type UserPreferencesCountAggregateInputType = {
   todayFocusDate?: true
   todayFocusIds?: true
   onboardingCompletedAt?: true
+  moduleMemberPrefs?: true
   batchDeadlineReminders?: true
   createdAt?: true
   updatedAt?: true
@@ -322,6 +324,7 @@ export type UserPreferencesGroupByOutputType = {
   todayFocusDate: string | null
   todayFocusIds: string[]
   onboardingCompletedAt: Date | null
+  moduleMemberPrefs: runtime.JsonValue
   batchDeadlineReminders: boolean
   createdAt: Date
   updatedAt: Date
@@ -373,6 +376,7 @@ export type UserPreferencesWhereInput = {
   todayFocusDate?: Prisma.StringNullableFilter<"UserPreferences"> | string | null
   todayFocusIds?: Prisma.StringNullableListFilter<"UserPreferences">
   onboardingCompletedAt?: Prisma.DateTimeNullableFilter<"UserPreferences"> | Date | string | null
+  moduleMemberPrefs?: Prisma.JsonFilter<"UserPreferences">
   batchDeadlineReminders?: Prisma.BoolFilter<"UserPreferences"> | boolean
   createdAt?: Prisma.DateTimeFilter<"UserPreferences"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"UserPreferences"> | Date | string
@@ -402,6 +406,7 @@ export type UserPreferencesOrderByWithRelationInput = {
   todayFocusDate?: Prisma.SortOrderInput | Prisma.SortOrder
   todayFocusIds?: Prisma.SortOrder
   onboardingCompletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  moduleMemberPrefs?: Prisma.SortOrder
   batchDeadlineReminders?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -434,6 +439,7 @@ export type UserPreferencesWhereUniqueInput = Prisma.AtLeast<{
   todayFocusDate?: Prisma.StringNullableFilter<"UserPreferences"> | string | null
   todayFocusIds?: Prisma.StringNullableListFilter<"UserPreferences">
   onboardingCompletedAt?: Prisma.DateTimeNullableFilter<"UserPreferences"> | Date | string | null
+  moduleMemberPrefs?: Prisma.JsonFilter<"UserPreferences">
   batchDeadlineReminders?: Prisma.BoolFilter<"UserPreferences"> | boolean
   createdAt?: Prisma.DateTimeFilter<"UserPreferences"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"UserPreferences"> | Date | string
@@ -463,6 +469,7 @@ export type UserPreferencesOrderByWithAggregationInput = {
   todayFocusDate?: Prisma.SortOrderInput | Prisma.SortOrder
   todayFocusIds?: Prisma.SortOrder
   onboardingCompletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  moduleMemberPrefs?: Prisma.SortOrder
   batchDeadlineReminders?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -499,6 +506,7 @@ export type UserPreferencesScalarWhereWithAggregatesInput = {
   todayFocusDate?: Prisma.StringNullableWithAggregatesFilter<"UserPreferences"> | string | null
   todayFocusIds?: Prisma.StringNullableListFilter<"UserPreferences">
   onboardingCompletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"UserPreferences"> | Date | string | null
+  moduleMemberPrefs?: Prisma.JsonWithAggregatesFilter<"UserPreferences">
   batchDeadlineReminders?: Prisma.BoolWithAggregatesFilter<"UserPreferences"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"UserPreferences"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"UserPreferences"> | Date | string
@@ -526,6 +534,7 @@ export type UserPreferencesCreateInput = {
   todayFocusDate?: string | null
   todayFocusIds?: Prisma.UserPreferencesCreatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Date | string | null
+  moduleMemberPrefs?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   batchDeadlineReminders?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -555,6 +564,7 @@ export type UserPreferencesUncheckedCreateInput = {
   todayFocusDate?: string | null
   todayFocusIds?: Prisma.UserPreferencesCreatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Date | string | null
+  moduleMemberPrefs?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   batchDeadlineReminders?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -582,6 +592,7 @@ export type UserPreferencesUpdateInput = {
   todayFocusDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   todayFocusIds?: Prisma.UserPreferencesUpdatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  moduleMemberPrefs?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   batchDeadlineReminders?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -611,6 +622,7 @@ export type UserPreferencesUncheckedUpdateInput = {
   todayFocusDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   todayFocusIds?: Prisma.UserPreferencesUpdatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  moduleMemberPrefs?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   batchDeadlineReminders?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -639,6 +651,7 @@ export type UserPreferencesCreateManyInput = {
   todayFocusDate?: string | null
   todayFocusIds?: Prisma.UserPreferencesCreatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Date | string | null
+  moduleMemberPrefs?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   batchDeadlineReminders?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -666,6 +679,7 @@ export type UserPreferencesUpdateManyMutationInput = {
   todayFocusDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   todayFocusIds?: Prisma.UserPreferencesUpdatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  moduleMemberPrefs?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   batchDeadlineReminders?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -694,6 +708,7 @@ export type UserPreferencesUncheckedUpdateManyInput = {
   todayFocusDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   todayFocusIds?: Prisma.UserPreferencesUpdatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  moduleMemberPrefs?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   batchDeadlineReminders?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -735,6 +750,7 @@ export type UserPreferencesCountOrderByAggregateInput = {
   todayFocusDate?: Prisma.SortOrder
   todayFocusIds?: Prisma.SortOrder
   onboardingCompletedAt?: Prisma.SortOrder
+  moduleMemberPrefs?: Prisma.SortOrder
   batchDeadlineReminders?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -875,6 +891,7 @@ export type UserPreferencesCreateWithoutUserInput = {
   todayFocusDate?: string | null
   todayFocusIds?: Prisma.UserPreferencesCreatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Date | string | null
+  moduleMemberPrefs?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   batchDeadlineReminders?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -902,6 +919,7 @@ export type UserPreferencesUncheckedCreateWithoutUserInput = {
   todayFocusDate?: string | null
   todayFocusIds?: Prisma.UserPreferencesCreatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Date | string | null
+  moduleMemberPrefs?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   batchDeadlineReminders?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -945,6 +963,7 @@ export type UserPreferencesUpdateWithoutUserInput = {
   todayFocusDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   todayFocusIds?: Prisma.UserPreferencesUpdatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  moduleMemberPrefs?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   batchDeadlineReminders?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -972,6 +991,7 @@ export type UserPreferencesUncheckedUpdateWithoutUserInput = {
   todayFocusDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   todayFocusIds?: Prisma.UserPreferencesUpdatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  moduleMemberPrefs?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   batchDeadlineReminders?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1002,6 +1022,7 @@ export type UserPreferencesSelect<ExtArgs extends runtime.Types.Extensions.Inter
   todayFocusDate?: boolean
   todayFocusIds?: boolean
   onboardingCompletedAt?: boolean
+  moduleMemberPrefs?: boolean
   batchDeadlineReminders?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1031,6 +1052,7 @@ export type UserPreferencesSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   todayFocusDate?: boolean
   todayFocusIds?: boolean
   onboardingCompletedAt?: boolean
+  moduleMemberPrefs?: boolean
   batchDeadlineReminders?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1060,6 +1082,7 @@ export type UserPreferencesSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   todayFocusDate?: boolean
   todayFocusIds?: boolean
   onboardingCompletedAt?: boolean
+  moduleMemberPrefs?: boolean
   batchDeadlineReminders?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1089,12 +1112,13 @@ export type UserPreferencesSelectScalar = {
   todayFocusDate?: boolean
   todayFocusIds?: boolean
   onboardingCompletedAt?: boolean
+  moduleMemberPrefs?: boolean
   batchDeadlineReminders?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserPreferencesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "language" | "theme" | "emailNotifs" | "notifications" | "soundNotifs" | "notifyTaskAssigned" | "notifyTaskUpdated" | "notifyTaskCommented" | "notifyMention" | "notifySprintStarted" | "notifySprintEnded" | "notifyDeadlineApproaching" | "notifyStatusChanged" | "baleDigestHour" | "baleHabitHour" | "baleDigestSentOn" | "baleHabitSentOn" | "todayFocusDate" | "todayFocusIds" | "onboardingCompletedAt" | "batchDeadlineReminders" | "createdAt" | "updatedAt", ExtArgs["result"]["userPreferences"]>
+export type UserPreferencesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "language" | "theme" | "emailNotifs" | "notifications" | "soundNotifs" | "notifyTaskAssigned" | "notifyTaskUpdated" | "notifyTaskCommented" | "notifyMention" | "notifySprintStarted" | "notifySprintEnded" | "notifyDeadlineApproaching" | "notifyStatusChanged" | "baleDigestHour" | "baleHabitHour" | "baleDigestSentOn" | "baleHabitSentOn" | "todayFocusDate" | "todayFocusIds" | "onboardingCompletedAt" | "moduleMemberPrefs" | "batchDeadlineReminders" | "createdAt" | "updatedAt", ExtArgs["result"]["userPreferences"]>
 export type UserPreferencesInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -1145,6 +1169,10 @@ export type $UserPreferencesPayload<ExtArgs extends runtime.Types.Extensions.Int
      * When set, first-run onboarding tour is complete
      */
     onboardingCompletedAt: Date | null
+    /**
+     * Member choices for modules whose admin policy is "member_choice": { [module]: boolean }
+     */
+    moduleMemberPrefs: runtime.JsonValue
     /**
      * Merge same-day deadline reminders into one notification (optional)
      */
@@ -1597,6 +1625,7 @@ export interface UserPreferencesFieldRefs {
   readonly todayFocusDate: Prisma.FieldRef<"UserPreferences", 'String'>
   readonly todayFocusIds: Prisma.FieldRef<"UserPreferences", 'String[]'>
   readonly onboardingCompletedAt: Prisma.FieldRef<"UserPreferences", 'DateTime'>
+  readonly moduleMemberPrefs: Prisma.FieldRef<"UserPreferences", 'Json'>
   readonly batchDeadlineReminders: Prisma.FieldRef<"UserPreferences", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"UserPreferences", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"UserPreferences", 'DateTime'>

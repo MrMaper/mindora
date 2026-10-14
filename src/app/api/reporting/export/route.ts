@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { requireActiveSession } from "@/lib/active-session";
+import { moduleGuardError } from "@/lib/module-guard";
 import { prisma as db } from "@/lib/db";
 import ExcelJS from "exceljs";
 import { toJalaali } from "jalaali-js";
@@ -75,9 +76,16 @@ function weekdayLabel(dateKey: string): string {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
+    const session = await requireActiveSession();
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (session.user.role !== "ADMIN") {
+      const blocked = await moduleGuardError(session.user.id, "reporting");
+      if (blocked) {
+        return NextResponse.json({ error: blocked }, { status: 403 });
+      }
     }
 
     const { userId, dateFrom, dateTo } = await request.json();

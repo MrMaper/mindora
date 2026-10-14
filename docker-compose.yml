@@ -38,6 +38,35 @@ services:
     networks:
       - mindora
 
+  # Hits deadline/vocab/Bale digest cron every 5 minutes (needs CRON_SECRET).
+  cron:
+    image: curlimages/curl:8.12.1
+    container_name: mindora-cron
+    restart: unless-stopped
+    depends_on:
+      - app
+    env_file:
+      - .env
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        if [ -z "$$CRON_SECRET" ]; then
+          echo "CRON_SECRET unset; cron sidecar idle"
+          sleep infinity
+        fi
+        echo "Cron sidecar started (every 300s)"
+        while true; do
+          curl -sS -o /tmp/cron-out -w "%{http_code}" \
+            -H "Authorization: Bearer $$CRON_SECRET" \
+            "http://app:3080/api/cron/deadline-reminders" \
+            > /tmp/cron-code || true
+          code=$$(cat /tmp/cron-code 2>/dev/null || echo fail)
+          echo "cron tick HTTP $$code"
+          sleep 300
+        done
+    networks:
+      - mindora
+
 volumes:
   mindora_pgdata:
 

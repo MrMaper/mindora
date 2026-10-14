@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
+import { Suspense } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Controller, type UseFormReturn } from "react-hook-form";
 import { ResolvedValidationText } from "@/components/ui-kit/forms/action-error";
 import { PageHeaderBar } from "@/components/ui-kit/layout/page-header-bar";
@@ -20,8 +21,12 @@ import {
 import type { UserRow } from "@/features/users/types";
 import { cn } from "@/lib/utils";
 import { useSettings } from "./use-settings";
-import type { SettingsTab } from "./settings-tabs";
+import { parseSettingsTab, type SettingsTab } from "./settings-tabs";
 import { useProfile } from "../profile/use-profile";
+import {
+  CapabilitiesSection,
+  type CapabilitiesData,
+} from "./capabilities-section";
 
 interface SettingsCCProps {
   currentLanguage: Language;
@@ -30,30 +35,67 @@ interface SettingsCCProps {
   user: UserRow;
   baleCode?: string | null;
   initialTab?: SettingsTab;
+  /** Member module access (null for admin: no modules). */
+  capabilities?: CapabilitiesData | null;
 }
 
-export function SettingsCC({
+export function SettingsCC(props: SettingsCCProps) {
+  return (
+    <Suspense
+      fallback={
+        <div
+          className="h-40 max-w-3xl animate-pulse rounded-xl border bg-muted/30"
+          aria-hidden
+        />
+      }
+    >
+      <SettingsCCInner {...props} />
+    </Suspense>
+  );
+}
+
+function SettingsCCInner({
   currentLanguage,
   currentTheme,
   preferences,
   user,
   baleCode,
   initialTab = "profile",
+  capabilities = null,
 }: SettingsCCProps) {
-  const settings = useSettings(currentLanguage, currentTheme, initialTab);
+  const settings = useSettings(currentLanguage, currentTheme);
   const t = useTranslation();
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [, startTabTransition] = React.useTransition();
+
+  const urlTab = parseSettingsTab(searchParams.get("tab") ?? initialTab);
+  const [activeTab, setOptimisticTab] = React.useOptimistic(urlTab);
 
   const tabs: { id: SettingsTab; label: string }[] = [
     { id: "profile", label: t.settings.profile },
     { id: "security", label: t.settings.security },
+    ...(capabilities
+      ? [
+          {
+            id: "capabilities" as const,
+            label: currentLanguage === "FA" ? "قابلیت‌ها" : "Capabilities",
+          },
+        ]
+      : []),
     { id: "notifications", label: t.settings.notifications },
     { id: "appearance", label: t.settings.appearance },
   ];
 
   const selectTab = (id: SettingsTab) => {
-    settings.setActiveTab(id);
-    router.replace(`/settings?tab=${id}`, { scroll: false });
+    startTabTransition(() => {
+      setOptimisticTab(id);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("tab", id);
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    });
   };
 
   return (
@@ -69,7 +111,7 @@ export function SettingsCC({
         className="mb-6 flex flex-wrap gap-1 border-b border-border pb-2"
       >
         {tabs.map(tab => {
-          const active = settings.activeTab === tab.id;
+          const active = activeTab === tab.id;
           return (
             <button
               key={tab.id}
@@ -90,11 +132,11 @@ export function SettingsCC({
         })}
       </div>
 
-      <div role="tabpanel" id={`panel-${settings.activeTab}`}>
-        {settings.activeTab === "profile" && (
+      <div role="tabpanel" id={`panel-${activeTab}`}>
+        {activeTab === "profile" && (
           <ProfileSettingsSection t={t} user={user} baleCode={baleCode} />
         )}
-        {settings.activeTab === "security" && (
+        {activeTab === "security" && (
           <SecuritySettingsSection
             t={t}
             passwordPending={settings.passwordPending}
@@ -104,7 +146,13 @@ export function SettingsCC({
             passwordForm={settings.passwordForm}
           />
         )}
-        {settings.activeTab === "notifications" && (
+        {activeTab === "capabilities" && capabilities && (
+          <CapabilitiesSection
+            data={capabilities}
+            language={currentLanguage === "EN" ? "EN" : "FA"}
+          />
+        )}
+        {activeTab === "notifications" && (
           <NotificationSettingsSection
             t={t}
             preferences={preferences}
@@ -114,7 +162,7 @@ export function SettingsCC({
             onNotifyChange={settings.onNotifyChange}
           />
         )}
-        {settings.activeTab === "appearance" && (
+        {activeTab === "appearance" && (
           <AppearanceSettingsSection
             t={t}
             theme={settings.theme}

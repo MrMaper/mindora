@@ -58,7 +58,7 @@ Overview at `/projects` + area dashboard at `/projects/areas/[area]`:
 - Related-space links + shared `AREA_VISUAL`; progress / next action from tasks
 
 ### Still deferred
-1. **Custom areas** beyond the four defaults (+ حوزه as a 5th LifeArea)
+1. **Custom areas / first-run redesign** — full design in [`docs/AREAS.md`](./AREAS.md) (per-user areas, hub bind, retention-first Day1). Do **not** add a 5th `LifeArea` enum value; do not implement until explicitly asked after design review.
 2. Manual next-action override (derived from open tasks today)
 
 Isolation note: Today focus/priority pickers must compose ownership with `AND` (never overwrite `OR`); see `personalLifeTaskWhere` in `src/lib/task-access.ts`.
@@ -110,7 +110,7 @@ Goal: every member surface is usable one-handed on a phone — no clipped filter
 - Vocab due reminders: review **all** due cards (no 40-card daily quota); Study stays lesson-based for new words
 - Vocab stats cards: `newCount` = unstudied (`reviewCount=0`); `dueCount` = studied + due; `reviewedToday` = distinct cards rated since Tehran midnight; streak from `LangVocabDay`
 - In-app + Bale (when linked) + optional browser Notification while shell is open
-- Cron `/api/cron/deadline-reminders` should run every 5–10 minutes (not only daily)
+- Cron `/api/cron/deadline-reminders`: Compose `cron` sidecar hits it every 5 minutes when `CRON_SECRET` is set (proxy allows `/api/cron`; route still checks Bearer)
 - Optional **batch deadline reminders** (`UserPreferences.batchDeadlineReminders`, off by default) merges same-day deadline alerts into one notification; timed reminders stay per-task
 
 ---
@@ -124,6 +124,12 @@ Goal: every member surface is usable one-handed on a phone — no clipped filter
 ## Other known later items (not this doc’s focus)
 
 - Universal Capture stays on the local rules in `docs/CAPTURE.md`. Do not add an LLM parser unless asked.
+- **Personalization leaks outside areas** (recorded from the [`AREAS.md`](./AREAS.md) review; not part of that work):
+  - Today bounds, reminders, and the vocabulary day are fixed to `Asia/Tehran`, not the member’s time zone.
+  - Jalali calendar and Persian-first guide and vocabulary decks.
+  - Bale is the only outbound notification channel.
+  - `ensurePersonalWorkspace` makes the first user owner of `default-org`; two simultaneous first sign-ups would race.
+- **Public sign-up** (after AREAS phase P0): sign-up page, email verification, rate limits, terms and privacy, data export and deletion, waitlist beyond `maxActiveMembers`, and a decision on the sign-in channel (email, phone/OTP, or Bale). See `AREAS.md` §17.
 
 - Stronger citations (CSL / BibTeX pack / Zotero) — R2
 - External calendar ICS sync — LF2

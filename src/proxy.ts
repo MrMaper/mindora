@@ -2,11 +2,22 @@ import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 
 /** Auth pages guests may open; logged-in users get redirected away. */
-const AUTH_PAGES = ["/login", "/forgot-password", "/reset-password"];
+const AUTH_PAGES = [
+  "/login",
+  "/forgot-password",
+  "/reset-password",
+  "/accept-invite",
+];
 
 /** Always reachable without a session (APIs + static + marketing). */
 const PUBLIC_EXACT = new Set(["/"]);
-const PUBLIC_PREFIXES = ["/api/bale/webhook", "/assets", "/fonts"];
+/** Cron is public at the proxy; the route still requires Bearer CRON_SECRET. */
+const PUBLIC_PREFIXES = [
+  "/api/bale/webhook",
+  "/api/cron",
+  "/assets",
+  "/fonts",
+];
 
 export default auth(req => {
   const { pathname } = req.nextUrl;

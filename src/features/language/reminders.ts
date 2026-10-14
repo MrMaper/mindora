@@ -1,5 +1,6 @@
 import { prisma as db } from "@/lib/db";
 import { notify } from "@/lib/notify";
+import { getEffectiveFlagsForUser } from "@/lib/module-guard";
 import { formatNumber } from "@/lib/utils";
 import { getBaleRuntime } from "@/features/external/bots/bale/config";
 import { baleAppOrigin, deliverBale } from "@/features/external/bots/bale/deliver";
@@ -36,6 +37,7 @@ export async function ensureVocabReviewReminders(
   userId: string,
 ): Promise<void> {
   if (!userId) return;
+  if (!(await getEffectiveFlagsForUser(userId)).language) return;
 
   const prefs = await db.userPreferences.findUnique({
     where: { userId },

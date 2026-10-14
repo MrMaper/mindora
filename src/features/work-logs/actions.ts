@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { auth } from "@/auth";
+import { authForModule } from "@/lib/module-guard";
 import { prisma as db } from "@/lib/db";
 import { createWorkLogSchema, updateWorkLogSchema } from "@/schemas/work-logs";
 import type { ActionResult } from "@/features/tasks/actions";
@@ -32,7 +32,7 @@ async function logActivity(opts: {
 }
 
 export async function createWorkLog(formData: FormData): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("workLogs");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const parsed = createWorkLogSchema.safeParse(Object.fromEntries(formData));
@@ -105,7 +105,7 @@ export async function createWorkLog(formData: FormData): Promise<ActionResult> {
 }
 
 export async function updateWorkLog(formData: FormData): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("workLogs");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const parsed = updateWorkLogSchema.safeParse(Object.fromEntries(formData));
@@ -173,7 +173,7 @@ export async function updateWorkLog(formData: FormData): Promise<ActionResult> {
 }
 
 export async function deleteWorkLog(id: string): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("workLogs");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const existing = await db.workLog.findUnique({
@@ -222,7 +222,7 @@ export async function deleteWorkLog(id: string): Promise<ActionResult> {
 export async function getWorkLogDetailAction(
   id: string,
 ): Promise<WorkLogDetail | null> {
-  const session = await auth();
+  const session = await authForModule("workLogs");
   if (!session?.user) return null;
   const { getWorkLogById } = await import("./queries");
   return getWorkLogById(id);
