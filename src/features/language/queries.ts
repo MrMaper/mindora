@@ -27,7 +27,8 @@ import {
 import { VOCAB_DECK_KEYS, VOCAB_DECK_META } from "./decks/catalog-meta";
 import type { LanguageTab } from "./types";
 import { daysAgoApp, startOfAppDay, startOfAppDayInstant } from "./day";
-import { LANGUAGE_AREA } from "@/lib/areas";
+import { LANGUAGE_AREA, hubProjectWhere } from "@/lib/areas";
+import { getHubScope } from "@/lib/areas/server";
 
 function startOfLocalDay(d = new Date()): Date {
   return startOfAppDay(d);
@@ -56,13 +57,23 @@ export function parseLanguageProjectScope(
 export async function listLangProjects(
   userId: string,
 ): Promise<LanguageProjectItem[]> {
+  const scope = await getHubScope(userId, "language");
   const rows = await db.projectMember.findMany({
     where: {
       userId,
       project: {
-        area: LANGUAGE_AREA,
-        status: { not: "ARCHIVED" },
-        id: { notIn: areaBucketIdsToExclude(userId, LANGUAGE_AREA) },
+        AND: [
+          hubProjectWhere(scope.areaId, scope.legacyEnum),
+          {
+            status: { not: "ARCHIVED" },
+            id: {
+              notIn: [
+                scope.bucketProjectId,
+                ...areaBucketIdsToExclude(userId, LANGUAGE_AREA),
+              ],
+            },
+          },
+        ],
       },
     },
     orderBy: { project: { updatedAt: "desc" } },
@@ -428,6 +439,7 @@ export async function getLanguageHubData(
   };
 
   if (needVocab) await ensureVocabDayBackfill(userId);
+  const langHub = await getHubScope(userId, "language");
 
   const emptyLessons = (lessonCount: number): VocabLessonProgress[] =>
     Array.from({ length: lessonCount }, (_, i) => ({
@@ -504,7 +516,7 @@ export async function getLanguageHubData(
             userId,
             deletedAt: null,
             archived: false,
-            area: LANGUAGE_AREA,
+            AND: [hubProjectWhere(langHub.areaId, LANGUAGE_AREA)],
             ...(pf.projectId !== undefined
               ? pf.projectId === null
                 ? { projectId: null }

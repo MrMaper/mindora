@@ -19,7 +19,12 @@ import {
 import { normalizeFocusSlots } from "@/features/life/focus-slots";
 import type { TaskRow } from "@/features/tasks/types";
 import type { LifeArea } from "@/types/db";
-import { RESEARCH_AREA, emptyAreaCounts, isLifeAreaValue } from "@/lib/areas";
+import {
+  RESEARCH_AREA,
+  emptyAreaCounts,
+  isLifeAreaValue,
+} from "@/lib/areas";
+import { getMemberContext } from "@/lib/areas/server";
 
 const userRefSelect = { id: true, name: true, avatar: true } as const;
 
@@ -87,11 +92,12 @@ export async function getPersonalDashboard(
   const yesterdayEnd = new Date(todayStart.getTime() - 1);
   const todayKey = zonedDateKey();
 
+  const ctx = await getMemberContext(userId);
   const mine = personalTaskOwnership(userId);
-  const lifeOnly = personalLifeTaskWhere(userId);
+  const lifeOnly = personalLifeTaskWhere(userId, ctx);
   const personalAreaIds = Object.values(areaProjectIdsForUser(userId));
-  const wantLanguage = modules?.language !== false;
-  const wantResearch = modules?.research !== false;
+  const wantLanguage = modules?.language !== false && ctx.flags.language;
+  const wantResearch = modules?.research !== false && ctx.flags.research;
 
   const [
     overdue,
@@ -298,7 +304,16 @@ export async function getPersonalDashboard(
     wantResearch
       ? db.docSource.count({
           where: {
-            doc: { userId, area: RESEARCH_AREA, deletedAt: null },
+            doc: {
+              userId,
+              deletedAt: null,
+              OR: [
+                ...(ctx.hubAreas.research
+                  ? [{ areaId: ctx.hubAreas.research.id }]
+                  : []),
+                { area: RESEARCH_AREA },
+              ],
+            },
             readingStatus: { in: ["TO_READ", "READING"] },
           },
         })
@@ -307,13 +322,35 @@ export async function getPersonalDashboard(
       ? db.doc.count({
           where: {
             userId,
-            area: RESEARCH_AREA,
             deletedAt: null,
             archived: false,
             status: { in: ["IDEA", "DRAFTING", "REVIEW"] },
-            OR: [
-              { systemKey: null },
-              { NOT: { systemKey: { startsWith: "phd-library:" } } },
+            AND: [
+              {
+                OR: [
+                  ...(ctx.hubAreas.research
+                    ? [{ areaId: ctx.hubAreas.research.id }]
+                    : []),
+                  { area: RESEARCH_AREA },
+                ],
+              },
+              {
+                OR: [
+                  { systemKey: null },
+                  {
+                    AND: [
+                      {
+                        NOT: {
+                          systemKey: { startsWith: "phd-library:" },
+                        },
+                      },
+                      {
+                        NOT: { systemKey: { startsWith: "library:" } },
+                      },
+                    ],
+                  },
+                ],
+              },
             ],
           },
         })
@@ -518,8 +555,9 @@ export async function getStarterToday(userId: string) {
   const todayStart = startOfZonedDay();
   const todayEnd = endOfZonedDay();
   const todayKey = zonedDateKey();
+  const ctx = await getMemberContext(userId);
   const mine = personalTaskOwnership(userId);
-  const lifeOnly = personalLifeTaskWhere(userId);
+  const lifeOnly = personalLifeTaskWhere(userId, ctx);
   const open = [{ status: { not: "DONE" as const } }, { waitingOn: false }];
 
   const [leftover, today, undated, upcoming, doneCount, prefs] = await Promise.all([

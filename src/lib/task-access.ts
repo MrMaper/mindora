@@ -1,4 +1,4 @@
-import { hubTaskExclusion } from "@/lib/areas";
+import { hubTaskExclusion, type MemberContext } from "@/lib/areas";
 
 /**
  * Personal ownership for Life OS reads/writes.
@@ -13,11 +13,19 @@ export function personalTaskOwnership(userId: string) {
   };
 }
 
-/** Ownership + hide PhD/Language hub tasks from Today / life surfaces. */
-export function personalLifeTaskWhere(userId: string) {
-  return {
-    AND: [personalTaskOwnership(userId), hubTaskExclusion()],
-  };
+/**
+ * Ownership + hide active hub tasks from Today / life surfaces.
+ * Pass `ctx` (P6) so exclusion respects hubFor + module flags; without it,
+ * falls back to the static PHD/LANG fragment.
+ */
+export function personalLifeTaskWhere(
+  userId: string,
+  ctx?: Pick<MemberContext, "flags" | "hubAreas">,
+) {
+  const exclusion = hubTaskExclusion(ctx);
+  const parts: Record<string, unknown>[] = [personalTaskOwnership(userId)];
+  if (Object.keys(exclusion).length > 0) parts.push(exclusion);
+  return { AND: parts };
 }
 
 /** Whether a member may read/mutate this task row (admins always may). */

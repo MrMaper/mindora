@@ -176,3 +176,91 @@ export async function ensureUserAreas(
 export function projectIdForArea(userId: string, area: LifeArea): string {
   return personalAreaProjectId(userId, area);
 }
+
+/**
+ * P6: ensure the member has a dedicated hub area for Research or Language.
+ * Idempotent. Creates from the legacy template when missing (docs/AREAS.md §10.1).
+ */
+export async function ensureHubAreaForModule(
+  userId: string,
+  kind: "research" | "language",
+): Promise<{ id: string; bucketProjectId: string }> {
+  await ensurePersonalWorkspace(userId);
+  const dbHub = hubForToDb(kind);
+  const existing = await db.userArea.findFirst({
+    where: { userId, hubFor: dbHub, archived: false },
+    select: { id: true, bucketProjectId: true },
+  });
+  if (existing?.bucketProjectId) {
+    return { id: existing.id, bucketProjectId: existing.bucketProjectId };
+  }
+
+  const tmpl = LEGACY_AREA_TEMPLATES.find(t => t.hubFor === kind);
+  if (!tmpl) throw new Error(`missing template for ${kind}`);
+
+  // Prefer the seeded legacy row (may have hubFor cleared somehow).
+  const legacy = await db.userArea.findFirst({
+    where: { userId, legacyEnum: tmpl.legacyEnum },
+    select: { id: true, bucketProjectId: true },
+  });
+  if (legacy) {
+    const bucketId =
+      legacy.bucketProjectId ?? personalAreaProjectId(userId, tmpl.legacyEnum);
+    await db.userArea.update({
+      where: { id: legacy.id },
+      data: {
+        hubFor: dbHub,
+        archived: false,
+        isDefault: false,
+        bucketProjectId: bucketId,
+      },
+    });
+    await db.project.update({
+      where: { id: bucketId },
+      data: { area: tmpl.legacyEnum, areaId: legacy.id },
+    });
+    clearAreaIdCache(userId);
+    return { id: legacy.id, bucketProjectId: bucketId };
+  }
+
+  // Fresh dedicated area (no legacy enum).
+  const maxSort = await db.userArea.aggregate({
+    where: { userId },
+    _max: { sortOrder: true },
+  });
+  const sortOrder = (maxSort._max.sortOrder ?? -1) + 1;
+  const area = await db.userArea.create({
+    data: {
+      userId,
+      name: tmpl.nameFa,
+      nameIsDefault: true,
+      templateKey: tmpl.templateKey,
+      sortOrder,
+      archived: false,
+      isDefault: false,
+      hubFor: dbHub,
+      legacyEnum: null,
+    },
+    select: { id: true },
+  });
+  const bucketId = `area-inbox-${area.id}`;
+  const teamId = `personal-${userId}`;
+  await db.project.create({
+    data: {
+      id: bucketId,
+      name: tmpl.nameFa,
+      description: null,
+      status: "ACTIVE",
+      area: tmpl.legacyEnum,
+      areaId: area.id,
+      teamId,
+      members: { create: { userId, role: "OWNER" } },
+    },
+  });
+  await db.userArea.update({
+    where: { id: area.id },
+    data: { bucketProjectId: bucketId },
+  });
+  clearAreaIdCache(userId);
+  return { id: area.id, bucketProjectId: bucketId };
+}

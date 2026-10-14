@@ -45,6 +45,13 @@ export default async function LanguagePage({
   const session = await auth();
   if (!session?.user) redirect("/login");
   await ensurePersonalWorkspaceCached(session.user.id);
+  const { ensureHubAreaForModule, getHubScope } = await import(
+    "@/lib/areas/server"
+  );
+  const languageHub = await getHubScope(session.user.id, "language");
+  if (!languageHub.bound) {
+    await ensureHubAreaForModule(session.user.id, "language");
+  }
 
   const { project: projectParam, tab: tabParam } = await searchParams;
   const tab = parseTab(tabParam);

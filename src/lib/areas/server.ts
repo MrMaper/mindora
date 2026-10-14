@@ -15,6 +15,7 @@ export {
   ensureDefaultArea,
   ensurePersonalWorkspace,
   ensureUserAreas,
+  ensureHubAreaForModule,
   projectIdForArea,
 } from "./ensure";
 export {
@@ -24,3 +25,8 @@ export {
   clearAreaIdCache,
 } from "./dual-write";
 export { getEffectiveFlagsForUser } from "@/lib/module-guard";
+export {
+  getHubScope,
+  hubNamedProjectsWhere,
+  type HubScope,
+} from "./hub-scope";

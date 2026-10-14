@@ -1,6 +1,6 @@
 # Mindora — Areas, modules, access, and first-run
 
-**Status:** Design source of truth, version 2. **P0–P3 committed; P4–P5 implemented (uncommitted)** (see "Implementation status" below); P6–P7 and S-track are not started.
+**Status:** Design source of truth, version 2. **P0–P5 committed; P6 implemented (uncommitted)** (see "Implementation status" below); P7 and S-track are not started.
 **Rule:** Build only the phase the product owner names. Each phase below is shippable on its own.
 
 ### Implementation status
@@ -11,9 +11,10 @@
 | P1 Helper seam | Committed (`81cbdd9`). Server/logic code is fully migrated; remaining UI literals sit on a shrinking ESLint baseline. |
 | P2 Starter shell | Committed (`a859b6f`). Migration `20261014180000_ui_profile_lifecycle` (additive) applied locally. |
 | P3 Validation | Committed (`9cb8556` + `5a22973` fixes). Agent walkthrough only — not real-user data; a real round is still recommended before public sign-up. |
-| P4 Schema and migration | Done in code, not committed. Migration `20261014200000_user_areas` applied locally; `backfill-areas.ts` run; `verify-areas` green. |
-| P5 Dynamic UI | Done in code, not committed. Routes/filters/calendar/task form/capture use `AreaRef.id`; S-2/S-3/S-10 wired on `/projects`. |
-| P6 – P7, S-track | Not started |
+| P4 Schema and migration | Committed (`921a99e`). Migration `20261014200000_user_areas` applied locally; `backfill-areas.ts` run; `verify-areas` green. |
+| P5 Dynamic UI | Committed (`ae0f66c`). Routes/filters/calendar/task form/capture use `AreaRef.id`; S-2/S-3/S-10 wired on `/projects`. |
+| P6 Hub areas | Done in code, not committed. `hubFor`-aware exclusion; `ensureHubAreaForModule` on enable; research/language scope via hub areaId; `library:` keys + `backfill-hub-keys.ts`. |
+| P7, S-track | Not started |
 
 **P4 as built (differences from the text below):**
 
@@ -33,6 +34,14 @@
 - S-2 create/rename/reorder/archive; S-3 move-all / merge / delete via area menu (prompt-based confirm); S-10 shared group on `/projects`.
 - Custom bucket ids `area-inbox-*` count as area buckets in `isAreaBucketId`.
 - Baseline shrunk (calendar, task form, capture, area-section removed). Docs/habits/focus surfaces that still switch on literals stay listed until a later pass or P6/P7.
+
+**P6 as built (differences from the text below):**
+
+- `hubTaskExclusion(ctx)` excludes only **active** hubs (module flag ∧ `hubAreas.*`); dormant hub tasks return to Today when the module is off. Static no-arg form kept for dual-read/tests.
+- `ensureHubAreaForModule` binds Research/Language from the legacy template (or creates a dedicated area). Hooked on member toggle, admin policy change, and first visit to `/research` or `/language` (S-4 default path — no multi-step wizard UI yet).
+- Research/Language project lists and language notes use `hubProjectWhere(areaId, legacyEnum)`.
+- Library binder keys write as `library:{projectId}` / `library:inbox:{areaId}`; reads accept `phd-library:` until `backfill-hub-keys.ts` runs.
+- Guest hub evaluation still uses the viewer’s own hub areas (unchanged ownership rule).
 
 **P2 as built (differences from the text below):**
 

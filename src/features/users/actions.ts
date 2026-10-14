@@ -106,6 +106,13 @@ async function applyPolicyChange(
       enabledModules: policyToLegacyFlags(nextPolicy),
     },
   });
+  // P6: when Research/Language become effectively on, bind a hub area.
+  const { getEffectiveFlagsForUser, ensureHubAreaForModule } = await import(
+    "@/lib/areas/server"
+  );
+  const flags = await getEffectiveFlagsForUser(userId);
+  if (flags?.research) await ensureHubAreaForModule(userId, "research");
+  if (flags?.language) await ensureHubAreaForModule(userId, "language");
   await notifyModulePolicyChange(userId, before, nextPolicy);
   await writeAdminAudit({
     actorId: adminId,

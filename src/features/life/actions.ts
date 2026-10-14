@@ -22,6 +22,7 @@ import type { LifeArea, RecurrenceInterval } from "@/types/db";
 import { ensurePersonalWorkspace, projectIdForArea } from "./workspace";
 import { getCalendarTasks } from "./queries";
 import { isHubArea, taskWhereExcludeHub } from "@/lib/project-namespace";
+import { getMemberContext } from "@/lib/areas/server";
 import {
   FOCUS_SLOT_COUNT,
   isTodayFocusCandidate,
@@ -305,6 +306,7 @@ export async function moveYesterdayToToday(): Promise<ActionResult & { data?: { 
   const yesterdayStart = new Date(todayStart.getTime() - 86_400_000);
   const yesterdayEnd = new Date(todayStart.getTime() - 1);
   const todayKey = zonedDateKey();
+  const ctx = await getMemberContext(session.user.id);
 
   const mine = {
     OR: [
@@ -317,7 +319,7 @@ export async function moveYesterdayToToday(): Promise<ActionResult & { data?: { 
     where: {
       AND: [
         mine,
-        taskWhereExcludeHub(),
+        taskWhereExcludeHub(ctx),
         { status: { not: "DONE" } },
         { waitingOn: false },
         { dueDate: { gte: yesterdayStart, lte: yesterdayEnd } },
@@ -764,13 +766,14 @@ export async function rescheduleTaskSchedule(input: {
 export async function syncPlanningStatusesForUser(userId: string): Promise<void> {
   if (!userId) return;
   const weekEnd = endOfZonedWeek();
+  const ctx = await getMemberContext(userId);
   const mine = {
     OR: [
       { assignedToId: userId },
       { createdById: userId, assignedToId: null },
     ],
   };
-  const lifeOnly = { AND: [mine, taskWhereExcludeHub()] };
+  const lifeOnly = { AND: [mine, taskWhereExcludeHub(ctx)] };
 
   async function updateIfAny(
     where: Parameters<typeof db.task.updateMany>[0]["where"],

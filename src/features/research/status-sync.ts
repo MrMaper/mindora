@@ -39,7 +39,21 @@ export const SOURCE_READING_TO_DOC: Record<SourceReadingStatus, DocStatus> = {
   DONE: "READY",
 };
 
+/**
+ * P6 library binder keys. Prefer `library:`; `phd-library:` remains a
+ * one-release read fallback (docs/AREAS.md §10.7).
+ */
 export function librarySystemKey(
+  projectId: string | null | undefined,
+  hubAreaId?: string | null,
+): string {
+  if (projectId) return `library:${projectId}`;
+  if (hubAreaId) return `library:inbox:${hubAreaId}`;
+  return "library:inbox";
+}
+
+/** @deprecated Prefer librarySystemKey — migration / dual-read only. */
+export function legacyLibrarySystemKey(
   projectId: string | null | undefined,
 ): string {
   if (projectId) return `phd-library:${projectId}`;
@@ -49,7 +63,8 @@ export function librarySystemKey(
 export function isLibraryBinderSystemKey(
   key: string | null | undefined,
 ): boolean {
-  return !!key?.startsWith("phd-library:");
+  if (!key) return false;
+  return key.startsWith("library:") || key.startsWith("phd-library:");
 }
 
 /**
@@ -59,11 +74,18 @@ export function isLibraryBinderSystemKey(
 export const excludeLibraryBindersWhere: {
   OR: Array<
     | { systemKey: null }
-    | { NOT: { systemKey: { startsWith: string } } }
+    | {
+        AND: Array<{ NOT: { systemKey: { startsWith: string } } }>;
+      }
   >;
 } = {
   OR: [
     { systemKey: null },
-    { NOT: { systemKey: { startsWith: "phd-library:" } } },
+    {
+      AND: [
+        { NOT: { systemKey: { startsWith: "phd-library:" } } },
+        { NOT: { systemKey: { startsWith: "library:" } } },
+      ],
+    },
   ],
 };

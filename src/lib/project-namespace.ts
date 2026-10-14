@@ -106,8 +106,10 @@ export function projectWhereForScope(
   return {};
 }
 
-export function taskWhereExcludeHub(): Record<string, unknown> {
-  return hubTaskExclusion();
+export function taskWhereExcludeHub(
+  ctx?: Parameters<typeof hubTaskExclusion>[0],
+): Record<string, unknown> {
+  return hubTaskExclusion(ctx);
 }
 
 /** Prisma fragment: filter by legacy enum or UserArea id. */

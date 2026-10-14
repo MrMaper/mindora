@@ -9,6 +9,7 @@ import {
   type PrimaryModule,
 } from "@/lib/modules";
 import { requireAuth } from "@/lib/require-role";
+import { ensureHubAreaForModule } from "@/lib/areas/server";
 
 export interface ModulePrefResult {
   success: boolean;
@@ -51,6 +52,11 @@ export async function setMemberModulePreference(
     create: { userId: session.user.id, moduleMemberPrefs: result.prefs },
     update: { moduleMemberPrefs: result.prefs },
   });
+
+  // P6 / S-4: turning Research or Language on binds a dedicated hub area.
+  if (enabled && (module === "research" || module === "language")) {
+    await ensureHubAreaForModule(session.user.id, module);
+  }
 
   revalidatePath("/", "layout");
   return { success: true };

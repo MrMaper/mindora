@@ -77,6 +77,24 @@ describe("hub predicates", () => {
     expect(taskWhereExcludeHub()).toEqual(hubTaskExclusion());
   });
 
+  it("hubTaskExclusion with modules off excludes nothing", () => {
+    expect(
+      hubTaskExclusion({
+        flags: {
+          tasks: true,
+          docs: true,
+          research: false,
+          language: false,
+          habits: true,
+          projects: true,
+          workLogs: false,
+          reporting: false,
+        },
+        hubAreas: { research: null, language: null },
+      }),
+    ).toEqual({});
+  });
+
   it("research/language task checks look at area and project area", () => {
     expect(isResearchTask({ area: "PHD" })).toBe(true);
     expect(isResearchTask({ project: { area: "PHD" } })).toBe(true);

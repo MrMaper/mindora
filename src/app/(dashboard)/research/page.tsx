@@ -38,6 +38,14 @@ export default async function ResearchPage({
   const session = await getSessionCached();
   if (!session?.user) redirect("/login");
   await ensurePersonalWorkspaceCached(session.user.id);
+  // P6 / S-4 default: bind a Research hub area if the module is on but unbound.
+  const { ensureHubAreaForModule, getHubScope } = await import(
+    "@/lib/areas/server"
+  );
+  const researchHub = await getHubScope(session.user.id, "research");
+  if (!researchHub.bound) {
+    await ensureHubAreaForModule(session.user.id, "research");
+  }
 
   const prefs = await getUserPreferencesCached(session.user.id);
   const language = prefs?.language ?? "FA";

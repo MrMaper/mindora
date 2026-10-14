@@ -12,8 +12,9 @@ import type {
   ResearchSourceItem,
 } from "./types";
 import type { SourceReadingStatus } from "@/types/db";
-import { isLibraryBinderSystemKey } from "./status-sync";
-import { RESEARCH_AREA } from "@/lib/areas";
+import { excludeLibraryBindersWhere, isLibraryBinderSystemKey } from "./status-sync";
+import { RESEARCH_AREA, hubProjectWhere } from "@/lib/areas";
+import { getHubScope } from "@/lib/areas/server";
 
 function docProjectFilter(scope: ResearchProjectScope): {
   projectId?: string | null | "NONE";
@@ -28,7 +29,8 @@ export async function resolveResearchTaskProjectIds(
   userId: string,
   scope: ResearchProjectScope,
 ): Promise<string[]> {
-  const phdInbox = personalAreaProjectId(userId, RESEARCH_AREA);
+  const hub = await getHubScope(userId, "research");
+  const phdInbox = hub.bucketProjectId || personalAreaProjectId(userId, RESEARCH_AREA);
   if (scope === "inbox") return [phdInbox];
   if (scope !== "all") return [scope];
 
@@ -41,13 +43,23 @@ export async function resolveResearchTaskProjectIds(
 export async function listPhdResearchProjects(
   userId: string,
 ): Promise<ResearchProjectItem[]> {
+  const scope = await getHubScope(userId, "research");
   const rows = await db.projectMember.findMany({
     where: {
       userId,
       project: {
-        area: RESEARCH_AREA,
-        status: { not: "ARCHIVED" },
-        id: { notIn: areaBucketIdsToExclude(userId, RESEARCH_AREA) },
+        AND: [
+          hubProjectWhere(scope.areaId, scope.legacyEnum),
+          {
+            status: { not: "ARCHIVED" },
+            id: {
+              notIn: [
+                scope.bucketProjectId,
+                ...areaBucketIdsToExclude(userId, RESEARCH_AREA),
+              ],
+            },
+          },
+        ],
       },
     },
     orderBy: { project: { updatedAt: "desc" } },
@@ -86,19 +98,20 @@ export async function getRecentPhdQuotes(
       // Citations used to be stored as quotes with note "citation" — keep them out.
       NOT: { note: "citation" },
       doc: {
-        userId,
-        area: RESEARCH_AREA,
-        deletedAt: null,
-        archived: false,
-        OR: [
-          { systemKey: null },
-          { NOT: { systemKey: { startsWith: "phd-library:" } } },
+        AND: [
+          {
+            userId,
+            area: RESEARCH_AREA,
+            deletedAt: null,
+            archived: false,
+            ...(projectFilter.projectId === "NONE"
+              ? { projectId: null }
+              : projectFilter.projectId
+                ? { projectId: projectFilter.projectId }
+                : {}),
+          },
+          excludeLibraryBindersWhere,
         ],
-        ...(projectFilter.projectId === "NONE"
-          ? { projectId: null }
-          : projectFilter.projectId
-            ? { projectId: projectFilter.projectId }
-            : {}),
       },
     },
     orderBy: { createdAt: "desc" },
