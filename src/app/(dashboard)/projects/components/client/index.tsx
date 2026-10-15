@@ -438,7 +438,10 @@ export function ProjectsCC({
           onDragStart={onDragStart}
           onDragEnd={onDragEnd}
         >
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3 md:gap-4 items-start">
+          <div
+            data-tour="projects-areas"
+            className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3 md:gap-4 items-start"
+          >
             {displaySections.map(({ section, filterEmpty }) => (
               <AreaSection
                 key={section.areaId}

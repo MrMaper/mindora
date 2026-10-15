@@ -73,7 +73,7 @@ export function LanguageProjectSwitcher({
   }
 
   return (
-    <div className="mb-3 flex flex-col gap-2">
+    <div data-tour="language-project" className="mb-3 flex flex-col gap-2">
       <div className="flex flex-wrap items-center gap-2">
         <label className="text-xs text-muted-foreground shrink-0">
           {t.language.project}

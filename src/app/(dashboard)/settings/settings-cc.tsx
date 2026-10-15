@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Controller, type UseFormReturn } from "react-hook-form";
 import { ResolvedValidationText } from "@/components/ui-kit/forms/action-error";
 import { PageHeaderBar } from "@/components/ui-kit/layout/page-header-bar";
+import { PageTourButton } from "@/components/tour/page-tour-button";
 import { Avatar } from "@/components/ui-kit/data-display/avatar";
 import { Badge } from "@/components/ui-kit/data-display/badge";
 import { Icon } from "@/components/ui-kit/foundation/icon";
@@ -93,14 +94,10 @@ function SettingsCCInner({
   const tabs: { id: SettingsTab; label: string }[] = [
     { id: "profile", label: t.settings.profile },
     { id: "security", label: t.settings.security },
-    ...(capabilities
-      ? [
-          {
-            id: "capabilities" as const,
-            label: currentLanguage === "FA" ? "قابلیت‌ها" : "Capabilities",
-          },
-        ]
-      : []),
+    {
+      id: "capabilities",
+      label: currentLanguage === "FA" ? "قابلیت‌ها" : "Capabilities",
+    },
     { id: "notifications", label: t.settings.notifications },
     { id: "appearance", label: t.settings.appearance },
   ];
@@ -118,12 +115,15 @@ function SettingsCCInner({
   return (
     <div className="min-w-0 w-full max-w-4xl overflow-x-hidden">
       <PageHeaderBar
+        tourId="page-settings"
         title={t.settings.title}
         description={t.settings.subtitle}
         className="mb-4"
+        actions={<PageTourButton tourId="settings" />}
       />
 
       <div
+        data-tour="settings-tabs"
         role="tablist"
         className="mb-6 flex flex-wrap gap-1 border-b border-border pb-2"
       >
@@ -171,35 +171,51 @@ function SettingsCCInner({
           />
         )}
         {activeTab === "capabilities" && capabilities && (
-          <CapabilitiesSection
-            data={capabilities}
-            language={currentLanguage === "EN" ? "EN" : "FA"}
-          />
+          <div data-tour="settings-capabilities">
+            <CapabilitiesSection
+              data={capabilities}
+              language={currentLanguage === "EN" ? "EN" : "FA"}
+            />
+          </div>
+        )}
+        {activeTab === "capabilities" && !capabilities && (
+          <div
+            data-tour="settings-capabilities"
+            className="rounded-2xl border border-border-default bg-bg-surface p-4 sm:p-5 text-sm text-muted-foreground"
+          >
+            {currentLanguage === "EN"
+              ? "Module toggles are for members. As an admin you manage access from the Users / policy tools instead."
+              : "کلید ماژول‌ها برای اعضاست. به‌عنوان مدیر، دسترسی را از کاربران / سیاست‌ها مدیریت می‌کنی."}
+          </div>
         )}
         {activeTab === "notifications" && (
-          <NotificationSettingsSection
-            t={t}
-            preferences={preferences}
-            notifyPending={settings.notifyPending}
-            notifySuccess={settings.notifySuccess}
-            notifyError={settings.notifyError}
-            onNotifyChange={settings.onNotifyChange}
-          />
+          <div data-tour="settings-notifications">
+            <NotificationSettingsSection
+              t={t}
+              preferences={preferences}
+              notifyPending={settings.notifyPending}
+              notifySuccess={settings.notifySuccess}
+              notifyError={settings.notifyError}
+              onNotifyChange={settings.onNotifyChange}
+            />
+          </div>
         )}
         {activeTab === "appearance" && (
-          <AppearanceSettingsSection
-            t={t}
-            theme={settings.theme}
-            themePending={settings.themePending}
-            themeSuccess={settings.themeSuccess}
-            themeError={settings.themeError}
-            onThemeChange={settings.onThemeChange}
-            language={settings.language}
-            onLanguageChange={settings.onLanguageChange}
-            languagePending={settings.languagePending}
-            languageSuccess={settings.languageSuccess}
-            languageError={settings.languageError}
-          />
+          <div data-tour="settings-appearance">
+            <AppearanceSettingsSection
+              t={t}
+              theme={settings.theme}
+              themePending={settings.themePending}
+              themeSuccess={settings.themeSuccess}
+              themeError={settings.themeError}
+              onThemeChange={settings.onThemeChange}
+              language={settings.language}
+              onLanguageChange={settings.onLanguageChange}
+              languagePending={settings.languagePending}
+              languageSuccess={settings.languageSuccess}
+              languageError={settings.languageError}
+            />
+          </div>
         )}
       </div>
     </div>
@@ -293,7 +309,10 @@ function ProfileSettingsSection({
 
   return (
     <div className="space-y-5">
-      <section className="relative overflow-hidden rounded-2xl border border-border-default bg-gradient-to-br from-primary/12 via-bg-surface to-bg-sunken p-4 sm:p-6">
+      <section
+        data-tour="settings-profile"
+        className="relative overflow-hidden rounded-2xl border border-border-default bg-gradient-to-br from-primary/12 via-bg-surface to-bg-sunken p-4 sm:p-6"
+      >
         <div
           aria-hidden
           className="pointer-events-none absolute -end-12 -top-16 size-44 rounded-full bg-primary/20 blur-3xl"
@@ -419,7 +438,10 @@ function ProfileSettingsSection({
       </section>
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-        <section className="rounded-2xl border border-border-default bg-bg-surface p-4 sm:p-5">
+        <section
+          data-tour="settings-profile-form"
+          className="rounded-2xl border border-border-default bg-bg-surface p-4 sm:p-5"
+        >
           <SectionTitle>{t.profile.personalInfo}</SectionTitle>
           <form
             onSubmit={p.onProfileSubmit}
@@ -533,6 +555,7 @@ function ProfileSettingsSection({
           </section>
 
           <section
+            data-tour="settings-bale"
             className={cn(
               "relative overflow-hidden rounded-2xl border p-4 sm:p-5",
               baleLinked
@@ -713,7 +736,10 @@ function SecuritySettingsSection({
 
   return (
     <div className="space-y-5">
-      <section className="relative overflow-hidden rounded-2xl border border-border-default bg-gradient-to-br from-primary/10 via-bg-surface to-bg-sunken p-4 sm:p-5">
+      <section
+        data-tour="settings-security"
+        className="relative overflow-hidden rounded-2xl border border-border-default bg-gradient-to-br from-primary/10 via-bg-surface to-bg-sunken p-4 sm:p-5"
+      >
         <div
           aria-hidden
           className="pointer-events-none absolute -start-8 -top-10 size-32 rounded-full bg-primary/15 blur-3xl"
@@ -746,7 +772,10 @@ function SecuritySettingsSection({
       </section>
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
-        <section className="rounded-2xl border border-border-default bg-bg-surface p-4 sm:p-5">
+        <section
+          data-tour="settings-password"
+          className="rounded-2xl border border-border-default bg-bg-surface p-4 sm:p-5"
+        >
           <SectionTitle>{t.settings.securityChangePassword}</SectionTitle>
           <p className="mb-4 text-sm text-muted-foreground">
             {t.settings.securityChangePasswordHint}
@@ -831,7 +860,10 @@ function SecuritySettingsSection({
           </form>
         </section>
 
-        <section className="rounded-2xl border border-border-default bg-bg-surface p-4 sm:p-5">
+        <section
+          data-tour="settings-sessions"
+          className="rounded-2xl border border-border-default bg-bg-surface p-4 sm:p-5"
+        >
           <SectionTitle>{t.settings.securitySessions}</SectionTitle>
           <p className="mb-4 text-sm text-muted-foreground">
             {t.settings.securitySessionsHint}

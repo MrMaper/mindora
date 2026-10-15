@@ -1,16 +1,22 @@
 .root {
   --err-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  position: relative;
+  /* Cover the whole viewport (including over the shell sidebar). */
+  position: fixed;
+  inset: 0;
+  z-index: 60;
   isolation: isolate;
   display: flex;
-  min-height: min(78dvh, 640px);
+  min-height: 100dvh;
   width: 100%;
   max-width: 100%;
   align-items: center;
   justify-content: center;
   overflow-x: clip;
   overflow-y: auto;
-  padding: 1.5rem 1rem 2rem;
+  padding:
+    max(1.5rem, env(safe-area-inset-top, 0px))
+    1.25rem
+    max(2rem, env(safe-area-inset-bottom, 0px));
   box-sizing: border-box;
 }
 
@@ -19,17 +25,19 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(900px 420px at 82% -5%, rgb(78 93 205 / 0.16), transparent 55%),
-    radial-gradient(700px 380px at 8% 105%, rgb(239 68 68 / 0.1), transparent 50%),
-    radial-gradient(520px 280px at 50% 40%, rgb(14 165 168 / 0.06), transparent 60%),
+    radial-gradient(120% 70% at 85% -10%, rgb(78 93 205 / 0.2), transparent 58%),
+    radial-gradient(90% 55% at 5% 110%, rgb(239 68 68 / 0.12), transparent 55%),
+    radial-gradient(70% 50% at 50% 55%, rgb(14 165 168 / 0.08), transparent 65%),
+    radial-gradient(50% 40% at 20% 30%, rgb(78 93 205 / 0.08), transparent 70%),
     var(--bg-canvas, var(--gray-50));
 }
 
 :global(html[data-theme="dark"]) .bg {
   background:
-    radial-gradient(900px 420px at 82% -5%, rgb(99 112 189 / 0.22), transparent 55%),
-    radial-gradient(700px 380px at 8% 105%, rgb(239 68 68 / 0.14), transparent 50%),
-    radial-gradient(520px 280px at 50% 40%, rgb(14 165 168 / 0.08), transparent 60%),
+    radial-gradient(120% 70% at 85% -10%, rgb(99 112 189 / 0.28), transparent 58%),
+    radial-gradient(90% 55% at 5% 110%, rgb(239 68 68 / 0.16), transparent 55%),
+    radial-gradient(70% 50% at 50% 55%, rgb(14 165 168 / 0.1), transparent 65%),
+    radial-gradient(50% 40% at 20% 30%, rgb(99 112 189 / 0.1), transparent 70%),
     var(--gray-950);
 }
 
@@ -42,7 +50,7 @@
     linear-gradient(rgb(100 116 139 / 0.07) 1px, transparent 1px),
     linear-gradient(90deg, rgb(100 116 139 / 0.07) 1px, transparent 1px);
   background-size: 48px 48px;
-  mask-image: radial-gradient(ellipse at 50% 45%, black 15%, transparent 72%);
+  mask-image: radial-gradient(ellipse at 50% 45%, black 20%, transparent 78%);
 }
 
 .orbA,
@@ -55,28 +63,28 @@
 }
 
 .orbA {
-  width: 11rem;
-  height: 11rem;
-  top: 12%;
-  inset-inline-end: 8%;
+  width: min(14rem, 28vw);
+  height: min(14rem, 28vw);
+  top: 8%;
+  inset-inline-end: 6%;
   background: rgb(78 93 205 / 0.22);
   animation: driftA 9s ease-in-out infinite;
 }
 
 .orbB {
-  width: 8rem;
-  height: 8rem;
-  bottom: 14%;
-  inset-inline-start: 10%;
+  width: min(11rem, 22vw);
+  height: min(11rem, 22vw);
+  bottom: 10%;
+  inset-inline-start: 8%;
   background: rgb(239 68 68 / 0.16);
   animation: driftB 11s ease-in-out infinite;
 }
 
 .orbC {
-  width: 5.5rem;
-  height: 5.5rem;
-  top: 42%;
-  inset-inline-start: 22%;
+  width: min(7rem, 16vw);
+  height: min(7rem, 16vw);
+  top: 48%;
+  inset-inline-start: 18%;
   background: rgb(14 165 168 / 0.14);
   animation: driftC 8s ease-in-out infinite;
 }
@@ -85,7 +93,7 @@
   pointer-events: none;
   position: absolute;
   inset-inline: 0;
-  top: 18%;
+  top: 14%;
   text-align: center;
   font-size: clamp(5.5rem, 18vw, 9.5rem);
   font-weight: 800;
@@ -305,7 +313,6 @@
 
 @media (max-width: 640px) {
   .root {
-    min-height: 100dvh;
     align-items: flex-start;
     justify-content: flex-start;
     padding:

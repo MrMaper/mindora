@@ -7,6 +7,7 @@ import { DndContext, DragOverlay } from "@dnd-kit/core";
 import { KanbanCard } from "@/components/ui-kit/agile/kanban-card";
 import { Button } from "@/components/ui-kit/forms/button";
 import { PageHeaderBar } from "@/components/ui-kit/layout/page-header-bar";
+import { PageTourButton } from "@/components/tour/page-tour-button";
 import { useKanban } from "../hooks/use-kanban";
 import type { KanbanCreateDefaults } from "../hooks/use-kanban";
 import { useTranslation } from "@/i18n/provider";
@@ -178,17 +179,22 @@ export function KanbanCC({
     <div className={embedded ? "flex min-h-0 flex-col" : undefined}>
       {embedded ? null : (
         <PageHeaderBar
+          tourId="page-board"
           className="mb-4"
           title={title ?? t.board.title}
           actions={
-            <Button variant="primary" icon="plus" onClick={handleOpenCreate}>
-              {t.tasks.createTaskButton}
-            </Button>
+            <>
+              <PageTourButton tourId="board" />
+              <Button variant="primary" icon="plus" onClick={handleOpenCreate}>
+                {t.tasks.createTaskButton}
+              </Button>
+            </>
           }
         />
       )}
 
       {showFilters && (
+        <div data-tour="board-filters">
         <KanbanFilters
           search={k.search}
           project={filters.project}
@@ -222,6 +228,7 @@ export function KanbanCC({
             });
           }}
         />
+        </div>
       )}
 
       {k.actionError && k.drawerMode === "none" && (
@@ -244,6 +251,7 @@ export function KanbanCC({
         onDragCancel={k.onDragCancel}
       >
         <div
+          data-tour="board-columns"
           className={
             embedded
               ? "flex min-h-0 items-stretch gap-2 overflow-x-auto scroll-px-1 px-0.5 py-2 snap-x snap-mandatory sm:gap-3 sm:snap-none sm:py-3 [-webkit-overflow-scrolling:touch]"

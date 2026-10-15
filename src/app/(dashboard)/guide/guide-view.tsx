@@ -11,6 +11,7 @@ import {
   type GuideCopy,
   type GuideSection,
 } from "@/features/guide/content";
+import { TourRestartButton } from "@/components/tour/tour-restart-button";
 
 type Access = "open" | "off" | "member-only";
 
@@ -143,7 +144,11 @@ export function GuideView({
         <p className="mt-5 rounded-xl border border-primary/20 bg-primary/5 px-3 py-2.5 text-sm leading-7">
           {copy.adminBanner}
         </p>
-      ) : null}
+      ) : (
+        <div className="mt-5">
+          <TourRestartButton language={language} />
+        </div>
+      )}
 
       <section className="mt-6" aria-label={copy.startTitle}>
         <h2 className="mb-2 text-xs font-medium text-muted-foreground">{copy.startTitle}</h2>

@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Button } from "@/components/ui-kit/forms/button";
 import { PageHeaderBar } from "@/components/ui-kit/layout/page-header-bar";
+import { PageTourButton } from "@/components/tour/page-tour-button";
 import { useTranslation } from "@/i18n/provider";
 
 export interface PageHeaderProps {
@@ -21,6 +22,7 @@ export function PageHeader({
 
   return (
     <PageHeaderBar
+      tourId="page-tasks"
       title={t.tasks.title}
       meta={
         <>
@@ -29,6 +31,7 @@ export function PageHeader({
       }
       actions={
         <>
+          <PageTourButton tourId="tasks" />
           {isAdmin && (
             <Button variant="secondary" icon="flag" onClick={onLabelDialogOpen}>
               {t.tasks.manageLabels}

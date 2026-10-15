@@ -12,6 +12,7 @@ import { ResearchLibraryPanel } from "@/components/research/research-library";
 import { ResearchWritingPanel } from "@/components/research/research-writing";
 import { ResearchProjectSwitcher } from "@/components/research/research-project-switcher";
 import { PageHeaderBar } from "@/components/ui-kit/layout/page-header-bar";
+import { PageTourButton } from "@/components/tour/page-tour-button";
 import { Button } from "@/components/ui-kit/forms/button";
 import { useAreaHelpers } from "@/components/member-areas-provider";
 import type {
@@ -111,21 +112,25 @@ function ResearchCCInner({
   return (
     <div className="flex min-h-0 flex-col">
       <PageHeaderBar
+        tourId="page-research"
         className="mb-2 sm:mb-3"
         title={t.life.researchHubTitle}
         description={
           <span className="hidden sm:inline">{t.life.researchHubHint}</span>
         }
         actions={
-          tab === "pipeline" ? (
-            <Button
-              variant="primary"
-              icon="plus"
-              onClick={() => openCreateRef.current?.()}
-            >
-              {t.tasks.createTaskButton}
-            </Button>
-          ) : null
+          <>
+            <PageTourButton tourId="research" />
+            {tab === "pipeline" ? (
+              <Button
+                variant="primary"
+                icon="plus"
+                onClick={() => openCreateRef.current?.()}
+              >
+                {t.tasks.createTaskButton}
+              </Button>
+            ) : null}
+          </>
         }
       />
 
@@ -135,7 +140,7 @@ function ResearchCCInner({
 
       {tab === "pipeline" && (
         <div className="grid min-h-0 gap-3 xl:grid-cols-[minmax(0,1fr)_18rem]">
-          <div className="relative min-w-0">
+          <div data-tour="research-pipeline" className="relative min-w-0">
             <KanbanCC
               key={`board-${scope}`}
               embedded
@@ -170,7 +175,10 @@ function ResearchCCInner({
               className="pointer-events-none absolute inset-y-8 end-0 w-6 bg-linear-to-l from-background to-transparent sm:hidden"
             />
           </div>
-          <details className="rounded-xl border bg-card xl:hidden">
+          <details
+            data-tour="research-aside"
+            className="rounded-xl border bg-card xl:hidden"
+          >
             <summary className="cursor-pointer list-none px-3 py-2 text-sm font-medium marker:content-none [&::-webkit-details-marker]:hidden">
               {t.life.researchWrite} · {t.life.researchQuotes}
             </summary>
@@ -182,7 +190,7 @@ function ResearchCCInner({
               />
             </div>
           </details>
-          <div className="hidden min-w-0 xl:block">
+          <div data-tour="research-aside" className="hidden min-w-0 xl:block">
             <ResearchPipelineAside
               phdDocs={hub.phdDocs}
               quotes={hub.quotes}
@@ -193,20 +201,24 @@ function ResearchCCInner({
       )}
 
       {tab === "library" && (
-        <ResearchLibraryPanel
-          initialSources={hub.sources}
-          projectId={docProjectId}
-          citeDocs={hub.phdDocs}
-          projects={phdProjects}
-        />
+        <div data-tour="research-library">
+          <ResearchLibraryPanel
+            initialSources={hub.sources}
+            projectId={docProjectId}
+            citeDocs={hub.phdDocs}
+            projects={phdProjects}
+          />
+        </div>
       )}
 
       {tab === "writing" && (
-        <ResearchWritingPanel
-          phdDocs={hub.phdDocs}
-          pulse={hub.pulse}
-          projectId={docProjectId}
-        />
+        <div data-tour="research-writing">
+          <ResearchWritingPanel
+            phdDocs={hub.phdDocs}
+            pulse={hub.pulse}
+            projectId={docProjectId}
+          />
+        </div>
       )}
     </div>
   );

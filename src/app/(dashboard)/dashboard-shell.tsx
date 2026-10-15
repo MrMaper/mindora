@@ -13,6 +13,7 @@ import {
 import { SidebarNav, type NavGroup } from "./sidebar-nav";
 import { useTranslation } from "@/i18n/provider";
 import { openCapture } from "@/features/capture/open-capture";
+import { OPEN_MOBILE_NAV } from "@/components/tour/product-tour";
 import { cn } from "@/lib/utils";
 
 interface DashboardShellProps {
@@ -54,12 +55,21 @@ export function DashboardShell({
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const isRtl = language === "FA";
 
+  React.useEffect(() => {
+    function openNav() {
+      setMobileOpen(true);
+    }
+    window.addEventListener(OPEN_MOBILE_NAV, openNav);
+    return () => window.removeEventListener(OPEN_MOBILE_NAV, openNav);
+  }, []);
+
   function renderCaptureLaunch() {
     if (!captureEnabled) return null;
     return (
       <div className="shrink-0 border-b px-3 py-2">
         <button
           type="button"
+          data-tour="capture"
           onClick={() => {
             setMobileOpen(false);
             openCapture();
@@ -92,7 +102,10 @@ export function DashboardShell({
   );
 
   const brand = (
-    <div className="flex items-center justify-center min-h-14 py-3 border-b px-4 shrink-0">
+    <div
+      data-tour="brand"
+      className="flex min-h-14 shrink-0 items-center justify-center border-b px-4 py-3"
+    >
       <BrandMark size="md" />
     </div>
   );
@@ -153,6 +166,7 @@ export function DashboardShell({
               variant="ghost"
               size="icon"
               className="size-11"
+              data-tour="capture"
               aria-label={t.dashboard.captureOpen}
               onClick={() => openCapture()}
             >

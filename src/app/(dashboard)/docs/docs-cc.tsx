@@ -9,6 +9,7 @@ import { IconButton } from "@/components/ui-kit/forms/icon-button";
 import { Input } from "@/components/ui-kit/forms/input";
 import { Icon } from "@/components/ui-kit/foundation/icon";
 import { PageHeaderBar } from "@/components/ui-kit/layout/page-header-bar";
+import { PageTourButton } from "@/components/tour/page-tour-button";
 import { useLanguage, useTranslation } from "@/i18n/provider";
 import { cn, formatNumber } from "@/lib/utils";
 import { formatJalaliShort } from "@/lib/life";
@@ -711,26 +712,33 @@ export function DocsCC({
         )}
       >
       <PageHeaderBar
+        tourId="page-docs"
         className="mb-0 shrink-0"
         title={t.docs.title}
         actions={
           <>
-            <Button size="sm" onClick={() => void onCreate()} disabled={pending}>
-              <Icon name="plus" size={14} />
-              <span className="hidden xs:inline sm:inline">{t.docs.newDoc}</span>
-            </Button>
-            <Button
-              size="sm"
-              variant="subtle"
-              onClick={() => setShowTemplates(true)}
-              disabled={pending}
-            >
-              {t.docs.fromTemplate}
-            </Button>
+            <PageTourButton tourId="docs" />
+            <span data-tour="docs-create" className="inline-flex flex-wrap items-center gap-2">
+              <Button size="sm" onClick={() => void onCreate()} disabled={pending}>
+                <Icon name="plus" size={14} />
+                <span className="hidden xs:inline sm:inline">{t.docs.newDoc}</span>
+              </Button>
+              <Button
+                size="sm"
+                variant="subtle"
+                onClick={() => setShowTemplates(true)}
+                disabled={pending}
+              >
+                {t.docs.fromTemplate}
+              </Button>
+            </span>
           </>
         }
       />
-      <div className="mt-2 flex flex-wrap items-center gap-3 shrink-0">
+      <div
+        data-tour="docs-area-filter"
+        className="mt-2 flex flex-wrap items-center gap-3 shrink-0"
+      >
         <div className="flex flex-wrap items-center gap-1.5 text-xs">
           <button
             type="button"
@@ -805,6 +813,7 @@ export function DocsCC({
       >
         {!focusMode && (
         <aside
+          data-tour="docs-library"
           className={cn(
             "flex min-h-0 flex-col overflow-hidden border bg-card shadow-sm",
             "rounded-none border-x-0 xl:rounded-2xl xl:border",
@@ -942,6 +951,7 @@ export function DocsCC({
         )}
 
         <section
+          data-tour="docs-editor"
           className={cn(
             "flex min-h-0 flex-col overflow-hidden border bg-card shadow-sm",
             "rounded-none border-x-0 xl:rounded-2xl xl:border",
@@ -966,7 +976,10 @@ export function DocsCC({
             </div>
           ) : (
             <>
-              <div className="flex shrink-0 items-center gap-1.5 border-b px-2 py-2 sm:gap-2 sm:px-4 sm:py-3">
+              <div
+                data-tour="docs-editor-chrome"
+                className="flex shrink-0 items-center gap-1.5 border-b px-2 py-2 sm:gap-2 sm:px-4 sm:py-3"
+              >
                 {!focusMode && (
                   <IconButton
                     icon={language === "FA" ? "arrow-right" : "arrow-left"}

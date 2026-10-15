@@ -64,7 +64,8 @@
 - Pure logic in `src/lib/ui-profile.ts` (unit-tested): `navVisibility`, `shouldSuggestFull` (after 3 done tasks, dismissible, never auto-switches), `explicitNavModules`, life-part chips and `areaForLifePart`.
 - Starter: nav is Today, Tasks, Calendar (only after the first dated task), Settings, plus modules the member explicitly enabled. Guide link hidden. Today is a separate component (`starter-today.tsx`) with its own cheap query `getStarterToday`. Capture is one plain box (`universalCapture({plain: true})`: always a task in the default area). First capture only: asks "which part of life" with chips; closing keeps the default area.
 - **Chips map onto the four enum areas** (P4 replaces this). Study and Language land in the hub area only when that module is effectively on; otherwise the task goes to the default area, because a hub task would vanish from Today. Choosing a chip never enables a module.
-- The old onboarding tour is deleted (its i18n strings are dead). The Guide content rewrite is not done.
+- First-run **onboarding** is modal-free: Starter Today capture + optional life-part chips; `markFirstCapture` also sets `onboardingCompletedAt`. The old four-area modal tour is gone.
+- **Product tour** (section-by-section spotlight) is separate: `UserPreferences.productTourCompletedAt`. It never auto-starts before value (Starter waits for `firstCaptureAt`; Full may see a soft invite). Restart from Guide or Settings → Capabilities. Steps filter with `navVisibility` so Starter never points at hidden items.
 - Switching: Settings → Capabilities has "simplify / show more features" (`setUiProfileAction`). The admin can set a member's profile in the user edit drawer (`setUserUiProfile`, audited as `USER_UPDATED`). Neither touches module access.
 - Funnel (S-11): admin Ops card, counts by `createdVia` (`features/admin/funnel.ts`, tested). The 24 h window is measured from `createdAt`; "returned" = `lastSeenAt` on a later UTC day. Legacy members have no timestamps.
 - Not built: admin UI for the system UI-profile defaults (only schema and `provisionMember` use them); a task editor inside Starter Today.
@@ -202,7 +203,7 @@ Historical snapshot that motivated the redesign. **Current behavior is in "Imple
 | D3 | Module access is two-layer: admin policy (`off` / `on` / `member_choice`) then member preference (§7). |
 | D4 | The admin has full control of every module for every member, at any time. |
 | D5 | Research and Language each attach to exactly one **hub area** (`UserArea.hubFor`). The two hub areas are different areas. |
-| D6 | First-run order is value → structure → power. No tour before the first task. |
+| D6 | First-run order is value → structure → power. No product tour before the first task (Starter); tour invite is soft and skippable. |
 | D7 | New members start with `uiProfile = starter`. Existing members are `full`. |
 | D8 | Moving from starter to full is explicit and member-driven. There is no silent graduation. |
 | D9 | All account creation goes through one service, `provisionMember`, so admin invites and future sign-up share it. |
@@ -278,6 +279,31 @@ Week 1+      Member opts into more: “Show more features” or Settings → Cap
 
 Day-1 success is “wrote one thing, saw it, did not panic”, not “understood areas”.
 
+### 6.4a Product tour vs onboarding
+
+| Concern | Onboarding (value) | Product tour (map) |
+|---|---|---|
+| What it is | Write first task; optional life-part chips | Spotlight walkthrough of visible sections |
+| Persistence | `firstCaptureAt` + `onboardingCompletedAt` | `productTourCompletedAt` |
+| When it runs | Immediately on Starter Today | Soft invite **after** eligibility; never blocks capture |
+| Skip | Closing chips keeps default area | Skip / «نه، لازم نیست» sets `productTourCompletedAt` |
+| Restart | N/A | Guide or Settings → Capabilities → «بازنشانی همهٔ تورها» (clears overview + every page tour, then starts overview) |
+
+Eligibility: Starter needs `firstCaptureAt` (or `onboardingCompletedAt`). Full (and already-onboarded members) may see the invite once so the tour can roll out without forcing Day-1 noise. Steps are built from `navVisibility` + capture/guide flags (`src/features/tour/`).
+
+**Navigation policy:** Only Today / Capture (and the closing step) soft-route to `/dashboard`. Every other overview step spotlights a sidebar item **in place** — no hop to Board/Calendar/… — so weak networks do not flash empty pages between steps.
+
+**Two layers of tours**
+
+| Layer | Id | When | What |
+|---|---|---|---|
+| Overview (menu map) | `overview` | Soft invite after eligibility; restart from Guide / Capabilities | Sidebar map; does not open every page |
+| Page tours | `today`, `board`, `tasks`, `calendar`, `projects`, `docs`, `research`, `language`, `review`, `settings` | After overview is done, soft invite on first visit to that path; restart via «تور این صفحه» on the page | In-page spotlights only (no cross-route hops). Same-path query changes (e.g. `/language?tab=vocab`) are allowed so tabbed hubs can reveal each panel. |
+
+Persisted in `UserPreferences.completedTourIds` (plus legacy `productTourCompletedAt` for overview). Only one tour runs at a time; page invites wait until overview is finished or skipped.
+
+**Invite UI:** Overview uses a centered modal + dim backdrop (must be unmissable once). Page tours use a docked card with a warm amber attention border/glow — visible, but the page stays usable underneath.
+
 ### 6.5 Starter and Full (`uiProfile`)
 
 `UserPreferences.uiProfile` is `starter` or `full`.
@@ -308,6 +334,11 @@ Stored on `UserPreferences`, set once and never overwritten:
 - `firstCaptureAt`
 - `firstDoneAt`
 - `uiProfileChangedAt`
+- `onboardingCompletedAt` (set with first capture; marks the value loop done)
+
+Separate (not a funnel step; may be cleared to restart):
+
+- `productTourCompletedAt` — section tour finished or skipped
 
 With existing `User.createdAt`, `lastLoginAt`, `lastSeenAt`, the admin overview shows an aggregate funnel (§14, surface **S-11**): invited → first login → first capture (within 24 h) → returned on a later day → switched to full. Split by `createdVia`.
 

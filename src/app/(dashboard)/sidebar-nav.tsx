@@ -44,6 +44,25 @@ function isRouteActive(pathname: string, href: string) {
   return pathname === pathOnly || pathname.startsWith(pathOnly + "/");
 }
 
+function tourIdForHref(href: string): string | undefined {
+  const path = href.split("?")[0] ?? href;
+  if (path === "/dashboard") return "nav-dashboard";
+  if (path === "/kanban") return "nav-board";
+  if (path === "/tasks") return "nav-tasks";
+  if (path === "/calendar") return "nav-calendar";
+  if (path === "/projects" || path.startsWith("/projects/")) return "nav-projects";
+  if (path === "/docs") return "nav-docs";
+  if (path === "/research" || path.startsWith("/research")) return "nav-research";
+  if (path === "/language") return "nav-language";
+  if (path === "/review") return "nav-review";
+  if (path === "/work-logs") return "nav-work-logs";
+  if (path === "/reporting") return "nav-reporting";
+  if (path === "/guide") return "nav-guide";
+  if (path === "/settings") return "nav-settings";
+  if (path === "/notifications") return "nav-notifications";
+  return undefined;
+}
+
 function NavLink({
   item,
   active,
@@ -53,11 +72,13 @@ function NavLink({
   active: boolean;
   onNavigate?: () => void;
 }) {
+  const tourId = tourIdForHref(item.href);
   return (
     <Link
       href={item.href}
       prefetch
       onClick={onNavigate}
+      data-tour={tourId}
       className={cn(
         "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-colors",
         active

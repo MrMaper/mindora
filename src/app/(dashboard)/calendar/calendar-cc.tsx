@@ -1219,9 +1219,15 @@ export function CalendarCC({
   return (
     <>
       <div className="flex flex-col gap-3 min-h-[calc(100dvh-3rem)]">
-        <div className="flex flex-wrap items-center gap-3 shrink-0">
+        <div
+          data-tour="page-calendar"
+          className="flex flex-wrap items-center gap-3 shrink-0"
+        >
           <h1 className="text-xl font-semibold">{t.life.calendarTitle}</h1>
-          <div className="flex items-center gap-0.5 rounded-lg border p-0.5 overflow-x-auto max-w-full">
+          <div
+            data-tour="calendar-views"
+            className="flex items-center gap-0.5 rounded-lg border p-0.5 overflow-x-auto max-w-full"
+          >
             <Button
               size="sm"
               variant={view === "month" ? "primary" : "ghost"}
@@ -1337,7 +1343,10 @@ export function CalendarCC({
           onDragCancel={onDragCancel}
           onDragEnd={onDragEnd}
         >
-          <div className="grid xl:grid-cols-[minmax(0,1fr)_min(100%,300px)] gap-3 sm:gap-4 flex-1 min-h-0">
+          <div
+            data-tour="calendar-grid"
+            className="grid xl:grid-cols-[minmax(0,1fr)_min(100%,300px)] gap-3 sm:gap-4 flex-1 min-h-0"
+          >
             <div className="rounded-2xl border bg-card shadow-sm overflow-hidden flex flex-col min-h-[18rem] sm:min-h-[640px] xl:min-h-0 xl:h-full">
               {view === "week" || view === "day" ? (
                 <WeekHourGrid

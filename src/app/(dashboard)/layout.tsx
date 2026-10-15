@@ -32,6 +32,8 @@ import { MemberAreasProvider } from "@/components/member-areas-provider";
 import { getMemberContext } from "@/lib/areas/server";
 import { CaptureProvider } from "@/components/life/capture-provider";
 import { ReminderWatcher } from "@/components/life/reminder-watcher";
+import { Suspense } from "react";
+import { ProductTour } from "@/components/tour/product-tour";
 
 export default async function DashboardLayout({
   children,
@@ -277,6 +279,23 @@ export default async function DashboardLayout({
           >
             {children}
           </DashboardShell>
+          <Suspense fallback={null}>
+            <ProductTour
+              language={language === "EN" ? "EN" : "FA"}
+              eligibleOverview={
+                // Starter: only after first capture (value before structure).
+                // Full / already-onboarded: invite once so existing members see the map tour.
+                uiProfile === "full" ||
+                !!preferences?.firstCaptureAt ||
+                !!preferences?.onboardingCompletedAt
+              }
+              completedTourIds={preferences?.completedTourIds ?? []}
+              overviewCompletedAt={preferences?.productTourCompletedAt ?? null}
+              show={show}
+              captureEnabled
+              showGuide={uiProfile === "full"}
+            />
+          </Suspense>
           <CommandPaletteLazy />
         </CaptureProvider>
       </MemberAreasProvider>

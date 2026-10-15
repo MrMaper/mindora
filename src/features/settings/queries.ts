@@ -21,6 +21,10 @@ export interface UserPreferencesData {
   baleDigestHour: number;
   baleHabitHour: number;
   onboardingCompletedAt: Date | null;
+  /** Overview tour finished or skipped (after first capture). */
+  productTourCompletedAt: Date | null;
+  /** Per-tour ids: overview, today, board, … */
+  completedTourIds: string[];
   /** "starter" | "full"; parse with parseUiProfile. */
   uiProfile: string;
   uiSuggestionDismissedAt: Date | null;
@@ -55,6 +59,8 @@ export async function getUserPreferences(
       baleDigestHour: true,
       baleHabitHour: true,
       onboardingCompletedAt: true,
+      productTourCompletedAt: true,
+      completedTourIds: true,
       uiProfile: true,
       uiSuggestionDismissedAt: true,
       firstCaptureAt: true,

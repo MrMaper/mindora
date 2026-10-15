@@ -162,7 +162,7 @@ export function StarterToday({
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
-      <div className="min-w-0">
+      <div data-tour="page-today" className="min-w-0">
         <h1 className="text-xl font-semibold text-text-primary">
           {fa ? "سلام" : "Hello"}
           {userName ? `، ${userName}` : ""}

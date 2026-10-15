@@ -576,7 +576,10 @@ export function DocEditor({
   return (
     <div className={cn("flex min-h-0 flex-1 flex-col gap-2", className)} ref={wrapRef}>
       {!focusMode && (
-        <div className="sticky top-0 z-10 flex shrink-0 flex-nowrap items-center gap-1 overflow-x-auto rounded-xl border bg-muted/30 p-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div
+          data-tour="docs-toolbar"
+          className="sticky top-0 z-10 flex shrink-0 flex-nowrap items-center gap-1 overflow-x-auto rounded-xl border bg-muted/30 p-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
           <ToolbarButton
             active={editor.isActive("bold")}
             onClick={() => editor.chain().focus().toggleBold().run()}

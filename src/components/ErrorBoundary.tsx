@@ -7,6 +7,11 @@ import { ErrorFallback } from "@/components/error-fallback";
 interface ErrorBoundaryProps {
   children: React.ReactNode;
   fallback?: React.ReactNode;
+  /**
+   * When this value changes, clear a prior error without remounting children
+   * (so in-flight UI like the product tour survives navigation).
+   */
+  resetKey?: string;
 }
 
 interface ErrorBoundaryState {
@@ -36,6 +41,16 @@ export class ErrorBoundary extends React.Component<
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error("ErrorBoundary caught an error:", error, errorInfo);
+  }
+
+  componentDidUpdate(prevProps: ErrorBoundaryProps) {
+    if (
+      this.state.hasError &&
+      prevProps.resetKey !== this.props.resetKey &&
+      this.props.resetKey !== undefined
+    ) {
+      this.setState({ hasError: false, error: null });
+    }
   }
 
   private handleReload = () => {

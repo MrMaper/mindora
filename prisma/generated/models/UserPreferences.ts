@@ -58,6 +58,7 @@ export type UserPreferencesMinAggregateOutputType = {
   baleHabitSentOn: string | null
   todayFocusDate: string | null
   onboardingCompletedAt: Date | null
+  productTourCompletedAt: Date | null
   uiProfile: string | null
   uiProfileChangedAt: Date | null
   uiSuggestionDismissedAt: Date | null
@@ -91,6 +92,7 @@ export type UserPreferencesMaxAggregateOutputType = {
   baleHabitSentOn: string | null
   todayFocusDate: string | null
   onboardingCompletedAt: Date | null
+  productTourCompletedAt: Date | null
   uiProfile: string | null
   uiProfileChangedAt: Date | null
   uiSuggestionDismissedAt: Date | null
@@ -125,6 +127,8 @@ export type UserPreferencesCountAggregateOutputType = {
   todayFocusDate: number
   todayFocusIds: number
   onboardingCompletedAt: number
+  productTourCompletedAt: number
+  completedTourIds: number
   moduleMemberPrefs: number
   uiProfile: number
   uiProfileChangedAt: number
@@ -171,6 +175,7 @@ export type UserPreferencesMinAggregateInputType = {
   baleHabitSentOn?: true
   todayFocusDate?: true
   onboardingCompletedAt?: true
+  productTourCompletedAt?: true
   uiProfile?: true
   uiProfileChangedAt?: true
   uiSuggestionDismissedAt?: true
@@ -204,6 +209,7 @@ export type UserPreferencesMaxAggregateInputType = {
   baleHabitSentOn?: true
   todayFocusDate?: true
   onboardingCompletedAt?: true
+  productTourCompletedAt?: true
   uiProfile?: true
   uiProfileChangedAt?: true
   uiSuggestionDismissedAt?: true
@@ -238,6 +244,8 @@ export type UserPreferencesCountAggregateInputType = {
   todayFocusDate?: true
   todayFocusIds?: true
   onboardingCompletedAt?: true
+  productTourCompletedAt?: true
+  completedTourIds?: true
   moduleMemberPrefs?: true
   uiProfile?: true
   uiProfileChangedAt?: true
@@ -360,6 +368,8 @@ export type UserPreferencesGroupByOutputType = {
   todayFocusDate: string | null
   todayFocusIds: string[]
   onboardingCompletedAt: Date | null
+  productTourCompletedAt: Date | null
+  completedTourIds: string[]
   moduleMemberPrefs: runtime.JsonValue
   uiProfile: string
   uiProfileChangedAt: Date | null
@@ -418,6 +428,8 @@ export type UserPreferencesWhereInput = {
   todayFocusDate?: Prisma.StringNullableFilter<"UserPreferences"> | string | null
   todayFocusIds?: Prisma.StringNullableListFilter<"UserPreferences">
   onboardingCompletedAt?: Prisma.DateTimeNullableFilter<"UserPreferences"> | Date | string | null
+  productTourCompletedAt?: Prisma.DateTimeNullableFilter<"UserPreferences"> | Date | string | null
+  completedTourIds?: Prisma.StringNullableListFilter<"UserPreferences">
   moduleMemberPrefs?: Prisma.JsonFilter<"UserPreferences">
   uiProfile?: Prisma.StringFilter<"UserPreferences"> | string
   uiProfileChangedAt?: Prisma.DateTimeNullableFilter<"UserPreferences"> | Date | string | null
@@ -454,6 +466,8 @@ export type UserPreferencesOrderByWithRelationInput = {
   todayFocusDate?: Prisma.SortOrderInput | Prisma.SortOrder
   todayFocusIds?: Prisma.SortOrder
   onboardingCompletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  productTourCompletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  completedTourIds?: Prisma.SortOrder
   moduleMemberPrefs?: Prisma.SortOrder
   uiProfile?: Prisma.SortOrder
   uiProfileChangedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -493,6 +507,8 @@ export type UserPreferencesWhereUniqueInput = Prisma.AtLeast<{
   todayFocusDate?: Prisma.StringNullableFilter<"UserPreferences"> | string | null
   todayFocusIds?: Prisma.StringNullableListFilter<"UserPreferences">
   onboardingCompletedAt?: Prisma.DateTimeNullableFilter<"UserPreferences"> | Date | string | null
+  productTourCompletedAt?: Prisma.DateTimeNullableFilter<"UserPreferences"> | Date | string | null
+  completedTourIds?: Prisma.StringNullableListFilter<"UserPreferences">
   moduleMemberPrefs?: Prisma.JsonFilter<"UserPreferences">
   uiProfile?: Prisma.StringFilter<"UserPreferences"> | string
   uiProfileChangedAt?: Prisma.DateTimeNullableFilter<"UserPreferences"> | Date | string | null
@@ -529,6 +545,8 @@ export type UserPreferencesOrderByWithAggregationInput = {
   todayFocusDate?: Prisma.SortOrderInput | Prisma.SortOrder
   todayFocusIds?: Prisma.SortOrder
   onboardingCompletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  productTourCompletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  completedTourIds?: Prisma.SortOrder
   moduleMemberPrefs?: Prisma.SortOrder
   uiProfile?: Prisma.SortOrder
   uiProfileChangedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -572,6 +590,8 @@ export type UserPreferencesScalarWhereWithAggregatesInput = {
   todayFocusDate?: Prisma.StringNullableWithAggregatesFilter<"UserPreferences"> | string | null
   todayFocusIds?: Prisma.StringNullableListFilter<"UserPreferences">
   onboardingCompletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"UserPreferences"> | Date | string | null
+  productTourCompletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"UserPreferences"> | Date | string | null
+  completedTourIds?: Prisma.StringNullableListFilter<"UserPreferences">
   moduleMemberPrefs?: Prisma.JsonWithAggregatesFilter<"UserPreferences">
   uiProfile?: Prisma.StringWithAggregatesFilter<"UserPreferences"> | string
   uiProfileChangedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"UserPreferences"> | Date | string | null
@@ -606,6 +626,8 @@ export type UserPreferencesCreateInput = {
   todayFocusDate?: string | null
   todayFocusIds?: Prisma.UserPreferencesCreatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Date | string | null
+  productTourCompletedAt?: Date | string | null
+  completedTourIds?: Prisma.UserPreferencesCreatecompletedTourIdsInput | string[]
   moduleMemberPrefs?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   uiProfile?: string
   uiProfileChangedAt?: Date | string | null
@@ -642,6 +664,8 @@ export type UserPreferencesUncheckedCreateInput = {
   todayFocusDate?: string | null
   todayFocusIds?: Prisma.UserPreferencesCreatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Date | string | null
+  productTourCompletedAt?: Date | string | null
+  completedTourIds?: Prisma.UserPreferencesCreatecompletedTourIdsInput | string[]
   moduleMemberPrefs?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   uiProfile?: string
   uiProfileChangedAt?: Date | string | null
@@ -676,6 +700,8 @@ export type UserPreferencesUpdateInput = {
   todayFocusDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   todayFocusIds?: Prisma.UserPreferencesUpdatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  productTourCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedTourIds?: Prisma.UserPreferencesUpdatecompletedTourIdsInput | string[]
   moduleMemberPrefs?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   uiProfile?: Prisma.StringFieldUpdateOperationsInput | string
   uiProfileChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -712,6 +738,8 @@ export type UserPreferencesUncheckedUpdateInput = {
   todayFocusDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   todayFocusIds?: Prisma.UserPreferencesUpdatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  productTourCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedTourIds?: Prisma.UserPreferencesUpdatecompletedTourIdsInput | string[]
   moduleMemberPrefs?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   uiProfile?: Prisma.StringFieldUpdateOperationsInput | string
   uiProfileChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -747,6 +775,8 @@ export type UserPreferencesCreateManyInput = {
   todayFocusDate?: string | null
   todayFocusIds?: Prisma.UserPreferencesCreatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Date | string | null
+  productTourCompletedAt?: Date | string | null
+  completedTourIds?: Prisma.UserPreferencesCreatecompletedTourIdsInput | string[]
   moduleMemberPrefs?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   uiProfile?: string
   uiProfileChangedAt?: Date | string | null
@@ -781,6 +811,8 @@ export type UserPreferencesUpdateManyMutationInput = {
   todayFocusDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   todayFocusIds?: Prisma.UserPreferencesUpdatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  productTourCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedTourIds?: Prisma.UserPreferencesUpdatecompletedTourIdsInput | string[]
   moduleMemberPrefs?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   uiProfile?: Prisma.StringFieldUpdateOperationsInput | string
   uiProfileChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -816,6 +848,8 @@ export type UserPreferencesUncheckedUpdateManyInput = {
   todayFocusDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   todayFocusIds?: Prisma.UserPreferencesUpdatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  productTourCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedTourIds?: Prisma.UserPreferencesUpdatecompletedTourIdsInput | string[]
   moduleMemberPrefs?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   uiProfile?: Prisma.StringFieldUpdateOperationsInput | string
   uiProfileChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -864,6 +898,8 @@ export type UserPreferencesCountOrderByAggregateInput = {
   todayFocusDate?: Prisma.SortOrder
   todayFocusIds?: Prisma.SortOrder
   onboardingCompletedAt?: Prisma.SortOrder
+  productTourCompletedAt?: Prisma.SortOrder
+  completedTourIds?: Prisma.SortOrder
   moduleMemberPrefs?: Prisma.SortOrder
   uiProfile?: Prisma.SortOrder
   uiProfileChangedAt?: Prisma.SortOrder
@@ -903,6 +939,7 @@ export type UserPreferencesMaxOrderByAggregateInput = {
   baleHabitSentOn?: Prisma.SortOrder
   todayFocusDate?: Prisma.SortOrder
   onboardingCompletedAt?: Prisma.SortOrder
+  productTourCompletedAt?: Prisma.SortOrder
   uiProfile?: Prisma.SortOrder
   uiProfileChangedAt?: Prisma.SortOrder
   uiSuggestionDismissedAt?: Prisma.SortOrder
@@ -936,6 +973,7 @@ export type UserPreferencesMinOrderByAggregateInput = {
   baleHabitSentOn?: Prisma.SortOrder
   todayFocusDate?: Prisma.SortOrder
   onboardingCompletedAt?: Prisma.SortOrder
+  productTourCompletedAt?: Prisma.SortOrder
   uiProfile?: Prisma.SortOrder
   uiProfileChangedAt?: Prisma.SortOrder
   uiSuggestionDismissedAt?: Prisma.SortOrder
@@ -988,6 +1026,10 @@ export type UserPreferencesCreatetodayFocusIdsInput = {
   set: string[]
 }
 
+export type UserPreferencesCreatecompletedTourIdsInput = {
+  set: string[]
+}
+
 export type EnumLanguageFieldUpdateOperationsInput = {
   set?: $Enums.Language
 }
@@ -997,6 +1039,11 @@ export type EnumThemeFieldUpdateOperationsInput = {
 }
 
 export type UserPreferencesUpdatetodayFocusIdsInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
+export type UserPreferencesUpdatecompletedTourIdsInput = {
   set?: string[]
   push?: string | string[]
 }
@@ -1023,6 +1070,8 @@ export type UserPreferencesCreateWithoutUserInput = {
   todayFocusDate?: string | null
   todayFocusIds?: Prisma.UserPreferencesCreatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Date | string | null
+  productTourCompletedAt?: Date | string | null
+  completedTourIds?: Prisma.UserPreferencesCreatecompletedTourIdsInput | string[]
   moduleMemberPrefs?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   uiProfile?: string
   uiProfileChangedAt?: Date | string | null
@@ -1057,6 +1106,8 @@ export type UserPreferencesUncheckedCreateWithoutUserInput = {
   todayFocusDate?: string | null
   todayFocusIds?: Prisma.UserPreferencesCreatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Date | string | null
+  productTourCompletedAt?: Date | string | null
+  completedTourIds?: Prisma.UserPreferencesCreatecompletedTourIdsInput | string[]
   moduleMemberPrefs?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   uiProfile?: string
   uiProfileChangedAt?: Date | string | null
@@ -1107,6 +1158,8 @@ export type UserPreferencesUpdateWithoutUserInput = {
   todayFocusDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   todayFocusIds?: Prisma.UserPreferencesUpdatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  productTourCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedTourIds?: Prisma.UserPreferencesUpdatecompletedTourIdsInput | string[]
   moduleMemberPrefs?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   uiProfile?: Prisma.StringFieldUpdateOperationsInput | string
   uiProfileChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1141,6 +1194,8 @@ export type UserPreferencesUncheckedUpdateWithoutUserInput = {
   todayFocusDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   todayFocusIds?: Prisma.UserPreferencesUpdatetodayFocusIdsInput | string[]
   onboardingCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  productTourCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedTourIds?: Prisma.UserPreferencesUpdatecompletedTourIdsInput | string[]
   moduleMemberPrefs?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   uiProfile?: Prisma.StringFieldUpdateOperationsInput | string
   uiProfileChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1178,6 +1233,8 @@ export type UserPreferencesSelect<ExtArgs extends runtime.Types.Extensions.Inter
   todayFocusDate?: boolean
   todayFocusIds?: boolean
   onboardingCompletedAt?: boolean
+  productTourCompletedAt?: boolean
+  completedTourIds?: boolean
   moduleMemberPrefs?: boolean
   uiProfile?: boolean
   uiProfileChangedAt?: boolean
@@ -1214,6 +1271,8 @@ export type UserPreferencesSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   todayFocusDate?: boolean
   todayFocusIds?: boolean
   onboardingCompletedAt?: boolean
+  productTourCompletedAt?: boolean
+  completedTourIds?: boolean
   moduleMemberPrefs?: boolean
   uiProfile?: boolean
   uiProfileChangedAt?: boolean
@@ -1250,6 +1309,8 @@ export type UserPreferencesSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   todayFocusDate?: boolean
   todayFocusIds?: boolean
   onboardingCompletedAt?: boolean
+  productTourCompletedAt?: boolean
+  completedTourIds?: boolean
   moduleMemberPrefs?: boolean
   uiProfile?: boolean
   uiProfileChangedAt?: boolean
@@ -1286,6 +1347,8 @@ export type UserPreferencesSelectScalar = {
   todayFocusDate?: boolean
   todayFocusIds?: boolean
   onboardingCompletedAt?: boolean
+  productTourCompletedAt?: boolean
+  completedTourIds?: boolean
   moduleMemberPrefs?: boolean
   uiProfile?: boolean
   uiProfileChangedAt?: boolean
@@ -1298,7 +1361,7 @@ export type UserPreferencesSelectScalar = {
   updatedAt?: boolean
 }
 
-export type UserPreferencesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "language" | "theme" | "emailNotifs" | "notifications" | "soundNotifs" | "notifyTaskAssigned" | "notifyTaskUpdated" | "notifyTaskCommented" | "notifyMention" | "notifySprintStarted" | "notifySprintEnded" | "notifyDeadlineApproaching" | "notifyStatusChanged" | "baleDigestHour" | "baleHabitHour" | "baleDigestSentOn" | "baleHabitSentOn" | "todayFocusDate" | "todayFocusIds" | "onboardingCompletedAt" | "moduleMemberPrefs" | "uiProfile" | "uiProfileChangedAt" | "uiSuggestionDismissedAt" | "firstAreaChosenAt" | "firstCaptureAt" | "firstDoneAt" | "batchDeadlineReminders" | "createdAt" | "updatedAt", ExtArgs["result"]["userPreferences"]>
+export type UserPreferencesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "language" | "theme" | "emailNotifs" | "notifications" | "soundNotifs" | "notifyTaskAssigned" | "notifyTaskUpdated" | "notifyTaskCommented" | "notifyMention" | "notifySprintStarted" | "notifySprintEnded" | "notifyDeadlineApproaching" | "notifyStatusChanged" | "baleDigestHour" | "baleHabitHour" | "baleDigestSentOn" | "baleHabitSentOn" | "todayFocusDate" | "todayFocusIds" | "onboardingCompletedAt" | "productTourCompletedAt" | "completedTourIds" | "moduleMemberPrefs" | "uiProfile" | "uiProfileChangedAt" | "uiSuggestionDismissedAt" | "firstAreaChosenAt" | "firstCaptureAt" | "firstDoneAt" | "batchDeadlineReminders" | "createdAt" | "updatedAt", ExtArgs["result"]["userPreferences"]>
 export type UserPreferencesInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -1346,9 +1409,17 @@ export type $UserPreferencesPayload<ExtArgs extends runtime.Types.Extensions.Int
     todayFocusDate: string | null
     todayFocusIds: string[]
     /**
-     * When set, first-run onboarding tour is complete
+     * First-run value loop finished (set with firstCaptureAt). Not the product tour.
      */
     onboardingCompletedAt: Date | null
+    /**
+     * Overview (menu-map) tour finished or skipped. Kept for compat; also listed in completedTourIds.
+     */
+    productTourCompletedAt: Date | null
+    /**
+     * Per-tour completion ids: "overview" | "today" | "board" | … (docs/AREAS.md §6.4a).
+     */
+    completedTourIds: string[]
     /**
      * Member choices for modules whose admin policy is "member_choice": { [module]: boolean }
      */
@@ -1820,6 +1891,8 @@ export interface UserPreferencesFieldRefs {
   readonly todayFocusDate: Prisma.FieldRef<"UserPreferences", 'String'>
   readonly todayFocusIds: Prisma.FieldRef<"UserPreferences", 'String[]'>
   readonly onboardingCompletedAt: Prisma.FieldRef<"UserPreferences", 'DateTime'>
+  readonly productTourCompletedAt: Prisma.FieldRef<"UserPreferences", 'DateTime'>
+  readonly completedTourIds: Prisma.FieldRef<"UserPreferences", 'String[]'>
   readonly moduleMemberPrefs: Prisma.FieldRef<"UserPreferences", 'Json'>
   readonly uiProfile: Prisma.FieldRef<"UserPreferences", 'String'>
   readonly uiProfileChangedAt: Prisma.FieldRef<"UserPreferences", 'DateTime'>

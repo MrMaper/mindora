@@ -225,8 +225,12 @@ model UserPreferences {
   /// YYYY-MM-DD for which todayFocusIds apply
   todayFocusDate            String?
   todayFocusIds             String[] @default([])
-  /// When set, first-run onboarding tour is complete
+  /// First-run value loop finished (set with firstCaptureAt). Not the product tour.
   onboardingCompletedAt     DateTime?
+  /// Overview (menu-map) tour finished or skipped. Kept for compat; also listed in completedTourIds.
+  productTourCompletedAt    DateTime?
+  /// Per-tour completion ids: "overview" | "today" | "board" | … (docs/AREAS.md §6.4a).
+  completedTourIds          String[]  @default([])
   /// Member choices for modules whose admin policy is "member_choice": { [module]: boolean }
   moduleMemberPrefs         Json     @default("{}")
   /// "starter" | "full". Column default is full (existing members); provisionMember sets starter.

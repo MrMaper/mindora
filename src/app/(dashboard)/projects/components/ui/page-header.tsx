@@ -4,6 +4,7 @@ import * as React from "react";
 import { Button } from "@/components/ui-kit/forms/button";
 import { Input } from "@/components/ui-kit/forms/input";
 import { PageHeaderBar } from "@/components/ui-kit/layout/page-header-bar";
+import { PageTourButton } from "@/components/tour/page-tour-button";
 import { useTranslation } from "@/i18n/provider";
 import { cn } from "@/lib/utils";
 
@@ -54,6 +55,7 @@ export function PageHeader({
   return (
     <div className="mb-5">
       <PageHeaderBar
+        tourId="page-projects"
         className="mb-3"
         title={t.projects.title}
         meta={
@@ -64,17 +66,20 @@ export function PageHeader({
         }
         description={t.projects.subtitle}
         actions={
-          onCreateArea ? (
-            <Button
-              variant="primary"
-              icon="plus"
-              onClick={onCreateArea}
-              disabled={createAreaDisabled}
-              loading={createAreaLoading}
-            >
-              {t.projects.newArea}
-            </Button>
-          ) : null
+          <>
+            <PageTourButton tourId="projects" />
+            {onCreateArea ? (
+              <Button
+                variant="primary"
+                icon="plus"
+                onClick={onCreateArea}
+                disabled={createAreaDisabled}
+                loading={createAreaLoading}
+              >
+                {t.projects.newArea}
+              </Button>
+            ) : null}
+          </>
         }
       />
 

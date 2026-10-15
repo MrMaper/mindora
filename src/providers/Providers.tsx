@@ -19,10 +19,13 @@ interface ProvidersProps {
   translations: Translations;
 }
 
-/** Remount boundary on route change so a prior page error cannot block the next page. */
+/**
+ * Clear a prior page error on navigation — without remounting the tree.
+ * Remounting via key={pathname} used to wipe in-flight UI (product tour, etc.).
+ */
 function RouteErrorBoundary({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  return <ErrorBoundary key={pathname}>{children}</ErrorBoundary>;
+  return <ErrorBoundary resetKey={pathname}>{children}</ErrorBoundary>;
 }
 
 export function Providers({

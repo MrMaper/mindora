@@ -137,43 +137,46 @@ export function TasksCC({
       />
 
       {/* ── Search + filters ────────────────────────────────────────── */}
-      <SearchFilters
-        t={t.tasks}
-        filters={filters}
-        search={u.search}
-        projects={userProjects}
-        labels={labels}
-        language={language === "EN" ? "EN" : "FA"}
-        statusOptions={statusOptions}
-        priorityOptions={priorityOptions}
-        userOptions={userOptions}
-        onSearchChange={u.setSearch}
-        onSearchSubmit={u.onSearchSubmit}
-        onFiltersChange={filter =>
-          u.applyFilters(
-            filter as Partial<import("../hooks/use-tasks").TaskFilters>,
-          )
-        }
-        onClearFilters={() => {
-          u.setProject("");
-          u.applyFilters({
-            search: "",
-            status: "",
-            priority: "",
-            assignee: "",
-            project: "",
-            area: "",
-            label: "",
-          });
-        }}
-        hasActiveFilters={hasActiveFilters}
-        currentUserRole={currentUserRole}
-      />
+      <div data-tour="tasks-filters">
+        <SearchFilters
+          t={t.tasks}
+          filters={filters}
+          search={u.search}
+          projects={userProjects}
+          labels={labels}
+          language={language === "EN" ? "EN" : "FA"}
+          statusOptions={statusOptions}
+          priorityOptions={priorityOptions}
+          userOptions={userOptions}
+          onSearchChange={u.setSearch}
+          onSearchSubmit={u.onSearchSubmit}
+          onFiltersChange={filter =>
+            u.applyFilters(
+              filter as Partial<import("../hooks/use-tasks").TaskFilters>,
+            )
+          }
+          onClearFilters={() => {
+            u.setProject("");
+            u.applyFilters({
+              search: "",
+              status: "",
+              priority: "",
+              assignee: "",
+              project: "",
+              area: "",
+              label: "",
+            });
+          }}
+          hasActiveFilters={hasActiveFilters}
+          currentUserRole={currentUserRole}
+        />
+      </div>
 
       {/* ── Global error ─────────────────────────────────────────────── */}
       <GlobalError error={u.actionError} drawerMode={u.drawerMode} />
 
       {/* ── Tasks table ──────────────────────────────────────────────── */}
+      <div data-tour="tasks-list">
       <TasksTable
         tasks={tasks}
         t={t}
@@ -201,6 +204,7 @@ export function TasksCC({
         currentUserId={currentUserId}
         currentUserRole={currentUserRole}
       />
+      </div>
 
       {/* ── Pagination ───────────────────────────────────────────────── */}
       <Pagination page={page} totalPages={totalPages} filters={filters} />

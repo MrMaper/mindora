@@ -14,6 +14,7 @@ export function PageHeaderBar({
   description,
   actions,
   className,
+  tourId,
 }: {
   title: React.ReactNode;
   /** Inline count / badge next to the title (e.g. "2 tasks"). */
@@ -21,9 +22,12 @@ export function PageHeaderBar({
   description?: React.ReactNode;
   actions?: React.ReactNode;
   className?: string;
+  /** Spotlight target for the specialized page tour. */
+  tourId?: string;
 }) {
   return (
     <div
+      data-tour={tourId}
       className={cn(
         "mb-5 flex flex-row items-start justify-between gap-3",
         className,

@@ -109,6 +109,7 @@ export function DocSidePanel({
 
   return (
     <aside
+      data-tour="docs-side"
       className={cn(
         "rounded-2xl border bg-card shadow-sm flex flex-col min-h-0 overflow-hidden",
         className,

@@ -118,7 +118,10 @@ export function ReviewCC({
   return (
     <>
       <div className="flex flex-col gap-5 min-w-0 overflow-x-hidden">
-        <div className="flex flex-wrap items-start justify-between gap-3">
+        <div
+          data-tour="page-review"
+          className="flex flex-wrap items-start justify-between gap-3"
+        >
           <div className="min-w-0">
             <h1 className="text-xl font-semibold text-text-primary">
               {t.life.reviewTitle}

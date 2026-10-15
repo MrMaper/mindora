@@ -15,6 +15,7 @@ import {
 } from "@/lib/modules";
 import { cn } from "@/lib/utils";
 import { useAppDialogs } from "@/components/ui-kit/overlays/app-dialogs";
+import { TourRestartButton } from "@/components/tour/tour-restart-button";
 
 export interface CapabilitiesData {
   policy: ModulePolicy;
@@ -147,6 +148,10 @@ export function CapabilitiesSection({
           {error}
         </div>
       ) : null}
+
+      <div className="mb-6 max-w-xl">
+        <TourRestartButton language={language} />
+      </div>
 
       <div className="flex max-w-xl flex-col gap-2">
         {visible.map(key => {

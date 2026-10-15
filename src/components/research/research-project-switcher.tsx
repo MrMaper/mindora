@@ -90,7 +90,7 @@ export function ResearchProjectSwitcher({
   }
 
   return (
-    <div className="mb-2 flex flex-col gap-2 sm:mb-3">
+    <div data-tour="research-project" className="mb-2 flex flex-col gap-2 sm:mb-3">
       <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
         <label className="text-xs text-muted-foreground shrink-0">
           {t.life.researchProject}

@@ -4433,6 +4433,8 @@ export const UserPreferencesScalarFieldEnum = {
   todayFocusDate: 'todayFocusDate',
   todayFocusIds: 'todayFocusIds',
   onboardingCompletedAt: 'onboardingCompletedAt',
+  productTourCompletedAt: 'productTourCompletedAt',
+  completedTourIds: 'completedTourIds',
   moduleMemberPrefs: 'moduleMemberPrefs',
   uiProfile: 'uiProfile',
   uiProfileChangedAt: 'uiProfileChangedAt',

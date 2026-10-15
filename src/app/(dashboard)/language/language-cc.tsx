@@ -29,6 +29,7 @@ import type { LangSkill } from "@/types/db";
 import { formatJalaliShort } from "@/lib/life";
 import { cn, formatNumber } from "@/lib/utils";
 import { notifyError } from "@/lib/ui-feedback";
+import { PageTourButton } from "@/components/tour/page-tour-button";
 
 const panelFallback = (
   <div className="min-h-[12rem] animate-pulse rounded-xl border bg-muted/30" />
@@ -291,16 +292,23 @@ function LanguageCCInner({ hub, scope, projects }: LanguageCCProps) {
 
   return (
     <div className="flex flex-col min-h-0">
-      <div className="mb-2">
-        <h1 className="text-xl font-semibold">{t.language.hubTitle}</h1>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          {t.language.hubHint}
-        </p>
+      <div
+        data-tour="page-language"
+        className="mb-2 flex flex-wrap items-start justify-between gap-2"
+      >
+        <div className="min-w-0">
+          <h1 className="text-xl font-semibold">{t.language.hubTitle}</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {t.language.hubHint}
+          </p>
+        </div>
+        <PageTourButton tourId="language" className="shrink-0" />
       </div>
 
       <LanguageProjectSwitcher scope={scope} projects={projects} />
 
       <div
+        data-tour="language-tabs"
         className="mb-3 flex gap-1.5 border-b pb-2 overflow-x-auto"
         role="tablist"
         aria-label={t.language.hubTitle}
@@ -337,49 +345,51 @@ function LanguageCCInner({ hub, scope, projects }: LanguageCCProps) {
               <p className="text-[11px] text-muted-foreground mb-3">
                 {t.language.todayHint}
               </p>
-              <div className="flex flex-wrap items-end gap-4 mb-4">
-                <div>
-                  <p className="text-2xl font-semibold tabular-nums">
-                    {formatNumber(hub.weekMinutes, language)}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {t.language.weekMinutes}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-2xl font-semibold tabular-nums">
-                    {formatNumber(hub.streakDays, language)}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {t.language.streak}
-                  </p>
-                </div>
-                <div className="flex-1 min-w-[10rem]">
-                  <div className="flex justify-between text-[11px] text-muted-foreground mb-1">
-                    <span>{t.language.weekGoal}</span>
-                    <span>
-                      {formatNumber(hub.weekMinutes, language)} /{" "}
-                      {formatNumber(goal, language)}
-                    </span>
+              <div data-tour="language-today-pulse" className="mb-4">
+                <div className="flex flex-wrap items-end gap-4 mb-4">
+                  <div>
+                    <p className="text-2xl font-semibold tabular-nums">
+                      {formatNumber(hub.weekMinutes, language)}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {t.language.weekMinutes}
+                    </p>
                   </div>
-                  <div className="h-2 rounded-full bg-muted overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-emerald-600 transition-all"
-                      style={{ width: `${progress}%` }}
-                    />
+                  <div>
+                    <p className="text-2xl font-semibold tabular-nums">
+                      {formatNumber(hub.streakDays, language)}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {t.language.streak}
+                    </p>
                   </div>
+                  <div className="flex-1 min-w-[10rem]">
+                    <div className="flex justify-between text-[11px] text-muted-foreground mb-1">
+                      <span>{t.language.weekGoal}</span>
+                      <span>
+                        {formatNumber(hub.weekMinutes, language)} /{" "}
+                        {formatNumber(goal, language)}
+                      </span>
+                    </div>
+                    <div className="h-2 rounded-full bg-muted overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-emerald-600 transition-all"
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="rounded-lg border border-dashed border-emerald-600/40 bg-emerald-600/5 px-3 py-2 text-sm">
+                  <span className="text-muted-foreground">
+                    {t.language.suggestPractice}:{" "}
+                  </span>
+                  <span className="font-medium">
+                    {skillLabel(hub.suggestSkill, t.language)}
+                  </span>
                 </div>
               </div>
 
-              <div className="rounded-lg border border-dashed border-emerald-600/40 bg-emerald-600/5 px-3 py-2 mb-4 text-sm">
-                <span className="text-muted-foreground">
-                  {t.language.suggestPractice}:{" "}
-                </span>
-                <span className="font-medium">
-                  {skillLabel(hub.suggestSkill, t.language)}
-                </span>
-              </div>
-
+              <div data-tour="language-today-practice">
               <button
                 type="button"
                 onClick={() => goTab("vocab")}
@@ -436,7 +446,9 @@ function LanguageCCInner({ hub, scope, projects }: LanguageCCProps) {
                   )}
                 </button>
               )}
+              </div>
 
+              <div data-tour="language-session">
               <h2 className="text-sm font-semibold mb-2">
                 {t.language.logSession}
               </h2>
@@ -490,6 +502,7 @@ function LanguageCCInner({ hub, scope, projects }: LanguageCCProps) {
                   {t.language.saveSession}
                 </Button>
               </div>
+              </div>
             </section>
 
             <section className="rounded-xl border bg-card p-4">
@@ -538,7 +551,10 @@ function LanguageCCInner({ hub, scope, projects }: LanguageCCProps) {
           </div>
 
           <aside className="flex flex-col gap-3 min-w-0">
-            <section className="rounded-xl border bg-card p-3">
+            <section
+              data-tour="language-target"
+              className="rounded-xl border bg-card p-3"
+            >
               <h2 className="text-sm font-semibold mb-3">
                 {t.language.targetExam}
               </h2>
@@ -622,56 +638,67 @@ function LanguageCCInner({ hub, scope, projects }: LanguageCCProps) {
       ) : null}
 
       {tab === "skills" && !drillSkill && (
-        <LanguageSkillsPanel
-          skillStats={hub.skillStats}
-          sessions={hub.sessions}
-          suggestSkill={hub.suggestSkill}
-          weekMinutes={hub.weekMinutes}
-          weeklyGoalMin={hub.profile.weeklyGoalMin}
-          scope={scope}
-          onOpenVocab={() => goTab("vocab")}
-          onOpenListening={openListeningTab}
-          onOpenExams={() => goTab("exams")}
-          onOpenDrill={skill => setDrillSkill(skill)}
-        />
+        <div data-tour="language-skills">
+          <LanguageSkillsPanel
+            skillStats={hub.skillStats}
+            sessions={hub.sessions}
+            suggestSkill={hub.suggestSkill}
+            weekMinutes={hub.weekMinutes}
+            weeklyGoalMin={hub.profile.weeklyGoalMin}
+            scope={scope}
+            onOpenVocab={() => goTab("vocab")}
+            onOpenListening={openListeningTab}
+            onOpenExams={() => goTab("exams")}
+            onOpenDrill={skill => setDrillSkill(skill)}
+          />
+        </div>
       )}
 
       {tab === "vocab" && (
-        <LanguageVocabPanel
-          dueCards={hub.dueCards}
-          recentCards={hub.recentCards}
-          hardCards={hub.hardCards}
-          stats={hub.vocab}
-          decks={hub.vocabDecks}
-          initialReviewFilter={initialReviewFilter}
-          projectId={
-            scope === "all" ? undefined : scope === "inbox" ? null : scope
-          }
-        />
+        <div data-tour="language-vocab">
+          <LanguageVocabPanel
+            dueCards={hub.dueCards}
+            recentCards={hub.recentCards}
+            hardCards={hub.hardCards}
+            stats={hub.vocab}
+            decks={hub.vocabDecks}
+            initialReviewFilter={initialReviewFilter}
+            projectId={
+              scope === "all" ? undefined : scope === "inbox" ? null : scope
+            }
+          />
+        </div>
       )}
 
       {tab === "listening" && (
-        <LanguageListeningPanel
-          clips={hub.listeningClips}
-          projectId={
-            scope === "all" ? undefined : scope === "inbox" ? null : scope
-          }
-        />
+        <div data-tour="language-listening">
+          <LanguageListeningPanel
+            clips={hub.listeningClips}
+            projectId={
+              scope === "all" ? undefined : scope === "inbox" ? null : scope
+            }
+          />
+        </div>
       )}
 
       {tab === "exams" && (
-        <LanguageExamsPanel
-          tracks={hub.examTracks}
-          recentMocks={hub.recentMocks}
-          profileExam={hub.profile.targetExam}
-          projectId={
-            scope === "all" ? undefined : scope === "inbox" ? null : scope
-          }
-        />
+        <div data-tour="language-exams">
+          <LanguageExamsPanel
+            tracks={hub.examTracks}
+            recentMocks={hub.recentMocks}
+            profileExam={hub.profile.targetExam}
+            projectId={
+              scope === "all" ? undefined : scope === "inbox" ? null : scope
+            }
+          />
+        </div>
       )}
 
       {tab === "notes" && (
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_16rem]">
+        <div
+          data-tour="language-notes"
+          className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_16rem]"
+        >
           <section className="rounded-xl border bg-card p-4">
             <div className="flex items-center justify-between gap-2 mb-3">
               <h2 className="text-sm font-semibold">{t.language.openDocs}</h2>

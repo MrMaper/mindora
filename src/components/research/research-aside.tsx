@@ -217,6 +217,7 @@ export function ResearchTabBar({
   ];
   return (
     <div
+      data-tour="research-tabs"
       className="mb-2 flex gap-1 rounded-xl border bg-muted/30 p-0.5 sm:mb-3 sm:p-1"
       role="tablist"
       aria-label={t.life.researchHubTitle}

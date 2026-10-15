@@ -664,7 +664,10 @@ export function DashboardCC({
     <FocusSessionProvider tasks={sessionTasks} todayKey={todayKey}>
     <>
       <div className="flex flex-col gap-4">
-        <div className="flex flex-wrap items-start justify-between gap-2">
+        <div
+          data-tour="page-today"
+          className="flex flex-wrap items-start justify-between gap-2"
+        >
           <div className="min-w-0">
             <h1 className="text-xl font-semibold text-text-primary">
               {t.dashboard.welcome}، {userName}
@@ -691,31 +694,33 @@ export function DashboardCC({
           </div>
         </div>
 
-        <AttentionToday
-          overdueCount={overdue.length}
-          attention={attention}
-          modules={attentionModules}
-          onOverdue={() => {
-            setSideTab("overdue");
-            scrollTo("today-work-queue");
-          }}
-        />
+        <div data-tour="today-attention">
+          <AttentionToday
+            overdueCount={overdue.length}
+            attention={attention}
+            modules={attentionModules}
+            onOverdue={() => {
+              setSideTab("overdue");
+              scrollTo("today-work-queue");
+            }}
+          />
 
-        <CompactKpiBar
-          todayCount={today.length + pinnedOpen}
-          overdueCount={overdue.length}
-          inboxCount={inbox.length}
-          hoursThisWeek={hoursThisWeek}
-          onToday={() => scrollTo("today-due-list")}
-          onOverdue={() => {
-            setSideTab("overdue");
-            scrollTo("today-work-queue");
-          }}
-          onInbox={() => {
-            setSideTab("inbox");
-            scrollTo("today-work-queue");
-          }}
-        />
+          <CompactKpiBar
+            todayCount={today.length + pinnedOpen}
+            overdueCount={overdue.length}
+            inboxCount={inbox.length}
+            hoursThisWeek={hoursThisWeek}
+            onToday={() => scrollTo("today-due-list")}
+            onOverdue={() => {
+              setSideTab("overdue");
+              scrollTo("today-work-queue");
+            }}
+            onInbox={() => {
+              setSideTab("inbox");
+              scrollTo("today-work-queue");
+            }}
+          />
+        </div>
 
         <div className="grid items-start gap-4 lg:grid-cols-2">
           <div className="order-1 flex min-w-0 flex-col gap-4">
@@ -780,7 +785,10 @@ export function DashboardCC({
               onDragStart={onFocusDragStart}
               onDragEnd={onFocusDragEnd}
             >
-            <div className="grid items-stretch gap-3 lg:grid-cols-2">
+            <div
+              data-tour="today-focus"
+              className="grid items-stretch gap-3 lg:grid-cols-2"
+            >
             <section className="flex h-full min-w-0 flex-col rounded-xl border border-border-default bg-bg-surface">
               <div className="px-4 py-3 border-b border-border-subtle bg-bg-sunken">
                 <div className="flex items-center gap-2">
@@ -839,6 +847,7 @@ export function DashboardCC({
             </section>
             </div>
 
+            <div data-tour="today-queues" className="flex flex-col gap-4">
             <section
               id="today-due-list"
               className="scroll-mt-4 bg-bg-surface border border-border-default rounded-lg overflow-hidden"
@@ -914,6 +923,7 @@ export function DashboardCC({
                 />
               </div>
             </section>
+            </div>
             <DragOverlay>
               {draggingTitle ? (
                 <div className="rounded-lg border bg-card px-3 py-2 text-sm shadow-md">
@@ -931,10 +941,12 @@ export function DashboardCC({
               weekdayLabels={weekdayLabels}
             />
 
-            <HabitsPanelLazy
-              initialHabits={habits}
-              initialHeatDays={habitHeatDays}
-            />
+            <div data-tour="today-habits">
+              <HabitsPanelLazy
+                initialHabits={habits}
+                initialHeatDays={habitHeatDays}
+              />
+            </div>
           </aside>
         </div>
       </div>
