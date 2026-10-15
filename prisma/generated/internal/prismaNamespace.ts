@@ -4273,6 +4273,8 @@ export const UserScalarFieldEnum = {
   email: 'email',
   password: 'password',
   avatar: 'avatar',
+  phone: 'phone',
+  bio: 'bio',
   role: 'role',
   status: 'status',
   modulePolicy: 'modulePolicy',

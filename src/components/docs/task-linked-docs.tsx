@@ -15,6 +15,7 @@ import { Button } from "@/components/ui-kit/forms/button";
 import { Input } from "@/components/ui-kit/forms/input";
 import { cn } from "@/lib/utils";
 import { useAreaHelpers } from "@/components/member-areas-provider";
+import { notifyError } from "@/lib/ui-feedback";
 
 export function TaskLinkedDocs({ taskId }: { taskId: string }) {
   const t = useTranslation();
@@ -75,7 +76,7 @@ export function TaskLinkedDocs({ taskId }: { taskId: string }) {
       await reload();
       router.push(`/docs?id=${String(result.data.id)}`);
     } else if (result.error) {
-      window.alert(result.error);
+      notifyError(result.error);
     }
   }
 
@@ -93,7 +94,7 @@ export function TaskLinkedDocs({ taskId }: { taskId: string }) {
         router.refresh();
       }
     } else if (result.error) {
-      window.alert(result.error);
+      notifyError(result.error);
     }
   }
 

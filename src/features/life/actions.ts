@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
+import { authForModule } from "@/lib/module-guard";
 import { prisma as db } from "@/lib/db";
 import { skipRecurrenceOccurrence, stopRecurrenceSeries, updateRecurrenceSeries, newRecurrenceSeriesId } from "@/features/life/recurrence";
 import { applyTaskStatusChange } from "@/features/tasks/apply-status";
@@ -99,7 +100,7 @@ export async function quickCapture(input: {
   durationMinutes?: number | null;
   timezoneOffsetMinutes?: number;
 }): Promise<ActionResult & { data?: { id: string } }> {
-  const session = await auth();
+  const session = await authForModule("tasks");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const title = input.title.trim();
@@ -175,7 +176,7 @@ export async function quickCapture(input: {
 
 export async function completePersonalTask(taskId: string): Promise<ActionResult> {
   try {
-    const session = await auth();
+    const session = await authForModule("tasks");
     if (!session?.user) return { success: false, error: "غیرمجاز" };
 
     // Shared writer — do not call another "use server" action from here (Next can
@@ -219,7 +220,7 @@ export async function completePersonalTask(taskId: string): Promise<ActionResult
 }
 
 export async function planTaskThisWeek(taskId: string): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("tasks");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const existing = await db.task.findUnique({
@@ -264,7 +265,7 @@ export async function planTaskThisWeek(taskId: string): Promise<ActionResult> {
 }
 
 export async function planTaskForToday(taskId: string): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("tasks");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const existing = await db.task.findUnique({
@@ -310,7 +311,7 @@ export async function planTaskForToday(taskId: string): Promise<ActionResult> {
 }
 
 export async function moveYesterdayToToday(): Promise<ActionResult & { data?: { moved: number } }> {
-  const session = await auth();
+  const session = await authForModule("tasks");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const todayStart = startOfZonedDay();
@@ -406,7 +407,7 @@ function canAddToTodayFocus(
 }
 
 export async function setTodayFocus(ids: string[]): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("tasks");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
   if (session.user.role === "ADMIN") {
     return { success: false, error: "اولویت امروز برای فضای شخصی است" };
@@ -437,7 +438,7 @@ export async function setTodayFocus(ids: string[]): Promise<ActionResult> {
 }
 
 export async function toggleTodayFocus(taskId: string): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("tasks");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const slots = await readFocusSlots(session.user.id);
@@ -466,7 +467,7 @@ export async function logFocusSession(input: {
   taskId: string;
   minutes: number;
 }): Promise<ActionResult & { data?: { hours: number } }> {
-  const session = await auth();
+  const session = await authForModule("tasks");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
   if (session.user.role === "ADMIN") {
     return { success: false, error: "جلسه تمرکز برای فضای شخصی است" };
@@ -517,7 +518,7 @@ export async function stopTaskRecurrence(
   taskId: string,
   applyToSeries = true,
 ): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("tasks");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const result = await stopRecurrenceSeries(
@@ -534,7 +535,7 @@ export async function stopTaskRecurrence(
 export async function skipTaskRecurrence(
   taskId: string,
 ): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("tasks");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const result = await skipRecurrenceOccurrence(taskId, session.user.id);
@@ -550,7 +551,7 @@ export async function updateTaskRecurrenceSeriesAction(input: {
   recurrenceEndsAt?: string | null;
   applyToSeries?: boolean;
 }): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("tasks");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const result = await updateRecurrenceSeries(input.taskId, session.user.id, {
@@ -575,7 +576,7 @@ export async function rescheduleTaskDueDate(input: {
   timezoneOffsetMinutes?: number;
 }): Promise<ActionResult> {
   try {
-    const session = await auth();
+    const session = await authForModule("tasks");
     if (!session?.user) return { success: false, error: "غیرمجاز" };
 
     const { taskId, dueDateKey } = input;
@@ -677,7 +678,7 @@ export async function rescheduleTaskSchedule(input: {
   timezoneOffsetMinutes?: number;
 }): Promise<ActionResult> {
   try {
-    const session = await auth();
+    const session = await authForModule("tasks");
     if (!session?.user) return { success: false, error: "غیرمجاز" };
 
     const { taskId, dueDateKey, time } = input;

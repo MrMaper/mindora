@@ -27,7 +27,9 @@ import {
   provisionMember,
 } from "@/features/users/provision";
 import { revokeUserSessions } from "@/features/users/presence";
+import { unlinkBaleUser } from "@/features/external/bots/bale/user-link";
 import { writeAdminAudit } from "@/features/admin/audit";
+import { avatarPresetById } from "@/lib/avatar-presets";
 import { getSystemSettings } from "@/features/admin/system";
 import { isUiProfile } from "@/lib/ui-profile";
 import { markLifecycleOnce } from "@/features/onboarding/lifecycle";
@@ -700,7 +702,28 @@ export async function uploadUserAvatar(
   revalidatePath("/users");
   revalidatePath("/admin");
   revalidatePath("/settings");
+  revalidatePath("/", "layout");
   return { success: true, data: { url } };
+}
+
+/** Member picks a built-in avatar illustration (no S3 required). */
+export async function setAvatarPresetAction(
+  presetId: string,
+): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
+
+  const preset = avatarPresetById(presetId);
+  if (!preset) return { success: false, error: "آواتار نامعتبر است" };
+
+  await db.user.update({
+    where: { id: session.user.id },
+    data: { avatar: preset.src },
+  });
+  revalidatePath("/settings");
+  revalidatePath("/users");
+  revalidatePath("/", "layout");
+  return { success: true, data: { url: preset.src } };
 }
 
 export async function updateProfile(formData: FormData): Promise<ActionResult> {
@@ -714,9 +737,38 @@ export async function updateProfile(formData: FormData): Promise<ActionResult> {
 
   await db.user.update({
     where: { id: session.user.id },
-    data: { name: parsed.data.name },
+    data: {
+      name: parsed.data.name,
+      phone: parsed.data.phone === "" ? null : parsed.data.phone,
+      bio: parsed.data.bio === "" ? null : parsed.data.bio,
+    },
   });
   revalidatePath("/settings");
+  revalidatePath("/", "layout");
+  return { success: true };
+}
+
+/** Member disconnects their own Bale chat from Settings → Profile. */
+export async function unlinkMyBale(): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
+  if (session.user.role === "ADMIN") {
+    return { success: false, error: "حساب مدیر به بله وصل نمی‌شود" };
+  }
+  await unlinkBaleUser(session.user.id);
+  revalidatePath("/settings");
+  return { success: true };
+}
+
+/**
+ * Invalidate all JWTs for the current user (including this tab).
+ * Client should `signOut` afterward so the member re-authenticates.
+ */
+export async function logoutEverywhereAction(): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
+  await revokeUserSessions(session.user.id);
+  revalidatePath("/", "layout");
   return { success: true };
 }
 

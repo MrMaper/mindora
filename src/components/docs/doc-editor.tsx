@@ -30,6 +30,7 @@ import {
   type SlashCommand,
   type SlashCommandId,
 } from "@/features/docs/slash-commands";
+import { useAppDialogs } from "@/components/ui-kit/overlays/app-dialogs";
 
 interface DocEditorProps {
   content: string;
@@ -142,6 +143,9 @@ export function DocEditor({
   onSearchMentions,
 }: DocEditorProps) {
   const tb = { ...DEFAULT_TOOLBAR_LABELS, ...toolbarLabels };
+  const appDialogs = useAppDialogs();
+  const appDialogsRef = React.useRef(appDialogs);
+  appDialogsRef.current = appDialogs;
   const onChangeRef = React.useRef(onChange);
   onChangeRef.current = onChange;
   const onOutlineRef = React.useRef(onOutlineChange);
@@ -434,9 +438,13 @@ export function DocEditor({
           pickImageRef.current();
           break;
         case "footnote": {
-          const text =
-            window.prompt(footnotePromptRef.current) || "";
-          editor.chain().focus().insertFootnote(text || undefined).run();
+          void (async () => {
+            const text =
+              (await appDialogsRef.current.prompt({
+                title: footnotePromptRef.current,
+              })) ?? "";
+            editor.chain().focus().insertFootnote(text || undefined).run();
+          })();
           break;
         }
       }
@@ -541,9 +549,12 @@ export function DocEditor({
     );
   }
 
-  function setLink() {
+  async function setLink() {
     const prev = editor?.getAttributes("link").href as string | undefined;
-    const url = window.prompt("آدرس لینک", prev ?? "https://");
+    const url = await appDialogs.prompt({
+      title: tb.link,
+      defaultValue: prev ?? "https://",
+    });
     if (url === null) return;
     if (url === "") {
       editor?.chain().focus().extendMarkRange("link").unsetLink().run();
@@ -648,7 +659,7 @@ export function DocEditor({
             />
             <ToolbarButton
               active={editor.isActive("link")}
-              onClick={setLink}
+              onClick={() => void setLink()}
               icon="link"
               title={tb.link}
             />
@@ -754,8 +765,17 @@ export function DocEditor({
             <ToolbarButton
               active={editor.isActive("footnote")}
               onClick={() => {
-                const text = window.prompt(footnotePromptLabel) || "";
-                editor.chain().focus().insertFootnote(text || undefined).run();
+                void (async () => {
+                  const text =
+                    (await appDialogs.prompt({
+                      title: footnotePromptLabel,
+                    })) ?? "";
+                  editor
+                    .chain()
+                    .focus()
+                    .insertFootnote(text || undefined)
+                    .run();
+                })();
               }}
               label="¹"
               title={tb.footnote}
@@ -796,7 +816,7 @@ export function DocEditor({
                   onClick: () =>
                     editor.chain().focus().toggleCodeBlock().run(),
                 },
-                { label: tb.link, icon: "link", onClick: setLink },
+                { label: tb.link, icon: "link", onClick: () => void setLink() },
                 { divider: true },
                 {
                   label: tb.table,
@@ -812,12 +832,17 @@ export function DocEditor({
                 {
                   label: tb.footnote,
                   onClick: () => {
-                    const text = window.prompt(footnotePromptLabel) || "";
-                    editor
-                      .chain()
-                      .focus()
-                      .insertFootnote(text || undefined)
-                      .run();
+                    void (async () => {
+                      const text =
+                        (await appDialogs.prompt({
+                          title: footnotePromptLabel,
+                        })) ?? "";
+                      editor
+                        .chain()
+                        .focus()
+                        .insertFootnote(text || undefined)
+                        .run();
+                    })();
                   },
                 },
               ]}

@@ -18,6 +18,8 @@ import { youtubeEmbedUrl } from "@/features/language/listening-source";
 import { normalizeAnswer } from "@/features/language/answer-match";
 import type { LangListeningClipItem } from "@/features/language/types";
 import { cn, formatNumber } from "@/lib/utils";
+import { useAppDialogs } from "@/components/ui-kit/overlays/app-dialogs";
+import { notifyError } from "@/lib/ui-feedback";
 
 function clipTopic(clip: LangListeningClipItem): string | null {
   if (!clip.notes) return null;
@@ -57,6 +59,7 @@ export function LanguageListeningPanel({
   const t = useTranslation();
   const language = useLanguage();
   const router = useRouter();
+  const { confirm } = useAppDialogs();
 
   const [activeId, setActiveId] = React.useState<string | null>(
     clips[0]?.id ?? null,
@@ -178,7 +181,7 @@ export function LanguageListeningPanel({
       setMessage(t.language.listeningStartersAdded);
       router.refresh();
     } else if (result.error) {
-      window.alert(result.error);
+      notifyError(result.error);
     }
   }
 
@@ -202,7 +205,7 @@ export function LanguageListeningPanel({
       if (result.data?.id) setActiveId(String(result.data.id));
       router.refresh();
     } else if (result.error) {
-      window.alert(result.error);
+      notifyError(result.error);
     }
   }
 
@@ -235,12 +238,13 @@ export function LanguageListeningPanel({
       baseElapsed.current = 0;
       router.refresh();
     } else if (result.error) {
-      window.alert(result.error);
+      notifyError(result.error);
     }
   }
 
   async function onDelete(id: string) {
-    if (!window.confirm(t.language.listeningDeleteConfirm)) return;
+    if (!(await confirm({ title: t.language.listeningDeleteConfirm, danger: true })))
+      return;
     setPending(`del-${id}`);
     const result = await deleteListeningClipAction(id);
     setPending(null);
@@ -248,7 +252,7 @@ export function LanguageListeningPanel({
       if (activeId === id) setActiveId(null);
       router.refresh();
     } else if (result.error) {
-      window.alert(result.error);
+      notifyError(result.error);
     }
   }
 

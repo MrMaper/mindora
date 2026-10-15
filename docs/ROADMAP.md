@@ -84,6 +84,8 @@ Goal: every member surface is usable one-handed on a phone — no clipped filter
 - Review / work-logs / settings / notifications / project tabs: overflow and wrap fixes
 - Settings is the single place for profile, password, notifications, theme, and language. `/profile` redirects to `/settings?tab=profile`. Theme applies only when the user changes it (plus a boot script from saved prefs) so opening Settings does not flip light/dark.
 - Settings UI: grouped notifications (general / task events / reminder channels), sprint prefs hidden from the member UI, theme cards with mini preview, copyable Bale link code, PageHeaderBar + shared form controls.
+- Profile tab: redesigned card layout (avatar hero, personal info grid, account meta). Editable `User.phone` + `User.bio` (migration `20261015120000_user_profile_phone_bio`). Bale connection status + disconnect (`unlinkMyBale`). Built-in avatar presets (`/public/avatars`, `setAvatarPresetAction`); role chip hidden for members; Bale card with steps + status pill.
+- Security tab: status strip (last login, password, lock/failed attempts), password change card, sign-out-everywhere (`logoutEverywhereAction` + `sessionVersion`), own login history (IP + UA summary via `summarizeUserAgent`).
 - Guide + CAPTURE updated for hour-grid calendar behavior
 
 ### Still to do (polish)

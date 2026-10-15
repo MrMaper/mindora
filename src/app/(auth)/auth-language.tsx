@@ -5,6 +5,8 @@ import type { Language } from "@/types/db";
 import type { Translations } from "@/i18n";
 import { loadTranslations } from "@/i18n/load";
 import { Icon } from "@/components/ui-kit/foundation/icon";
+import { AuthThemeSwitch } from "./auth-theme-switch";
+import styles from "./auth-stage.module.css";
 
 const STORAGE_KEY = "mindora-auth-language";
 const defaultLanguage: Language = "FA";
@@ -61,7 +63,11 @@ export function AuthLanguageProvider({
 
   if (!t) {
     return (
-      <div className="min-h-dvh bg-background" aria-busy="true" aria-label="Loading" />
+      <div
+        className={styles.authRoot}
+        aria-busy="true"
+        aria-label="Loading"
+      />
     );
   }
 
@@ -106,48 +112,47 @@ export function AuthLanguageSwitch() {
   }, []);
 
   return (
-    <div ref={ref} className="fixed bottom-4 right-4 z-60">
-      <button
-        type="button"
-        aria-haspopup="true"
-        aria-expanded={open}
-        onClick={() => setOpen(v => !v)}
-        className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-background shadow-sm hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        <Icon name="language" size={16} />
-        <span className="text-sm font-semibold">{language}</span>
-      </button>
-
-      {open && (
-        <div
-          role="menu"
-          aria-label="منوی زبان"
-          className="absolute bottom-full right-0 mb-2 min-w-[120px] rounded-lg bg-background border border-border shadow-lg overflow-hidden"
+    <div className={styles.dock}>
+      <AuthThemeSwitch />
+      <div ref={ref} className="relative">
+        <button
+          type="button"
+          aria-haspopup="true"
+          aria-expanded={open}
+          onClick={() => setOpen(v => !v)}
+          className={styles.dockBtn}
         >
-          <button
-            type="button"
-            role="menuitem"
-            onClick={() => {
-              setLanguage("EN");
-              setOpen(false);
-            }}
-            className="w-full px-4 py-2 text-left text-sm hover:bg-accent transition-colors focus-visible:outline-none"
-          >
-            EN
-          </button>
-          <button
-            type="button"
-            role="menuitem"
-            onClick={() => {
-              setLanguage("FA");
-              setOpen(false);
-            }}
-            className="w-full px-4 py-2 text-left text-sm hover:bg-accent transition-colors focus-visible:outline-none"
-          >
-            FA
-          </button>
-        </div>
-      )}
+          <Icon name="language" size={16} />
+          <span className="text-sm font-semibold">{language}</span>
+        </button>
+
+        {open ? (
+          <div role="menu" aria-label="Language" className={styles.dockMenu}>
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                setLanguage("EN");
+                setOpen(false);
+              }}
+              className={styles.dockMenuItem}
+            >
+              EN
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                setLanguage("FA");
+                setOpen(false);
+              }}
+              className={styles.dockMenuItem}
+            >
+              FA
+            </button>
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }

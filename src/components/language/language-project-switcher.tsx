@@ -11,6 +11,7 @@ import type {
   LanguageProjectScope,
 } from "@/features/language/types";
 import { cn } from "@/lib/utils";
+import { notifyError } from "@/lib/ui-feedback";
 
 const STORAGE_KEY = "language-project-scope";
 
@@ -67,7 +68,7 @@ export function LanguageProjectSwitcher({
       setCreating(false);
       navigate(String(result.data.id));
     } else if (result.error) {
-      window.alert(result.error);
+      notifyError(result.error);
     }
   }
 

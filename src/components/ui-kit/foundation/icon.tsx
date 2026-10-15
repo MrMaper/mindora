@@ -67,6 +67,37 @@ import {
   Info,
   Menu,
   Volume2,
+  BookOpen,
+  Briefcase,
+  Heart,
+  Lightbulb,
+  Sprout,
+  GraduationCap,
+  Dumbbell,
+  Music,
+  Coffee,
+  Plane,
+  Wallet,
+  Camera,
+  Code2,
+  Mic,
+  PenLine,
+  Stethoscope,
+  Leaf,
+  Star,
+  Sparkles,
+  Building2,
+  ShoppingBag,
+  Car,
+  Utensils,
+  Baby,
+  Gamepad2,
+  Palette,
+  FlaskConical,
+  Newspaper,
+  Landmark,
+  Timer,
+  HeartPulse,
 } from "lucide-react";
 
 const UsersConnected = (props: React.SVGAttributes<SVGSVGElement>) => (
@@ -158,7 +189,38 @@ export type IconName =
   | "download"
   | "info"
   | "menu"
-  | "volume";
+  | "volume"
+  | "book-open"
+  | "briefcase"
+  | "heart"
+  | "lightbulb"
+  | "sprout"
+  | "graduation-cap"
+  | "dumbbell"
+  | "music"
+  | "coffee"
+  | "plane"
+  | "wallet"
+  | "camera"
+  | "code"
+  | "mic"
+  | "pen-line"
+  | "stethoscope"
+  | "leaf"
+  | "star"
+  | "sparkles"
+  | "building"
+  | "shopping-bag"
+  | "car"
+  | "utensils"
+  | "baby"
+  | "gamepad"
+  | "palette"
+  | "flask"
+  | "newspaper"
+  | "landmark"
+  | "timer"
+  | "heart-pulse";
 
 const iconMap: Record<
   IconName,
@@ -232,6 +294,37 @@ const iconMap: Record<
   info: Info,
   menu: Menu,
   volume: Volume2,
+  "book-open": BookOpen,
+  briefcase: Briefcase,
+  heart: Heart,
+  lightbulb: Lightbulb,
+  sprout: Sprout,
+  "graduation-cap": GraduationCap,
+  dumbbell: Dumbbell,
+  music: Music,
+  coffee: Coffee,
+  plane: Plane,
+  wallet: Wallet,
+  camera: Camera,
+  code: Code2,
+  mic: Mic,
+  "pen-line": PenLine,
+  stethoscope: Stethoscope,
+  leaf: Leaf,
+  star: Star,
+  sparkles: Sparkles,
+  building: Building2,
+  "shopping-bag": ShoppingBag,
+  car: Car,
+  utensils: Utensils,
+  baby: Baby,
+  gamepad: Gamepad2,
+  palette: Palette,
+  flask: FlaskConical,
+  newspaper: Newspaper,
+  landmark: Landmark,
+  timer: Timer,
+  "heart-pulse": HeartPulse,
 };
 
 export interface IconProps extends Omit<

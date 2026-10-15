@@ -13,18 +13,17 @@ import { CSS } from "@dnd-kit/utilities";
 import { Badge } from "@/components/ui-kit/data-display/badge";
 import { Button } from "@/components/ui-kit/forms/button";
 import { IconButton } from "@/components/ui-kit/forms/icon-button";
+import { Icon } from "@/components/ui-kit/foundation/icon";
 import { Menu } from "@/components/ui-kit/overlays/menu";
 import type { MenuItem } from "@/components/ui-kit/overlays/menu";
 import { useLanguage, useTranslation } from "@/i18n/provider";
 import { cn, formatNumber } from "@/lib/utils";
 import {
-  AREA_COLOR_PRESETS,
-  AREA_ICON_PRESETS,
   areaRelatedLinksFromHub,
   areaVisualInline,
   resolveAreaVisualFromRef,
 } from "@/lib/area-visual";
-import { areaDashboardHref } from "@/lib/areas";
+import { areaDashboardHref, areaTagline } from "@/lib/areas";
 import { getProjectStatusLabel } from "@/components/ui-kit/forms/select-utils";
 import type { AreaHubSection, ProjectRow } from "@/features/projects/types";
 import type { ProjectStatus } from "@/features/projects/types";
@@ -131,8 +130,12 @@ function SortablePathRow({
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             {path.pinned ? (
-              <span className="text-[10px]" title={t.projects.pin}>
-                📌
+              <span title={t.projects.pin} className="inline-flex shrink-0">
+                <Icon
+                  name="flag"
+                  size={12}
+                  className="text-muted-foreground"
+                />
               </span>
             ) : null}
             <span className="text-sm font-medium text-foreground truncate">
@@ -304,6 +307,15 @@ export function AreaSection({
     return items;
   }
 
+  const slogan = areaTagline(
+    {
+      templateKey: section.templateKey,
+      nameIsDefault: section.nameIsDefault,
+    },
+    bucket.description,
+    language,
+  );
+
   const areaMenuItems: MenuItem[] = [
     {
       label: t.projects.openArea,
@@ -314,28 +326,6 @@ export function AreaSection({
       label: t.projects.editArea,
       icon: "pencil",
       onClick: () => onEditArea(bucket),
-    },
-    {
-      label: t.projects.changeColor,
-      icon: "sliders",
-      onClick: () => {
-        const keys = AREA_COLOR_PRESETS.map(p => p.key);
-        const cur = pref.color && keys.includes(pref.color) ? pref.color : keys[0]!;
-        const next = keys[(keys.indexOf(cur) + 1) % keys.length]!;
-        onUpdatePref(areaId, { color: next });
-      },
-    },
-    {
-      label: t.projects.changeIcon,
-      icon: "zap",
-      onClick: () => {
-        const keys = AREA_ICON_PRESETS.map(p => p.key);
-        const cur =
-          pref.icon && keys.includes(pref.icon) ? pref.icon : visual.emoji;
-        const idx = Math.max(0, keys.indexOf(cur));
-        const next = keys[(idx + 1) % keys.length]!;
-        onUpdatePref(areaId, { icon: next });
-      },
     },
     {
       label: t.projects.moveUp,
@@ -357,11 +347,6 @@ export function AreaSection({
           },
           ...(!isDefault
             ? [
-                {
-                  label: t.projects.mergeIntoArea ?? "ادغام…",
-                  icon: "git-branch" as const,
-                  onClick: () => onMoveAllContent(areaId, true),
-                },
                 {
                   label: t.projects.deleteArea ?? "حذف حوزه",
                   icon: "trash" as const,
@@ -404,8 +389,12 @@ export function AreaSection({
           onClick={() => router.push(href)}
         >
           <div className="flex items-center gap-2">
-            <span className="text-base leading-none" aria-hidden>
-              {visual.emoji}
+            <span
+              className={cn("shrink-0", visual.text)}
+              style={pref.color ? { color: visual.cssVar } : undefined}
+              aria-hidden
+            >
+              <Icon name={visual.icon} size={16} />
             </span>
             <span
               className={cn("size-2 rounded-full shrink-0", visual.dot)}
@@ -417,9 +406,9 @@ export function AreaSection({
               {displayName || bucket.name}
             </h2>
           </div>
-          {bucket.description ? (
+          {slogan ? (
             <p className="text-xs text-muted-foreground mt-1 line-clamp-1 ps-7">
-              {bucket.description}
+              {slogan}
             </p>
           ) : null}
           <p className="text-[11px] text-muted-foreground mt-1.5 ps-7 tabular-nums">

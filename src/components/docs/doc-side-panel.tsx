@@ -17,6 +17,7 @@ import type {
   DocSourceItem,
   DocVersionItem,
 } from "@/features/docs/types";
+import { useAppDialogs } from "@/components/ui-kit/overlays/app-dialogs";
 
 type SideTab = "outline" | "tasks" | "sources" | "versions";
 
@@ -904,6 +905,7 @@ function VersionsTab({
   onRestoreVersion: (versionId: string) => Promise<void>;
   onCompareVersions?: (versionId?: string) => void;
 }) {
+  const { confirm } = useAppDialogs();
   const [busy, setBusy] = React.useState(false);
   const [note, setNote] = React.useState("");
 
@@ -979,7 +981,13 @@ function VersionsTab({
                   variant="subtle"
                   disabled={busy}
                   onClick={async () => {
-                    if (!window.confirm(labels.restoreConfirm)) return;
+                    if (
+                      !(await confirm({
+                        title: labels.restoreConfirm,
+                        danger: true,
+                      }))
+                    )
+                      return;
                     setBusy(true);
                     await onRestoreVersion(v.id);
                     setBusy(false);

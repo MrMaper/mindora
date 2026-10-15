@@ -11,6 +11,7 @@ import { I18nProvider } from "@/i18n/provider";
 import type { Language } from "@/types/db";
 import type { Translations } from "@/i18n";
 import { useToastPosition } from "@/hooks/use-toast-position";
+import { AppDialogsProvider } from "@/components/ui-kit/overlays/app-dialogs";
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -33,12 +34,14 @@ export function Providers({
 
   return (
     <I18nProvider language={language} translations={translations}>
-      <SessionProvider>
-        <TooltipProvider>
-          <RouteErrorBoundary>{children}</RouteErrorBoundary>
-          <Toaster position={toastPosition} richColors style={peyda.style} />
-        </TooltipProvider>
-      </SessionProvider>
+      <AppDialogsProvider>
+        <SessionProvider>
+          <TooltipProvider>
+            <RouteErrorBoundary>{children}</RouteErrorBoundary>
+            <Toaster position={toastPosition} richColors style={peyda.style} />
+          </TooltipProvider>
+        </SessionProvider>
+      </AppDialogsProvider>
     </I18nProvider>
   );
 }

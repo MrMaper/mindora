@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui-kit/forms/button";
 import { StarterCaptureBox } from "@/components/life/starter-capture";
+import { LiveNowClock } from "@/components/life/live-now-clock";
 import { completePersonalTask } from "@/features/life/actions";
 import {
   dismissProfileSuggestionAction,
@@ -162,13 +163,19 @@ export function StarterToday({
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
       <div className="min-w-0">
-        <p className="text-xs text-muted-foreground">
-          {formatJalaliDate(new Date(), language === "EN" ? "EN" : "FA")}
-        </p>
-        <h1 className="mt-0.5 text-xl font-semibold text-text-primary">
+        <h1 className="text-xl font-semibold text-text-primary">
           {fa ? "سلام" : "Hello"}
           {userName ? `، ${userName}` : ""}
         </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          <span className="inline-block max-w-full whitespace-nowrap">
+            {formatJalaliDate(new Date(), language === "EN" ? "EN" : "FA")}
+            <span className="mx-1 opacity-40" aria-hidden>
+              ·
+            </span>
+            <LiveNowClock className="text-sm font-semibold text-foreground" />
+          </span>
+        </p>
       </div>
 
       <StarterCaptureBox askLifePart={!firstCaptureAt} />

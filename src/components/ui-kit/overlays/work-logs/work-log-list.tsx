@@ -8,6 +8,8 @@ import type { WorkLogRow } from "@/features/work-logs/types";
 import { useLanguage } from "@/i18n/provider";
 import { formatHours } from "@/lib/utils";
 import { formatJalaliShort, parseLocalDate, zonedDateKey } from "@/lib/life";
+import { useAppDialogs } from "@/components/ui-kit/overlays/app-dialogs";
+import { notifyError } from "@/lib/ui-feedback";
 
 interface WorkLogListProps {
   workLogs: WorkLogRow[];
@@ -18,6 +20,7 @@ interface WorkLogListProps {
 
 export function WorkLogList({ workLogs, currentUserId, onRefresh, isLoading = false }: WorkLogListProps) {
   const language = useLanguage();
+  const { confirm } = useAppDialogs();
   const t = language === "FA" ? listTranslations.fa : listTranslations.en;
   const dateLocale = language === "EN" ? "en-US" : "fa-IR";
 
@@ -36,7 +39,7 @@ export function WorkLogList({ workLogs, currentUserId, onRefresh, isLoading = fa
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm(t.confirmDelete)) return;
+    if (!(await confirm({ title: t.confirmDelete, danger: true }))) return;
 
     setDeletingId(id);
     try {
@@ -47,10 +50,10 @@ export function WorkLogList({ workLogs, currentUserId, onRefresh, isLoading = fa
       if (result.success) {
         onRefresh();
       } else {
-        alert(result.error || t.deleteFailed);
+        notifyError(result.error || t.deleteFailed);
       }
     } catch {
-      alert(t.deleteFailed);
+      notifyError(t.deleteFailed);
     } finally {
       setDeletingId(null);
     }

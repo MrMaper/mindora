@@ -35,6 +35,8 @@ import {
 import { SpeakButton } from "@/components/language/speak-button";
 import { speakWord } from "@/features/language/speak";
 import { cn, formatNumber } from "@/lib/utils";
+import { useAppDialogs } from "@/components/ui-kit/overlays/app-dialogs";
+import { notifyError } from "@/lib/ui-feedback";
 import { CheckIcon, LockIcon } from "lucide-react";
 import type { VocabLessonProgress } from "@/features/language/types";
 
@@ -243,6 +245,7 @@ export function LanguageVocabPanel({
   const t = useTranslation();
   const language = useLanguage();
   const router = useRouter();
+  const { confirm } = useAppDialogs();
 
   const installedDecks = decks.filter(d => d.installed > 0);
   const defaultDeck =
@@ -322,7 +325,7 @@ export function LanguageVocabPanel({
     pendingRef.current = false;
     setPending(false);
     if (!result.success) {
-      if (result.error) window.alert(result.error);
+      if (result.error) notifyError(result.error);
       return;
     }
     const answered = answeredThisSessionRef.current;
@@ -383,7 +386,7 @@ export function LanguageVocabPanel({
     pendingRef.current = false;
     setPending(false);
     if (!result.success) {
-      if (result.error) window.alert(result.error);
+      if (result.error) notifyError(result.error);
       return;
     }
     // Study first-pass dismisses from this lesson queue even when SRS would
@@ -483,7 +486,7 @@ export function LanguageVocabPanel({
       setDeckKey(key);
       router.refresh();
     } else if (result.error) {
-      window.alert(result.error);
+      notifyError(result.error);
     }
   }
 
@@ -507,12 +510,13 @@ export function LanguageVocabPanel({
       setMessage(t.language.cardAdded);
       router.refresh();
     } else if (result.error) {
-      window.alert(result.error);
+      notifyError(result.error);
     }
   }
 
   async function onDeleteCard(id: string) {
-    if (!window.confirm(t.language.deleteCardConfirm)) return;
+    if (!(await confirm({ title: t.language.deleteCardConfirm, danger: true })))
+      return;
     setPending(true);
     const result = await deleteLangCardAction(id);
     setPending(false);
@@ -521,7 +525,7 @@ export function LanguageVocabPanel({
       setStudyQueue(q => q.filter(c => c.id !== id));
       setBank(b => b.filter(c => c.id !== id));
     } else if (result.error) {
-      window.alert(result.error);
+      notifyError(result.error);
     }
   }
 

@@ -44,6 +44,8 @@ export interface AreaHubSection {
   areaId: string;
   /** Template hint (palette / names); never an identity. */
   templateKey: string | null;
+  /** Still showing seed template name (and default slogan localization). */
+  nameIsDefault: boolean;
   displayName: string;
   hubFor: "research" | "language" | null;
   isDefault: boolean;
@@ -67,6 +69,7 @@ export interface ProjectsHubData {
 export interface AreaDashboardData {
   areaId: string;
   templateKey: string | null;
+  nameIsDefault: boolean;
   displayName: string;
   hubFor: "research" | "language" | null;
   isDefault: boolean;

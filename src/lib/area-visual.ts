@@ -69,35 +69,106 @@ export const AREA_VISUAL: Record<AreaVisualKey, AreaVisual> = {
   },
 };
 
-/** Preset color keys users can pick for an area. */
+/** Preset color keys users can pick for an area (site palette + extras). */
 export const AREA_COLOR_PRESETS: {
   key: string;
   labelFa: string;
   labelEn: string;
   cssVar: string;
 }[] = [
+  { key: "brand", labelFa: "برند", labelEn: "Brand", cssVar: "var(--brand-600)" },
+  { key: "brand-deep", labelFa: "نیلی تیره", labelEn: "Deep indigo", cssVar: "var(--brand-800)" },
   { key: "review", labelFa: "بنفش", labelEn: "Purple", cssVar: "var(--status-review)" },
-  { key: "orange", labelFa: "نارنجی", labelEn: "Orange", cssVar: "var(--status-in-progress)" },
-  { key: "blue", labelFa: "آبی", labelEn: "Blue", cssVar: "var(--status-todo)" },
-  { key: "emerald", labelFa: "سبز", labelEn: "Green", cssVar: "#059669" },
+  { key: "violet", labelFa: "بنفش روشن", labelEn: "Violet", cssVar: "#8b5cf6" },
+  { key: "fuchsia", labelFa: "سرخابی", labelEn: "Fuchsia", cssVar: "#d946ef" },
   { key: "rose", labelFa: "صورتی", labelEn: "Rose", cssVar: "#e11d48" },
-  { key: "amber", labelFa: "کهربایی", labelEn: "Amber", cssVar: "#d97706" },
-  { key: "cyan", labelFa: "فیروزه‌ای", labelEn: "Cyan", cssVar: "#0891b2" },
-  { key: "slate", labelFa: "خاکستری", labelEn: "Slate", cssVar: "#64748b" },
+  { key: "red", labelFa: "قرمز", labelEn: "Red", cssVar: "var(--red-500)" },
+  { key: "orange", labelFa: "نارنجی", labelEn: "Orange", cssVar: "var(--status-in-progress)" },
+  { key: "amber", labelFa: "کهربایی", labelEn: "Amber", cssVar: "var(--amber-500)" },
+  { key: "yellow", labelFa: "زرد", labelEn: "Yellow", cssVar: "var(--priority-medium)" },
+  { key: "lime", labelFa: "سبز روشن", labelEn: "Lime", cssVar: "#84cc16" },
+  { key: "done", labelFa: "سبز", labelEn: "Green", cssVar: "var(--status-done)" },
+  { key: "emerald", labelFa: "زمردی", labelEn: "Emerald", cssVar: "#059669" },
+  { key: "teal", labelFa: "فیروزه", labelEn: "Teal", cssVar: "#14b8a6" },
+  { key: "cyan", labelFa: "آبی روشن", labelEn: "Cyan", cssVar: "var(--status-testing)" },
+  { key: "sky", labelFa: "آسمانی", labelEn: "Sky", cssVar: "#0ea5e9" },
+  { key: "blue", labelFa: "آبی", labelEn: "Blue", cssVar: "var(--status-todo)" },
+  { key: "indigo", labelFa: "نیلی", labelEn: "Indigo", cssVar: "#6366f1" },
+  { key: "slate", labelFa: "خاکستری", labelEn: "Slate", cssVar: "var(--gray-600)" },
+  { key: "stone", labelFa: "سنگی", labelEn: "Stone", cssVar: "#78716c" },
 ];
 
-export const AREA_ICON_PRESETS: { key: string; emoji: string }[] = [
-  { key: "🎓", emoji: "🎓" },
-  { key: "💼", emoji: "💼" },
-  { key: "🏠", emoji: "🏠" },
-  { key: "🗣️", emoji: "🗣️" },
-  { key: "📚", emoji: "📚" },
-  { key: "💡", emoji: "💡" },
-  { key: "🎯", emoji: "🎯" },
-  { key: "❤️", emoji: "❤️" },
-  { key: "🌱", emoji: "🌱" },
-  { key: "⚡", emoji: "⚡" },
+/**
+ * Stroke icons from the site kit (Lucide). Keys are stored on `UserArea.icon`.
+ * Legacy emoji values still resolve via `resolveAreaIconName`.
+ */
+export const AREA_ICON_PRESETS: { key: IconName; labelFa: string; labelEn: string }[] = [
+  { key: "home", labelFa: "خانه", labelEn: "Home" },
+  { key: "briefcase", labelFa: "کار", labelEn: "Work" },
+  { key: "graduation-cap", labelFa: "تحصیل", labelEn: "Study" },
+  { key: "book-open", labelFa: "کتاب", labelEn: "Books" },
+  { key: "file-text", labelFa: "نوشته", labelEn: "Writing" },
+  { key: "language", labelFa: "زبان", labelEn: "Language" },
+  { key: "lightbulb", labelFa: "ایده", labelEn: "Idea" },
+  { key: "target", labelFa: "هدف", labelEn: "Goal" },
+  { key: "flask", labelFa: "آزمایش", labelEn: "Lab" },
+  { key: "code", labelFa: "کد", labelEn: "Code" },
+  { key: "pen-line", labelFa: "قلم", labelEn: "Pen" },
+  { key: "newspaper", labelFa: "خبر", labelEn: "News" },
+  { key: "calendar", labelFa: "تقویم", labelEn: "Calendar" },
+  { key: "timer", labelFa: "زمان", labelEn: "Timer" },
+  { key: "zap", labelFa: "سرعت", labelEn: "Energy" },
+  { key: "star", labelFa: "ستاره", labelEn: "Star" },
+  { key: "sparkles", labelFa: "درخشش", labelEn: "Sparkles" },
+  { key: "heart", labelFa: "علاقه", labelEn: "Heart" },
+  { key: "heart-pulse", labelFa: "سلامت", labelEn: "Health" },
+  { key: "stethoscope", labelFa: "پزشکی", labelEn: "Medical" },
+  { key: "dumbbell", labelFa: "ورزش", labelEn: "Fitness" },
+  { key: "sprout", labelFa: "رشد", labelEn: "Growth" },
+  { key: "leaf", labelFa: "طبیعت", labelEn: "Nature" },
+  { key: "coffee", labelFa: "کافه", labelEn: "Coffee" },
+  { key: "utensils", labelFa: "غذا", labelEn: "Food" },
+  { key: "music", labelFa: "موسیقی", labelEn: "Music" },
+  { key: "mic", labelFa: "صدا", labelEn: "Mic" },
+  { key: "camera", labelFa: "عکس", labelEn: "Camera" },
+  { key: "palette", labelFa: "هنر", labelEn: "Art" },
+  { key: "gamepad", labelFa: "بازی", labelEn: "Play" },
+  { key: "plane", labelFa: "سفر", labelEn: "Travel" },
+  { key: "car", labelFa: "رفت‌وآمد", labelEn: "Transit" },
+  { key: "building", labelFa: "سازمان", labelEn: "Office" },
+  { key: "landmark", labelFa: "عمومی", labelEn: "Civic" },
+  { key: "wallet", labelFa: "مالی", labelEn: "Money" },
+  { key: "shopping-bag", labelFa: "خرید", labelEn: "Shopping" },
+  { key: "users", labelFa: "جمع", labelEn: "People" },
+  { key: "baby", labelFa: "خانواده", labelEn: "Family" },
+  { key: "folder", labelFa: "پوشه", labelEn: "Folder" },
+  { key: "inbox", labelFa: "صندوق", labelEn: "Inbox" },
+  { key: "layout-dashboard", labelFa: "داشبورد", labelEn: "Board" },
+  { key: "columns", labelFa: "بورد", labelEn: "Kanban" },
+  { key: "list", labelFa: "فهرست", labelEn: "List" },
+  { key: "message-square", labelFa: "گفتگو", labelEn: "Chat" },
+  { key: "mail", labelFa: "ایمیل", labelEn: "Mail" },
+  { key: "bell", labelFa: "یادآور", labelEn: "Reminders" },
+  { key: "flag", labelFa: "پرچم", labelEn: "Flag" },
+  { key: "shield", labelFa: "امنیت", labelEn: "Security" },
+  { key: "settings", labelFa: "تنظیم", labelEn: "Settings" },
 ];
+
+const AREA_ICON_KEYS = new Set<string>(AREA_ICON_PRESETS.map(p => p.key));
+
+/** Old emoji prefs → stroke icons (one-release read compat). */
+const LEGACY_EMOJI_TO_ICON: Record<string, IconName> = {
+  "🎓": "graduation-cap",
+  "💼": "briefcase",
+  "🏠": "home",
+  "🗣️": "language",
+  "📚": "book-open",
+  "💡": "lightbulb",
+  "🎯": "target",
+  "❤️": "heart",
+  "🌱": "sprout",
+  "⚡": "zap",
+};
 
 const COLOR_KEY_TO_CSS: Record<string, string> = Object.fromEntries(
   AREA_COLOR_PRESETS.map(p => [p.key, p.cssVar]),
@@ -109,7 +180,20 @@ function resolveCssColor(color: string | null | undefined, fallback: string): st
   return COLOR_KEY_TO_CSS[color] ?? fallback;
 }
 
-/** Merge defaults with per-user prefs (color / emoji icon). */
+export function isAreaIconName(value: string | null | undefined): value is IconName {
+  return Boolean(value && AREA_ICON_KEYS.has(value));
+}
+
+/** Resolve stored `UserArea.icon` (IconName or legacy emoji) to a kit icon. */
+export function resolveAreaIconName(
+  prefIcon: string | null | undefined,
+  fallback: IconName,
+): IconName {
+  if (!prefIcon) return fallback;
+  if (isAreaIconName(prefIcon)) return prefIcon;
+  return LEGACY_EMOJI_TO_ICON[prefIcon] ?? fallback;
+}
+
 /** Palette key for an area: hub first, then template, else the life palette. */
 export function areaVisualKey(
   ref: Pick<AreaRef, "templateKey" | "hubFor">,
@@ -128,15 +212,17 @@ export function resolveAreaVisual(
   const base = AREA_VISUAL[key] ?? AREA_VISUAL.life;
   const cssVar = resolveCssColor(pref?.color, base.cssVar);
   const customColor = Boolean(pref?.color);
-  const emoji =
-    pref?.icon && pref.icon.length <= 4 ? pref.icon : base.emoji;
+  const icon = resolveAreaIconName(pref?.icon, base.icon);
+  // Keep emoji only as a last-resort text fallback for odd callers.
+  const emoji = base.emoji;
 
   if (!customColor) {
-    return { ...base, emoji };
+    return { ...base, icon, emoji };
   }
 
   return {
     ...base,
+    icon,
     emoji,
     cssVar,
     chip: "text-white",

@@ -23,6 +23,7 @@ import {
   templateKeyForSlug,
 } from "./index";
 import { buildMemberContextFromRows, type UserAreaRow } from "./member-context";
+import { areaTagline } from "./display";
 import { parseModuleFlags } from "@/lib/modules";
 
 function seedRows(userId: string): UserAreaRow[] {
@@ -221,6 +222,26 @@ describe("member context (pure)", () => {
       ...rows.slice(1),
     ]);
     expect(custom.areas.find(a => a.id === "ua-life")?.nameFa).toBe("Home");
+  });
+
+  it("resolves area taglines for seed defaults and custom buckets", () => {
+    expect(
+      areaTagline(
+        { templateKey: "language", nameIsDefault: true },
+        "مهارت‌ها، واژگان و آمادگی آزمون",
+        "EN",
+      ),
+    ).toBe("Skills, vocab and exam prep");
+    expect(
+      areaTagline(
+        { templateKey: "custom", nameIsDefault: false },
+        "تمرین روزانه و مسابقات",
+        "FA",
+      ),
+    ).toBe("تمرین روزانه و مسابقات");
+    expect(
+      areaTagline({ templateKey: "custom", nameIsDefault: false }, null, "FA"),
+    ).toBeNull();
   });
 
   it("applies stored order and archived flags", () => {

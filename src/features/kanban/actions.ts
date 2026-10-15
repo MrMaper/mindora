@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { auth } from "@/auth";
+import { authForModule } from "@/lib/module-guard";
 import { prisma as db } from "@/lib/db";
 import { notify } from "@/lib/notify";
 import type { BoardStatus } from "./types";
@@ -43,7 +43,7 @@ export async function moveTask(params: {
   orderedIds: string[];
 }): Promise<ActionResult> {
   try {
-    const session = await auth();
+    const session = await authForModule("kanban");
     if (!session?.user) return { success: false, error: "غیرمجاز" };
 
     const existing = await db.task.findUnique({

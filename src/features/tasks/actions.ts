@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
+import { authForModule } from "@/lib/module-guard";
 import { prisma as db } from "@/lib/db";
 import { createTaskSchema, updateTaskSchema } from "@/schemas/tasks";
 import { getTaskById } from "./queries";
@@ -75,7 +76,7 @@ async function logActivity(opts: {
 // ─── Create task ────────────────────────────────────────────────────────
 
 export async function createTask(formData: FormData): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("tasks");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const parsed = createTaskSchema.safeParse(Object.fromEntries(formData));
@@ -235,7 +236,7 @@ export async function updateTask(
   id: string,
   formData: FormData,
 ): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("tasks");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
   const isAdmin = session.user.role === "ADMIN";
 
@@ -578,7 +579,7 @@ export async function updateTaskStatus(
   id: string,
   status: string,
 ): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("tasks");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
   if (!isBoardStatus(status)) {
     return { success: false, error: "وضعیت نامعتبر است" };
@@ -685,7 +686,7 @@ export async function getTaskDetailAction(
 // ─── Delete task ────────────────────────────────────────────────────────
 
 export async function deleteTask(id: string): Promise<ActionResult> {
-  const session = await auth();
+  const session = await authForModule("tasks");
   if (!session?.user) return { success: false, error: "غیرمجاز" };
 
   const existing = await db.task.findUnique({

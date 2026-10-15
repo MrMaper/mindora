@@ -28,6 +28,7 @@ import {
 import type { LangSkill } from "@/types/db";
 import { formatJalaliShort } from "@/lib/life";
 import { cn, formatNumber } from "@/lib/utils";
+import { notifyError } from "@/lib/ui-feedback";
 
 const panelFallback = (
   <div className="min-h-[12rem] animate-pulse rounded-xl border bg-muted/30" />
@@ -219,7 +220,7 @@ function LanguageCCInner({ hub, scope, projects }: LanguageCCProps) {
       setMessage(t.language.sessionSaved);
       router.refresh();
     } else if (result.error) {
-      window.alert(result.error);
+      notifyError(result.error);
     }
   }
 
@@ -237,7 +238,7 @@ function LanguageCCInner({ hub, scope, projects }: LanguageCCProps) {
       setMessage(t.language.profileSaved);
       router.refresh();
     } else if (result.error) {
-      window.alert(result.error);
+      notifyError(result.error);
     }
   }
 
@@ -254,7 +255,7 @@ function LanguageCCInner({ hub, scope, projects }: LanguageCCProps) {
     if (result.success && result.data?.id) {
       router.push(`/docs?id=${String(result.data.id)}`);
     } else if (result.error) {
-      window.alert(result.error);
+      notifyError(result.error);
     }
   }
 

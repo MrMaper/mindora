@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { requireAuth } from "@/lib/require-role";
 import { getUserPreferences } from "@/features/settings/queries";
-import { getUserById } from "@/features/users/queries";
+import {
+  getMySecuritySnapshot,
+  getUserById,
+} from "@/features/users/queries";
 import { getModuleAccess } from "@/lib/module-guard";
 import { parseUiProfile } from "@/lib/ui-profile";
 import { SettingsCC } from "./settings-cc";
@@ -10,7 +13,10 @@ import type { CapabilitiesData } from "./capabilities-section";
 import { parseSettingsTab } from "./settings-tabs";
 import type { Language, Theme } from "@/types/db";
 import { localizedTitle } from "@/lib/page-title";
-import { pendingBaleLink } from "@/features/external/bots/bale/user-link";
+import {
+  isBaleLinked,
+  pendingBaleLink,
+} from "@/features/external/bots/bale/user-link";
 
 export function generateMetadata(): Promise<Metadata> {
   return localizedTitle("تنظیمات", "Settings");
@@ -24,13 +30,16 @@ export default async function SettingsPage({
   const session = await requireAuth();
   const { tab } = await searchParams;
 
-  const [preferences, user, baleLink] = await Promise.all([
-    getUserPreferences(session.user.id),
-    getUserById(session.user.id),
-    pendingBaleLink(session.user.id),
-  ]);
+  const [preferences, user, baleLink, baleLinked, security] =
+    await Promise.all([
+      getUserPreferences(session.user.id),
+      getUserById(session.user.id),
+      pendingBaleLink(session.user.id),
+      isBaleLinked(session.user.id),
+      getMySecuritySnapshot(session.user.id),
+    ]);
 
-  if (!user) notFound();
+  if (!user || !security) notFound();
 
   const currentLanguage: Language = preferences?.language ?? "FA";
   const currentTheme: Theme = preferences?.theme ?? "SYSTEM";
@@ -55,6 +64,8 @@ export default async function SettingsPage({
       preferences={preferences}
       user={user}
       baleCode={baleLink?.code ?? null}
+      baleLinked={baleLinked}
+      security={security}
       initialTab={parseSettingsTab(tab)}
     />
   );

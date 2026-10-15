@@ -14,6 +14,7 @@ import {
   type PrimaryModule,
 } from "@/lib/modules";
 import { cn } from "@/lib/utils";
+import { useAppDialogs } from "@/components/ui-kit/overlays/app-dialogs";
 
 export interface CapabilitiesData {
   policy: ModulePolicy;
@@ -53,33 +54,36 @@ export function CapabilitiesSection({
 }) {
   const fa = language === "FA";
   const router = useRouter();
+  const { confirm } = useAppDialogs();
   const [pending, startTransition] = React.useTransition();
   const [error, setError] = React.useState<string | null>(null);
 
   const visible = PRIMARY_MODULES.filter(k => data.policy[k] !== "off");
 
   function onToggle(key: PrimaryModule, next: boolean) {
-    if (!next) {
-      const affected = dependentsOf(key).filter(d => data.flags[d]);
-      if (affected.length > 0) {
-        const names = affected
-          .map(d => (fa ? MODULE_META[d].fa : MODULE_META[d].en))
-          .join(fa ? "، " : ", ");
-        const msg = fa
-          ? `«${names}» هم خاموش می‌شود. ادامه می‌دهی؟`
-          : `"${names}" will also be turned off. Continue?`;
-        if (!window.confirm(msg)) return;
+    void (async () => {
+      if (!next) {
+        const affected = dependentsOf(key).filter(d => data.flags[d]);
+        if (affected.length > 0) {
+          const names = affected
+            .map(d => (fa ? MODULE_META[d].fa : MODULE_META[d].en))
+            .join(fa ? "، " : ", ");
+          const msg = fa
+            ? `«${names}» هم خاموش می‌شود. ادامه می‌دهی؟`
+            : `"${names}" will also be turned off. Continue?`;
+          if (!(await confirm({ title: msg, danger: true }))) return;
+        }
       }
-    }
-    setError(null);
-    startTransition(async () => {
-      const res = await setMemberModulePreference(key, next);
-      if (!res.success) {
-        setError(res.error ?? (fa ? "ذخیره نشد" : "Could not save"));
-        return;
-      }
-      router.refresh();
-    });
+      setError(null);
+      startTransition(async () => {
+        const res = await setMemberModulePreference(key, next);
+        if (!res.success) {
+          setError(res.error ?? (fa ? "ذخیره نشد" : "Could not save"));
+          return;
+        }
+        router.refresh();
+      });
+    })();
   }
 
   function onProfile(next: UiProfile) {

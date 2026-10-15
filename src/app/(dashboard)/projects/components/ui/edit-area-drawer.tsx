@@ -6,12 +6,14 @@ import { Drawer } from "@/components/ui-kit/overlays/drawer";
 import { ResolvedValidationText } from "@/components/ui-kit/forms/action-error";
 import { Button } from "@/components/ui-kit/forms/button";
 import { Input } from "@/components/ui-kit/forms/input";
+import { Icon } from "@/components/ui-kit/foundation/icon";
 import { useLanguage, useTranslation } from "@/i18n/provider";
 import type { UpdateAreaBucketInput } from "@/schemas/projects";
 import type { AreaPrefRow } from "@/features/projects/types";
 import {
   AREA_COLOR_PRESETS,
   AREA_ICON_PRESETS,
+  resolveAreaIconName,
 } from "@/lib/area-visual";
 import { cn } from "@/lib/utils";
 
@@ -46,6 +48,7 @@ export function EditAreaDrawer({
 }: EditAreaDrawerProps) {
   const t = useTranslation();
   const language = useLanguage();
+  const selectedIcon = resolveAreaIconName(pref.icon, "home");
 
   return (
     <Drawer
@@ -92,12 +95,18 @@ export function EditAreaDrawer({
           name="description"
           control={form.control}
           render={({ field, fieldState }) => (
-            <Input
-              {...field}
-              label={t.projects.description}
-              placeholder={t.projects.descriptionPlaceholder}
-              error={fieldState.error?.message}
-            />
+            <div className="flex flex-col gap-1.5">
+              <Input
+                {...field}
+                label={t.projects.areaTagline}
+                placeholder={t.projects.areaTaglinePlaceholder}
+                error={fieldState.error?.message}
+                maxLength={120}
+              />
+              <p className="text-[11px] text-muted-foreground">
+                {t.projects.areaTaglineHint}
+              </p>
+            </div>
           )}
         />
 
@@ -135,20 +144,21 @@ export function EditAreaDrawer({
           <p className="text-xs font-medium text-muted-foreground mb-2">
             {t.projects.iconPreset}
           </p>
-          <div className="flex flex-wrap gap-1.5">
+          <div className="grid w-full grid-cols-7 gap-1.5">
             {AREA_ICON_PRESETS.map(p => (
               <button
                 key={p.key}
                 type="button"
+                title={language === "FA" ? p.labelFa : p.labelEn}
                 onClick={() => onPrefChange({ icon: p.key })}
                 className={cn(
-                  "size-9 rounded-md border text-lg flex items-center justify-center",
-                  pref.icon === p.key
-                    ? "border-primary bg-primary/10"
-                    : "border-border-default hover:bg-bg-hover",
+                  "aspect-square w-full rounded-md border flex items-center justify-center",
+                  selectedIcon === p.key
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border-default text-foreground/80 hover:bg-bg-hover hover:text-foreground",
                 )}
               >
-                {p.emoji}
+                <Icon name={p.key} size={17} strokeWidth={2.1} />
               </button>
             ))}
           </div>

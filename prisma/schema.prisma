@@ -13,6 +13,10 @@ model User {
   email               String               @unique
   password            String?
   avatar              String?
+  /// Optional mobile / contact number (member-editable in Settings → Profile).
+  phone               String?
+  /// Short personal blurb shown on the profile card (member-editable).
+  bio                 String?
   role                UserRole             @default(MEMBER)
   status              UserStatus           @default(ACTIVE)
   /// Admin policy per module: { [module]: "off" | "on" | "member_choice" }.

@@ -17,8 +17,20 @@ export const updateUserSchema = z.object({
   role: z.enum(["ADMIN", "MEMBER"]),
 });
 
+/** Empty string clears the field; otherwise digits / + / spaces / dashes. */
+const optionalPhone = z
+  .string()
+  .trim()
+  .max(20, "phoneTooLong")
+  .refine(
+    v => v === "" || /^[+0-9][0-9\s().-]{6,19}$/.test(v),
+    "invalidPhone",
+  );
+
 export const updateProfileSchema = z.object({
   name: z.string().min(1, "nameRequired").max(100, "nameTooLong"),
+  phone: optionalPhone,
+  bio: z.string().trim().max(280, "bioTooLong"),
 });
 
 export const moduleFlagsSchema = z.object(

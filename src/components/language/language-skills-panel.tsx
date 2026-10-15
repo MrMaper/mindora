@@ -18,6 +18,7 @@ import { skillHasDrill } from "@/features/language/skill-drills";
 import type { LangSkill } from "@/types/db";
 import { formatJalaliShort } from "@/lib/life";
 import { cn, formatNumber } from "@/lib/utils";
+import { notifyError } from "@/lib/ui-feedback";
 
 const PRESETS = [15, 30, 45, 60] as const;
 
@@ -139,7 +140,7 @@ export function LanguageSkillsPanel({
       setFilter(skill);
       router.refresh();
     } else if (result.error) {
-      window.alert(result.error);
+      notifyError(result.error);
     }
   }
 

@@ -15,6 +15,7 @@ import {
   writeResearchScopeCookie,
 } from "@/features/research/scope-cookie";
 import { cn } from "@/lib/utils";
+import { notifyError } from "@/lib/ui-feedback";
 
 function persistScope(next: ResearchProjectScope) {
   try {
@@ -84,7 +85,7 @@ export function ResearchProjectSwitcher({
       setCreating(false);
       navigate(String(result.data.id));
     } else if (result.error) {
-      window.alert(result.error);
+      notifyError(result.error);
     }
   }
 

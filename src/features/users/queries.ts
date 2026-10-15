@@ -6,6 +6,7 @@ import { ONLINE_WINDOW_MS, isUserOnline } from "@/lib/presence";
 import type {
   AdminOverview,
   GetUsersResult,
+  SecuritySnapshot,
   UserActivityStats,
   UserLoginEventRow,
   UserRow,
@@ -19,6 +20,8 @@ function mapUser(u: {
   name: string;
   email: string;
   avatar: string | null;
+  phone: string | null;
+  bio: string | null;
   role: UserRow["role"];
   status: UserRow["status"];
   createdAt: Date;
@@ -34,6 +37,8 @@ function mapUser(u: {
     name: u.name,
     email: u.email,
     avatar: u.avatar,
+    phone: u.phone,
+    bio: u.bio,
     role: u.role,
     status: u.status,
     createdAt: u.createdAt,
@@ -53,6 +58,8 @@ const userSelect = {
   name: true,
   email: true,
   avatar: true,
+  phone: true,
+  bio: true,
   role: true,
   status: true,
   createdAt: true,
@@ -205,6 +212,32 @@ export async function getUserLoginEvents(
     ip: r.ip,
     userAgent: r.userAgent,
   }));
+}
+
+/** Own-account security data for Settings → Security. */
+export async function getMySecuritySnapshot(
+  userId: string,
+): Promise<SecuritySnapshot | null> {
+  const [user, loginEvents] = await Promise.all([
+    db.user.findUnique({
+      where: { id: userId },
+      select: {
+        lastLoginAt: true,
+        failedLoginCount: true,
+        lockedUntil: true,
+        password: true,
+      },
+    }),
+    getUserLoginEvents(userId, 15),
+  ]);
+  if (!user) return null;
+  return {
+    lastLoginAt: user.lastLoginAt,
+    failedLoginCount: user.failedLoginCount,
+    lockedUntil: user.lockedUntil,
+    hasPassword: !!user.password,
+    loginEvents,
+  };
 }
 
 export async function getRecentLoginEvents(

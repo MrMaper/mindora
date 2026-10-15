@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import * as React from "react";
 import Link from "next/link";
@@ -33,6 +33,8 @@ import { cn } from "@/lib/utils";
 import { prefersLtrText } from "@/lib/text-direction";
 import { projectIdForCreate } from "@/features/research/active-project";
 import { PdfAnnotatorDialog } from "@/components/docs/pdf-annotator-dialog";
+import { useAppDialogs } from "@/components/ui-kit/overlays/app-dialogs";
+import { notifyError } from "@/lib/ui-feedback";
 
 const READING: SourceReadingStatus[] = ["TO_READ", "READING", "DONE"];
 
@@ -50,6 +52,7 @@ export function ResearchLibraryPanel({
   const t = useTranslation();
   const language = useLanguage();
   const router = useRouter();
+  const { confirm } = useAppDialogs();
   const [sources, setSources] = React.useState(initialSources);
   const [search, setSearch] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState<
@@ -187,7 +190,7 @@ export function ResearchLibraryPanel({
     if (!form.title.trim() || addLock.current) return;
     const pid = resolveProjectId();
     if (pid === undefined) {
-      window.alert(t.life.pickPathRequired);
+      notifyError(t.life.pickPathRequired);
       return;
     }
     addLock.current = true;
@@ -215,7 +218,7 @@ export function ResearchLibraryPanel({
       router.refresh();
       setTimeout(() => setFlash(null), 1500);
     } else if (result.error) {
-      window.alert(result.error);
+      notifyError(result.error);
     }
   }
 
@@ -225,7 +228,7 @@ export function ResearchLibraryPanel({
     const result = await lookupDoiAction(doiInput);
     setPendingId(null);
     if (!result.success || !result.data) {
-      window.alert(result.error ?? t.life.doiFailed);
+      notifyError(result.error ?? t.life.doiFailed);
       return;
     }
     const d = result.data as {
@@ -263,7 +266,7 @@ export function ResearchLibraryPanel({
     if (result.success && result.data?.id) {
       router.push(`/docs?id=${String(result.data.id)}`);
     } else if (result.error) {
-      window.alert(result.error);
+      notifyError(result.error);
     }
   }
 
@@ -280,15 +283,19 @@ export function ResearchLibraryPanel({
       router.refresh();
       setTimeout(() => setFlash(null), 1500);
     } else if (result.error) {
-      window.alert(result.error);
+      notifyError(result.error);
     }
   }
 
   async function removeSource(id: string, title: string) {
-    const ok = window.confirm(
-      `${t.life.deleteSourceConfirmPrefix} «${title}» ${t.life.deleteSourceConfirmSuffix}`,
-    );
-    if (!ok) return;
+    if (
+      !(await confirm({
+        title: `${t.life.deleteSourceConfirmPrefix} «${title}» ${t.life.deleteSourceConfirmSuffix}`,
+        danger: true,
+      }))
+    ) {
+      return;
+    }
     setPendingId(id);
     const result = await deleteDocSource(id);
     setPendingId(null);
@@ -298,7 +305,7 @@ export function ResearchLibraryPanel({
       router.refresh();
       setTimeout(() => setFlash(null), 1500);
     } else if (result.error) {
-      window.alert(result.error);
+      notifyError(result.error);
     }
   }
 
@@ -313,7 +320,7 @@ export function ResearchLibraryPanel({
       router.refresh();
       setTimeout(() => setFlash(null), 1500);
     } else if (result.error) {
-      window.alert(result.error);
+      notifyError(result.error);
     }
   }
 
@@ -338,7 +345,7 @@ export function ResearchLibraryPanel({
   async function insertCitation(sourceId: string) {
     const targetId = citeDocId || citeDocs[0]?.id;
     if (!targetId) {
-      window.alert(t.life.pickCiteDoc);
+      notifyError(t.life.pickCiteDoc);
       return;
     }
     setPendingId(sourceId);
@@ -352,7 +359,7 @@ export function ResearchLibraryPanel({
       setFlash(t.life.citationInserted);
       router.push(`/docs?id=${String(result.data.id)}`);
     } else if (result.error) {
-      window.alert(result.error);
+      notifyError(result.error);
     }
   }
 
@@ -374,7 +381,7 @@ export function ResearchLibraryPanel({
       router.refresh();
       setTimeout(() => setFlash(null), 1500);
     } else if (result.error) {
-      window.alert(result.error);
+      notifyError(result.error);
     }
   }
 
@@ -392,7 +399,7 @@ export function ResearchLibraryPanel({
       router.refresh();
       setTimeout(() => setFlash(null), 1500);
     } else if (result.error) {
-      window.alert(result.error);
+      notifyError(result.error);
     }
   }
 
@@ -425,7 +432,7 @@ export function ResearchLibraryPanel({
       router.refresh();
       setTimeout(() => setFlash(null), 1500);
     } else if (result.error) {
-      window.alert(result.error);
+      notifyError(result.error);
     }
   }
 
@@ -973,7 +980,7 @@ export function ResearchLibraryPanel({
               insertIntoDocId,
             });
             if (!result.success) {
-              window.alert(result.error ?? "Error");
+              notifyError(result.error ?? "Error");
               throw new Error(result.error ?? "save failed");
             }
             setSources(prev =>

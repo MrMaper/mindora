@@ -7,6 +7,8 @@ export interface UserRow {
   name: string;
   email: string;
   avatar: string | null;
+  phone: string | null;
+  bio: string | null;
   role: UserRole;
   status: UserStatus;
   createdAt: Date;
@@ -37,6 +39,15 @@ export interface UserLoginEventRow {
   createdAt: Date | string;
   ip: string | null;
   userAgent: string | null;
+}
+
+/** Member Security tab snapshot (Settings → Security). */
+export interface SecuritySnapshot {
+  lastLoginAt: Date | null;
+  failedLoginCount: number;
+  lockedUntil: Date | null;
+  hasPassword: boolean;
+  loginEvents: UserLoginEventRow[];
 }
 
 export interface AdminOverview {

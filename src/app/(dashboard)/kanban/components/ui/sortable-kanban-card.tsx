@@ -11,6 +11,7 @@ import { useLanguage, useTranslation } from "@/i18n/provider";
 import { createDocLinkedToTask } from "@/features/research/actions";
 import { Icon } from "@/components/ui-kit/foundation/icon";
 import { cn } from "@/lib/utils";
+import { notifyError } from "@/lib/ui-feedback";
 import { formatClock, isOverdueTask } from "@/lib/life";
 
 export function formatDate(
@@ -84,7 +85,7 @@ export function SortableKanbanCard({
       onDocsChange?.(task.id, next);
       router.push(`/docs?id=${id}`);
     } else if (result.error) {
-      window.alert(result.error);
+      notifyError(result.error);
     }
   }
 

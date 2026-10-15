@@ -95,6 +95,40 @@ async function isResearchArea(areaId: string): Promise<boolean> {
   return row?.hubFor === "RESEARCH";
 }
 
+/** Docs mutations need Docs; research/language hub areas need that module instead. */
+async function guardDocWrite(
+  userId: string,
+  areaId?: string | null,
+): Promise<string | null> {
+  if (areaId) {
+    const row = await db.userArea.findUnique({
+      where: { id: areaId },
+      select: { hubFor: true },
+    });
+    if (row?.hubFor === "RESEARCH") {
+      return moduleGuardError(userId, "research");
+    }
+    if (row?.hubFor === "LANGUAGE") {
+      return moduleGuardError(userId, "language");
+    }
+  }
+  return moduleGuardError(userId, "docs");
+}
+
+async function authDocWrite(
+  areaId?: string | null,
+): Promise<{ userId: string } | { error: string }> {
+  const raw = await auth();
+  const userId =
+    raw && "user" in raw && raw.user && typeof raw.user.id === "string"
+      ? raw.user.id
+      : null;
+  if (!userId) return { error: "غیرمجاز" };
+  const blocked = await guardDocWrite(userId, areaId);
+  if (blocked) return { error: blocked };
+  return { userId };
+}
+
 function htmlToText(html: string): string {
   return html
     .replace(/<style[\s\S]*?<\/style>/gi, " ")
@@ -116,6 +150,7 @@ async function assertDocOwner(docId: string, userId: string) {
       title: true,
       content: true,
       contentText: true,
+      areaId: true,
     },
   });
 }
@@ -204,11 +239,7 @@ export async function createDoc(input?: {
     template?.areaTemplate,
   );
 
-  // Research-area docs need Research; any doc needs Docs.
-  const blocked = await moduleGuardError(
-    session.user.id,
-    areaRef.hubFor === "research" ? "research" : "docs",
-  );
+  const blocked = await guardDocWrite(session.user.id, areaRef.id);
   if (blocked) return { success: false, error: blocked };
 
   if (input?.projectId) {
@@ -273,6 +304,12 @@ export async function updateDoc(
     },
   });
   if (!existing) return { success: false, error: "سند پیدا نشد" };
+
+  const writeBlocked = await guardDocWrite(
+    session.user.id,
+    existing.areaId,
+  );
+  if (writeBlocked) return { success: false, error: writeBlocked };
 
   if (input.areaId && !(await isMemberArea(session.user.id, input.areaId))) {
     return { success: false, error: "حوزه پیدا نشد" };
@@ -345,9 +382,15 @@ export async function deleteDoc(id: string): Promise<ActionResult> {
 
   const existing = await db.doc.findFirst({
     where: { id, userId: session.user.id, deletedAt: null },
-    select: { id: true },
+    select: { id: true, areaId: true },
   });
   if (!existing) return { success: false, error: "سند پیدا نشد" };
+
+  const writeBlocked = await guardDocWrite(
+    session.user.id,
+    existing.areaId,
+  );
+  if (writeBlocked) return { success: false, error: writeBlocked };
 
   await db.doc.update({
     where: { id },
@@ -367,9 +410,15 @@ export async function restoreDocFromTrash(id: string): Promise<ActionResult> {
 
   const existing = await db.doc.findFirst({
     where: { id, userId: session.user.id, deletedAt: { not: null } },
-    select: { id: true },
+    select: { id: true, areaId: true },
   });
   if (!existing) return { success: false, error: "سند در سطل نیست" };
+
+  const writeBlocked = await guardDocWrite(
+    session.user.id,
+    existing.areaId,
+  );
+  if (writeBlocked) return { success: false, error: writeBlocked };
 
   await db.doc.update({
     where: { id },
@@ -385,9 +434,15 @@ export async function purgeDocForever(id: string): Promise<ActionResult> {
 
   const existing = await db.doc.findFirst({
     where: { id, userId: session.user.id, deletedAt: { not: null } },
-    select: { id: true },
+    select: { id: true, areaId: true },
   });
   if (!existing) return { success: false, error: "سند در سطل نیست" };
+
+  const writeBlocked = await guardDocWrite(
+    session.user.id,
+    existing.areaId,
+  );
+  if (writeBlocked) return { success: false, error: writeBlocked };
 
   await db.doc.delete({ where: { id } });
   revalidateDocs();
@@ -403,9 +458,12 @@ export async function linkDocTask(
 
   const doc = await db.doc.findFirst({
     where: { id: docId, userId: session.user.id, deletedAt: null },
-    select: { id: true, templateKey: true },
+    select: { id: true, templateKey: true, areaId: true },
   });
   if (!doc) return { success: false, error: "سند پیدا نشد" };
+
+  const writeBlocked = await guardDocWrite(session.user.id, doc.areaId);
+  if (writeBlocked) return { success: false, error: writeBlocked };
 
   const task = await db.task.findUnique({
     where: { id: taskId },
@@ -452,6 +510,9 @@ export async function unlinkDocTask(
   const doc = await assertDocOwner(docId, session.user.id);
   if (!doc) return { success: false, error: "سند پیدا نشد" };
 
+  const writeBlocked = await guardDocWrite(session.user.id, doc.areaId);
+  if (writeBlocked) return { success: false, error: writeBlocked };
+
   await db.docTask.deleteMany({ where: { docId, taskId } });
   revalidateDocs(docId);
   return { success: true };
@@ -497,6 +558,9 @@ export async function createTaskFromDoc(input: {
     select: { id: true, areaId: true, templateKey: true },
   });
   if (!doc) return { success: false, error: "سند پیدا نشد" };
+
+  const writeBlocked = await guardDocWrite(session.user.id, doc.areaId);
+  if (writeBlocked) return { success: false, error: writeBlocked };
 
   const { ensurePersonalWorkspace } = await import("@/features/life/workspace");
   const { teamId } = await ensurePersonalWorkspace(session.user.id);
@@ -570,9 +634,18 @@ export async function saveDocVersion(
 
   const doc = await db.doc.findFirst({
     where: { id: docId, userId: session.user.id },
-    select: { id: true, title: true, content: true, contentText: true },
+    select: {
+      id: true,
+      title: true,
+      content: true,
+      contentText: true,
+      areaId: true,
+    },
   });
   if (!doc) return { success: false, error: "سند پیدا نشد" };
+
+  const writeBlocked = await guardDocWrite(session.user.id, doc.areaId);
+  if (writeBlocked) return { success: false, error: writeBlocked };
 
   const version = await db.docVersion.create({
     data: {
@@ -598,9 +671,18 @@ export async function restoreDocVersion(
 
   const doc = await db.doc.findFirst({
     where: { id: docId, userId: session.user.id },
-    select: { id: true, title: true, content: true, contentText: true },
+    select: {
+      id: true,
+      title: true,
+      content: true,
+      contentText: true,
+      areaId: true,
+    },
   });
   if (!doc) return { success: false, error: "سند پیدا نشد" };
+
+  const writeBlocked = await guardDocWrite(session.user.id, doc.areaId);
+  if (writeBlocked) return { success: false, error: writeBlocked };
 
   const version = await db.docVersion.findFirst({
     where: { id: versionId, docId },
@@ -650,6 +732,9 @@ export async function addDocSource(input: {
   const doc = await assertDocOwner(input.docId, session.user.id);
   if (!doc) return { success: false, error: "سند پیدا نشد" };
 
+  const writeBlocked = await guardDocWrite(session.user.id, doc.areaId);
+  if (writeBlocked) return { success: false, error: writeBlocked };
+
   const source = await db.docSource.create({
     data: {
       docId: input.docId,
@@ -685,9 +770,15 @@ export async function updateDocSource(
 
   const source = await db.docSource.findFirst({
     where: { id, doc: { userId: session.user.id } },
-    select: { id: true, docId: true },
+    select: { id: true, docId: true, doc: { select: { areaId: true } } },
   });
   if (!source) return { success: false, error: "منبع پیدا نشد" };
+
+  const writeBlocked = await guardDocWrite(
+    session.user.id,
+    source.doc.areaId,
+  );
+  if (writeBlocked) return { success: false, error: writeBlocked };
 
   await db.docSource.update({
     where: { id },
@@ -739,9 +830,15 @@ export async function attachDocSourcePdf(
 
   const source = await db.docSource.findFirst({
     where: { id: sourceId, doc: { userId: session.user.id } },
-    select: { id: true, docId: true },
+    select: { id: true, docId: true, doc: { select: { areaId: true } } },
   });
   if (!source) return { success: false, error: "منبع پیدا نشد" };
+
+  const writeBlocked = await guardDocWrite(
+    session.user.id,
+    source.doc.areaId,
+  );
+  if (writeBlocked) return { success: false, error: writeBlocked };
 
   const file = formData.get("file") as File | null;
   if (!file || file.size === 0) {
@@ -782,9 +879,15 @@ export async function clearDocSourcePdf(sourceId: string): Promise<ActionResult>
 
   const source = await db.docSource.findFirst({
     where: { id: sourceId, doc: { userId: session.user.id } },
-    select: { id: true, docId: true },
+    select: { id: true, docId: true, doc: { select: { areaId: true } } },
   });
   if (!source) return { success: false, error: "منبع پیدا نشد" };
+
+  const writeBlocked = await guardDocWrite(
+    session.user.id,
+    source.doc.areaId,
+  );
+  if (writeBlocked) return { success: false, error: writeBlocked };
 
   await db.docSource.update({
     where: { id: sourceId },
@@ -807,6 +910,7 @@ export async function deleteDocSource(id: string): Promise<ActionResult> {
       doc: {
         select: {
           id: true,
+          areaId: true,
           templateKey: true,
           systemKey: true,
           _count: { select: { sources: true } },
@@ -815,6 +919,12 @@ export async function deleteDocSource(id: string): Promise<ActionResult> {
     },
   });
   if (!source) return { success: false, error: "منبع پیدا نشد" };
+
+  const writeBlocked = await guardDocWrite(
+    session.user.id,
+    source.doc.areaId,
+  );
+  if (writeBlocked) return { success: false, error: writeBlocked };
 
   await db.docSource.delete({ where: { id } });
 
@@ -854,6 +964,9 @@ export async function addDocQuote(input: {
   const doc = await assertDocOwner(input.docId, session.user.id);
   if (!doc) return { success: false, error: "سند پیدا نشد" };
 
+  const writeBlocked = await guardDocWrite(session.user.id, doc.areaId);
+  if (writeBlocked) return { success: false, error: writeBlocked };
+
   if (input.sourceId) {
     const source = await db.docSource.findFirst({
       where: { id: input.sourceId, docId: input.docId },
@@ -882,9 +995,15 @@ export async function deleteDocQuote(id: string): Promise<ActionResult> {
 
   const quote = await db.docQuote.findFirst({
     where: { id, doc: { userId: session.user.id } },
-    select: { id: true, docId: true },
+    select: { id: true, docId: true, doc: { select: { areaId: true } } },
   });
   if (!quote) return { success: false, error: "نقل‌قول پیدا نشد" };
+
+  const writeBlocked = await guardDocWrite(
+    session.user.id,
+    quote.doc.areaId,
+  );
+  if (writeBlocked) return { success: false, error: writeBlocked };
 
   await db.docQuote.delete({ where: { id } });
   revalidateDocs(quote.docId);
@@ -904,9 +1023,15 @@ export async function updateDocQuote(
 
   const quote = await db.docQuote.findFirst({
     where: { id, doc: { userId: session.user.id } },
-    select: { id: true, docId: true },
+    select: { id: true, docId: true, doc: { select: { areaId: true } } },
   });
   if (!quote) return { success: false, error: "نقل‌قول پیدا نشد" };
+
+  const writeBlocked = await guardDocWrite(
+    session.user.id,
+    quote.doc.areaId,
+  );
+  if (writeBlocked) return { success: false, error: writeBlocked };
 
   if (input.sourceId) {
     const source = await db.docSource.findFirst({
@@ -965,14 +1090,17 @@ export async function listDocsForTaskAction(
 export async function openWeeklyReviewDocAction(opts?: {
   language?: "FA" | "EN";
 }): Promise<ActionResult & { data?: { id?: string } }> {
-  const session = await auth();
-  if (!session?.user) return { success: false, error: "غیرمجاز" };
+  const authResult = await authDocWrite();
+  if ("error" in authResult) {
+    return { success: false, error: authResult.error };
+  }
+  const { userId } = authResult;
 
   const { getWeeklyReview } = await import("@/features/life/queries");
-  const review = await getWeeklyReview(session.user.id);
+  const review = await getWeeklyReview(userId);
   const { ensureWeeklyReviewDoc } = await import("./weekly");
 
-  const doc = await ensureWeeklyReviewDoc(session.user.id, {
+  const doc = await ensureWeeklyReviewDoc(userId, {
     completedTitles: review.completed.map(t => t.title),
     leftoverTitles: review.leftover.map(t => t.title),
     inboxTitles: review.inbox.map(t => t.title),
@@ -989,9 +1117,11 @@ export async function openWeeklyReviewDocAction(opts?: {
 export async function openDailyNoteAction(opts?: {
   language?: "FA" | "EN";
 }): Promise<ActionResult> {
-  const session = await auth();
-  if (!session?.user) return { success: false, error: "غیرمجاز" };
-  const doc = await ensureDailyNote(session.user.id, {
+  const authResult = await authDocWrite();
+  if ("error" in authResult) {
+    return { success: false, error: authResult.error };
+  }
+  const doc = await ensureDailyNote(authResult.userId, {
     language: opts?.language ?? "FA",
   });
   if (!doc) return { success: false, error: "ساخت یادداشت روزانه ناموفق بود" };
@@ -1023,20 +1153,23 @@ export async function createDocFolder(input: {
   areaId?: string | null;
   parentId?: string | null;
 }): Promise<ActionResult> {
-  const session = await auth();
-  if (!session?.user) return { success: false, error: "غیرمجاز" };
+  const authResult = await authDocWrite(input.areaId ?? null);
+  if ("error" in authResult) {
+    return { success: false, error: authResult.error };
+  }
+  const { userId } = authResult;
   const name = input.name.trim();
   if (!name) return { success: false, error: "نام پوشه لازم است" };
   const description = input.description?.trim() || null;
   const parentId: string | null = input.parentId ?? null;
   if (parentId) {
     const parent = await db.docFolder.findFirst({
-      where: { id: parentId, userId: session.user.id },
+      where: { id: parentId, userId },
       select: { id: true },
     });
     if (!parent) return { success: false, error: "پوشهٔ والد پیدا نشد" };
   }
-  if (input.areaId && !(await isMemberArea(session.user.id, input.areaId))) {
+  if (input.areaId && !(await isMemberArea(userId, input.areaId))) {
     return { success: false, error: "حوزه پیدا نشد" };
   }
   const folder = await db.docFolder.create({
@@ -1045,7 +1178,7 @@ export async function createDocFolder(input: {
       description,
       areaId: input.areaId ?? null,
       parentId,
-      userId: session.user.id,
+      userId,
     },
     select: { id: true },
   });
@@ -1066,9 +1199,12 @@ export async function updateDocFolder(
   if (!session?.user) return { success: false, error: "غیرمجاز" };
   const folder = await db.docFolder.findFirst({
     where: { id, userId: session.user.id },
-    select: { id: true },
+    select: { id: true, areaId: true },
   });
   if (!folder) return { success: false, error: "پوشه پیدا نشد" };
+
+  const writeBlocked = await guardDocWrite(session.user.id, folder.areaId);
+  if (writeBlocked) return { success: false, error: writeBlocked };
 
   if (input.parentId === id) {
     return { success: false, error: "پوشه نمی‌تواند والد خودش باشد" };
@@ -1123,9 +1259,12 @@ export async function deleteDocFolder(id: string): Promise<ActionResult> {
   if (!session?.user) return { success: false, error: "غیرمجاز" };
   const folder = await db.docFolder.findFirst({
     where: { id, userId: session.user.id },
-    select: { id: true, parentId: true },
+    select: { id: true, parentId: true, areaId: true },
   });
   if (!folder) return { success: false, error: "پوشه پیدا نشد" };
+
+  const writeBlocked = await guardDocWrite(session.user.id, folder.areaId);
+  if (writeBlocked) return { success: false, error: writeBlocked };
 
   // Re-parent children to this folder's parent
   await db.docFolder.updateMany({
@@ -1146,21 +1285,24 @@ export async function createDocTag(input: {
   description?: string | null;
   color?: string;
 }): Promise<ActionResult> {
-  const session = await auth();
-  if (!session?.user) return { success: false, error: "غیرمجاز" };
+  const authResult = await authDocWrite();
+  if ("error" in authResult) {
+    return { success: false, error: authResult.error };
+  }
+  const { userId } = authResult;
   const name = input.name.trim();
   if (!name) return { success: false, error: "نام تگ لازم است" };
   const description = input.description?.trim() || null;
   const color = input.color ?? "#636e87";
   const tag = await db.docTag.upsert({
     where: {
-      userId_name: { userId: session.user.id, name },
+      userId_name: { userId, name },
     },
     create: {
       name,
       description,
       color,
-      userId: session.user.id,
+      userId,
     },
     update: {
       ...(description !== null ? { description } : {}),
@@ -1180,10 +1322,13 @@ export async function updateDocTag(
     color?: string;
   },
 ): Promise<ActionResult> {
-  const session = await auth();
-  if (!session?.user) return { success: false, error: "غیرمجاز" };
+  const authResult = await authDocWrite();
+  if ("error" in authResult) {
+    return { success: false, error: authResult.error };
+  }
+  const { userId } = authResult;
   const tag = await db.docTag.findFirst({
-    where: { id, userId: session.user.id },
+    where: { id, userId },
     select: { id: true },
   });
   if (!tag) return { success: false, error: "تگ پیدا نشد" };
@@ -1195,7 +1340,7 @@ export async function updateDocTag(
     if (!name) return { success: false, error: "نام تگ لازم است" };
     const clash = await db.docTag.findFirst({
       where: {
-        userId: session.user.id,
+        userId,
         name,
         NOT: { id },
       },
@@ -1215,10 +1360,13 @@ export async function updateDocTag(
 }
 
 export async function deleteDocTag(id: string): Promise<ActionResult> {
-  const session = await auth();
-  if (!session?.user) return { success: false, error: "غیرمجاز" };
+  const authResult = await authDocWrite();
+  if ("error" in authResult) {
+    return { success: false, error: authResult.error };
+  }
+  const { userId } = authResult;
   const tag = await db.docTag.findFirst({
-    where: { id, userId: session.user.id },
+    where: { id, userId },
     select: { id: true },
   });
   if (!tag) return { success: false, error: "تگ پیدا نشد" };
@@ -1233,14 +1381,17 @@ export async function mergeDocTags(
   keepId: string,
   absorbId: string,
 ): Promise<ActionResult> {
-  const session = await auth();
-  if (!session?.user) return { success: false, error: "غیرمجاز" };
+  const authResult = await authDocWrite();
+  if ("error" in authResult) {
+    return { success: false, error: authResult.error };
+  }
+  const { userId } = authResult;
   if (keepId === absorbId) {
     return { success: false, error: "دو تگ باید متفاوت باشند" };
   }
   const tags = await db.docTag.findMany({
     where: {
-      userId: session.user.id,
+      userId,
       id: { in: [keepId, absorbId] },
     },
     select: { id: true },
@@ -1273,6 +1424,9 @@ export async function setDocTags(
   const doc = await assertDocOwner(docId, session.user.id);
   if (!doc) return { success: false, error: "سند پیدا نشد" };
 
+  const writeBlocked = await guardDocWrite(session.user.id, doc.areaId);
+  if (writeBlocked) return { success: false, error: writeBlocked };
+
   const owned = await db.docTag.findMany({
     where: { userId: session.user.id, id: { in: tagIds } },
     select: { id: true },
@@ -1297,6 +1451,10 @@ export async function toggleDocTag(
   if (!session?.user) return { success: false, error: "غیرمجاز" };
   const doc = await assertDocOwner(docId, session.user.id);
   if (!doc) return { success: false, error: "سند پیدا نشد" };
+
+  const writeBlocked = await guardDocWrite(session.user.id, doc.areaId);
+  if (writeBlocked) return { success: false, error: writeBlocked };
+
   const tag = await db.docTag.findFirst({
     where: { id: tagId, userId: session.user.id },
     select: { id: true },
@@ -1329,6 +1487,9 @@ export async function createTasksFromDocChecklist(
     select: { id: true, areaId: true, content: true },
   });
   if (!doc) return { success: false, error: "سند پیدا نشد" };
+
+  const writeBlocked = await guardDocWrite(session.user.id, doc.areaId);
+  if (writeBlocked) return { success: false, error: writeBlocked };
 
   const fromDoc = extractTaskCandidatesFromHtml(doc.content);
   const finalTitles = (

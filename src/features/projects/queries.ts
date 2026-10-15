@@ -265,6 +265,7 @@ export async function getProjectsHub(
     return {
       areaId: ref.id,
       templateKey: ref.templateKey,
+      nameIsDefault: ref.nameIsDefault,
       displayName,
       hubFor: ref.hubFor,
       isDefault: ref.isDefault,
@@ -370,6 +371,7 @@ export async function getAreaDashboard(
   return {
     areaId: section.areaId,
     templateKey: section.templateKey,
+    nameIsDefault: section.nameIsDefault,
     displayName: section.displayName,
     hubFor: section.hubFor,
     isDefault: section.isDefault,

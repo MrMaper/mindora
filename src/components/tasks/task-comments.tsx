@@ -13,6 +13,7 @@ import { useTranslation } from "@/i18n/provider";
 import type { CommentRow } from "@/features/comments/types";
 import type { AttachmentRow } from "@/features/attachments/types";
 import type { UserRow } from "@/features/users/types";
+import { useAppDialogs } from "@/components/ui-kit/overlays/app-dialogs";
 
 interface TaskCommentsProps {
   taskId: string;
@@ -26,6 +27,7 @@ export function TaskComments({
   users,
 }: TaskCommentsProps) {
   const t = useTranslation();
+  const { confirm } = useAppDialogs();
   const [comments, setComments] = React.useState<CommentRow[]>([]);
   const [attachments, setAttachments] = React.useState<AttachmentRow[]>([]);
   const [draft, setDraft] = React.useState("");
@@ -93,7 +95,7 @@ export function TaskComments({
     setEditDraft("");
   }
   async function onDeleteComment(c: CommentRow) {
-    if (!confirm(t.comments.delete)) return;
+    if (!(await confirm({ title: t.comments.delete, danger: true }))) return;
     const res = await deleteComment(c.id);
     if (res.success) loadComments();
   }
@@ -105,7 +107,7 @@ export function TaskComments({
     if (res.success) loadAttachments();
   }
   async function onDeleteAttachment(a: AttachmentRow) {
-    if (!confirm(t.comments.delete)) return;
+    if (!(await confirm({ title: t.comments.delete, danger: true }))) return;
     const res = await deleteAttachment(a.id);
     if (res.success) loadAttachments();
   }

@@ -24,8 +24,12 @@ import { useTranslation } from "@/i18n/provider";
 import { PageHeader, type PathStatusFilter } from "../ui/page-header";
 import { AreaSection } from "../ui/area-section";
 import { CreateProjectDrawer } from "../ui/create-project-drawer";
+import { CreateAreaDrawer } from "../ui/create-area-drawer";
+import type { CreateAreaInput } from "../ui/create-area-drawer";
 import { EditProjectDrawer } from "../ui/edit-project-drawer";
 import { EditAreaDrawer } from "../ui/edit-area-drawer";
+import { MoveAreaContentDrawer } from "../ui/move-area-content-drawer";
+import type { MoveAreaCounts } from "../ui/move-area-content-drawer";
 import { DeleteConfirmationDialog } from "../ui/delete-confirmation-dialog";
 import { GlobalError } from "@/components/ui-kit/global";
 import {
@@ -41,7 +45,7 @@ import {
   previewAreaMoveAction,
 } from "@/features/projects/area-actions";
 import Link from "next/link";
-import { Button } from "@/components/ui-kit/forms/button";
+import { Icon } from "@/components/ui-kit/foundation/icon";
 import { MAX_ACTIVE_AREAS } from "@/lib/areas";
 import { normalizeAreaParam } from "@/lib/project-namespace";
 
@@ -87,7 +91,23 @@ export function ProjectsCC({
   );
   const [pinnedPaths, setPinnedPaths] = React.useState(initialData.pinnedPaths);
   const [activeDrag, setActiveDrag] = React.useState<ProjectRow | null>(null);
+  const [createAreaOpen, setCreateAreaOpen] = React.useState(false);
   const [creatingArea, setCreatingArea] = React.useState(false);
+  const [createAreaError, setCreateAreaError] = React.useState<string | null>(
+    null,
+  );
+  const [moveDrawer, setMoveDrawer] = React.useState<{
+    fromAreaId: string;
+    deleteSource: boolean;
+  } | null>(null);
+  const [moveCounts, setMoveCounts] = React.useState<MoveAreaCounts | null>(
+    null,
+  );
+  const [movePreviewLoading, setMovePreviewLoading] = React.useState(false);
+  const [movePending, setMovePending] = React.useState(false);
+  const [moveError, setMoveError] = React.useState<string | null>(null);
+  const atAreaCap =
+    sections.filter(s => !s.pref.archived).length >= MAX_ACTIVE_AREAS;
 
   React.useEffect(() => {
     setSections(initialData.sections);
@@ -312,67 +332,60 @@ export function ProjectsCC({
     if (!result.success) router.refresh();
   }
 
-  async function onCreateArea() {
-    const active = sections.filter(s => !s.pref.archived).length;
-    if (active >= MAX_ACTIVE_AREAS) return;
-    const name = window.prompt(
-      t.projects.newAreaPrompt ?? "نام حوزهٔ جدید",
-    );
-    if (!name?.trim()) return;
+  function openCreateArea() {
+    if (atAreaCap) return;
+    setCreateAreaError(null);
+    setCreateAreaOpen(true);
+  }
+
+  async function onCreateAreaSubmit(input: CreateAreaInput) {
+    if (atAreaCap) return;
     setCreatingArea(true);
-    const res = await createUserAreaAction({ name: name.trim() });
+    setCreateAreaError(null);
+    const res = await createUserAreaAction({
+      name: input.name,
+      description: input.description,
+      color: input.color,
+      icon: input.icon,
+    });
     setCreatingArea(false);
     if (!res.success) {
-      window.alert(res.error ?? "ذخیره نشد");
+      setCreateAreaError(res.error ?? "ذخیره نشد");
       return;
     }
+    setCreateAreaOpen(false);
     router.refresh();
   }
 
-  async function onMoveAllContent(fromAreaId: string, deleteSource: boolean) {
-    const targets = sections.filter(
-      s => s.areaId !== fromAreaId && !s.pref.archived,
-    );
-    if (targets.length === 0) {
-      window.alert(t.projects.noMoveTarget ?? "حوزهٔ مقصدی نیست");
-      return;
-    }
-    const preview = await previewAreaMoveAction(fromAreaId);
-    const counts = preview.data;
-    const summary = counts
-      ? `${counts.tasks} کار، ${counts.docs} سند، ${counts.paths} پروژه`
-      : "";
-    const list = targets
-      .map((s, i) => `${i + 1}) ${s.displayName || s.bucket.name}`)
-      .join("\n");
-    const pick = window.prompt(
-      `${deleteSource ? (t.projects.mergeConfirm ?? "ادغام / حذف") : (t.projects.moveAllConfirm ?? "انتقال همه")}\n${summary}\n\n${list}\n\nشمارهٔ مقصد:`,
-    );
-    if (!pick?.trim()) return;
-    const idx = Number(pick.trim()) - 1;
-    const to = targets[idx];
-    if (!to) {
-      window.alert(t.projects.invalidTarget ?? "مقصد نامعتبر");
-      return;
-    }
-    if (
-      !window.confirm(
-        (t.projects.moveAllFinalConfirm ??
-          "همهٔ موارد منتقل می‌شود. برگشت‌پذیر نیست.") +
-          `\n→ ${to.displayName || to.bucket.name}`,
-      )
-    ) {
-      return;
-    }
-    const res = await moveAllAreaContentAction({
-      fromAreaId,
-      toAreaId: to.areaId,
-      deleteSource,
+  function onMoveAllContent(fromAreaId: string, deleteSource: boolean) {
+    setMoveError(null);
+    setMoveCounts(null);
+    setMoveDrawer({ fromAreaId, deleteSource });
+    setMovePreviewLoading(true);
+    void previewAreaMoveAction(fromAreaId).then(preview => {
+      setMovePreviewLoading(false);
+      if (preview.success && preview.data) {
+        setMoveCounts(preview.data);
+      }
     });
+  }
+
+  async function onMoveAreaConfirm(toAreaId: string) {
+    if (!moveDrawer) return;
+    setMovePending(true);
+    setMoveError(null);
+    const res = await moveAllAreaContentAction({
+      fromAreaId: moveDrawer.fromAreaId,
+      toAreaId,
+      deleteSource: moveDrawer.deleteSource,
+    });
+    setMovePending(false);
     if (!res.success) {
-      window.alert(res.error ?? "خطا");
+      setMoveError(res.error ?? "خطا");
       return;
     }
+    setMoveDrawer(null);
+    setMoveCounts(null);
     router.refresh();
   }
 
@@ -385,7 +398,9 @@ export function ProjectsCC({
         onStatusFilterChange={setStatusFilter}
         onSearchChange={u.setSearch}
         onSearchSubmit={u.onSearchSubmit}
-        onCreate={() => u.openCreate()}
+        onCreateArea={openCreateArea}
+        createAreaDisabled={atAreaCap || creatingArea}
+        createAreaLoading={creatingArea}
         showSearch={showSearch}
       />
 
@@ -400,7 +415,8 @@ export function ProjectsCC({
               href={`/projects/${p.id}`}
               className="text-xs font-medium px-2 py-1 rounded-md bg-bg-sunken border border-border-default hover:bg-bg-hover"
             >
-              📌 {p.name}
+              <Icon name="flag" size={12} className="inline shrink-0" />{" "}
+              {p.name}
             </Link>
           ))}
         </div>
@@ -422,25 +438,6 @@ export function ProjectsCC({
           onDragStart={onDragStart}
           onDragEnd={onDragEnd}
         >
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <Button
-              type="button"
-              size="sm"
-              variant="subtle"
-              icon="plus"
-              loading={creatingArea}
-              disabled={
-                creatingArea ||
-                sections.filter(s => !s.pref.archived).length >= MAX_ACTIVE_AREAS
-              }
-              onClick={() => void onCreateArea()}
-            >
-              {t.projects.newArea ?? "حوزهٔ جدید"}
-            </Button>
-            {sections.filter(s => !s.pref.archived).length >= MAX_ACTIVE_AREAS ? (
-              <span className="text-xs text-muted-foreground">حداکثر ۸ حوزه</span>
-            ) : null}
-          </div>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3 md:gap-4 items-start">
             {displaySections.map(({ section, filterEmpty }) => (
               <AreaSection
@@ -500,6 +497,49 @@ export function ProjectsCC({
         </DndContext>
       )}
 
+      <CreateAreaDrawer
+        isOpen={createAreaOpen}
+        onClose={() => {
+          if (creatingArea) return;
+          setCreateAreaOpen(false);
+          setCreateAreaError(null);
+        }}
+        onSubmit={input => void onCreateAreaSubmit(input)}
+        actionError={createAreaError}
+        isPending={creatingArea}
+        atCap={atAreaCap}
+      />
+
+      <MoveAreaContentDrawer
+        isOpen={!!moveDrawer}
+        onClose={() => {
+          if (movePending) return;
+          setMoveDrawer(null);
+          setMoveCounts(null);
+          setMoveError(null);
+        }}
+        mode={moveDrawer?.deleteSource ? "merge" : "move"}
+        sourceName={
+          sections.find(s => s.areaId === moveDrawer?.fromAreaId)?.displayName ||
+          sections.find(s => s.areaId === moveDrawer?.fromAreaId)?.bucket.name ||
+          ""
+        }
+        targets={sections
+          .filter(
+            s =>
+              s.areaId !== moveDrawer?.fromAreaId && !s.pref.archived,
+          )
+          .map(s => ({
+            areaId: s.areaId,
+            name: s.displayName || s.bucket.name,
+          }))}
+        counts={moveCounts}
+        loadingPreview={movePreviewLoading}
+        isPending={movePending}
+        actionError={moveError}
+        onConfirm={toAreaId => void onMoveAreaConfirm(toAreaId)}
+      />
+
       <CreateProjectDrawer
         isOpen={u.drawerMode === "create"}
         onClose={u.closeDrawer}
@@ -531,6 +571,7 @@ export function ProjectsCC({
         onSubmit={u.onEditSubmit}
         actionError={u.actionError}
         isPending={u.isPending}
+        areaOptions={areaOptions}
       />
 
       <EditAreaDrawer

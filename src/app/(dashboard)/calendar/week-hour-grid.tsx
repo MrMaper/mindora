@@ -111,32 +111,38 @@ function TimedBlock({
   );
 
   function onResizePointerDown(e: React.PointerEvent) {
+    // Keep dnd-kit / scroll from stealing the gesture (esp. TouchSensor).
     e.stopPropagation();
     e.preventDefault();
+    const pointerId = e.pointerId;
     const startY = e.clientY;
     const startDur = duration;
     const target = e.currentTarget as HTMLElement;
     let last = startDur;
     try {
-      target.setPointerCapture(e.pointerId);
+      target.setPointerCapture(pointerId);
     } catch {
       // Pointer capture can fail on some browsers/touch paths; still listen.
     }
 
+    const moveOpts: AddEventListenerOptions = { passive: false };
     function cleanup(ev: PointerEvent) {
+      if (ev.pointerId !== pointerId) return;
       try {
-        if (target.hasPointerCapture?.(ev.pointerId)) {
-          target.releasePointerCapture(ev.pointerId);
+        if (target.hasPointerCapture?.(pointerId)) {
+          target.releasePointerCapture(pointerId);
         }
       } catch {
         // ignore
       }
-      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointermove", onMove, moveOpts);
       window.removeEventListener("pointerup", cleanup);
       window.removeEventListener("pointercancel", cleanup);
       onResizeCommit(task.id, last);
     }
     function onMove(ev: PointerEvent) {
+      if (ev.pointerId !== pointerId) return;
+      ev.preventDefault();
       const deltaMin = ((ev.clientY - startY) / HOUR_HEIGHT_PX) * 60;
       last = snapMinutes(
         Math.min(
@@ -146,7 +152,7 @@ function TimedBlock({
       );
       onResizePreview(task.id, last);
     }
-    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointermove", onMove, moveOpts);
     window.addEventListener("pointerup", cleanup);
     window.addEventListener("pointercancel", cleanup);
   }
@@ -200,8 +206,17 @@ function TimedBlock({
         role="separator"
         aria-label="Resize duration"
         onPointerDown={onResizePointerDown}
-        className="h-2 shrink-0 cursor-ns-resize touch-none bg-black/15 hover:bg-black/30"
-      />
+        className={cn(
+          // Tall enough for a finger on phones; slim bar on desktop.
+          "relative z-[1] flex shrink-0 touch-none cursor-ns-resize items-center justify-center",
+          "h-5 bg-black/10 active:bg-black/25 sm:h-2 sm:bg-black/15 sm:hover:bg-black/30",
+        )}
+      >
+        <span
+          aria-hidden
+          className="h-1 w-9 rounded-full bg-black/35 sm:hidden"
+        />
+      </div>
     </div>
   );
 }

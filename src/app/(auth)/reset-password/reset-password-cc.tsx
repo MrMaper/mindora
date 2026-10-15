@@ -1,14 +1,14 @@
 "use client";
 
-import * as React from "react";
-import Link from "next/link";
 import { Controller } from "react-hook-form";
-import { BrandMark } from "@/components/brand-mark";
 import { Icon } from "@/components/ui-kit/foundation/icon";
 import { Input } from "@/components/ui-kit/forms/input";
 import { Button } from "@/components/ui-kit/forms/button";
 import { useResetPassword } from "./use-reset-password";
 import { useAuthLanguage } from "../auth-language";
+import { AuthSimplePanel } from "../auth-simple-panel";
+import { AuthTransitionLink } from "../auth-transition-link";
+import styles from "../auth-stage.module.css";
 
 interface ResetPasswordCCProps {
   token: string | undefined;
@@ -22,42 +22,31 @@ export function ResetPasswordCC({ token }: ResetPasswordCCProps) {
   } = form;
   const { t } = useAuthLanguage();
 
-  const brand = (
-    <div className="mb-6 flex justify-center">
-      <BrandMark size="md" />
-    </div>
-  );
-
   if (!token) {
     return (
-      <div className="w-full max-w-[360px] bg-card border border-border rounded-xl shadow-md p-8">
-        {brand}
-        <div className="flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg mb-4" role="alert">
-          {t.auth.invalidResetLink}
-        </div>
-        <Link href="/forgot-password" className="inline-flex items-center justify-center gap-1.5 text-sm text-primary hover:underline">
+      <AuthSimplePanel
+        title={t.auth.resetPasswordTitle}
+        subtitle={t.auth.invalidResetLink}
+      >
+        <AuthTransitionLink href="/forgot-password" className={styles.backLink}>
           <Icon name="chevron-left" size={13} />
           {t.auth.sendResetLink}
-        </Link>
-      </div>
+        </AuthTransitionLink>
+      </AuthSimplePanel>
     );
   }
 
   return (
-    <div className="w-full max-w-[360px] bg-card border border-border rounded-xl shadow-md p-8">
-      {brand}
-
-      <div className="mb-5">
-        <div className="text-lg font-semibold text-foreground mb-1">{t.auth.resetPasswordTitle}</div>
-        <div className="text-sm text-muted-foreground">{t.auth.enterNewPassword}</div>
-      </div>
-
+    <AuthSimplePanel
+      title={t.auth.resetPasswordTitle}
+      subtitle={t.auth.enterNewPassword}
+    >
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
-        {error && (
-          <div className="flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg" role="alert">
+        {error ? (
+          <div className={styles.alertError} role="alert">
             {error}
           </div>
-        )}
+        ) : null}
 
         <Controller
           name="password"
@@ -68,6 +57,7 @@ export function ResetPasswordCC({ token }: ResetPasswordCCProps) {
               label={t.auth.newPassword}
               type="password"
               placeholder="••••••••"
+              rightIcon="lock"
               autoComplete="new-password"
               error={errors.password?.message}
             />
@@ -83,21 +73,27 @@ export function ResetPasswordCC({ token }: ResetPasswordCCProps) {
               label={t.auth.confirmPassword}
               type="password"
               placeholder="••••••••"
+              rightIcon="lock"
               autoComplete="new-password"
               error={errors.confirmPassword?.message}
             />
           )}
         />
 
-        <Button type="submit" variant="primary" loading={isPending} className="w-full">
+        <Button
+          type="submit"
+          variant="primary"
+          loading={isPending}
+          className={styles.submitBtn}
+        >
           {t.auth.resetPassword}
         </Button>
       </form>
 
-      <Link href="/login" className="inline-flex items-center justify-center gap-1.5 text-sm text-primary hover:underline mt-4">
+      <AuthTransitionLink href="/login" className={styles.backLink}>
         <Icon name="chevron-left" size={13} />
         {t.auth.backToLogin}
-      </Link>
-    </div>
+      </AuthTransitionLink>
+    </AuthSimplePanel>
   );
 }

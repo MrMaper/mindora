@@ -14,6 +14,7 @@ import {
   FocusSessionLauncher,
   FocusSessionProvider,
 } from "@/components/life/focus-session";
+import { LiveNowClock } from "@/components/life/live-now-clock";
 import { usePersonalTaskEditor } from "@/components/life/use-personal-task-editor";
 import type { HabitHeatDay, HabitItem } from "@/features/habits/queries";
 import {
@@ -665,12 +666,18 @@ export function DashboardCC({
       <div className="flex flex-col gap-4">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div className="min-w-0">
-            <p className="text-xs text-muted-foreground">
-              {formatJalaliDate(new Date(), language)}
-            </p>
-            <h1 className="text-xl font-semibold text-text-primary mt-0.5">
+            <h1 className="text-xl font-semibold text-text-primary">
               {t.dashboard.welcome}، {userName}
             </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              <span className="inline-block max-w-full whitespace-nowrap">
+                {formatJalaliDate(new Date(), language)}
+                <span className="mx-1 opacity-40" aria-hidden>
+                  ·
+                </span>
+                <LiveNowClock className="text-sm font-semibold text-foreground" />
+              </span>
+            </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <FocusSessionLauncher />

@@ -18,6 +18,7 @@ import { DOC_STATUS_HINT } from "@/features/research/types";
 import type { DocTemplateKey } from "@/features/docs/templates";
 import { projectIdForCreate } from "@/features/research/active-project";
 import { useAreaHelpers } from "@/components/member-areas-provider";
+import { notifyError } from "@/lib/ui-feedback";
 
 export function ResearchPipelineAside({
   phdDocs,
@@ -52,7 +53,7 @@ export function ResearchPipelineAside({
   async function fromTemplate(key: DocTemplateKey) {
     const pid = resolveProjectId();
     if (pid === undefined) {
-      window.alert(t.life.pickPathRequired);
+      notifyError(t.life.pickPathRequired);
       return;
     }
     setPending(key);

@@ -13,6 +13,7 @@ import {
   htmlToPlainText,
   type DiffPart,
 } from "@/features/docs/utils";
+import { useAppDialogs } from "@/components/ui-kit/overlays/app-dialogs";
 
 const CURRENT_ID = "current";
 
@@ -43,6 +44,7 @@ export function VersionCompareModal({
   onRestore: (versionId: string) => Promise<void>;
 }) {
   const t = useTranslation();
+  const { confirm } = useAppDialogs();
   const language = useLanguage();
   const [leftId, setLeftId] = React.useState(CURRENT_ID);
   const [rightId, setRightId] = React.useState<string>("");
@@ -255,7 +257,13 @@ export function VersionCompareModal({
             disabled={!restoreTargetId || busy}
             onClick={async () => {
               if (!restoreTargetId) return;
-              if (!window.confirm(t.docs.restoreConfirm)) return;
+              if (
+                !(await confirm({
+                  title: t.docs.restoreConfirm,
+                  danger: true,
+                }))
+              )
+                return;
               setBusy(true);
               try {
                 await onRestore(restoreTargetId);

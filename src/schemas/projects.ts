@@ -27,6 +27,7 @@ export const updateProjectSchema = z.object({
     .optional()
     .or(z.literal("")),
   status: projectStatusSchema.optional(),
+  areaId: z.string().min(1).optional(),
 });
 
 export const updateAreaBucketSchema = z.object({

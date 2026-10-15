@@ -11,6 +11,7 @@ import { StatusBadge, type TaskStatus } from "@/components/ui-kit/agile/status-b
 import { PriorityIcon } from "@/components/ui-kit/agile/priority-icon";
 import { WorkLogButton } from "@/components/ui-kit/overlays/work-logs";
 import { useLanguage, useTranslation } from "@/i18n/provider";
+import { notifyError } from "@/lib/ui-feedback";
 import {
   completePersonalTask,
   planTaskThisWeek,
@@ -222,7 +223,7 @@ export function LifeTaskList({
                 setPendingId(task.id);
                 const res = await skipTaskRecurrence(task.id);
                 setPendingId(null);
-                if (!res.success && res.error) window.alert(res.error);
+                if (!res.success && res.error) notifyError(res.error);
                 else router.refresh();
               })();
             },
@@ -235,7 +236,7 @@ export function LifeTaskList({
                 setPendingId(task.id);
                 const res = await stopTaskRecurrence(task.id, true);
                 setPendingId(null);
-                if (!res.success && res.error) window.alert(res.error);
+                if (!res.success && res.error) notifyError(res.error);
                 else router.refresh();
               })();
             },

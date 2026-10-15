@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AuthLanguageProvider, AuthLanguageSwitch } from "./auth-language";
+import styles from "./auth-stage.module.css";
 
 export const metadata: Metadata = {
   title: {
@@ -15,7 +16,7 @@ export default function AuthLayout({
 }) {
   return (
     <AuthLanguageProvider>
-      <div className="min-h-screen flex items-center justify-center bg-muted/50 p-6" dir="rtl">
+      <div className={styles.authRoot}>
         <AuthLanguageSwitch />
         {children}
       </div>

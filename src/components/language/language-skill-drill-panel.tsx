@@ -14,6 +14,7 @@ import {
 } from "@/features/language/skill-drills";
 import type { LangSkill } from "@/types/db";
 import { cn, formatNumber } from "@/lib/utils";
+import { notifyError } from "@/lib/ui-feedback";
 
 function formatTimer(sec: number): string {
   const s = Math.max(0, Math.floor(sec));
@@ -66,7 +67,7 @@ export function LanguageSkillDrillPanel({
     });
     setPending(false);
     if (!result.success && result.error) {
-      window.alert(result.error);
+      notifyError(result.error);
       return;
     }
     setDone(true);
@@ -107,7 +108,7 @@ export function LanguageSkillDrillPanel({
     if (!item || item.kind !== "prompt") return;
     const min = item.minWords ?? 0;
     if (min > 0 && countWords(response) < min) {
-      window.alert(
+      notifyError(
         t.language.drillMinWords.replace(
           "{n}",
           formatNumber(min, language),

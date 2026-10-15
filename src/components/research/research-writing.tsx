@@ -12,6 +12,7 @@ import { DOC_STATUS_HINT } from "@/features/research/types";
 import type { DocListItem, WritingPulseItem } from "@/features/docs/types";
 import { projectIdForCreate } from "@/features/research/active-project";
 import { useAreaHelpers } from "@/components/member-areas-provider";
+import { notifyError } from "@/lib/ui-feedback";
 
 export function ResearchWritingPanel({
   phdDocs,
@@ -38,7 +39,7 @@ export function ResearchWritingPanel({
   ) {
     const pid = resolvePid();
     if (pid === undefined) {
-      window.alert(t.life.pickPathRequired);
+      notifyError(t.life.pickPathRequired);
       return;
     }
     setPending(pendingKey);

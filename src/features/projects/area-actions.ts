@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma as db } from "@/lib/db";
-import { requireAuth } from "@/lib/require-role";
+import { authForModule } from "@/lib/module-guard";
 import { MAX_ACTIVE_AREAS } from "@/lib/areas";
 import {
   ensurePersonalWorkspace,
@@ -30,12 +30,19 @@ async function ownedArea(userId: string, areaId: string) {
 /** S-2: create a custom area (cap 8 active). */
 export async function createUserAreaAction(input: {
   name: string;
+  description?: string | null;
+  color?: string | null;
+  icon?: string | null;
 }): Promise<ActionResult<{ id: string }>> {
-  const session = await requireAuth();
-  if (!session?.user) return { success: false, error: "Unauthorized" };
+  const session = await authForModule("projects");
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
   const name = input.name.trim();
   if (!name || name.length > 100) {
     return { success: false, error: "نام حوزه نامعتبر است" };
+  }
+  const description = input.description?.trim() || null;
+  if (description && description.length > 500) {
+    return { success: false, error: "توضیحات خیلی بلند است" };
   }
 
   await ensurePersonalWorkspace(session.user.id);
@@ -73,6 +80,8 @@ export async function createUserAreaAction(input: {
       archived: false,
       isDefault: false,
       hubFor: null,
+      ...(input.color !== undefined ? { color: input.color } : {}),
+      ...(input.icon !== undefined ? { icon: input.icon } : {}),
     },
     select: { id: true },
   });
@@ -83,7 +92,7 @@ export async function createUserAreaAction(input: {
     data: {
       id: bucketId,
       name,
-      description: null,
+      description,
       status: "ACTIVE",
       areaId: area.id,
       teamId,
@@ -98,16 +107,17 @@ export async function createUserAreaAction(input: {
   return { success: true, data: { id: area.id } };
 }
 
-/** S-2: rename / color / icon / archive on UserArea. */
+/** S-2: rename / tagline / color / icon / archive on UserArea. */
 export async function updateUserAreaAction(input: {
   areaId: string;
   name?: string;
+  description?: string | null;
   color?: string | null;
   icon?: string | null;
   archived?: boolean;
 }): Promise<ActionResult> {
-  const session = await requireAuth();
-  if (!session?.user) return { success: false, error: "Unauthorized" };
+  const session = await authForModule("projects");
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
   const row = await ownedArea(session.user.id, input.areaId);
   if (!row) return { success: false, error: "حوزه پیدا نشد" };
 
@@ -145,6 +155,14 @@ export async function updateUserAreaAction(input: {
     if (clash) return { success: false, error: "این نام از قبل هست" };
   }
 
+  const description =
+    input.description !== undefined
+      ? input.description?.trim() || null
+      : undefined;
+  if (description !== undefined && description && description.length > 500) {
+    return { success: false, error: "توضیحات خیلی بلند است" };
+  }
+
   await db.userArea.update({
     where: { id: row.id },
     data: {
@@ -157,10 +175,13 @@ export async function updateUserAreaAction(input: {
     },
   });
 
-  if (name !== undefined && row.bucketProjectId) {
+  if (row.bucketProjectId && (name !== undefined || description !== undefined)) {
     await db.project.update({
       where: { id: row.bucketProjectId },
-      data: { name },
+      data: {
+        ...(name !== undefined ? { name } : {}),
+        ...(description !== undefined ? { description } : {}),
+      },
     });
   }
   revalidateAreas(row.id);
@@ -171,8 +192,8 @@ export async function updateUserAreaAction(input: {
 export async function reorderUserAreasAction(
   orderedIds: string[],
 ): Promise<ActionResult> {
-  const session = await requireAuth();
-  if (!session?.user) return { success: false, error: "Unauthorized" };
+  const session = await authForModule("projects");
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
   if (!orderedIds.length) {
     return { success: false, error: "ترتیب حوزه‌ها نامعتبر است" };
   }
@@ -202,8 +223,8 @@ export async function reorderUserAreasAction(
 export async function setDefaultUserAreaAction(
   areaId: string,
 ): Promise<ActionResult> {
-  const session = await requireAuth();
-  if (!session?.user) return { success: false, error: "Unauthorized" };
+  const session = await authForModule("projects");
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
   const row = await ownedArea(session.user.id, areaId);
   if (!row || row.archived) return { success: false, error: "حوزه پیدا نشد" };
   if (row.hubFor) {
@@ -233,8 +254,8 @@ export async function moveAllAreaContentAction(input: {
   toAreaId: string;
   deleteSource?: boolean;
 }): Promise<ActionResult<{ moved: number }>> {
-  const session = await requireAuth();
-  if (!session?.user) return { success: false, error: "Unauthorized" };
+  const session = await authForModule("projects");
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
   const userId = session.user.id;
   if (input.fromAreaId === input.toAreaId) {
     return { success: false, error: "مقصد باید متفاوت باشد" };
@@ -350,8 +371,8 @@ export async function previewAreaMoveAction(areaId: string): Promise<
     paths: number;
   }>
 > {
-  const session = await requireAuth();
-  if (!session?.user) return { success: false, error: "Unauthorized" };
+  const session = await authForModule("projects");
+  if (!session?.user) return { success: false, error: "غیرمجاز" };
   const row = await ownedArea(session.user.id, areaId);
   if (!row) return { success: false, error: "حوزه پیدا نشد" };
   const userId = session.user.id;

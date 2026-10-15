@@ -12,7 +12,6 @@ import {
 import {
   createProject,
   updateProject,
-  updateAreaBucket,
   archiveProject,
   unarchiveProject,
   deleteProject,
@@ -48,7 +47,7 @@ export function useProjects(initialSearch: string) {
 
   const editForm = useForm<UpdateProjectInput>({
     resolver: localizedZodResolver(updateProjectSchema),
-    defaultValues: { name: "", description: "", status: "ACTIVE" },
+    defaultValues: { name: "", description: "", status: "ACTIVE", areaId: "" },
   });
 
   const createForm = useForm<CreateProjectInput>({
@@ -82,6 +81,7 @@ export function useProjects(initialSearch: string) {
       name: project.name,
       description: project.description ?? "",
       status: project.status,
+      areaId: project.areaId,
     });
     setEditingProject(project);
     setActionError(null);
@@ -133,6 +133,7 @@ export function useProjects(initialSearch: string) {
       fd.append("name", data.name);
       fd.append("description", data.description ?? "");
       if (data.status) fd.append("status", data.status);
+      if (data.areaId) fd.append("areaId", data.areaId);
       const result = await updateProject(editingProject.id, fd);
       if (!result.success) {
         setActionError(result.error ?? "Failed to update path.");
@@ -146,24 +147,16 @@ export function useProjects(initialSearch: string) {
   const onAreaSubmit = areaForm.handleSubmit(data => {
     setActionError(null);
     startTransition(async () => {
-      if (editingProject?.areaId) {
-        const result = await updateUserAreaAction({
-          areaId: editingProject.areaId,
-          name: data.name,
-        });
-        if (!result.success) {
-          setActionError(result.error ?? "Failed to update area.");
-          return;
-        }
-        closeDrawer();
-        router.refresh();
+      const areaId = editingProject?.areaId || data.areaId;
+      if (!areaId) {
+        setActionError("حوزه پیدا نشد");
         return;
       }
-      const fd = new FormData();
-      fd.append("areaId", data.areaId);
-      fd.append("name", data.name);
-      fd.append("description", data.description ?? "");
-      const result = await updateAreaBucket(fd);
+      const result = await updateUserAreaAction({
+        areaId,
+        name: data.name,
+        description: data.description ?? "",
+      });
       if (!result.success) {
         setActionError(result.error ?? "Failed to update area.");
         return;

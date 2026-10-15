@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { auth } from "@/auth";
+import { authForModule } from "@/lib/module-guard";
 import { prisma as db } from "@/lib/db";
 import {
   createProjectSchema,
@@ -29,9 +29,7 @@ export interface ActionResult {
 }
 
 async function requireAuth() {
-  const session = await auth();
-  if (!session?.user) return null;
-  return session;
+  return authForModule("projects");
 }
 
 async function requireProjectAdmin(projectId: string, userId: string) {
@@ -372,14 +370,76 @@ export async function updateProject(
     return { success: false, error: parsed.error.issues[0]?.message };
   }
 
-  await db.project.update({
+  const existing = await db.project.findUnique({
     where: { id },
-    data: {
-      name: parsed.data.name,
-      description: parsed.data.description,
-      ...(parsed.data.status && { status: parsed.data.status }),
-    },
+    select: { areaId: true },
   });
+  if (!existing) {
+    return { success: false, error: "مسیر پیدا نشد" };
+  }
+
+  const updateData: {
+    name: string;
+    description?: string;
+    status?: (typeof parsed.data)["status"];
+    areaId?: string;
+    sortOrder?: number;
+  } = {
+    name: parsed.data.name,
+    description: parsed.data.description,
+    ...(parsed.data.status && { status: parsed.data.status }),
+  };
+
+  let fromAreaId = existing.areaId;
+  let toAreaId = existing.areaId;
+
+  if (parsed.data.areaId && parsed.data.areaId !== existing.areaId) {
+    const target = await db.userArea.findFirst({
+      where: { id: parsed.data.areaId, userId: session.user.id },
+      select: { id: true },
+    });
+    if (!target) return { success: false, error: "حوزه پیدا نشد" };
+
+    toAreaId = target.id;
+    const maxSort = await db.project.aggregate({
+      where: {
+        areaId: toAreaId,
+        members: { some: { userId: session.user.id } },
+        id: { not: { startsWith: "area-" } },
+      },
+      _max: { sortOrder: true },
+    });
+    updateData.areaId = toAreaId;
+    updateData.sortOrder = (maxSort._max.sortOrder ?? -1) + 1;
+  }
+
+  if (toAreaId !== fromAreaId) {
+    await db.$transaction([
+      db.project.update({
+        where: { id },
+        data: updateData,
+      }),
+      db.task.updateMany({
+        where: { projectId: id },
+        data: { areaId: toAreaId },
+      }),
+      db.doc.updateMany({
+        where: { projectId: id, deletedAt: null },
+        data: { areaId: toAreaId },
+      }),
+    ]);
+    await revalidateAreaSurfaces(fromAreaId);
+    await revalidateAreaSurfaces(toAreaId);
+    revalidatePath("/tasks");
+    revalidatePath("/kanban");
+    revalidatePath("/calendar");
+  } else {
+    await db.project.update({
+      where: { id },
+      data: updateData,
+    });
+    await revalidateAreaSurfaces(fromAreaId);
+  }
 
   revalidatePath("/projects");
   revalidatePath(`/projects/${id}`);

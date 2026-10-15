@@ -22,6 +22,7 @@ import {
 import type { HabitHeatDay, HabitItem } from "@/features/habits/queries";
 import { HABIT_HEATMAP_WEEKS } from "@/features/habits/constants";
 import { cn } from "@/lib/utils";
+import { useAppDialogs } from "@/components/ui-kit/overlays/app-dialogs";
 import type { RecurrenceInterval } from "@/types/db";
 import { areaDisplayName } from "@/lib/areas";
 import {
@@ -145,6 +146,7 @@ export function HabitsPanel({
   initialHeatDays?: HabitHeatDay[];
 }) {
   const t = useTranslation();
+  const { confirm } = useAppDialogs();
   const language = useLanguage();
   const activeAreas = useActiveMemberAreas();
   const { defaultAreaId, nameFor } = useAreaHelpers();
@@ -402,7 +404,8 @@ export function HabitsPanel({
   }
 
   async function onDelete(id: string) {
-    if (!window.confirm(t.habits.deleteConfirm)) return;
+    if (!(await confirm({ title: t.habits.deleteConfirm, danger: true })))
+      return;
     setPending(true);
     const result = await deleteHabitAction(id);
     setPending(false);

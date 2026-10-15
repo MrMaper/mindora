@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import * as React from "react";
 import { Controller, type Control } from "react-hook-form";
@@ -6,22 +6,19 @@ import { Drawer } from "@/components/ui-kit/overlays/drawer";
 import { ResolvedValidationText } from "@/components/ui-kit/forms/action-error";
 import { Button } from "@/components/ui-kit/forms/button";
 import { Input } from "@/components/ui-kit/forms/input";
+import { Select } from "@/components/ui-kit/forms/select";
 import { useTranslation } from "@/i18n/provider";
+import type { UpdateProjectInput } from "@/schemas/projects";
 import type { ProjectStatus } from "@/features/projects/types";
-
-interface ProjectFormValues {
-  name: string;
-  description?: string;
-  status?: ProjectStatus;
-}
 
 interface EditProjectDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   form: {
-    control: Control<ProjectFormValues>;
+    control: Control<UpdateProjectInput>;
     isPending: boolean;
   };
+  areaOptions: { value: string; label: string }[];
   editingProject: {
     name: string;
     memberCount: number;
@@ -47,6 +44,7 @@ export function EditProjectDrawer({
   onSubmit,
   actionError,
   isPending,
+  areaOptions,
 }: EditProjectDrawerProps) {
   const t = useTranslation();
 
@@ -109,6 +107,22 @@ export function EditProjectDrawer({
             </div>
           </div>
         )}
+        <Controller
+          name="areaId"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Select
+              value={field.value ?? ""}
+              onChange={field.onChange}
+              label={t.projects.selectArea}
+              options={areaOptions.map(o => ({
+                value: o.value,
+                label: o.label,
+              }))}
+              error={fieldState.error?.message}
+            />
+          )}
+        />
         <Controller
           name="name"
           control={form.control}

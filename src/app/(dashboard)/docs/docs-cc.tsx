@@ -78,6 +78,8 @@ import {
 } from "@/features/docs/types";
 import type { DocStatus } from "@/types/db";
 import { VersionCompareModal } from "@/components/docs/version-compare-modal";
+import { useAppDialogs } from "@/components/ui-kit/overlays/app-dialogs";
+import { notifyError } from "@/lib/ui-feedback";
 import {
   DocTaxonomyDrawer,
   type TaxonomyDrawerMode,
@@ -134,6 +136,7 @@ export function DocsCC({
   initialShowArchived?: boolean;
 }) {
   const t = useTranslation();
+  const { confirm, prompt } = useAppDialogs();
   const language = useLanguage();
   const memberAreas = useActiveMemberAreas();
   const { dotFor, hubArea, isHub } = useAreaHelpers();
@@ -528,10 +531,14 @@ export function DocsCC({
   async function onDelete() {
     if (!doc) return;
     if (doc.deletedAt) {
-      if (!window.confirm(t.docs.purgeConfirm)) return;
+      if (!(await confirm({ title: t.docs.purgeConfirm, danger: true })))
+        return;
       await purgeDocForever(doc.id);
     } else {
-      if (!window.confirm(t.docs.deleteToTrashConfirm)) return;
+      if (
+        !(await confirm({ title: t.docs.deleteToTrashConfirm, danger: true }))
+      )
+        return;
       await deleteDoc(doc.id);
     }
     setDoc(null);
@@ -602,7 +609,10 @@ export function DocsCC({
 
   async function onCreateTaskFromTitle() {
     if (!doc) return;
-    const title = window.prompt(t.docs.newTaskPrompt, doc.title);
+    const title = await prompt({
+      title: t.docs.newTaskPrompt,
+      defaultValue: doc.title,
+    });
     if (!title?.trim()) return;
     await createTaskFromDoc({
       docId: doc.id,
@@ -651,7 +661,7 @@ export function DocsCC({
       await refreshList();
       return true;
     }
-    if (result.error) window.alert(result.error);
+    if (result.error) notifyError(result.error);
     return false;
   }
 
@@ -662,7 +672,10 @@ export function DocsCC({
       setCopyFlash(true);
       setTimeout(() => setCopyFlash(false), 1400);
     } catch {
-      window.prompt(t.docs.copyLink, docInternalUrl(doc.id));
+      await prompt({
+        title: t.docs.copyLink,
+        defaultValue: docInternalUrl(doc.id),
+      });
     }
   }
 
@@ -1403,7 +1416,7 @@ export function DocsCC({
             fd.set("file", file);
             const result = await attachDocSourcePdf(sourceId, fd);
             if (!result.success && result.error) {
-              window.alert(result.error);
+              notifyError(result.error);
               return;
             }
             await reloadDoc(doc.id);
@@ -1412,7 +1425,7 @@ export function DocsCC({
             if (!doc) return;
             const result = await clearDocSourcePdf(sourceId);
             if (!result.success && result.error) {
-              window.alert(result.error);
+              notifyError(result.error);
               return;
             }
             await reloadDoc(doc.id);
@@ -1515,7 +1528,7 @@ export function DocsCC({
             fd.set("file", file);
             const result = await attachDocSourcePdf(sourceId, fd);
             if (!result.success && result.error) {
-              window.alert(result.error);
+              notifyError(result.error);
               return;
             }
             await reloadDoc(doc.id);
@@ -1524,7 +1537,7 @@ export function DocsCC({
             if (!doc) return;
             const result = await clearDocSourcePdf(sourceId);
             if (!result.success && result.error) {
-              window.alert(result.error);
+              notifyError(result.error);
               return;
             }
             await reloadDoc(doc.id);

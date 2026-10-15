@@ -1,0 +1,18 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Ember">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="1" x2="1" y2="0">
+      <stop stop-color="#9a3412"/>
+      <stop offset="1" stop-color="#fb923c"/>
+    </linearGradient>
+    <linearGradient id="flame" x1="0.5" y1="1" x2="0.5" y2="0">
+      <stop stop-color="#fef3c7"/>
+      <stop offset=".55" stop-color="#fdba74"/>
+      <stop offset="1" stop-color="#ef4444"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" fill="url(#bg)"/>
+  <path d="M64 22 C52 48 40 54 40 74 C40 92 50 104 64 104 C78 104 88 92 88 74 C88 54 76 48 64 22 Z" fill="url(#flame)"/>
+  <path d="M64 48 C58 60 52 64 52 76 C52 86 57 92 64 92 C71 92 76 86 76 76 C76 64 70 60 64 48 Z" fill="#fff7ed" opacity=".9"/>
+  <circle cx="28" cy="30" r="4" fill="#fecaca" opacity=".7"/>
+  <circle cx="102" cy="40" r="3" fill="#fed7aa" opacity=".8"/>
+</svg>

@@ -3,8 +3,10 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
 import { Badge } from "@/components/ui-kit/data-display/badge";
 import { Button } from "@/components/ui-kit/forms/button";
+import { Icon } from "@/components/ui-kit/foundation/icon";
 import { PageHeaderBar } from "@/components/ui-kit/layout/page-header-bar";
 import { useLanguage, useTranslation } from "@/i18n/provider";
 import { cn, formatNumber } from "@/lib/utils";
@@ -14,8 +16,13 @@ import {
   resolveAreaVisual,
   areaVisualKey,
 } from "@/lib/area-visual";
+import { areaTagline } from "@/lib/areas";
 import type { AreaDashboardData } from "@/features/projects/types";
 import { getProjectStatusLabel } from "@/components/ui-kit/forms/select-utils";
+import { CreateProjectDrawer } from "../ui/create-project-drawer";
+import { createProject } from "@/features/projects/actions";
+import { createProjectSchema, type CreateProjectInput } from "@/schemas/projects";
+import { localizedZodResolver } from "@/lib/validation-message";
 
 export function AreaDashboardCC({ data }: { data: AreaDashboardData }) {
   const t = useTranslation();
@@ -28,6 +35,57 @@ export function AreaDashboardCC({ data }: { data: AreaDashboardData }) {
   const related = areaRelatedLinksFromHub(data.hubFor);
   const fmt = (n: number) => formatNumber(n, language);
   const inline = areaVisualInline(visual, data.pref);
+  const [createOpen, setCreateOpen] = React.useState(false);
+  const [createError, setCreateError] = React.useState<string | null>(null);
+  const [isPending, startTransition] = React.useTransition();
+
+  const areaLabel = data.displayName || data.bucket.name;
+  const slogan = areaTagline(
+    {
+      templateKey: data.templateKey,
+      nameIsDefault: data.nameIsDefault,
+    },
+    data.bucket.description,
+    language,
+  );
+  const createForm = useForm<CreateProjectInput>({
+    resolver: localizedZodResolver(createProjectSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      teamId: "",
+      areaId: data.areaId,
+    },
+  });
+
+  function openCreatePath() {
+    createForm.reset({
+      name: "",
+      description: "",
+      teamId: "",
+      areaId: data.areaId,
+    });
+    setCreateError(null);
+    setCreateOpen(true);
+  }
+
+  const onCreateSubmit = createForm.handleSubmit(values => {
+    setCreateError(null);
+    startTransition(async () => {
+      const fd = new FormData();
+      fd.append("name", values.name);
+      fd.append("description", values.description ?? "");
+      fd.append("teamId", values.teamId ?? "");
+      fd.append("areaId", data.areaId);
+      const result = await createProject(fd);
+      if (!result.success) {
+        setCreateError(result.error ?? "Failed to create path.");
+        return;
+      }
+      setCreateOpen(false);
+      router.refresh();
+    });
+  });
 
   const relatedLabels = {
     relatedResearch: t.projects.relatedResearch,
@@ -53,23 +111,19 @@ export function AreaDashboardCC({ data }: { data: AreaDashboardData }) {
           className="mb-0"
           title={
             <span className="inline-flex items-center gap-2">
-              <span className="text-2xl leading-none" aria-hidden>
-                {visual.emoji}
+              <span
+                className={cn("shrink-0", visual.text)}
+                style={data.pref.color ? { color: visual.cssVar } : undefined}
+                aria-hidden
+              >
+                <Icon name={visual.icon} size={22} />
               </span>
-              <span className="truncate">{data.displayName || data.bucket.name}</span>
+              <span className="truncate">{areaLabel}</span>
             </span>
           }
-          description={
-            data.bucket.description ? (
-              <p>{data.bucket.description}</p>
-            ) : null
-          }
+          description={slogan ? <p>{slogan}</p> : null}
           actions={
-            <Button
-              variant="primary"
-              icon="plus"
-              onClick={() => router.push(`/projects?create=${data.areaId}`)}
-            >
+            <Button variant="primary" icon="plus" onClick={openCreatePath}>
               {t.projects.newPath}
             </Button>
           }
@@ -135,9 +189,19 @@ export function AreaDashboardCC({ data }: { data: AreaDashboardData }) {
             </span>
           </div>
           {data.paths.length === 0 ? (
-            <p className="px-4 py-6 text-sm text-muted-foreground">
-              {t.projects.noPathsHint}
-            </p>
+            <div className="px-4 py-6 flex flex-col items-start gap-3">
+              <p className="text-sm text-muted-foreground">
+                {t.projects.noPathsHint}
+              </p>
+              <Button
+                variant="subtle"
+                size="sm"
+                icon="plus"
+                onClick={openCreatePath}
+              >
+                {t.projects.createFirstPath}
+              </Button>
+            </div>
           ) : (
             <ul className="divide-y divide-border-subtle">
               {data.paths.map(path => (
@@ -160,8 +224,15 @@ export function AreaDashboardCC({ data }: { data: AreaDashboardData }) {
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         {path.pinned ? (
-                          <span className="text-[10px]" title={t.projects.pin}>
-                            📌
+                          <span
+                            title={t.projects.pin}
+                            className="inline-flex shrink-0"
+                          >
+                            <Icon
+                              name="flag"
+                              size={12}
+                              className="text-muted-foreground"
+                            />
                           </span>
                         ) : null}
                         <span className="text-sm font-medium truncate">
@@ -250,6 +321,23 @@ export function AreaDashboardCC({ data }: { data: AreaDashboardData }) {
           ) : null}
         </section>
       </div>
+
+      <CreateProjectDrawer
+        isOpen={createOpen}
+        onClose={() => {
+          if (isPending) return;
+          setCreateOpen(false);
+          setCreateError(null);
+        }}
+        form={{
+          control: createForm.control,
+          isPending,
+        }}
+        onSubmit={onCreateSubmit}
+        actionError={createError}
+        isPending={isPending}
+        areaOptions={[{ value: data.areaId, label: areaLabel }]}
+      />
     </div>
   );
 }

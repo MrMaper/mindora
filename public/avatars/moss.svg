@@ -1,0 +1,14 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Moss">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#14532d"/>
+      <stop offset="1" stop-color="#4ade80"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" fill="url(#bg)"/>
+  <path d="M64 96 V38" stroke="#bbf7d0" stroke-width="5" stroke-linecap="round"/>
+  <path d="M64 56 C40 44 28 58 34 78 C46 70 56 68 64 72" fill="#bbf7d0"/>
+  <path d="M64 68 C88 56 100 70 94 90 C82 82 72 80 64 84" fill="#86efac"/>
+  <path d="M64 44 C48 34 40 42 42 56 C50 52 58 50 64 54" fill="#dcfce7"/>
+  <circle cx="98" cy="28" r="5" fill="#bbf7d0" opacity=".55"/>
+</svg>

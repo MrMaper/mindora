@@ -35,6 +35,8 @@ import type {
 import type { LangSkill } from "@/types/db";
 import { formatJalaliShort } from "@/lib/life";
 import { cn, formatNumber } from "@/lib/utils";
+import { useAppDialogs } from "@/components/ui-kit/overlays/app-dialogs";
+import { notifyError } from "@/lib/ui-feedback";
 
 function formatTimer(sec: number): string {
   const s = Math.max(0, Math.floor(sec));
@@ -120,6 +122,7 @@ export function LanguageExamsPanel({
   const t = useTranslation();
   const language = useLanguage();
   const router = useRouter();
+  const { confirm } = useAppDialogs();
   const [pending, setPending] = React.useState(false);
   const [kind, setKind] = React.useState<ExamKindKey>(
     (profileExam?.toUpperCase() as ExamKindKey) || "MSRT",
@@ -165,7 +168,7 @@ export function LanguageExamsPanel({
       setExamDate(null);
       router.refresh();
     } else if (result.error) {
-      window.alert(result.error);
+      notifyError(result.error);
     }
   }
 
@@ -178,7 +181,7 @@ export function LanguageExamsPanel({
       });
       if (!ensured.success || !ensured.data?.id) {
         setPending(false);
-        window.alert(ensured.error ?? "خطا");
+        notifyError(ensured.error ?? "خطا");
         return;
       }
       trackId = String(ensured.data.id);
@@ -211,7 +214,7 @@ export function LanguageExamsPanel({
     });
     setPending(false);
     if (!started.success) {
-      window.alert(started.error ?? "خطا");
+      notifyError(started.error ?? "خطا");
       return;
     }
     setRunner({
@@ -317,7 +320,7 @@ export function LanguageExamsPanel({
       });
       setPending(false);
       if (!save.success) {
-        window.alert(save.error ?? "خطا");
+        notifyError(save.error ?? "خطا");
         return;
       }
       setRunner({
@@ -371,12 +374,12 @@ export function LanguageExamsPanel({
 
     if (q.kind === "mcq") {
       if (!answers[q.id]) {
-        window.alert(t.language.drillPickAnswer);
+        notifyError(t.language.drillPickAnswer);
         return;
       }
     } else if (q.minWords) {
       if (countWords(runner.promptText) < q.minWords) {
-        window.alert(
+        notifyError(
           t.language.drillMinWords.replace(
             "{n}",
             formatNumber(q.minWords, language),
@@ -439,7 +442,7 @@ export function LanguageExamsPanel({
       });
       setPending(false);
       if (!save.success) {
-        window.alert(save.error ?? "خطا");
+        notifyError(save.error ?? "خطا");
         return;
       }
       setRunner({
@@ -472,12 +475,13 @@ export function LanguageExamsPanel({
   }
 
   async function onDeleteTrack(id: string) {
-    if (!window.confirm(t.language.deleteTrackConfirm)) return;
+    if (!(await confirm({ title: t.language.deleteTrackConfirm, danger: true })))
+      return;
     setPending(true);
     const result = await deleteExamTrackAction(id);
     setPending(false);
     if (result.success) router.refresh();
-    else if (result.error) window.alert(result.error);
+    else if (result.error) notifyError(result.error);
   }
 
   if (runner) {
@@ -763,10 +767,16 @@ export function LanguageExamsPanel({
             size="sm"
             variant="ghost"
             disabled={pending}
-            onClick={() => {
-              if (window.confirm(t.language.abortMockConfirm)) {
-                void abortRunner();
+            onClick={async () => {
+              if (
+                !(await confirm({
+                  title: t.language.abortMockConfirm,
+                  danger: true,
+                }))
+              ) {
+                return;
               }
+              void abortRunner();
             }}
           >
             {t.language.abortMock}

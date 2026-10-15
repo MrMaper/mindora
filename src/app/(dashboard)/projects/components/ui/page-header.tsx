@@ -21,7 +21,10 @@ interface PageHeaderProps {
   onStatusFilterChange: (value: PathStatusFilter) => void;
   onSearchChange: (value: string) => void;
   onSearchSubmit: (e: React.FormEvent) => void;
-  onCreate?: () => void;
+  /** Opens the create-area drawer (New Path lives on each area card). */
+  onCreateArea?: () => void;
+  createAreaDisabled?: boolean;
+  createAreaLoading?: boolean;
   /** Show search when enough paths exist, or when a query is already active. */
   showSearch: boolean;
 }
@@ -33,7 +36,9 @@ export function PageHeader({
   onStatusFilterChange,
   onSearchChange,
   onSearchSubmit,
-  onCreate,
+  onCreateArea,
+  createAreaDisabled,
+  createAreaLoading,
   showSearch,
 }: PageHeaderProps) {
   const t = useTranslation();
@@ -59,9 +64,15 @@ export function PageHeader({
         }
         description={t.projects.subtitle}
         actions={
-          onCreate ? (
-            <Button variant="primary" icon="plus" onClick={onCreate}>
-              {t.projects.newPath}
+          onCreateArea ? (
+            <Button
+              variant="primary"
+              icon="plus"
+              onClick={onCreateArea}
+              disabled={createAreaDisabled}
+              loading={createAreaLoading}
+            >
+              {t.projects.newArea}
             </Button>
           ) : null
         }

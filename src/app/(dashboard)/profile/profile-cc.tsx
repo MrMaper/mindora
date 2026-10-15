@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { ResolvedValidationText } from "@/components/ui-kit/forms/action-error";
 import { useTranslation } from "@/i18n/provider";
@@ -20,7 +20,11 @@ interface ProfileCCProps {
 
 export function ProfileCC({ user, language, baleCode }: ProfileCCProps) {
   const avatarInputRef = React.useRef<HTMLInputElement>(null);
-  const p = useProfile(user.id, user.name);
+  const p = useProfile(user.id, {
+    name: user.name,
+    phone: user.phone ?? "",
+    bio: user.bio ?? "",
+  });
   const t = useTranslation();
 
   return (

@@ -10,6 +10,7 @@ import {
   buildFolderTree,
   type FolderTreeNode,
 } from "@/features/docs/folder-tree";
+import { useAppDialogs } from "@/components/ui-kit/overlays/app-dialogs";
 
 interface DocTaxonomyManageDrawerProps {
   open: boolean;
@@ -92,6 +93,7 @@ export function DocTaxonomyManageDrawer({
   onMergeTags,
 }: DocTaxonomyManageDrawerProps) {
   const t = useTranslation();
+  const { confirm } = useAppDialogs();
   const { tree } = React.useMemo(() => buildFolderTree(folders), [folders]);
   const [mergeKeep, setMergeKeep] = React.useState("");
   const [mergeAbsorb, setMergeAbsorb] = React.useState("");
@@ -138,8 +140,16 @@ export function DocTaxonomyManageDrawer({
               nodes={tree}
               onEdit={onEditFolder}
               onDelete={id => {
-                if (!window.confirm(t.docs.deleteFolderConfirm)) return;
-                void onDeleteFolder(id);
+                void (async () => {
+                  if (
+                    !(await confirm({
+                      title: t.docs.deleteFolderConfirm,
+                      danger: true,
+                    }))
+                  )
+                    return;
+                  await onDeleteFolder(id);
+                })();
               }}
               onAddChild={parentId => onCreateFolder(parentId)}
             />
@@ -182,8 +192,16 @@ export function DocTaxonomyManageDrawer({
                     size="sm"
                     aria-label="delete"
                     onClick={() => {
-                      if (!window.confirm(t.docs.deleteTagConfirm)) return;
-                      void onDeleteTag(tag.id);
+                      void (async () => {
+                        if (
+                          !(await confirm({
+                            title: t.docs.deleteTagConfirm,
+                            danger: true,
+                          }))
+                        )
+                          return;
+                        await onDeleteTag(tag.id);
+                      })();
                     }}
                   />
                 </li>
@@ -229,7 +247,13 @@ export function DocTaxonomyManageDrawer({
                 loading={busy}
                 onClick={async () => {
                   if (!mergeKeep || !mergeAbsorb) return;
-                  if (!window.confirm(t.docs.mergeTagsConfirm)) return;
+                  if (
+                    !(await confirm({
+                      title: t.docs.mergeTagsConfirm,
+                      danger: true,
+                    }))
+                  )
+                    return;
                   setBusy(true);
                   await onMergeTags(mergeKeep, mergeAbsorb);
                   setBusy(false);

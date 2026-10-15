@@ -46,7 +46,7 @@
 - Area dashboards: `/projects/areas/[areaId]` with permanent redirect from legacy enum slugs via `templateKey` / `hubFor` (`normalizeAreaParam`).
 - Filters (`AreaPathFilters`, tasks/kanban/work-logs) use UserArea ids; `scopeFromFilters` maps legacy slugs when given `memberCtx.areas`.
 - Task form and create-path drawer select by `areaId`; custom areas write `Project.areaId` / `Task.areaId` (legacy enum falls back to default when null).
-- S-2 create/rename/reorder/archive; S-3 move-all / merge / delete via area menu (prompt-based confirm); S-10 shared group on `/projects`.
+- S-2 create/rename/reorder/archive; S-3 move-all / merge / delete via area menu (`MoveAreaContentDrawer`, not browser prompts); S-10 shared group on `/projects`.
 - Custom bucket ids `area-inbox-*` count as area buckets in `isAreaBucketId`.
 - Baseline shrunk (calendar, task form, capture, area-section removed). The remaining surfaces were migrated and the baseline deleted in P7.
 
@@ -448,7 +448,7 @@ Nothing else may create members. `ensurePersonalWorkspace` is replaced by `ensur
 - `defaultModulePresetAdmin` (default `starter`)
 - `defaultModulePresetSignup` (default `starter`, used by the later sign-up track)
 - `defaultUiProfileAdmin`, `defaultUiProfileSignup` (default `starter`)
-- `signupEnabled` (default `false`; no sign-up page exists until the S-track)
+- `signupEnabled` (default `false`; public UI lives on `/login` + `/login?mode=signup` and stays closed until this flag is on)
 
 ### 8.5 Security fixes included in P0
 
@@ -889,17 +889,19 @@ Area names are user data. Template-created names with `nameIsDefault = true` ren
 
 ---
 
-## 17. Public sign-up readiness (hooks now, page later)
+## 17. Public sign-up readiness (shell now, hard controls later)
 
-Built in P0 so the later track is only the public surface:
+Built so the later track is mostly policy and abuse controls:
 
 - `provisionMember`, `createdVia`, system default presets per channel (§8).
 - Invite and token mechanism reusable for email verification.
 - `signupEnabled` flag, default `false`.
+- Animated auth shell: `/login` (login + signup panes, sliding visual), `/signup` → `/login?mode=signup`, self-sign-up via `selfSignUpAction` when the flag is on.
 
 Needed in the S-track (not in P0–P7):
 
-- Sign-up page, email verification, password reset review, rate limiting and abuse controls.
+- Email verification, password reset review, rate limiting and abuse controls.
+- Admin UI toggle for `signupEnabled` (today: DB / Prisma update).
 - Terms and privacy copy, data export and deletion.
 - `maxActiveMembers` behavior with a waitlist.
 - Storage quota per member.
