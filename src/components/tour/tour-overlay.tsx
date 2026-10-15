@@ -52,7 +52,7 @@ export function TourOverlay({
   onBack: () => void;
   onSkip: () => void;
 }) {
-  const [rect, setRect] = React.useState<Rect | null>(() => readRect(target));
+  const [rect, setRect] = React.useState<TourHole | null>(() => readRect(target));
   const [mounted, setMounted] = React.useState(false);
   const [cardSize, setCardSize] = React.useState({ w: 340, h: 200 });
   const cardRef = React.useRef<HTMLDivElement>(null);
